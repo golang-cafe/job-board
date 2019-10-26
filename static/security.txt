@@ -1,0 +1,3 @@
+Contact: mailto:team@golang.cafe
+Preferred-Languages: en
+Canonical: https://golang.cafe/.well-known/security.txt
