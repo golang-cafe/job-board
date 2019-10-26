@@ -167,7 +167,13 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, location, tag
 		return
 	}
 	pages := []int{}
-	for i := 1; i <= totalJobCount/s.cfg.JobsPerPage+1; i++ {
+	pageLinksPerPage := 10
+	pageLinkShift := ((pageLinksPerPage/2)+1)
+	firstPage := 1
+	if pageID - pageLinkShift > 0 {
+		firstPage = pageID - pageLinkShift
+	}
+	for i, j := firstPage, 1; i <= totalJobCount/s.cfg.JobsPerPage+1 && j <= pageLinksPerPage; i, j = i+1, j+1 {
 		pages = append(pages, i)
 	}
 	jobTrackIDs := make(map[int]string, len(jobsForPage))

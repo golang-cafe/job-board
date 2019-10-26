@@ -216,12 +216,28 @@
             <nav>
               <ul>
                   {{ $cur := .CurrentPage }}
+                  {{ $numPages := len .PageIndexes }}
+                  {{ $moreThanOnePage := gt $numPages 1 }}
+                  {{ $thisIsNotFirstPage := ne $cur 1 }}
+                  {{ $prevPage := sub $cur 1 }}
+                  {{ if and $thisIsNotFirstPage $moreThanOnePage }}
+                        <li><a href="?p={{ $prevPage }}"><b>Prev</b></a></li>
+                  {{ end }}
                   {{ range $p := .PageIndexes }}
                     {{ if eq $cur $p }}
                         <li><b>{{ $p }}</b></li>
                     {{ else }}
                         <li><a href="?p={{ $p }}"><b>{{ $p }}</b></a></li>
                     {{ end }}
+                  {{ end }}
+                  {{ $lastPage := last .PageIndexes }}
+                  {{ $thisIsNotLastPage := ne $cur $lastPage }}
+                  {{ $nextPage := add $cur 1 }}
+                  {{ if and $thisIsNotLastPage $moreThanOnePage }}
+                        <li><a href="?p={{ $nextPage }}"><b>Next</b></a></li>
+                  {{ end }}
+                  {{ if eq $numPages 0 }}
+                    <li><a href="?p=1"><b>1</b></a></li>
                   {{ end }}
               </ul>
             </nav>

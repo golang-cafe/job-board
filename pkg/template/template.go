@@ -11,11 +11,26 @@ import (
 
 type Template struct {
 	templates *customtemplate.Template
+	funcMap   stdtemplate.FuncMap
 }
 
 func NewTemplate() *Template {
+	funcMap := customtemplate.FuncMap{
+		"add": func(a, b int) int {
+			return a + b
+		},
+		"sub": func(a, b int) int {
+			return a - b
+		},
+		"last": func(a []int) int {
+			if len(a) == 0 {
+				return -1
+			}
+			return a[len(a)-1]
+		},
+	}
 	return &Template{
-		templates: customtemplate.Must(customtemplate.ParseGlob("static/views/*.html")),
+		templates: customtemplate.Must(customtemplate.New("stdtmpl").Funcs(funcMap).ParseGlob("static/views/*.html")),
 	}
 }
 
