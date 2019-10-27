@@ -89,7 +89,6 @@
         function copyToClipboard() {
             var ksuid = document.getElementById("ksuid");
             ksuid.select();
-            ksuid.setSelectionRange(0, 99999);
             document.execCommand("copy");
             alert('Copied to clipboard');
         }
