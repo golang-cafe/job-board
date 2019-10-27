@@ -63,6 +63,7 @@ var pages = []string{
 	"about",
 	"newsletter",
 	"community",
+	"ksuid",
 }
 
 func main() {

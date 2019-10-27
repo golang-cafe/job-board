@@ -64,7 +64,7 @@ func main() {
 	svr.RegisterRoute("/community", handler.ViewCommunityNewsletterPageHandler(svr), []string{"GET"})
 
 	// generate ksuid
-	svr.RegisterRoute("/x/ksuid", handler.GenerateKsuIDPageHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/ksuid", handler.GenerateKsuIDPageHandler(svr), []string{"GET"})
 
 	// post a job succeeded
 	svr.RegisterRoute("/x/j/p/1", handler.PostAJobSuccessPageHandler(svr), []string{"GET"})

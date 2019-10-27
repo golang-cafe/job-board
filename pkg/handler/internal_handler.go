@@ -22,10 +22,10 @@ func GenerateKsuIDPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		id, err := ksuid.NewRandom()
 		if err != nil {
-			svr.JSON(w, http.StatusInternalServerError, nil)
+			svr.Render(w, http.StatusInternalServerError, "ksuid.html", map[string]string{"KSUID": ""})
 			return
 		}
-		svr.JSON(w, http.StatusOK, map[string]string{"id": id.String()})
+		svr.Render(w, http.StatusOK, "ksuid.html", map[string]string{"KSUID": id.String()})
 	}
 }
 

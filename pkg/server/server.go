@@ -167,7 +167,7 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, location, tag
 		return
 	}
 	pages := []int{}
-	pageLinksPerPage := 10
+	pageLinksPerPage := 8
 	pageLinkShift := ((pageLinksPerPage/2)+1)
 	firstPage := 1
 	if pageID - pageLinkShift > 0 {
