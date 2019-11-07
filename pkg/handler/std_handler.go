@@ -21,8 +21,11 @@ func IndexPageHandler(svr server.Server) http.HandlerFunc {
 		location := r.URL.Query().Get("l")
 		tag := r.URL.Query().Get("t")
 		page := r.URL.Query().Get("p")
-		// @TODO: redirect to canonical
-		svr.RenderPageForLocationAndTag(w, location, tag, page, "landing.html")
+		dst := fmt.Sprintf("/Golang-%s-Jobs-In-%s", tag, location)
+		if page != "" {
+			dst += fmt.Sprintf("?p=%s", page)
+		}
+		svr.Redirect(w, r, http.StatusMovedPermanently, dst)
 	}
 }
 
