@@ -30,7 +30,7 @@ func IndexPageHandler(svr server.Server) http.HandlerFunc {
 		} else if tag != "" {
 			dst = fmt.Sprintf("/Golang-%s-Jobs", tag)
 		}
-		if page != "" {
+		if dst != "" && page != "" {
 			dst += fmt.Sprintf("?p=%s", page)
 		}
 		if dst != "" {
