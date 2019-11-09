@@ -37,7 +37,7 @@ func IndexPageHandler(svr server.Server) http.HandlerFunc {
 			svr.Redirect(w, r, http.StatusMovedPermanently, dst)
 		}
 
-		svr.RenderPageForLocationAndTag(w, location, tag, page, "landing.html")
+		svr.RenderPageForLocationAndTag(w, "", "", page, "landing.html")
 	}
 }
 
