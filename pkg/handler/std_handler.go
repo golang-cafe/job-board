@@ -21,11 +21,23 @@ func IndexPageHandler(svr server.Server) http.HandlerFunc {
 		location := r.URL.Query().Get("l")
 		tag := r.URL.Query().Get("t")
 		page := r.URL.Query().Get("p")
-		dst := fmt.Sprintf("/Golang-%s-Jobs-In-%s", tag, location)
+
+		var dst string
+		if location != "" && tag != "" {
+			dst = fmt.Sprintf("/Golang-%s-Jobs-In-%s", tag, location)
+		} else if location != "" {
+			dst = fmt.Sprintf("/Golang-Jobs-In-%s", location)
+		} else if tag != "" {
+			dst = fmt.Sprintf("/Golang-%s-Jobs", tag)
+		}
 		if page != "" {
 			dst += fmt.Sprintf("?p=%s", page)
 		}
-		svr.Redirect(w, r, http.StatusMovedPermanently, dst)
+		if dst != "" {
+			svr.Redirect(w, r, http.StatusMovedPermanently, dst)
+		}
+
+		svr.RenderPageForLocationAndTag(w, location, tag, page, "landing.html")
 	}
 }
 
