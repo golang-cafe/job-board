@@ -3,6 +3,7 @@ package middleware
 import (
 	"errors"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -10,6 +11,7 @@ import (
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/sessions"
+	"github.com/rs/zerolog"
 )
 
 func HTTPSMiddleware(next http.Handler, env string) http.Handler {
@@ -19,6 +21,23 @@ func HTTPSMiddleware(next http.Handler, env string) http.Handler {
 			http.Redirect(w, r, target, http.StatusMovedPermanently)
 		}
 
+		next.ServeHTTP(w, r)
+	})
+}
+
+func LoggingMiddleware(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout, TimeFormat: time.RFC3339}).
+			With().
+			Timestamp().
+			Logger()
+		logger.Info().
+			Str("Host", r.Host).
+			Str("method", r.Method).
+			Stringer("url", r.URL).
+			Str("x-forwarded-for", r.Header.Get("x-forwarded-for")).
+			Str("cf-ipcountry", r.Header.Get("cf-ipcountry")).
+			Msg("req")
 		next.ServeHTTP(w, r)
 	})
 }

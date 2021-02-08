@@ -791,7 +791,7 @@ func (s Server) Run() error {
 		addr,
 		middleware.HTTPSMiddleware(
 			middleware.GzipMiddleware(
-				middleware.HeadersMiddleware(s.router, s.cfg.Env),
+				middleware.LoggingMiddleware(middleware.HeadersMiddleware(s.router, s.cfg.Env)),
 			),
 			s.cfg.Env,
 		),
