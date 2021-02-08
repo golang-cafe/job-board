@@ -82,10 +82,6 @@ func main() {
 	// view newsletter
 	svr.RegisterRoute("/newsletter", handler.ViewNewsletterPageHandler(svr), []string{"GET"})
 
-	// view slack
-	svr.RegisterRoute("/community", handler.ViewSlackPageHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/slack", handler.PermanentRedirectHandler(svr, "community"), []string{"GET"})
-
 	// view shop
 	svr.RegisterRoute("/shop", handler.ViewShopPageHandler(svr), []string{"GET"})
 
