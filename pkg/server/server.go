@@ -672,16 +672,9 @@ func (s Server) RenderPageForLocationAndTagAdmin(w http.ResponseWriter, location
 }
 
 func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request, location string) {
-	ipAddrs := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
-	currency := ipgeolocation.Currency{ipgeolocation.CurrencyUSD, "$"}
-	var err error
-	if len(ipAddrs) > 0 {
-		currency, err = s.ipGeoLocation.GetCurrencyForIP(ipAddrs[0])
-		if err != nil {
-			s.Log(err, fmt.Sprintf("unable to retrieve currency for ip addr %+v", ipAddrs[0]))
-		}
-	} else {
-		s.Log(errors.New("coud not find ip address in x-forwarded-for"), "could not find ip address in x-forwarded-for, defaulting currency to USD")
+	currency, err := s.GetCurrencyFromRequest(r)
+	if err != nil {
+		s.Log(err, "could not find ip address in x-forwarded-for, defaulting currency to USD")
 	}
 	s.Render(w, http.StatusOK, "post-a-job.html", map[string]interface{}{
 		"Location":             location,
@@ -732,7 +725,16 @@ func (s Server) SaveSubscriber(email string) error {
 	return nil
 }
 
-func (s Server) GetCurrencyForIP(ip string) (ipgeolocation.Currency, error) {
+func (s Server) GetCurrencyFromRequest(r *http.Request) (ipgeolocation.Currency, error) {
+	currency := ipgeolocation.Currency{ipgeolocation.CurrencyUSD, "$"}
+	ip, err := ipgeolocation.GetIPFromRequest(r)
+	if err != nil {
+		return currency, err
+	}
+	currency, err = s.ipGeoLocation.GetCurrencyForIP(ip)
+	if err != nil {
+		s.Log(err, fmt.Sprintf("unable to retrieve currency for ip addr %+v", ip))
+	}
 	return s.ipGeoLocation.GetCurrencyForIP(ip)
 }
 

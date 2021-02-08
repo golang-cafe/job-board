@@ -18,7 +18,6 @@ import (
 	"github.com/0x13a/golang.cafe/pkg/database"
 	"github.com/0x13a/golang.cafe/pkg/email"
 	"github.com/0x13a/golang.cafe/pkg/imagemeta"
-	"github.com/0x13a/golang.cafe/pkg/ipgeolocation"
 	"github.com/0x13a/golang.cafe/pkg/middleware"
 	"github.com/0x13a/golang.cafe/pkg/payment"
 	"github.com/0x13a/golang.cafe/pkg/server"
@@ -875,15 +874,9 @@ func EditJobViewPageHandler(svr server.Server) http.HandlerFunc {
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to marshal stats for job id %d", jobID))
 		}
-		ipAddrs := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
-		currency := ipgeolocation.Currency{ipgeolocation.CurrencyUSD, "$"}
-		if len(ipAddrs) > 0 {
-			currency, err = svr.GetCurrencyForIP(ipAddrs[0])
-			if err != nil {
-				svr.Log(err, fmt.Sprintf("unable to retrieve currency for ip addr %+v", ipAddrs[0]))
-			}
-		} else {
-			svr.Log(errors.New("coud not find ip address in x-forwarded-for"), "could not find ip address in x-forwarded-for, defaulting currency to USD")
+		currency, err := svr.GetCurrencyFromRequest(r)
+		if err != nil {
+			svr.Log(err, "could not find ip address in x-forwarded-for, defaulting currency to USD")
 		}
 		svr.Render(w, http.StatusOK, "edit.html", map[string]interface{}{
 			"Job":                        job,

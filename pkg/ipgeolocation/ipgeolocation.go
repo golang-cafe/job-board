@@ -2,8 +2,11 @@ package ipgeolocation
 
 import (
 	"encoding/csv"
+	"fmt"
 	"net"
+	"net/http"
 	"os"
+	"strings"
 
 	maxminddb "github.com/oschwald/maxminddb-golang"
 )
@@ -53,14 +56,13 @@ func NewIPGeoLocation(geoliteLocation, country2currencyLocation string) (IPGeoLo
 	return IPGeoLocation{db: r, c2c: c2cMap}, nil
 }
 
-func (i IPGeoLocation) GetCurrencyForIP(ip string) (Currency, error) {
-	ipNet := net.ParseIP(ip)
+func (i IPGeoLocation) GetCurrencyForIP(ip net.IP) (Currency, error) {
 	var record struct {
 		Country struct {
 			ISOCode string `maxminddb:"iso_code"`
 		} `maxminddb:"country"`
 	}
-	err := i.db.Lookup(ipNet, &record)
+	err := i.db.Lookup(ip, &record)
 	if err != nil {
 		return Currency{CurrencyUSD, "$"}, err
 	}
@@ -76,4 +78,14 @@ func (i IPGeoLocation) GetCurrencyForIP(ip string) (Currency, error) {
 
 func (i IPGeoLocation) Close() {
 	i.db.Close()
+}
+
+func GetIPFromRequest(r *http.Request) (net.IP, error) {
+	ips := strings.Split(r.Header.Get("x-forwarded-for"), ",")
+	if len(ips) < 1 {
+		return net.IP{}, fmt.Errorf("unable to retrieve IP from x-forwarded-for: %s", r.Header.Get("x-forwarded-for"))
+	}
+	ipNet := net.ParseIP(strings.TrimSpace(ips[0]))
+
+	return ipNet, nil
 }
