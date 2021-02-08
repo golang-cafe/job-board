@@ -443,7 +443,7 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		mediaID := vars["id"]
 		media, err := database.GetMediaByID(svr.Conn, mediaID)
 		if err != nil {
-			svr.Log(err, "unable to retrieve media by ID")
+			svr.Log(err, fmt.Sprintf("unable to retrieve media by ID: '%s'", mediaID))
 			svr.MEDIA(w, http.StatusNotFound, media.Bytes, media.MediaType)
 			return
 		}
