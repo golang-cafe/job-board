@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Golang JSON Marshal Example</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta name="title" content="Golang JSON Marshal Example" />
+    <meta name="keywords" content="golang json marshal, golang json, golang json example, golang json marshal example, golang marshal struct, golang json marshal int, golang json marshal bool, golang json marshal map, golang json marshal struct" />
+    <meta name="description" content="Golang JSON Marshal Example" />
+    <meta itemprop="name" content="Golang JSON Marshal Example">
+    <meta itemprop="description" content="Golang JSON Marshal Example">
+    <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
+    <meta property="og:url" content="https://golang.cafe">
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="Golang JSON Marshal Example">
+    <meta property="og:description" content="Golang JSON Marshal Example">
+    <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Golang JSON Marshal Example">
+    <meta name="twitter:description" content="Golang JSON Marshal Example">
+    <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
+    <meta name="twitter:site" content="@golangcafe"/>
+    <style type="text/css">
+body{background:#f7f7f7;}
+      input,textarea,select,button,option,html,body{font-family:Menlo,"Courier New",monospace;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}input,textarea,select,button,option,html,body{font-family:Menlo,"Courier New",monospace;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}th{font-weight:600}td,th{border-bottom:1.08px solid #595959;overflow:auto;padding:14.85px 18px;text-align:left;vertical-align:top}thead th{border-bottom-width:2.16px;padding-bottom:6.3px}table{display:table;overflow-x:auto}input,textarea,select,button,option,html,body{font-family:Menlo,"Courier New",monospace;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}fieldset{display:flex;flex-direction:row;flex-wrap:wrap}fieldset legend{margin:18px 0}input,textarea,select,button{border-radius:3.6px;display:inline-block;padding:9.9px}input+label,input+input[type="checkbox"],input+input[type="radio"],textarea+label,textarea+input[type="checkbox"],textarea+input[type="radio"],select+label,select+input[type="checkbox"],select+input[type="radio"],button+label,button+input[type="checkbox"],button+input[type="radio"]{page-break-before:always}input,select,label{margin-right:3.6px}textarea{min-height:90px;min-width:360px}label{display:inline-block;margin-bottom:12.6px}label+*{page-break-before:always}label>input{margin-bottom:0}input[type="submit"],input[type="reset"],button{background:#f2f2f2;color:#191919;cursor:pointer;display:inline;margin-bottom:18px;margin-right:7.2px;padding:6.525px 23.4px;text-align:center}input[type="submit"]:hover,input[type="reset"]:hover,button:hover{background:#d9d9d9;color:#000}input[type="submit"][disabled],input[type="reset"][disabled],button[disabled]{background:#e6e5e5;color:#403f3f;cursor:not-allowed}input[type="submit"],button[type="submit"]{background:#000090;color:#fff}input[type="submit"]:hover,button[type="submit"]:hover{background:#0000c5;color:#ffffff}input,select,textarea{margin-bottom:18px}input[type="text"],input[type="password"],input[type="email"],input[type="url"],input[type="phone"],input[type="tel"],input[type="number"],input[type="datetime"],input[type="date"],input[type="month"],input[type="week"],input[type="color"],input[type="time"],input[type="search"],input[type="range"],input[type="file"],input[type="datetime-local"],select,textarea{border:1px solid #595959;padding:5.4px 6.3px}input[type="checkbox"],input[type="radio"]{flex-grow:0;height:29.7px;margin-left:0;margin-right:9px;vertical-align:middle}input[type="checkbox"]+label,input[type="radio"]+label{page-break-before:avoid}select[multiple]{min-width:270px}input,textarea,select,button,option,html,body{font-family:Menlo,"Courier New",monospace;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}kbd,samp,var,output{font-family:Menlo,Monaco,Consolas,"Courier New",monospace;font-size:14.4px}pre{border-left:1.8px solid #59c072;line-height:25.2px;overflow:auto;padding-left:18px}kbd{background:#daf1e0;border-radius:3.6px;color:#2a6f3b;display:inline-block;line-height:18px;padding:3.6px 6.3px 2.7px}kbd{background:#2a6f3b;color:#fff}mark{background:#ffc;padding:0 3.6px}input,textarea,select,button,option,html,body{font-family:Menlo,"Courier New",monospace;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}h1,h2,h3,h4,h5,h6{color:#000;margin-bottom:18px}h1{font-size:36px;font-weight:500;line-height:41.4px;margin-top:72px}h2{font-size:25.2px;font-weight:400;line-height:30.6px;margin-top:54px}h3{font-size:21.6px;line-height:27px;margin-top:36px}h4{font-size:18px;line-height:23.4px;margin-top:18px}h5{font-size:14.4px;font-weight:bold;line-height:21.6px;text-transform:uppercase}h6{color:#595959;font-size:14.4px;font-weight:bold;line-height:18px;text-transform:uppercase}input,textarea,select,button,option,html,body{font-family:Menlo,"Courier New",monospace;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}a{color:#000090;text-decoration:none}a:hover{text-decoration:underline}hr{border-bottom:1px solid #595959}figcaption,small{font-size:15.3px}figcaption{color:#595959}var,em,i{font-style:italic}dt,strong,b{font-weight:600}del,s{text-decoration:line-through}ins,u{text-decoration:underline}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-.5em}sub{bottom:-.25em}*{border:0;border-collapse:separate;border-spacing:0;box-sizing:border-box;margin:0;max-width:100%;outline:0;padding:0;vertical-align:baseline}html,body{width:100%}html{height:100%}body{color:#1a1919;}p,ul,ol,dl,blockquote,hr,pre,table,form,fieldset,figure,address{margin-bottom:29.7px}section{margin-left:auto;margin-right:auto;width:780px}article,header,footer{padding:43.2px}article{word-wrap: break-word;background:#fff;border:1px solid #d9d9d9;border-radius:7.2px}nav{text-align:center}nav ul{list-style:none;margin-left:0;text-align:center}nav ul li{display:inline-block;margin-left:9px;margin-right:9px;vertical-align:middle}nav ul li:last-child{margin-right:0}ol,ul{margin-left:31.5px}li dl,li ol,li ul{margin-bottom:0}dl{display:inline-block}dt{padding:0 18px}dd{padding:0 18px 4.5px}dd:last-of-type{border-bottom:1.08px solid #595959}dd+dt{border-top:1.08px solid #595959;padding-top:9px}blockquote{border-left:2.16px solid #595959;padding:4.5px 18px 4.5px 15.84px}blockquote footer{color:#595959;font-size:13.5px;margin:0}blockquote p{margin-bottom:0}img{height:auto;margin:0 auto}figure img{display:block}/*# sourceMappingURL=tacit-css-1.3.2.min.css.map */
+      input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
+      #carbonads{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen-Sans,Ubuntu,Cantarell,"Helvetica Neue",Helvetica,Arial,sans-serif}#carbonads{display:inline;max-width:330px;background-color:#f9f9f9;box-shadow:0 1px 4px 1px hsla(0,0%,0%,.1)}#carbonads a{color:inherit;text-decoration:none}#carbonads a:hover{color:inherit}#carbonads span{position:relative;display:block;overflow:hidden}#carbonads .carbon-wrap{display:flex}.carbon-img{display:block;margin:0;line-height:1}.carbon-img img{display:block}.carbon-text{font-size:13px;padding:10px;line-height:1.5;text-align:left}.carbon-poweredby{display:block;padding:8px 10px;background:repeating-linear-gradient(-45deg,transparent,transparent 5px,hsla(0,0%,0%,.025) 5px,hsla(0,0%,0%,.025) 10px) hsla(203,11%,95%,.4);text-align:center;text-transform:uppercase;letter-spacing:.5px;font-weight:600;font-size:9px;line-height:1}
+        .menu-header{width: 100%;margin:20px auto;padding:10px;}.menu-header a {white-space:pre;color: black;font-size: 20px;font-weight: bold;padding: 15px;}
+    </style>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/themes/prism.min.css" rel="stylesheet" />
+  </head>
+  <body>
+    <header style="padding:0;">
+      <nav class="menu-header">
+        <small>
+            <a href="/">💼 Jobs</a>
+            <a href="/Golang-Developer-Salary-Remote">📊 Salaries</a>
+            <a href="/Companies-Using-Golang">🏢 Companies</a>
+            <a href="/Golang-Developers">👤 Developers</a>
+          <br>
+        </small>
+      </nav>
+    </header>
+    <section style="margin:30px auto;">
+      <article>
+<h1 class="code-line" data-line-start=0 data-line-end=1 ><a id="Golang_JSON_Marshal_Example_0"></a>Golang JSON Marshal Example</h1>
+<p class="has-line-data" data-line-start="1" data-line-end="2">The Go standard library offers a package that has all you need to perform JSON encoding and decoding. The <a href="https://golang.org/pkg/encoding/json/">encoding/json</a> package. It allows you to do encoding of JSON data as defined in the RFC 7159. When working with data we usually want to encode some Go struct into a json string. However the Go standard library encoding/json package allows us to encode any data type into a JSON string. Let’s see some of the examples and how the json encoding works on some of the basic Go data types and how you can marshal json.</p>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7ITK3J&placement=golangcafe" id="_carbonads_js"></script><br />
+<p class="has-line-data" data-line-start="3" data-line-end="4">Here’s the definition of the json Marshal in the json encoding package</p>
+<pre><code class="language-go" data-line-start="6" data-line-end="8">func Marshal(v interface{}) ([]byte, error)
+</code></pre>
+<p class="has-line-data" data-line-start="9" data-line-end="10">We can effectively encode any type and we will get a byte slice as output and an error if there was any during the json marshalling.</p>
+<h2 class="code-line" data-line-start=11 data-line-end=12 ><a id="JSON_Marshal_Int_11"></a>JSON Marshal Int</h2>
+<pre><code class="language-go" data-line-start="14" data-line-end="17">a, _ := json.Marshal(28192)
+fmt.Println(string(a)) // 20192
+</code></pre>
+<p class="has-line-data" data-line-start="18" data-line-end="19">Integer types will be JSON marshalled into integer strings</p>
+<h2 class="code-line" data-line-start=20 data-line-end=21 ><a id="JSON_Marshal_Bool_20"></a>JSON Marshal Bool</h2>
+<pre><code class="language-go" data-line-start="23" data-line-end="26">a, _ := json.Marshal(true)
+fmt.Println(string(a)) // true
+</code></pre>
+<p class="has-line-data" data-line-start="27" data-line-end="28">Same goes for boolean types that will be encoded to correspective booleans as string values</p>
+<h2 class="code-line" data-line-start=29 data-line-end=30 ><a id="JSON_Marshal_Slice_29"></a>JSON Marshal Slice</h2>
+<pre><code class="language-go" data-line-start="32" data-line-end="35">a, _ := json.Marshal([]string{"foo", "bar", "baz"})
+fmt.Println(string(a)) // ["foo","bar","baz"]
+</code></pre>
+<p class="has-line-data" data-line-start="36" data-line-end="37">For slices we will get a JSON array instead</p>
+<h2 class="code-line" data-line-start=38 data-line-end=39 ><a id="JSON_Marshal_Map_38"></a>JSON Marshal Map</h2>
+<pre><code class="language-go" data-line-start="41" data-line-end="44">a, _ := json.Marshal(map[string]int{"foo": 1, "bar": 2, "baz": 3})
+fmt.Println(string(a)) // {"bar":2,"baz":3,"foo":1}
+</code></pre>
+<p class="has-line-data" data-line-start="45" data-line-end="46">Go maps will be marhsalled into JSON objects where keys of the map are keys of the JSON objects and values mapped to JSON object values, this allows you to build pretty dynamic structures without prior definition (unlike structs)</p>
+<h2 class="code-line" data-line-start=47 data-line-end=48 ><a id="JSON_Marshal_Struct_47"></a>JSON Marshal Struct</h2>
+<pre><code class="language-go" data-line-start="50" data-line-end="72">package main
+
+import (
+    "fmt"
+    "encoding/json"
+)
+
+type User struct {
+    Name string
+    Age int
+    Active bool
+    lastLoginAt string
+}
+
+func main() {
+        u, err := json.Marshal(User{Name: "Bob", Age: 10, Active: true, lastLoginAt: "today"})
+        if err != nil {
+            panic(err)
+        }
+        fmt.Println(string(u)) // {"Name":"Bob","Age":10,"Active":true}
+}
+</code></pre>
+<p class="has-line-data" data-line-start="73" data-line-end="74">This is a more complete example and it allows you to see how a struct is being JSON marshalled in Go. All the exported struct fields. Note that the field starting with lowercase <code>lastLoginAt</code> is unexported and wont be shown in the final JSON marshal output.</p>
+<h2 class="code-line" data-line-start=75 data-line-end=76 ><a id="JSON_Marshal_Struct_with_JSON_Tags_75"></a>JSON Marshal Struct with JSON Tags</h2>
+<pre><code class="language-go" data-line-start="78" data-line-end="100">package main
+
+import (
+    "fmt"
+    "encoding/json"
+)
+
+type User struct {
+    Name string `json:"full_name"`
+    Age int `json:"age,omitempty"`
+    Active bool `json:"-"`
+    lastLoginAt string
+}
+
+func main() {
+        u, err := json.Marshal(User{Name: "Bob", Age: 0, Active: true, lastLoginAt: "today"})
+        if err != nil {
+            panic(err)
+        }
+        fmt.Println(string(u)) // {"full_name":"Bob"}
+}
+</code></pre>
+<p class="has-line-data" data-line-start="101" data-line-end="102">This example allows us to see a couple of edge cases and features of JSON</p>
+<ul>
+<li class="has-line-data" data-line-start="102" data-line-end="103">You can specify a JSON tag <code>json:"full_name"</code> and specify a custom name for your JSON field</li>
+<li class="has-line-data" data-line-start="103" data-line-end="104">When specifying <code>json:"&lt;field name&gt;,omitempty"</code> as a json tag, the field will be disarcarded in the JSON output if the value has a zero value. This is mostly used to discard optional JSON fields in the output</li>
+<li class="has-line-data" data-line-start="104" data-line-end="105">When specifying <code>json:"-"</code> as a json tag, the field will be removed altogether from the JSON output. This is used when you want to keep the field in your Go struct but not in your JSON output</li>
+</ul>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7ITK3J&placement=golangcafe" id="_carbonads_js"></script><br />
+<iframe width="560" height="315" src="https://www.youtube.com/embed/ENVAdZOZVrY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                <br />
+        <p>
+          Ready for your next Golang Job? Join other fellow Gophers, submit your profile and get hired
+          <input type="submit" onclick="window.location.href='/Submit-Developer-Profile'" value="Join for Free" style="margin-bottom: 0;"/>
+      </p>
+      </article>
+  </section>
+  <footer>
+    <nav>
+      <small>    
+        <a href="/">Golang Jobs</a> &bull;
+        <a href="/about">About Golang Cafe</a>
+        <br>
+      </small>
+    </nav>
+  </footer>
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js"></script>
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-go.min.js"></script>
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-javascript.js"></script>
+  </body>
+</html>
