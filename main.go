@@ -111,12 +111,6 @@ func main() {
 	// newsletter member save
 	svr.RegisterRoute("/x/n/m/s", handler.SaveMemberToNewsletterPageHandler(svr), []string{"GET"})
 
-	// request slack invite
-	svr.RegisterRoute("/x/n/s/s", handler.SendSlackInviteLink(svr), []string{"GET"})
-
-	// community interest member save
-	svr.RegisterRoute("/x/c/m/s", handler.SaveMemberToCommunityNewsletterPageHandler(svr), []string{"GET"})
-
 	// apply for job
 	svr.RegisterRoute("/x/a/e", handler.ApplyForJobPageHandler(svr), []string{"POST"})
 

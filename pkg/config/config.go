@@ -27,7 +27,6 @@ type Config struct {
 	JobsPerPage                  int
 	DevelopersPerPage            int
 	CompaniesPerPage             int
-	SlackInviteURL               string
 }
 
 func LoadConfig() (Config, error) {
@@ -95,10 +94,6 @@ func LoadConfig() (Config, error) {
 	if sentryDSN == "" {
 		return Config{}, fmt.Errorf("SENTRY_DSN cannot be empty")
 	}
-	slackInviteURL := os.Getenv("SLACK_INVITE_URL")
-	if slackInviteURL == "" {
-		return Config{}, fmt.Errorf("SLACK_INVITE_URL cannot be empty")
-	}
 
 	return Config{
 		Port:                         port,
@@ -118,6 +113,5 @@ func LoadConfig() (Config, error) {
 		JobsPerPage:                  20,
 		DevelopersPerPage:            10,
 		CompaniesPerPage:             20,
-		SlackInviteURL:               slackInviteURL,
 	}, nil
 }
