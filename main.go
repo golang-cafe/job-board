@@ -76,8 +76,14 @@ func main() {
 	svr.RegisterRoute("/x/ddp", handler.DeleteDeveloperProfileHandler(svr), []string{"POST"})
 	svr.RegisterRoute("/x/smdp/{id}", handler.SendMessageDeveloperProfileHandler(svr), []string{"POST"})
 	svr.RegisterRoute("/edit/profile/{id}", handler.EditDeveloperProfileHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/developer/{slug}", handler.ViewDeveloperProfileHandler(svr), []string{"GET"}) // todo
+	svr.RegisterRoute("/developer/{slug}", handler.ViewDeveloperProfileHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/x/auth/message/{id}", handler.DeliverMessageDeveloperProfileHandler(svr), []string{"GET"})
+
+	// tasks
+	svr.RegisterRoute("/x/task/weekly-newsletter", handler.TriggerWeeklyNewsletter(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/ads-manager", handler.TriggerAdsManager(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/twitter-scheduler", handler.TriggerTwitterScheduler(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/company-updater", handler.TriggerCompanyUpdater(svr), []string{"POST"})
 
 	// view newsletter
 	svr.RegisterRoute("/newsletter", handler.ViewNewsletterPageHandler(svr), []string{"GET"})

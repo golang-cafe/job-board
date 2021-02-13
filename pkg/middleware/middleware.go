@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 	"time"
 
@@ -36,7 +37,6 @@ func LoggingMiddleware(next http.Handler) http.Handler {
 			Str("method", r.Method).
 			Stringer("url", r.URL).
 			Str("x-forwarded-for", r.Header.Get("x-forwarded-for")).
-			Str("cf-ipcountry", r.Header.Get("cf-ipcountry")).
 			Msg("req")
 		next.ServeHTTP(w, r)
 	})
@@ -99,6 +99,38 @@ func AdminAuthenticatedMiddleware(sessionStore *sessions.CookieStore, jwtKey []b
 		}
 		if !claims.IsAdmin {
 			http.Redirect(w, r, "/auth", http.StatusUnauthorized)
+			return
+		}
+		next(w, r)
+	})
+}
+
+func AdminAuthenticatedJWTHeaderMiddleware(sessionStore *sessions.CookieStore, jwtKey []byte, next http.HandlerFunc) http.HandlerFunc {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		tokenRe := regexp.MustCompile(`^Bearer\s([a-zA-Z0-9\.\-_]+)$`)
+		matches := tokenRe.FindStringSubmatch(r.Header.Get("Authorization"))
+		if len(matches) < 2 {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		token, err := jwt.ParseWithClaims(matches[1], &UserJWT{}, func(token *jwt.Token) (interface{}, error) {
+			return jwtKey, nil
+		})
+		if err != nil {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		if !token.Valid {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		claims, ok := token.Claims.(*UserJWT)
+		if !ok {
+			w.WriteHeader(http.StatusUnauthorized)
+			return
+		}
+		if !claims.IsAdmin {
+			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}
 		next(w, r)

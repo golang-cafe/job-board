@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -18,6 +19,8 @@ import (
 	"github.com/0x13a/golang.cafe/pkg/middleware"
 	"github.com/0x13a/golang.cafe/pkg/payment"
 	"github.com/0x13a/golang.cafe/pkg/server"
+	"github.com/ChimeraCoder/anaconda"
+	"github.com/PuerkitoBio/goquery"
 	jwt "github.com/dgrijalva/jwt-go"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/gorilla/feeds"
@@ -156,6 +159,351 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 		svr.JSON(w, http.StatusOK, nil)
 
 	}
+}
+
+func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
+	return middleware.AdminAuthenticatedJWTHeaderMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				lastJobIDStr, err := database.GetValue(svr.Conn, "last_sent_job_id_weekly")
+				if err != nil {
+					svr.Log(err, "unable to retrieve last newsletter weekly job id")
+					return
+				}
+				lastJobID, err := strconv.Atoi(lastJobIDStr)
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to convert job str %s to id", lastJobIDStr))
+					return
+				}
+				jobs, err := database.GetLastNJobsFromID(svr.Conn, svr.GetConfig().NewsletterJobsToSend, lastJobID)
+				if len(jobs) < 1 {
+					log.Printf("found 0 new jobs for weekly newsletter. quitting")
+					return
+				}
+				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobs), svr.GetConfig().NewsletterJobsToSend)
+				jsonMailerliteRq := []byte(fmt.Sprintf(`{
+		"groups": [%d],
+		"type": "regular",
+		"subject": "Newest Go Jobs This Week",
+		"from": "team@golang.cafe",
+		"from_name": "Golang Cafe"
+		}`, 103091230))
+				client := &http.Client{}
+				req, err := http.NewRequest(http.MethodPost, "https://api.mailerlite.com/api/v2/campaigns", bytes.NewBuffer(jsonMailerliteRq))
+				if err != nil {
+					svr.Log(err, "unable to create weekly req for mailerlite")
+					return
+				}
+				req.Header.Add("X-MailerLite-ApiKey", svr.GetConfig().MailerLiteAPIKey)
+				req.Header.Add("content-type", "application/json")
+				res, err := client.Do(req)
+				if err != nil {
+					svr.Log(err, "unable to create weekly campaign on mailerlite")
+					return
+				}
+				var campaignResponse struct {
+					ID    int             `json:"id"`
+					Error json.RawMessage `json:"error"`
+				}
+				if err := json.NewDecoder(res.Body).Decode(&campaignResponse); err != nil {
+					svr.Log(err, "unable to read json response weekly campaign id from mailerlite")
+					return
+				}
+				res.Body.Close()
+				log.Printf("created campaign for weekly golang job alert with ID %d", campaignResponse.ID)
+				// update campaign content
+				var jobsHTMLArr []string
+				var jobsTXTArr []string
+				for _, j := range jobs {
+					jobsHTMLArr = append(jobsHTMLArr, fmt.Sprintf(`<p><b>Job Title:</b> %s<br /><b>Company:</b> %s<br /><b>Location:</b> %s<br /><b>Salary:</b> %s<br /><b>Detail:</b> <a href="https://golang.cafe/job/%s">https://golang.cafe/job/%s</a></p>`, j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug, j.Slug))
+					jobsTXTArr = append(jobsTXTArr, fmt.Sprintf("Job Title: %s\nCompany: %s\nLocation: %s\nSalary: %s\nDetail: https://golang.cafe/job/%s\n\n", j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug))
+					lastJobID = j.ID
+				}
+				jobsTXT := strings.Join(jobsTXTArr, "\n")
+				jobsHTML := strings.Join(jobsHTMLArr, " ")
+				campaignContentHTML := `<p>Hello! Here's a list of the newest Go jobs this week on Golang Cafe!</p>
+` + jobsHTML + `
+	<p>Check out more jobs at <a title="Golang Cafe" href="https://golang.cafe">https://golang.cafe</a></p>
+	<p>Diego from Golang Cafe</p>
+	<hr />
+	<h6><strong> Golang Cafe</strong> | London, United Kingdom<br />This email was sent to <a href="mailto:{$email}"><strong>{$email}</strong></a> | <a href="{$unsubscribe}">Unsubscribe</a> | <a href="{$forward}">Forward this email to a friend</a></h6>`
+				campaignContentTxt := `Hello! Here's a list of the newest Go jobs this week on Golang Cafe!
+
+` + jobsTXT + `
+Check out more jobs at https://golang.cafe
+	
+Diego from Golang Cafe
+	
+Unsubscribe here {$unsubscribe} | Golang Cafe Newsletter {$url}`
+				campaignContentHtmlJSON, err := json.Marshal(campaignContentHTML)
+				if err != nil {
+					svr.Log(err, "unable to json marshal campaign content html")
+					return
+				}
+				campaignContentTextJSON, err := json.Marshal(campaignContentTxt)
+				if err != nil {
+					svr.Log(err, "unable to json marshal campaign content txt")
+					return
+				}
+				updateCampaignRq := []byte(fmt.Sprintf(`{"html": %s, "plain": %s}`, string(campaignContentHtmlJSON), string(campaignContentTextJSON)))
+				req, err = http.NewRequest(http.MethodPut, fmt.Sprintf("https://api.mailerlite.com/api/v2/campaigns/%d/content", campaignResponse.ID), bytes.NewBuffer(updateCampaignRq))
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to create request for mailerlite %v", jsonMailerliteRq))
+					return
+				}
+				req.Header.Add("X-MailerLite-ApiKey", svr.GetConfig().MailerLiteAPIKey)
+				req.Header.Add("content-type", "application/json")
+				res, err = client.Do(req)
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to create weekly campaign %v", jsonMailerliteRq))
+					return
+				}
+				var campaignUpdateRes struct {
+					OK bool `json:"success"`
+				}
+				if err := json.NewDecoder(res.Body).Decode(&campaignUpdateRes); err != nil {
+					svr.Log(err, "unable to update weekly campaign content")
+					return
+				}
+				if !campaignUpdateRes.OK {
+					svr.Log(err, "unable to update weekly campaign content got non OK response")
+					return
+				}
+				res.Body.Close()
+				log.Printf("updated weekly campaign with html content\n")
+				sendReqRaw := struct {
+					Type int    `json:"type"`
+					Date string `json:"date"`
+				}{
+					Type: 1,
+					Date: time.Now().Format("2006-01-02 15:04"),
+				}
+				sendReq, err := json.Marshal(sendReqRaw)
+				if err != nil {
+					svr.Log(err, "unable to create send req json for campaign")
+					return
+				}
+				req, err = http.NewRequest(http.MethodPost, fmt.Sprintf("https://api.mailerlite.com/api/v2/campaigns/%d/actions/send", campaignResponse.ID), bytes.NewBuffer(sendReq))
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to create request for campaign id req for mailerlite %s", campaignResponse.ID))
+					return
+				}
+				req.Header.Add("X-MailerLite-ApiKey", svr.GetConfig().MailerLiteAPIKey)
+				req.Header.Add("content-type", "application/json")
+				res, err = client.Do(req)
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to send weeky campaign id %s", campaignResponse.ID))
+					return
+				}
+				out, _ := ioutil.ReadAll(res.Body)
+				log.Println(string(out))
+				res.Body.Close()
+				log.Printf("sent weekly campaign with %d jobs via mailerlite api\n", len(jobsHTMLArr))
+				lastJobIDStr = strconv.Itoa(lastJobID)
+				err = database.SetValue(svr.Conn, "last_sent_job_id_weekly", lastJobIDStr)
+				if err != nil {
+					svr.Log(err, "unable to save last weekly newsletter job id to db")
+					return
+				}
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
+
+func TriggerTwitterScheduler(svr server.Server) http.HandlerFunc {
+	return middleware.AdminAuthenticatedJWTHeaderMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				lastTwittedJobIDStr, err := database.GetValue(svr.Conn, "last_twitted_job_id")
+				if err != nil {
+					svr.Log(err, "unable to retrieve last twitter job id")
+					return
+				}
+				lastTwittedJobID, err := strconv.Atoi(lastTwittedJobIDStr)
+				if err != nil {
+					svr.Log(err, "unable to convert job str to id")
+					return
+				}
+				jobs, err := database.GetLastNJobsFromID(svr.Conn, svr.GetConfig().TwitterJobsToPost, lastTwittedJobID)
+				log.Printf("found %d/%d jobs to post on twitter\n", len(jobs), svr.GetConfig().TwitterJobsToPost)
+				if len(jobs) == 0 {
+					return
+				}
+				lastJobID := lastTwittedJobID
+				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
+				for _, j := range jobs {
+					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://golang.cafe/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug), url.Values{})
+					if err != nil {
+						svr.Log(err, "unable to post tweet")
+						continue
+					}
+					lastJobID = j.ID
+				}
+				lastJobIDStr := strconv.Itoa(lastJobID)
+				err = database.SetValue(svr.Conn, "last_twitted_job_id", lastJobIDStr)
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to save last twitter job id to db as %s", lastJobIDStr))
+					return
+				}
+				log.Printf("updated last twitted job id to %s\n", lastJobIDStr)
+				log.Printf("posted last %d jobs to twitter", len(jobs))
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
+
+func TriggerCompanyUpdater(svr server.Server) http.HandlerFunc {
+	return middleware.AdminAuthenticatedJWTHeaderMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				since := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+				cs, err := database.InferCompaniesFromJobs(svr.Conn, since)
+				if err != nil {
+					svr.Log(err, "unable to infer companies from jobs")
+					return
+				}
+				log.Printf("inferred %d companies...\n", len(cs))
+				for _, c := range cs {
+					res, err := http.Get(c.URL)
+					if err != nil {
+						svr.Log(err, fmt.Sprintf("http.Get(%s): unable to get url", c.URL))
+						continue
+					}
+					defer res.Body.Close()
+					if res.StatusCode != http.StatusOK {
+						svr.Log(errors.New("non 200 status code"), fmt.Sprintf("GET %s: status code error: %d %s", c.URL, res.StatusCode, res.Status))
+						continue
+					}
+
+					doc, err := goquery.NewDocumentFromReader(res.Body)
+					if err != nil {
+						svr.Log(err, "goquery.NewDocumentFromReader")
+						continue
+					}
+					var description string
+					doc.Find("meta").Each(func(i int, s *goquery.Selection) {
+						if name, _ := s.Attr("name"); strings.EqualFold(name, "description") {
+							var ok bool
+							description, ok = s.Attr("content")
+							if !ok {
+								svr.Log(errors.New("s.Attr error"), fmt.Sprintf("unable to retrieve content for description tag for company url: %s", c.URL))
+								return
+							}
+							log.Printf("%s: description: %s\n", c.URL, description)
+						}
+					})
+					if description != "" {
+						c.Description = &description
+					}
+					companyID, err := ksuid.NewRandom()
+					if err != nil {
+						svr.Log(err, "ksuid.NewRandom: unable to generate company id")
+						continue
+					}
+					newIconID, err := ksuid.NewRandom()
+					if err != nil {
+						svr.Log(err, "ksuid.NewRandom: unable to generate new icon id")
+						continue
+					}
+					if err := database.DuplicateImage(svr.Conn, c.IconImageID, newIconID.String()); err != nil {
+						svr.Log(err, "database.DuplicateImage")
+						continue
+					}
+					c.ID = companyID.String()
+					c.IconImageID = newIconID.String()
+					if err := database.SaveCompany(svr.Conn, c); err != nil {
+						svr.Log(err, "database.SaveCompany")
+						continue
+					}
+					log.Println(c.Name)
+				}
+				if err := database.DeleteStaleImages(svr.Conn); err != nil {
+					svr.Log(err, "database.DeleteStaleImages")
+					return
+				}
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
+
+func TriggerAdsManager(svr server.Server) http.HandlerFunc {
+	return middleware.AdminAuthenticatedJWTHeaderMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				log.Printf("attempting to demote expired sponsored 30days pinned job ads\n")
+				jobs, err := database.GetJobsOlderThan(svr.Conn, time.Now().AddDate(0, 0, -30), database.JobAdSponsoredPinnedFor30Days)
+				if err != nil {
+					svr.Log(err, "unable to demote expired sponsored 30 days pinned job ads")
+					return
+				}
+				for _, j := range jobs {
+					jobToken, err := database.TokenByJobID(svr.Conn, j.ID)
+					if err != nil {
+						svr.Log(err, fmt.Sprintf("unable to retrieve token for job id %d and email %s", j.ID, j.CompanyEmail))
+						continue
+					} else {
+						err = svr.GetEmail().SendEmail(
+							"Diego from Golang Cafe <team@golang.cafe>",
+							j.CompanyEmail,
+							email.GolangCafeEmailAddress,
+							"Your Job Ad on Golang Cafe Has Expired",
+							fmt.Sprintf(
+								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://golang.cafe/edit/%s?expired=1", jobToken,
+							),
+						)
+						if err != nil {
+							svr.Log(err, fmt.Sprintf("unable to send email while updating job ad type for job id %d", j.ID))
+							continue
+						}
+					}
+					database.UpdateJobAdType(svr.Conn, database.JobAdBasic, j.ID)
+					log.Printf("demoted job id %d expired sponsored 30days pinned job ads\n", j.ID)
+				}
+
+				log.Printf("attempting to demote expired sponsored 7days pinned job ads\n")
+				jobs2, err := database.GetJobsOlderThan(svr.Conn, time.Now().AddDate(0, 0, -7), database.JobAdSponsoredPinnedFor7Days)
+				if err != nil {
+					svr.Log(err, "unable to demote expired sponsored 7 days pinned job ads")
+					return
+				}
+				for _, j := range jobs2 {
+					jobToken, err := database.TokenByJobID(svr.Conn, j.ID)
+					if err != nil {
+						svr.Log(err, fmt.Sprintf("unable to retrieve toke for job id %d and email %s", j.ID, j.CompanyEmail))
+						continue
+					} else {
+						err = svr.GetEmail().SendEmail(
+							"Diego from Golang Cafe <team@golang.cafe>",
+							j.CompanyEmail,
+							email.GolangCafeEmailAddress,
+							"Your Job Ad on Golang Cafe Has Expired",
+							fmt.Sprintf(
+								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://golang.cafe/edit/%s?expired=1", jobToken,
+							),
+						)
+						if err != nil {
+							svr.Log(err, fmt.Sprintf("unable to send email while updating job ad type for job id %d", j.ID))
+							continue
+						}
+					}
+					database.UpdateJobAdType(svr.Conn, database.JobAdBasic, j.ID)
+					log.Printf("demoted job id %d expired sponsored 7days pinned job ads\n", j.ID)
+				}
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
 }
 
 func UpdateDeveloperProfileHandler(svr server.Server) http.HandlerFunc {

@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -27,6 +28,12 @@ type Config struct {
 	JobsPerPage                  int
 	DevelopersPerPage            int
 	CompaniesPerPage             int
+	TwitterJobsToPost            int
+	TwitterAccessToken           string
+	TwitterAccessTokenSecret     string
+	TwitterClientKey             string
+	TwitterClientSecret          string
+	NewsletterJobsToSend         int
 }
 
 func LoadConfig() (Config, error) {
@@ -94,6 +101,38 @@ func LoadConfig() (Config, error) {
 	if sentryDSN == "" {
 		return Config{}, fmt.Errorf("SENTRY_DSN cannot be empty")
 	}
+	twitterAccessToken := os.Getenv("TWITTER_ACCESS_TOKEN")
+	if twitterAccessToken == "" {
+		return Config{}, fmt.Errorf("TWITTER_ACCESS_TOKEN cannot be empty")
+	}
+	twitterAccessTokenSecret := os.Getenv("TWITTER_ACCESS_TOKEN_SECRET")
+	if twitterAccessTokenSecret == "" {
+		return Config{}, fmt.Errorf("TWITTER_ACCESS_TOKEN_SECRET cannot be empty")
+	}
+	twitterClientKey := os.Getenv("TWITTER_CLIENT_KEY")
+	if twitterClientKey == "" {
+		return Config{}, fmt.Errorf("TWITTER_CLIENT_KEY cannot be empty")
+	}
+	twitterClientSecret := os.Getenv("TWITTER_CLIENT_SECRET")
+	if twitterClientSecret == "" {
+		return Config{}, fmt.Errorf("TWITTER_CLIENT_SECRET cannot be empty")
+	}
+	twitterJobsToPostStr := os.Getenv("TWITTER_JOBS_TO_POST")
+	if twitterJobsToPostStr == "" {
+		return Config{}, fmt.Errorf("TWITTER_JOBS_TO_POST cannot be empty")
+	}
+	twitterJobsToPost, err := strconv.Atoi(twitterJobsToPostStr)
+	if err != nil {
+		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
+	}
+	newsletterJobsToSendStr := os.Getenv("NEWSLETTER_JOBS_TO_SEND")
+	if newsletterJobsToSendStr == "" {
+		return Config{}, fmt.Errorf("NEWSLETTER_JOBS_TO_SEND cannot be empty")
+	}
+	newsletterJobsToSend, err := strconv.Atoi(newsletterJobsToSendStr)
+	if err != nil {
+		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
+	}
 
 	return Config{
 		Port:                         port,
@@ -113,5 +152,11 @@ func LoadConfig() (Config, error) {
 		JobsPerPage:                  20,
 		DevelopersPerPage:            10,
 		CompaniesPerPage:             20,
+		TwitterJobsToPost:            twitterJobsToPost,
+		TwitterAccessToken:           twitterAccessToken,
+		TwitterAccessTokenSecret:     twitterAccessTokenSecret,
+		TwitterClientSecret:          twitterClientSecret,
+		TwitterClientKey:             twitterClientKey,
+		NewsletterJobsToSend:         newsletterJobsToSend,
 	}, nil
 }
