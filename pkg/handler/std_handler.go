@@ -2,6 +2,7 @@ package handler
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -25,6 +26,7 @@ import (
 	humanize "github.com/dustin/go-humanize"
 	"github.com/gorilla/feeds"
 	"github.com/gorilla/mux"
+	"github.com/machinebox/graphql"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/segmentio/ksuid"
 )
@@ -159,6 +161,163 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 		svr.JSON(w, http.StatusOK, nil)
 
 	}
+}
+
+func TriggerCloudflareStatsExport(svr server.Server) http.HandlerFunc {
+	return middleware.AdminAuthenticatedJWTHeaderMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				client := graphql.NewClient(svr.GetConfig().CloudflareAPIEndpoint)
+				req := graphql.NewRequest(
+					`query {
+  viewer {
+    zones(filter: {zoneTag: $zoneTag}) {
+      httpRequests1dGroups(orderBy: [date_ASC]  filter: { date_gt: $fromDate } limit: 10000) {
+        dimensions {
+          date
+        }
+      sum {
+        pageViews
+        requests
+        bytes
+        cachedBytes
+        threats
+        countryMap {
+          clientCountryName
+          requests
+          threats
+        }
+	browserMap {
+          uaBrowserFamily
+          pageViews
+        }
+        responseStatusMap {
+          edgeResponseStatus
+          requests
+        }
+      }
+        uniq {
+          uniques
+        }
+    }
+  }
+}
+}`,
+				)
+				var err error
+				var daysAgo int
+				daysAgoStr := r.URL.Query().Get("days_ago")
+				daysAgo, err = strconv.Atoi(daysAgo, 10)
+				if err != nil {
+					daysAgo = 3
+				}
+				req.Var("zoneTag", svr.GetConfig().CloudflareZoneTag)
+				req.Var("fromDate", time.Now().UTC().AddDate(0, 0, -daysAgo))
+				req.Header.Set("Cache-Control", "no-cache")
+				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", svr.GetConfig().CloudflareAPIToken))
+				type cloudFlareStatsResponse struct {
+					Viewer struct {
+						Zones []struct {
+							HttpRequests1dGroups []struct {
+								Dimensions struct {
+									Date string `json:"date"`
+								} `json:"dimensions"`
+								Sum struct {
+									Bytes       uint64 `json:"bytes"`
+									CachedBytes uint64 `json:"cachedBytes"`
+									CountryMap  []struct {
+										ClientCountryName string `json:"clientCountryName"`
+										Requests          uint64 `json:"requests"`
+										Threats           uint64 `json:"threats"`
+									} `json:"countryMap"`
+									BrowserMap []struct {
+										UABrowserFamily string `json:"uaBrowserFamily"`
+										PageViews       uint64 `json:"pageViews"`
+									} `json:"browserMap"`
+									PageViews         uint64 `json:"pageViews"`
+									Requests          uint64 `json:"requests"`
+									ResponseStatusMap []struct {
+										EdgeResponseStatus int    `json:"edgeResponseStatus"`
+										Requests           uint64 `json:"requests"`
+									} `json:"responseStatusMap"`
+									Threats uint64 `json:"threats"`
+								} `json:"sum"`
+								Uniq struct {
+									Uniques uint64 `json:"uniques"`
+								} `json:"uniq"`
+							} `json:"httpRequests1dGroups"`
+						} `json:"zones"`
+					} `json:"viewer"`
+				}
+				var res cloudFlareStatsResponse
+				if err := client.Run(context.Background(), req, &res); err != nil {
+					svr.Log(err, "unable to complete graphql request to cloudflare")
+					return
+				}
+				stat := database.CloudflareStat{}
+				statusCodeStat := database.CloudflareStatusCodeStat{}
+				countryStat := database.CloudflareCountryStat{}
+				browserStat := database.CloudflareBrowserStat{}
+				if len(res.Viewer.Zones) < 1 {
+					svr.Log(errors.New("got empty response from cloudflare APIs"), "expecting 1 zone got none")
+					return
+				}
+				log.Printf("retrieved %d cloudflare stat entries\n", len(res.Viewer.Zones[0].HttpRequests1dGroups))
+				for _, d := range res.Viewer.Zones[0].HttpRequests1dGroups {
+					stat.Date, err = time.Parse("2006-01-02", d.Dimensions.Date)
+					if err != nil {
+						svr.Log(err, "unable to parse date from cloudflare stat")
+						return
+					}
+					stat.Bytes = d.Sum.Bytes
+					stat.CachedBytes = d.Sum.CachedBytes
+					stat.PageViews = d.Sum.PageViews
+					stat.Requests = d.Sum.Requests
+					stat.Threats = d.Sum.Threats
+					stat.Uniques = d.Uniq.Uniques
+					if err := database.SaveCloudflareStat(svr.Conn, stat); err != nil {
+						svr.Log(err, "database.SaveCloudflareStat")
+						return
+					}
+					// status code stat
+					for _, v := range d.Sum.ResponseStatusMap {
+						statusCodeStat.Date = stat.Date
+						statusCodeStat.StatusCode = v.EdgeResponseStatus
+						statusCodeStat.Requests = v.Requests
+						if err := database.SaveCloudflareStatusCodeStat(svr.Conn, statusCodeStat); err != nil {
+							svr.Log(err, "database.SaveCloudflareStatusCodeStat")
+							return
+						}
+					}
+					// country stat
+					for _, v := range d.Sum.CountryMap {
+						countryStat.Date = stat.Date
+						countryStat.CountryCode = v.ClientCountryName
+						countryStat.Requests = v.Requests
+						countryStat.Threats = v.Threats
+						if err := database.SaveCloudflareCountryStat(svr.Conn, countryStat); err != nil {
+							svr.Log(err, "database.SaveCloudflareCountryStat")
+							return
+						}
+					}
+					// browser stat
+					for _, v := range d.Sum.BrowserMap {
+						browserStat.Date = stat.Date
+						browserStat.PageViews = v.PageViews
+						browserStat.UABrowserFamily = v.UABrowserFamily
+						if err := database.SaveCloudflareBrowserStat(svr.Conn, browserStat); err != nil {
+							svr.Log(err, "database.SaveCloudflareBrowserStat")
+							return
+						}
+					}
+				}
+				log.Println("done exporting cloudflare stats")
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
 }
 
 func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {

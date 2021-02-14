@@ -84,6 +84,7 @@ func main() {
 	svr.RegisterRoute("/x/task/ads-manager", handler.TriggerAdsManager(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/twitter-scheduler", handler.TriggerTwitterScheduler(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/company-updater", handler.TriggerCompanyUpdater(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/cloudflare-stats-export", handler.TriggerCloudflareStatsExport(svr), []string{"POST"})
 
 	// view newsletter
 	svr.RegisterRoute("/newsletter", handler.ViewNewsletterPageHandler(svr), []string{"GET"})

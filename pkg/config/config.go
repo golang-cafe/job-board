@@ -34,6 +34,9 @@ type Config struct {
 	TwitterClientKey             string
 	TwitterClientSecret          string
 	NewsletterJobsToSend         int
+	CloudflareAPIToken           string
+	CloudflareZoneTag            string
+	CloudflareAPIEndpoint        string
 }
 
 func LoadConfig() (Config, error) {
@@ -133,6 +136,18 @@ func LoadConfig() (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
 	}
+	cloudflareAPIToken := os.Getenv("CLOUDFLARE_API_TOKEN")
+	if cloudflareAPIToken == "" {
+		return Config{}, fmt.Errorf("CLOUDFLARE_API_TOKEN cannot be empty")
+	}
+	cloudflareZoneTag := os.Getenv("CLOUDFLARE_ZONE_TAG")
+	if cloudflareZoneTag == "" {
+		return Config{}, fmt.Errorf("CLOUDFLARE_ZONE_TAG cannot be empty")
+	}
+	cloudflareAPIEndpoint := os.Getenv("CLOUDFLARE_API_ENDPOINT")
+	if cloudflareAPIEndpoint == "" {
+		return Config{}, fmt.Errorf("CLOUDFLARE_API_ENDPOINT cannot be empty")
+	}
 
 	return Config{
 		Port:                         port,
@@ -158,5 +173,8 @@ func LoadConfig() (Config, error) {
 		TwitterClientSecret:          twitterClientSecret,
 		TwitterClientKey:             twitterClientKey,
 		NewsletterJobsToSend:         newsletterJobsToSend,
+		CloudflareAPIToken:           cloudflareAPIToken,
+		CloudflareZoneTag:            cloudflareZoneTag,
+		CloudflareAPIEndpoint:        cloudflareAPIEndpoint,
 	}, nil
 }

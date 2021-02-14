@@ -382,6 +382,38 @@ type SEOSkill struct {
 // )
 // ALTER TABLE search_event ADD COLUMN type VARCHAR(10) NOT NULL DEFAULT 'job';
 
+// CREATE TABLE IF NOT EXISTS cloudflare_stats (
+//     date DATE NOT NULL,
+//     bytes BIGINT NOT NULL,
+//     cached_bytes BIGINT NOT NULL,
+//     page_views BIGINT NOT NULL,
+//     requests BIGINT NOT NULL,
+//     threats BIGINT NOT NULL,
+//     PRIMARY KEY(date)
+// );
+
+// CREATE TABLE IF NOT EXISTS cloudflare_status_code_stats (
+//    date DATE NOT NULL,
+//    status_code INT NOT NULL,
+//    requests BIGINT NOT NULL,
+//    PRIMARY KEY(date, requests)
+// );
+
+// CREATE TABLE IF NOT EXISTS cloudflare_country_stats (
+//    date DATE NOT NULL,
+//    country_code CHAR(2) NOT NULL,
+//    requests BIGINT NOT NULL,
+//    threats BIGINT NOT NULL,
+//    PRIMARY KEY(date, country_code)
+// );
+
+// CREATE TABLE IF NOT EXISTS cloudflare_browser_stats (
+//    date DATE NOT NULL,
+//    page_views BIGINT NOT NULL,
+//    ua_browser_family VARCHAR(255) NOT NULL,
+//    PRIMARY KEY(date, ua_browser_family)
+// );
+
 const (
 	jobEventPageView = "page_view"
 	jobEventClickout = "clickout"
@@ -1966,6 +1998,80 @@ func SaveMedia(conn *sql.DB, media Media) (string, error) {
 		return "", err
 	}
 	return mediaID.String(), nil
+}
+
+type CloudflareStat struct {
+	Date        time.Time
+	Bytes       uint64
+	CachedBytes uint64
+	PageViews   uint64
+	Requests    uint64
+	Threats     uint64
+	Uniques     uint64
+}
+
+func SaveCloudflareStat(conn *sql.DB, s CloudflareStat) error {
+	_, err := conn.Exec(
+		`INSERT INTO cloudflare_stats VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT DO NOTHING`,
+		s.Date.Format("2006-01-02"),
+		s.Bytes,
+		s.CachedBytes,
+		s.PageViews,
+		s.Requests,
+		s.Threats,
+		s.Uniques,
+	)
+	return err
+}
+
+type CloudflareStatusCodeStat struct {
+	Date       time.Time
+	StatusCode int
+	Requests   uint64
+}
+
+func SaveCloudflareStatusCodeStat(conn *sql.DB, s CloudflareStatusCodeStat) error {
+	_, err := conn.Exec(
+		`INSERT INTO cloudflare_status_code_stats VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`,
+		s.Date.Format("2006-01-02"),
+		s.StatusCode,
+		s.Requests,
+	)
+	return err
+}
+
+type CloudflareCountryStat struct {
+	Date        time.Time
+	CountryCode string
+	Requests    uint64
+	Threats     uint64
+}
+
+func SaveCloudflareCountryStat(conn *sql.DB, s CloudflareCountryStat) error {
+	_, err := conn.Exec(
+		`INSERT INTO cloudflare_country_stats VALUES ($1, $2, $3, $4) ON CONFLICT DO NOTHING`,
+		s.Date.Format("2006-01-02"),
+		s.CountryCode,
+		s.Requests,
+		s.Threats,
+	)
+	return err
+}
+
+type CloudflareBrowserStat struct {
+	Date            time.Time
+	PageViews       uint64
+	UABrowserFamily string
+}
+
+func SaveCloudflareBrowserStat(conn *sql.DB, s CloudflareBrowserStat) error {
+	_, err := conn.Exec(
+		`INSERT INTO cloudflare_browser_stats VALUES ($1, $2, $3) ON CONFLICT DO NOTHING`,
+		s.Date.Format("2006-01-02"),
+		s.PageViews,
+		s.UABrowserFamily,
+	)
+	return err
 }
 
 func UpdateMedia(conn *sql.DB, media Media, mediaID string) error {
