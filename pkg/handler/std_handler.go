@@ -209,7 +209,7 @@ func TriggerCloudflareStatsExport(svr server.Server) http.HandlerFunc {
 				var err error
 				var daysAgo int
 				daysAgoStr := r.URL.Query().Get("days_ago")
-				daysAgo, err = strconv.Atoi(daysAgo, 10)
+				daysAgo, err = strconv.Atoi(daysAgo)
 				if err != nil {
 					daysAgo = 3
 				}
