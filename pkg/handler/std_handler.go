@@ -164,9 +164,8 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 }
 
 func TriggerCloudflareStatsExport(svr server.Server) http.HandlerFunc {
-	return middleware.AdminAuthenticatedJWTHeaderMiddleware(
-		svr.SessionStore,
-		svr.GetJWTSigningKey(),
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
 				client := graphql.NewClient(svr.GetConfig().CloudflareAPIEndpoint)
@@ -321,9 +320,8 @@ func TriggerCloudflareStatsExport(svr server.Server) http.HandlerFunc {
 }
 
 func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
-	return middleware.AdminAuthenticatedJWTHeaderMiddleware(
-		svr.SessionStore,
-		svr.GetJWTSigningKey(),
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
 				lastJobIDStr, err := database.GetValue(svr.Conn, "last_sent_job_id_weekly")
@@ -473,9 +471,8 @@ Unsubscribe here {$unsubscribe} | Golang Cafe Newsletter {$url}`
 }
 
 func TriggerTwitterScheduler(svr server.Server) http.HandlerFunc {
-	return middleware.AdminAuthenticatedJWTHeaderMiddleware(
-		svr.SessionStore,
-		svr.GetJWTSigningKey(),
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
 				lastTwittedJobIDStr, err := database.GetValue(svr.Conn, "last_twitted_job_id")
@@ -518,9 +515,8 @@ func TriggerTwitterScheduler(svr server.Server) http.HandlerFunc {
 }
 
 func TriggerCompanyUpdater(svr server.Server) http.HandlerFunc {
-	return middleware.AdminAuthenticatedJWTHeaderMiddleware(
-		svr.SessionStore,
-		svr.GetJWTSigningKey(),
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
 				since := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
@@ -595,9 +591,8 @@ func TriggerCompanyUpdater(svr server.Server) http.HandlerFunc {
 }
 
 func TriggerAdsManager(svr server.Server) http.HandlerFunc {
-	return middleware.AdminAuthenticatedJWTHeaderMiddleware(
-		svr.SessionStore,
-		svr.GetJWTSigningKey(),
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
 				log.Printf("attempting to demote expired sponsored 30days pinned job ads\n")

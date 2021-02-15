@@ -105,31 +105,10 @@ func AdminAuthenticatedMiddleware(sessionStore *sessions.CookieStore, jwtKey []b
 	})
 }
 
-func AdminAuthenticatedJWTHeaderMiddleware(sessionStore *sessions.CookieStore, jwtKey []byte, next http.HandlerFunc) http.HandlerFunc {
+func MachineAuthenticatedMiddleware(machineToken string, next http.HandlerFunc) http.HandlerFunc {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		tokenRe := regexp.MustCompile(`^Bearer\s([a-zA-Z0-9\.\-_]+)$`)
-		matches := tokenRe.FindStringSubmatch(r.Header.Get("Authorization"))
-		if len(matches) < 2 {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		token, err := jwt.ParseWithClaims(matches[1], &UserJWT{}, func(token *jwt.Token) (interface{}, error) {
-			return jwtKey, nil
-		})
-		if err != nil {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		if !token.Valid {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		claims, ok := token.Claims.(*UserJWT)
-		if !ok {
-			w.WriteHeader(http.StatusUnauthorized)
-			return
-		}
-		if !claims.IsAdmin {
+		token := r.Header.Get("x-machine-token")
+		if token != machineToken {
 			w.WriteHeader(http.StatusUnauthorized)
 			return
 		}

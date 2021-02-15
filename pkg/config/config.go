@@ -37,6 +37,7 @@ type Config struct {
 	CloudflareAPIToken           string
 	CloudflareZoneTag            string
 	CloudflareAPIEndpoint        string
+	MachineToken                 string
 }
 
 func LoadConfig() (Config, error) {
@@ -148,6 +149,10 @@ func LoadConfig() (Config, error) {
 	if cloudflareAPIEndpoint == "" {
 		return Config{}, fmt.Errorf("CLOUDFLARE_API_ENDPOINT cannot be empty")
 	}
+	machineToken := os.Getenv("MACHINE_TOKEN")
+	if machineToken == "" {
+		return Config{}, fmt.Errorf("MACHINE_TOKEN cannot be empty")
+	}
 
 	return Config{
 		Port:                         port,
@@ -176,5 +181,6 @@ func LoadConfig() (Config, error) {
 		CloudflareAPIToken:           cloudflareAPIToken,
 		CloudflareZoneTag:            cloudflareZoneTag,
 		CloudflareAPIEndpoint:        cloudflareAPIEndpoint,
+		MachineToken:                 machineToken,
 	}, nil
 }
