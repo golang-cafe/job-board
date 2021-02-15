@@ -4,7 +4,6 @@ import (
 	"errors"
 	"net/http"
 	"os"
-	"regexp"
 	"strings"
 	"time"
 
