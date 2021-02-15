@@ -213,7 +213,7 @@ func TriggerCloudflareStatsExport(svr server.Server) http.HandlerFunc {
 					daysAgo = 3
 				}
 				req.Var("zoneTag", svr.GetConfig().CloudflareZoneTag)
-				req.Var("fromDate", time.Now().UTC().AddDate(0, 0, -daysAgo))
+				req.Var("fromDate", time.Now().UTC().AddDate(0, 0, -daysAgo).Format("2006-01-02"))
 				req.Header.Set("Cache-Control", "no-cache")
 				req.Header.Set("Authorization", fmt.Sprintf("Bearer %s", svr.GetConfig().CloudflareAPIToken))
 				type cloudFlareStatsResponse struct {
