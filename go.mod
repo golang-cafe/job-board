@@ -7,6 +7,7 @@ go 1.13
 // +heroku install ./...
 
 require (
+	cloud.google.com/go/storage v1.13.0 // indirect
 	github.com/ChimeraCoder/anaconda v2.0.0+incompatible
 	github.com/ChimeraCoder/tokenbucket v0.0.0-20131201223612-c5a927568de7 // indirect
 	github.com/PuerkitoBio/goquery v1.6.0

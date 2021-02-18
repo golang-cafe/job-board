@@ -2,142 +2,157 @@
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
     <loc>https://golang.cafe/blog/my-5-favourite-online-resources-to-learn-golang-from-scratch.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-random-number-generator.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/how-to-print-struct-variables-in-golang.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-base64-encode-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-read-file-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-sleep-random-time.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-http-server-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-int-to-string-conversion-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/how-to-validate-url-in-go.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/upgrade-dependencies-golang.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/how-to-iterate-over-range-int-golang.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-string-to-int-conversion-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-round-float-to-int-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/how-to-url-encode-string-in-golang-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/how-to-make-http-url-form-encoded-request-golang.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-context-with-timeout-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-time-format-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/how-to-run-gofmt-recursively.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-reader-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-writer-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-json-marshal-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-for-loop-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/how-to-fix-go-mod-unknown-revision.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-string-padding-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-reflection-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-debugging-with-delve.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/golang-rest-api-example.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
     <loc>https://golang.cafe/blog/how-to-shuffle-a-slice-in-go.html</loc>
-    <lastmod>2021-01-30T16:40:13.917082Z</lastmod>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/blog/how-to-read-files-in-a-directory-in-go.html</loc>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/blog/how-to-fix-cannot-use-promoted-field-in-struct-literal-in-go.html</loc>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/blog/how-to-upgrade-to-a-major-version-in-go.html</loc>
+    <lastmod>2021-02-18T16:25:21.864489Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
 </urlset>

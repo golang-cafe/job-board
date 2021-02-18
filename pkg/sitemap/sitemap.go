@@ -137,6 +137,10 @@ var blogPosts = []Page{
 		CreatedAt: time.Now().UTC(),
 		Title:     "how-to-fix-cannot-use-promoted-field-in-struct-literal-in-go",
 	},
+	{
+		CreatedAt: time.Now().UTC(),
+		Title:     "how-to-upgrade-to-a-major-version-in-go",
+	},
 }
 var pages = []string{
 	"hire-golang-developers",

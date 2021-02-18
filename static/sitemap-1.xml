@@ -1,6 +1,101 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
+    <loc>https://golang.cafe/job/back-end-go-engineer-findhotel-1613497927</loc>
+    <lastmod>2021-02-16T17:52:07Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/backend-engineer-beat-1613486964</loc>
+    <lastmod>2021-02-16T14:49:24Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/fullstack-developer-pensionera-formedling-i-sverige-ab-1613486652</loc>
+    <lastmod>2021-02-16T14:44:12Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/lead-engineer-proton-1613486431</loc>
+    <lastmod>2021-02-16T14:40:31Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/backend-engineer-proton-1613486307</loc>
+    <lastmod>2021-02-16T14:38:27Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/senior-backend-engineer-travel-audience-gmbh-1613486173</loc>
+    <lastmod>2021-02-16T14:36:13Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/pragmatic-backend-developer-yapeal-ag-1613404610</loc>
+    <lastmod>2021-02-15T15:56:50Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/senior-software-engineer-go-moov-1613154453</loc>
+    <lastmod>2021-02-12T18:27:33Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/software-engineer-blend-1613122792</loc>
+    <lastmod>2021-02-12T09:39:52Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/senior-software-engineer-sugarcrm-1613122608</loc>
+    <lastmod>2021-02-12T09:36:48Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/senior-software-engineer-greynoise-intelligence-1613061182</loc>
+    <lastmod>2021-02-11T16:33:02Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/golang-developer-proxify-1612972077</loc>
+    <lastmod>2021-02-10T15:47:57Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/mid-senior-golang-backend-engineer-ardan-labs-1612970085</loc>
+    <lastmod>2021-02-10T15:14:45Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/backend-engineer-launch-darkly-1612879057</loc>
+    <lastmod>2021-02-09T13:57:37Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/software-engineer-go-juni-technology-ab-1612631884</loc>
+    <lastmod>2021-02-06T17:18:04Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/backend-engineer-dolfin-1612631573</loc>
+    <lastmod>2021-02-06T17:12:53Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/senior-software-engineer-paddle-1612631280</loc>
+    <lastmod>2021-02-06T17:08:00Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/senior-developer-government-digital-service-1612631101</loc>
+    <lastmod>2021-02-06T17:05:01Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
+    <loc>https://golang.cafe/job/sr-software-engineer-cto-ai-1612343492</loc>
+    <lastmod>2021-02-03T09:11:32Z</lastmod>
+    <changefreq>weekly</changefreq>
+  </url>
+  <url>
     <loc>https://golang.cafe/job/senior-software-engineer-tui-musement-1612021826</loc>
     <lastmod>2021-01-30T15:50:26Z</lastmod>
     <changefreq>weekly</changefreq>
@@ -248,11 +343,6 @@
   <url>
     <loc>https://golang.cafe/job/backend-go-developer-donut-1608114166</loc>
     <lastmod>2020-12-16T10:22:46Z</lastmod>
-    <changefreq>weekly</changefreq>
-  </url>
-  <url>
-    <loc>https://golang.cafe/job/go-engineer-k6-1607712725</loc>
-    <lastmod>2020-12-11T18:52:05Z</lastmod>
     <changefreq>weekly</changefreq>
   </url>
   <url>
