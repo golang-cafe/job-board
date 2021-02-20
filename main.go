@@ -89,9 +89,6 @@ func main() {
 	// view newsletter
 	svr.RegisterRoute("/newsletter", handler.ViewNewsletterPageHandler(svr), []string{"GET"})
 
-	// view shop
-	svr.RegisterRoute("/shop", handler.ViewShopPageHandler(svr), []string{"GET"})
-
 	// view support
 	svr.RegisterRoute("/support", handler.ViewSupportPageHandler(svr), []string{"GET"})
 
