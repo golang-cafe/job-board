@@ -1598,7 +1598,7 @@ func SitemapHandler(svr server.Server) http.HandlerFunc {
 		vars := mux.Vars(r)
 		sitemapNo := vars["number"]
 		number, err := strconv.Atoi(sitemapNo)
-		if err != nil {
+		if err != nil || number < 1 {
 			svr.Log(err, fmt.Sprintf("unable to parse sitemap number %s", sitemapNo))
 			svr.TEXT(w, http.StatusBadRequest, "invalid sitemap number")
 			return
