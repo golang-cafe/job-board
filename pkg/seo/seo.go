@@ -3,11 +3,51 @@ package seo
 import (
 	"database/sql"
 	"fmt"
+	"io/ioutil"
 	"net/url"
 	"strings"
 
 	"github.com/0x13a/golang.cafe/pkg/database"
 )
+
+func StaticPages() []string {
+	return []string{
+		"hire-golang-developers",
+		"privacy-policy",
+		"terms-of-service",
+		"about",
+		"newsletter",
+		"blog",
+		"support",
+		"ksuid",
+		"whats-my-ip",
+	}
+}
+
+type BlogPost struct {
+	Title, Path string
+}
+
+func BlogPages(blogDir string) ([]BlogPost, error) {
+	posts := make([]BlogPost, 0, 100)
+	files, err := ioutil.ReadDir(blogDir)
+	if err != nil {
+		return posts, err
+	}
+	for _, f := range files {
+		posts = append(posts, BlogPost{
+			Title: strings.Title(
+				strings.ReplaceAll(
+					strings.ReplaceAll(f.Name(), ".html", ""),
+					"-",
+					" ",
+				)),
+			Path: f.Name(),
+		})
+	}
+
+	return posts, nil
+}
 
 func GeneratePostAJobSEOLandingPages(conn *sql.DB) ([]string, error) {
 	var seoLandingPages []string

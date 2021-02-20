@@ -19,6 +19,7 @@ import (
 	"github.com/0x13a/golang.cafe/pkg/email"
 	"github.com/0x13a/golang.cafe/pkg/middleware"
 	"github.com/0x13a/golang.cafe/pkg/payment"
+	"github.com/0x13a/golang.cafe/pkg/seo"
 	"github.com/0x13a/golang.cafe/pkg/server"
 	"github.com/ChimeraCoder/anaconda"
 	"github.com/PuerkitoBio/goquery"
@@ -29,6 +30,7 @@ import (
 	"github.com/machinebox/graphql"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/segmentio/ksuid"
+	"github.com/snabb/sitemap"
 )
 
 const (
@@ -161,6 +163,167 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 		svr.JSON(w, http.StatusOK, nil)
 
 	}
+}
+
+func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				database.SaveSEOSkillFromCompany(svr.Conn)
+				landingPages, err := seo.GenerateSearchSEOLandingPages(svr.Conn)
+				if err != nil {
+					svr.Log(err, "seo.GenerateSearchSEOLandingPages")
+					return
+				}
+				postAJobLandingPages, err := seo.GeneratePostAJobSEOLandingPages(svr.Conn)
+				if err != nil {
+					svr.Log(err, "seo.GeneratePostAJobSEOLandingPages")
+					return
+				}
+				salaryLandingPages, err := seo.GenerateSalarySEOLandingPages(svr.Conn)
+				if err != nil {
+					svr.Log(err, "seo.GenerateSalarySEOLandingPages")
+					return
+				}
+				companyLandingPages, err := seo.GenerateCompaniesLandingPages(svr.Conn)
+				if err != nil {
+					svr.Log(err, "seo.GenerateCompaniesLandingPages")
+					return
+				}
+				developerSkillsPages, err := seo.GenerateDevelopersSkillLandingPages(svr.Conn)
+				if err != nil {
+					svr.Log(err, "seo.GenerateDevelopersSkillLandingPages")
+					return
+				}
+				developerProfilePages, err := seo.GenerateDevelopersProfileLandingPages(svr.Conn)
+				if err != nil {
+					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
+					return
+				}
+				developerLocationPages, err := seo.GenerateDevelopersLocationPages(svr.Conn)
+				if err != nil {
+					svr.Log(err, "seo.GenerateDevelopersLocationPages")
+					return
+				}
+				blogPosts, err := seo.BlogPages("./static/blog")
+				if err != nil {
+					svr.Log(err, "seo.BlogPages")
+					return
+				}
+				pages := seo.StaticPages()
+				jobs, err := database.JobPostByCreatedAt(svr.Conn)
+				if err != nil {
+					svr.Log(err, "database.JobPostByCreatedAt")
+					return
+				}
+				n := time.Now().UTC()
+
+				database.CreateTmpSitemapTable(svr.Conn)
+				for _, j := range jobs {
+					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
+						Loc:        fmt.Sprintf(`https://golang.cafe/job/%s`, j.Slug),
+						LastMod:    time.Unix(j.CreatedAt, 0),
+						ChangeFreq: "weekly",
+					}); err != nil {
+						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", j.Slug))
+					}
+				}
+
+				for _, b := range blogPosts {
+					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
+						Loc:        fmt.Sprintf(`https://golang.cafe/blog/%s`, b.Path),
+						LastMod:    n,
+						ChangeFreq: "weekly",
+					}); err != nil {
+						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", b.Path))
+					}
+				}
+
+				for _, p := range pages {
+					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
+						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						LastMod:    n,
+						ChangeFreq: "weekly",
+					}); err != nil {
+						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", p))
+					}
+				}
+
+				for _, p := range postAJobLandingPages {
+					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
+						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						LastMod:    n,
+						ChangeFreq: "weekly",
+					}); err != nil {
+						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", p))
+					}
+				}
+
+				for _, p := range salaryLandingPages {
+					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
+						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						LastMod:    n,
+						ChangeFreq: "weekly",
+					}); err != nil {
+						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", p))
+					}
+				}
+
+				for _, p := range landingPages {
+					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
+						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p.URI),
+						LastMod:    n,
+						ChangeFreq: "weekly",
+					}); err != nil {
+						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", p))
+					}
+				}
+
+				for _, p := range companyLandingPages {
+					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
+						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						LastMod:    n,
+						ChangeFreq: "weekly",
+					}); err != nil {
+						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", p))
+					}
+				}
+
+				for _, p := range developerSkillsPages {
+					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
+						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						LastMod:    n,
+						ChangeFreq: "weekly",
+					}); err != nil {
+						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", p))
+					}
+				}
+
+				for _, p := range developerProfilePages {
+					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
+						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						LastMod:    n,
+						ChangeFreq: "weekly",
+					}); err != nil {
+						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", p))
+					}
+				}
+
+				for _, p := range developerLocationPages {
+					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
+						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						LastMod:    n,
+						ChangeFreq: "weekly",
+					}); err != nil {
+						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", p))
+					}
+				}
+				if err := database.SwapSitemapTable(svr.Conn); err != nil {
+					svr.Log(err, "database.SwapSitemapTable")
+				}
+			}()
+		})
 }
 
 func TriggerCloudflareStatsExport(svr server.Server) http.HandlerFunc {
@@ -514,7 +677,7 @@ func TriggerTwitterScheduler(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func TriggerCompanyUpdater(svr server.Server) http.HandlerFunc {
+func TriggerCompanyUpdate(svr server.Server) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
@@ -1388,5 +1551,78 @@ func StripePaymentConfirmationWebookHandler(svr server.Server) http.HandlerFunc 
 		}
 
 		svr.JSON(w, http.StatusOK, nil)
+	}
+}
+
+func BlogListHandler(svr server.Server, blogDir string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		posts, err := seo.BlogPages(blogDir)
+		if err != nil {
+			svr.TEXT(w, http.StatusInternalServerError, "internal error. please try again later")
+			return
+		}
+		svr.Render(w, http.StatusOK, "blog.html", map[string]interface{}{
+			"Posts":        posts,
+			"MonthAndYear": time.Now().UTC().Format("January 2006"),
+		})
+	}
+}
+
+func SitemapIndexHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		index := sitemap.NewSitemapIndex()
+		entries, err := database.GetSitemapIndex(svr.Conn)
+		if err != nil {
+			svr.Log(err, "database.GetSitemapIndex")
+			svr.TEXT(w, http.StatusInternalServerError, "unable to fetch sitemap")
+			return
+		}
+		for _, e := range entries {
+			index.Add(&sitemap.URL{
+				Loc:     e.Loc,
+				LastMod: &e.LastMod,
+			})
+		}
+		buf := new(bytes.Buffer)
+		if _, err := index.WriteTo(buf); err != nil {
+			svr.Log(err, "sitemapIndex.WriteTo")
+			svr.TEXT(w, http.StatusInternalServerError, "unable to save sitemap index")
+			return
+		}
+		svr.XML(w, http.StatusOK, buf.Bytes())
+	}
+}
+
+func SitemapHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		sitemapNo := vars["number"]
+		number, err := strconv.Atoi(sitemapNo)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to parse sitemap number %s", sitemapNo))
+			svr.TEXT(w, http.StatusBadRequest, "invalid sitemap number")
+			return
+		}
+		entries, err := database.GetSitemapNo(svr.Conn, number)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("database.GetSitemapNo %d", number))
+			svr.TEXT(w, http.StatusInternalServerError, "unable to fetch sitemap")
+			return
+		}
+		sitemapFile := sitemap.New()
+		for _, e := range entries {
+			sitemapFile.Add(&sitemap.URL{
+				Loc:        e.Loc,
+				LastMod:    &e.LastMod,
+				ChangeFreq: sitemap.ChangeFreq(e.ChangeFreq),
+			})
+		}
+		buf := new(bytes.Buffer)
+		if _, err := sitemapFile.WriteTo(buf); err != nil {
+			svr.Log(err, fmt.Sprintf("sitemapFile.WriteTo %d", number))
+			svr.TEXT(w, http.StatusInternalServerError, "unable to save sitemap file")
+			return
+		}
+		svr.XML(w, http.StatusOK, buf.Bytes())
 	}
 }

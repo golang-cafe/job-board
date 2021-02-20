@@ -46,8 +46,8 @@ func main() {
 		sessionStore,
 	)
 
-	svr.RegisterRoute("/sitemap.xml", handler.SitemapIndexHandler, []string{"GET"})
-	svr.RegisterRoute("/sitemap-{n}.xml", handler.SitemapHandler, []string{"GET"})
+	svr.RegisterRoute("/sitemap.xml", handler.SitemapIndexHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/sitemap-{number}.xml", handler.SitemapHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/robots.txt", handler.RobotsTxtHandler, []string{"GET"})
 	svr.RegisterRoute("/.well-known/security.txt", handler.WellKnownSecurityHandler, []string{"GET"})
 
@@ -83,7 +83,8 @@ func main() {
 	svr.RegisterRoute("/x/task/weekly-newsletter", handler.TriggerWeeklyNewsletter(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/ads-manager", handler.TriggerAdsManager(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/twitter-scheduler", handler.TriggerTwitterScheduler(svr), []string{"POST"})
-	svr.RegisterRoute("/x/task/company-updater", handler.TriggerCompanyUpdater(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/company-update", handler.TriggerCompanyUpdate(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/sitemap-update", handler.TriggerSitemapUpdate(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/cloudflare-stats-export", handler.TriggerCloudflareStatsExport(svr), []string{"POST"})
 
 	// view newsletter

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -412,6 +413,13 @@ type SEOSkill struct {
 //    page_views BIGINT NOT NULL,
 //    ua_browser_family VARCHAR(255) NOT NULL,
 //    PRIMARY KEY(date, ua_browser_family)
+// );
+
+// CREATE TABLE IF NOT EXISTS sitemap (
+//   loc varchar(255) NOT NULL,
+//   changefreq varchar(20) NOT NULL DEFAULT 'weekly',
+//   lastmod TIMESTAMP NOT NULL,
+//   PRIMARY KEY(loc)
 // );
 
 const (
@@ -2090,4 +2098,86 @@ func GetMediaByID(conn *sql.DB, mediaID string) (Media, error) {
 		return Media{}, err
 	}
 	return m, nil
+}
+
+type SitemapEntry struct {
+	Loc        string
+	ChangeFreq string
+	LastMod    time.Time
+}
+
+const SitemapSize = 1000
+
+func GetSitemapEntryCount(conn *sql.DB) (int, error) {
+	var count int
+	row := conn.QueryRow(`SELECT COUNT(*) as c FROM sitemap`)
+	if err := row.Scan(&count); err != nil {
+		return count, err
+	}
+
+	return count, nil
+}
+
+func GetSitemapLastMod(conn *sql.DB) (time.Time, error) {
+	var lastMod time.Time
+	row := conn.QueryRow(`SELECT lastmod FROM sitemap ORDER BY lastmod DESC LIMIT 1`)
+	if err := row.Scan(&lastMod); err != nil {
+		return lastMod, err
+	}
+
+	return lastMod, nil
+}
+
+func GetSitemapIndex(conn *sql.DB) ([]SitemapEntry, error) {
+	entries := make([]SitemapEntry, 0, 20)
+	count, err := GetSitemapEntryCount(conn)
+	if err != nil {
+		return entries, err
+	}
+	lastMod, err := GetSitemapLastMod(conn)
+	if err != nil {
+		return entries, err
+	}
+	slots := math.Ceil(float64(count) / float64(SitemapSize))
+	for i := 0; i <= int(slots); i++ {
+		entries = append(entries, SitemapEntry{
+			Loc:     fmt.Sprintf("https://golang.cafe/sitemap-%d.xml", i),
+			LastMod: lastMod,
+		})
+	}
+
+	return entries, nil
+}
+
+func GetSitemapNo(conn *sql.DB, n int) ([]SitemapEntry, error) {
+	entries := make([]SitemapEntry, 0, SitemapSize)
+	offset := (n - 1) * SitemapSize
+	var rows *sql.Rows
+	rows, err := conn.Query(`SELECT * FROM sitemap LIMIT $1 OFFSET $2`, SitemapSize, offset)
+	if err != nil {
+		return entries, err
+	}
+	for rows.Next() {
+		var entry SitemapEntry
+		if err := rows.Scan(&entry.Loc, &entry.ChangeFreq, &entry.LastMod); err != nil {
+			return entries, err
+		}
+		entries = append(entries, entry)
+	}
+	return entries, nil
+}
+
+func SaveSitemapEntry(conn *sql.DB, entry SitemapEntry) error {
+	_, err := conn.Exec(`INSERT INTO sitemap_tmp VALUES ($1, $2, $3)`, entry.Loc, entry.ChangeFreq, entry.LastMod)
+	return err
+}
+
+func CreateTmpSitemapTable(conn *sql.DB) error {
+	_, err := conn.Exec(`CREATE TABLE sitemap_tmp AS TABLE sitemap WITH NO DATA;`)
+	return err
+}
+
+func SwapSitemapTable(conn *sql.DB) error {
+	_, err := conn.Exec(`BEGIN; ALTER TABLE sitemap RENAME TO sitemap_old; ALTER TABLE sitemap_tmp RENAME TO sitemap; DROP TABLE sitemap_old; COMMIT;`)
+	return err
 }
