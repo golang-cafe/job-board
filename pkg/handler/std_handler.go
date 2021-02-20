@@ -1626,3 +1626,37 @@ func SitemapHandler(svr server.Server) http.HandlerFunc {
 		svr.XML(w, http.StatusOK, buf.Bytes())
 	}
 }
+
+func RobotsTxtHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static/robots.txt")
+}
+
+func WellKnownSecurityHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static/security.txt")
+}
+
+func AboutPageHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static/views/about.html")
+}
+
+func PrivacyPolicyPageHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static/views/privacy-policy.html")
+}
+
+func TermsOfServicePageHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "static/views/terms-of-service.html")
+}
+
+func SalaryLandingPageLocationPlaceholderHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		location := strings.ReplaceAll(vars["location"], "-", " ")
+		svr.RenderSalaryForLocation(w, r, location)
+	}
+}
+
+func SalaryLandingPageLocationHandler(svr server.Server, location string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		svr.RenderSalaryForLocation(w, r, location)
+	}
+}
