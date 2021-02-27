@@ -288,7 +288,7 @@ background-color: #FF6600
             <p>
                 <h1>{{ .Job.JobTitle }} at {{ .Job.Company }} - {{ .Job.Location }}</h1>
 		{{ if .Job.CompanyIconID }}
-		<img src="/x/s/m/{{ .Job.CompanyIconID }}" width="100" height="100" title="{{ .Job.Company }} Logo" alt="{{ .Job.Company }} Logo" style="border-radius: 50px; border: 1px solid #ccc;"/><br />
+		<img src="/x/s/m/{{ .Job.CompanyIconID }}?w=100&h=100" width="100" height="100" title="{{ .Job.Company }} Logo" alt="{{ .Job.Company }} Logo" style="border-radius: 50px; border: 1px solid #ccc;"/><br />
 		{{ end }}
 		Salary {{ .Job.SalaryRange }} a {{ .Job.SalaryPeriod }}<br />
 		Company Website <a href="{{ .Job.CompanyURL }}" target="_blank" rel="nofollow">{{ .Job.CompanyURL }}</a><br />

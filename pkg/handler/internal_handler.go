@@ -22,8 +22,11 @@ import (
 	"github.com/0x13a/golang.cafe/pkg/payment"
 	"github.com/0x13a/golang.cafe/pkg/server"
 	"github.com/gorilla/mux"
+	"github.com/nfnt/resize"
 	"github.com/segmentio/ksuid"
 )
+
+var allowedMediaTypes = []string{"image/png", "image/jpeg", "image/jpg"}
 
 func GenerateKsuIDPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -447,7 +450,59 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.MEDIA(w, http.StatusNotFound, media.Bytes, media.MediaType)
 			return
 		}
-		svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+		height := r.URL.Query().Get("h")
+		width := r.URL.Query().Get("w")
+		if height == "" && width == "" {
+			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+			return
+		}
+		he, err := strconv.Atoi(height)
+		if err != nil {
+			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+			return
+		}
+		wi, err := strconv.Atoi(width)
+		if err != nil {
+			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+			return
+		}
+		contentTypeInvalid := true
+		for _, allowedMedia := range allowedMediaTypes {
+			if allowedMedia == media.MediaType {
+				contentTypeInvalid = false
+			}
+		}
+		if contentTypeInvalid {
+			svr.Log(errors.New("invalid media content type"), fmt.Sprintf("media file %s is not one of the allowed media types: %+v", media.MediaType, allowedMediaTypes))
+			svr.JSON(w, http.StatusUnsupportedMediaType, nil)
+			return
+		}
+		decImage, _, err := image.Decode(bytes.NewReader(media.Bytes))
+		if err != nil {
+			svr.Log(err, "unable to decode image from bytes")
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+		m := resize.Resize(uint(wi), uint(he), decImage, resize.Lanczos3)
+		resizeImageBuf := new(bytes.Buffer)
+		switch media.MediaType {
+		case "image/jpg", "image/jpeg":
+			if err := jpeg.Encode(resizeImageBuf, m, nil); err != nil {
+				svr.Log(err, "unable to encode resizeImage into jpeg")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+		case "image/png":
+			if err := png.Encode(resizeImageBuf, m); err != nil {
+				svr.Log(err, "unable to encode resizeImage into png")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+		default:
+			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+			return
+		}
+		svr.MEDIA(w, http.StatusOK, resizeImageBuf.Bytes(), media.MediaType)
 	}
 }
 
@@ -496,7 +551,6 @@ func UpdateMediaPageHandler(svr server.Server) http.HandlerFunc {
 		mediaID := vars["id"]
 		// limits upload form size to 5mb
 		maxMediaFileSize := 5 * 1024 * 1024
-		allowedMediaTypes := []string{"image/png", "image/jpeg", "image/jpg"}
 		r.Body = http.MaxBytesReader(w, r.Body, int64(maxMediaFileSize))
 		imageFile, header, err := r.FormFile("image")
 		if err != nil {

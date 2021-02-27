@@ -33,6 +33,7 @@ require (
 	github.com/lib/pq v1.0.0
 	github.com/machinebox/graphql v0.2.2
 	github.com/microcosm-cc/bluemonday v1.0.2
+	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/oschwald/maxminddb-golang v1.6.0
 	github.com/pkg/errors v0.8.1
 	github.com/rainycape/unidecode v0.0.0-20150907023854-cb7f23ec59be // indirect

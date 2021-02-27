@@ -140,7 +140,7 @@ body{background:#f7f7f7;}
     {{ range $i, $j := .PinnedJobs }}
         <article class="line-item line-item-sponsored-1">
                 {{ if .CompanyIconID }}
-                    <img src="/x/s/m/{{ .CompanyIconID }}" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+                    <img width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
                 {{ end }}
                 <div style="float: left;">
 			<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a> &bull; <small>Sponsored</small><br />
@@ -182,7 +182,7 @@ body{background:#f7f7f7;}
               {{ if eq .AdType 1 }}
               <article class="line-item line-item-sponsored-1">
                   {{ if .CompanyIconID }}
-                    <img src="/x/s/m/{{ .CompanyIconID }}" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+                    <img width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
                   {{ end }}
                   <div style="float: left;">
 			  <a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a> &bull; <small>Sponsored</small><br />
@@ -216,7 +216,7 @@ body{background:#f7f7f7;}
           {{ else }}
               <article class="line-item">
                   {{ if .CompanyIconID }}
-                    <img src="/x/s/m/{{ .CompanyIconID }}" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+                    <img width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
                   {{ end }}
                   <div style="float: left;">
 			  <a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b><br />
