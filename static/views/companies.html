@@ -341,35 +341,9 @@ body{background:#f7f7f7;}
                 window.location.href = '/Companies-Using-Golang-In-'+encodeURIComponent(document.getElementById('search-location').value);
             }
         });
-        function setCookie(cname, cvalue, exdays) {
-            var d = new Date();
-            d.setTime(d.getTime() + (exdays * 24 * 60 * 60 * 1000));
-            var expires = "expires="+d.toUTCString();
-            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
-        }
-        function getCookie(cname) {
-            var name = cname + "=";
-            var ca = document.cookie.split(';');
-            for(var i = 0; i < ca.length; i++) {
-                var c = ca[i];
-                while (c.charAt(0) == ' ') {
-                c = c.substring(1);
-                }
-                if (c.indexOf(name) == 0) {
-                return c.substring(name.length, c.length);
-                }
-            }
-            return "";
-        }
     function hideEmailBanner() {
-        var res = getCookie('__gcs');
-        if (res && res.trim() != "") {
             document.getElementById('email-subscribe-banner').style.display = 'none';
-	        document.getElementById('newsletter-banner').style.display = 'none';
-        } else {
-            document.getElementById('email-subscribe-banner').style.display = 'block';
-	        document.getElementById('newsletter-banner').style.display = 'block';
-        }
+	    document.getElementById('newsletter-banner').style.display = 'none';
     }
     function subscribe() {
         var email = document.getElementById('job-email-subscription').value;
@@ -379,7 +353,6 @@ body{background:#f7f7f7;}
         }
         get('/x/n/m/s?email='+encodeURIComponent(email), function(success) {
             if (success) {
-		setCookie('__gcs', true, 60);
 		hideEmailBanner();
                 alert('Thanks for subscribing!');
                 document.getElementById('job-email-subscription').value = '';
@@ -389,7 +362,6 @@ body{background:#f7f7f7;}
         });
     }
 	document.getElementById('newsletter-banner-close').addEventListener('click', function(){
-		setCookie('__gcs', true, 1);
 		document.getElementById('newsletter-banner').style.display = 'none';
 	});
 	document.getElementById('newsletter-banner-submit').addEventListener('click', function() {
@@ -400,7 +372,6 @@ body{background:#f7f7f7;}
 		}
         	get('/x/n/m/s?email='+encodeURIComponent(email), function(success) {
             		if (success) {
-				setCookie('__gcs', true, 60);
 				hideEmailBanner();
                 		alert('Thanks for subscribing!');
                 		document.getElementById('newsletter-banner-input').value = '';
@@ -458,9 +429,6 @@ body{background:#f7f7f7;}
 		document.getElementById('feedback-box').style.display = 'none';
 		document.getElementById('feedback').style.display = 'block';
     	});
-	document.addEventListener("DOMContentLoaded", function() {
-		hideEmailBanner();
-	});
     </script>
   <script src="//instant.page/5.1.0" type="module" integrity="sha384-by67kQnR+pyfy8yWP4kPO12fHKRLHZPfEsiSXR8u2IKcTdxD805MGUXBzVPnkLHw"></script>
 </body>
