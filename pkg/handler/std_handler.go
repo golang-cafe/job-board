@@ -543,13 +543,13 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 				}
 				jobsTXT := strings.Join(jobsTXTArr, "\n")
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
-				campaignContentHTML := `<p>Hello! Here's a list of the newest Go jobs this week on Golang Cafe!</p>
+				campaignContentHTML := `<p>Here's a list of the newest Go jobs this week on Golang Cafe</p>
 ` + jobsHTML + `
 	<p>Check out more jobs at <a title="Golang Cafe" href="https://golang.cafe">https://golang.cafe</a></p>
 	<p>Diego from Golang Cafe</p>
 	<hr />
 	<h6><strong> Golang Cafe</strong> | London, United Kingdom<br />This email was sent to <a href="mailto:{$email}"><strong>{$email}</strong></a> | <a href="{$unsubscribe}">Unsubscribe</a> | <a href="{$forward}">Forward this email to a friend</a></h6>`
-				campaignContentTxt := `Hello! Here's a list of the newest Go jobs this week on Golang Cafe!
+				campaignContentTxt := `Here's a list of the newest Go jobs this week on Golang Cafe
 
 ` + jobsTXT + `
 Check out more jobs at https://golang.cafe
