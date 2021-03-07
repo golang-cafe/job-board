@@ -481,6 +481,7 @@ func InferCompaniesFromJobs(conn *sql.DB, since time.Time) ([]Company, error) {
 FROM     job 
 WHERE    company_icon_image_id IS NOT NULL 
 AND      created_at > $1
+AND      approved_at IS NOT NULL
 GROUP BY trim(FROM company) 
 ORDER BY trim(FROM company)`
 	rows, err := conn.Query(stmt, since)
