@@ -9,39 +9,39 @@
         <title>Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe</title>
         <link href="/s/img/favicon.ico" rel="shortcut icon">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="title" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe" />
+	<meta name="title" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe" />
         <meta name="keywords" content="golang, golang {{ .LocationFilter }} jobs, go programming language, golang backend engineer, golang software engineer, remote golang {{ if .TagFilter }}{{.TagFilter}}{{ end }}" />
-        <meta name="description" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }}" />
+        <meta name="description" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
         <meta itemprop="name" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
         <meta itemprop="description" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
         <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
         <meta property="og:url" content="https://golang.cafe">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+	<meta property="og:title" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe">
         <meta property="og:description" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
         <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
-        <meta name="twitter:description" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+	<meta name="twitter:title" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe">
+        <meta name="twitter:description" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
         <link rel="canonical" href="https://golang.cafe/Remote-{{ if .TagFilter }}{{.TagFilter}}-{{ end }}Jobs" />
     {{ else }}
         <title>Golang {{ if .TagFilter }}{{.TagFilter}}{{ end }} Jobs {{ if .LocationFilter}}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe</title>
         <link href="/s/img/favicon.ico" rel="shortcut icon">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <meta name="title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter }}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe" />
+	<meta name="title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter }}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe" />
         <meta name="keywords" content="golang, golang {{ .LocationFilter }} jobs, go programming language, golang backend engineer, golang software engineer, golang {{ if .TagFilter }}{{.TagFilter}}{{ end }}" />
-        <meta name="description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }}" />
+        <meta name="description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
         <meta itemprop="name" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs | Golang cafe">
         <meta itemprop="description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
         <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
         <meta property="og:url" content="https://golang.cafe">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+	<meta property="og:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe">
         <meta property="og:description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
         <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
-        <meta name="twitter:description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+	<meta name="twitter:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe">
+        <meta name="twitter:description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
         <link rel="canonical" href="https://golang.cafe/Golang-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}" />
     {{ end }}
     <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
@@ -101,11 +101,11 @@ body{background:#f7f7f7;}
         {{ if $isRemote }}
             <h1 class="main-title">Remote {{ if .TagFilter }}{{ .TagFilter }} {{ else }}Golang {{ end }}Jobs </h1><br/>
             <b style="font-size:12pt;">Hand-Picked Go Jobs &bull; Apply directly to companies &bull; Clear salary ranges</b>
-	    <h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} Remote Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs</b> in {{ .MonthAndYear }} at companies like <b>{{ .TextCompanies }}</b>{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }} working as a <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
+	    <h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} Remote Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b> in {{ .MonthAndYear }} at companies like <b>{{ .TextCompanies }}</b>{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }} working as a <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
         {{ else }}
             <h1 class="main-title">Golang {{ if .TagFilter }}{{ .TagFilter }}{{ end }} Jobs {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }} </h1><br/>
             <b style="font-size:12pt;">Hand-Picked Go Jobs &bull; Apply directly to companies &bull; Clear salary ranges</b>
-	    <h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs</b>{{ if not .ComplementaryRemote }}{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}{{ end }} in {{ .MonthAndYear }} at companies like <b>{{ .TextCompanies }}</b>{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }} working as a <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
+	    <h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b>{{ if not .ComplementaryRemote }}{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}{{ end }} in {{ .MonthAndYear }} at companies like <b>{{ .TextCompanies }}</b>{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }} working as a <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
         {{ end }}
     </p>
     <div>
@@ -192,6 +192,9 @@ body{background:#f7f7f7;}
                   <small>{{ .TimeAgo }}</small>
                   </div>
                   <div class="job-desc" id="{{ .Slug }}" data-toggle="off">
+		      {{ if .Expired }}
+	    <code style="width: 100%;text-align: center;font-size: 14pt;padding: 10px;color: black;background: #e9e9e9;line-height: 1.5rem;">This job posting is no longer available</code>
+		      {{ end }}
                       <h3>Job Description</h3>
                       {{ .JobDescription }}
                       <br />
@@ -203,11 +206,15 @@ body{background:#f7f7f7;}
                       <h3>Interview Process</h3>
                       {{ .InterviewProcess }}
                       {{ end }}
+		      {{ if not .Expired }}
                       {{ if .IsQuickApply }}
                         <input type="submit" style="float:right;" class="apply-btn" value="Quick Apply" onclick="apply('{{ .HowToApply }}', '{{ .ExternalID }}');">
                       {{ else }}
                         <a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow" class="apply-link">Apply</a>
                       {{ end }}
+		      {{ else }}
+		      	<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
+		      {{ end }}
                       <a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
                       <a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>  
                 </div>
@@ -226,6 +233,9 @@ body{background:#f7f7f7;}
                   <small>{{ .TimeAgo }}</small>
                   </div>
                   <div class="job-desc" id="{{ .Slug }}" data-toggle="off">
+		      {{ if .Expired }}
+	    <code style="width: 100%;text-align: center;font-size: 14pt;padding: 10px;color: black;background: #e9e9e9;line-height: 1.5rem;">This job posting is no longer available</code>
+		      {{ end }}
                       <h3>Job Description</h3>
                       {{ .JobDescription }}
                       <br />
@@ -237,11 +247,15 @@ body{background:#f7f7f7;}
                       <h3>Interview Process</h3>
                       {{ .InterviewProcess }}
                       {{ end }}
+		      {{ if not .Expired }}
                       {{ if .IsQuickApply }}
                         <input type="submit" style="float:right;" class="apply-btn" value="Quick Apply" onclick="apply('{{ .HowToApply }}', '{{ .ExternalID }}');">
                       {{ else }}
                         <a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow" class="apply-link">Apply</a>
                       {{ end }}
+		      {{ else }}
+		      	<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
+		      {{ end }}
                       <a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
                       <a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>
                   </div>

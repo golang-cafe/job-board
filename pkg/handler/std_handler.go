@@ -325,6 +325,38 @@ func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
 		})
 }
 
+func TriggerExpiredJobsTask(svr server.Server) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				jobURLs, err := database.GetJobApplyURLs(svr.Conn)
+				if err != nil {
+					svr.Log(err, "unable to get job apply URL for cleanup")
+					return
+				}
+				for _, jobURL := range jobURLs {
+					if svr.IsEmail(jobURL.URL) {
+						continue
+					}
+					res, err := http.Get(jobURL.URL)
+					if err != nil {
+						svr.Log(err, fmt.Sprintf("error while checking expired apply URL for job %d %s", jobURL.ID, jobURL.URL))
+						continue
+					}
+					if res.StatusCode == http.StatusNotFound {
+						fmt.Printf("found expired job %d URL %s returned 404\n", jobURL.ID, jobURL.URL)
+						if err := database.MarkJobAsExpired(svr.Conn, jobURL.ID); err != nil {
+							svr.Log(err, fmt.Sprintf("unable to mark job %d %s as expired", jobURL.ID, jobURL.URL))
+						}
+					}
+				}
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
+
 func TriggerCloudflareStatsExport(svr server.Server) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,

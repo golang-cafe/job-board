@@ -286,6 +286,7 @@ background-color: #FF6600
     </article>
       <article style="padding-bottom: 80px;">
             <p>
+	    <code style="width: 100%;text-align: center;font-size: 14pt;padding: 10px;color: black;background: #e9e9e9;line-height: 1.5rem;">This job posting is no longer available</code>
                 <h1>{{ .Job.JobTitle }} at {{ .Job.Company }} - {{ .Job.Location }}</h1>
 		{{ if .Job.CompanyIconID }}
 		<img src="/x/s/m/{{ .Job.CompanyIconID }}?w=100&h=100" width="100" height="100" title="{{ .Job.Company }} Logo" alt="{{ .Job.Company }} Logo" style="border-radius: 50px; border: 1px solid #ccc;"/><br />
@@ -304,12 +305,17 @@ background-color: #FF6600
                 <h3>Interview Process</h3>
                 {{ .HTMLJobInterviewProcess }}
                 {{ end }}
+		{{ if not .Job.Expired }}
                 {{ if .IsQuickApply }}
                   <input type="submit" style="float:right;" class="apply-btn" value="Quick Apply" onclick="apply();">
                 {{ else }}
                   <a target="_blank" rel="noreferrer noopener" href="/x/r?j={{ .Job.ExternalID }}" style="float:right;" class="apply-link">Apply</a>
                 {{ end }}
+		{{ else }}
+		  <input type="submit" disabled class="right-btn" value="Job Expired" />
+		{{ end }}
             </article>
+	    {{ if not .Job.Expired }}
             <article style="margin: 30px auto;">
                 <h2>Share This Go Job</h2>
                 <!-- Sharingbutton Facebook -->
@@ -357,6 +363,7 @@ background-color: #FF6600
                 <br />
             </p>
       </article>
+      {{ end }}
   </section>
   <footer>
     <h4 style="margin-left: 9px;">Submit Your Profile & Get Hired</h4>
@@ -503,6 +510,7 @@ background-color: #FF6600
             document.getElementById('overlay-0').style.display = 'none';
         }
     </script>
+    {{ if not .Job.Expired }}
     <script type="application/ld+json"> {
       "@context" : "https://schema.org/",
       "@type" : "JobPosting",
@@ -541,6 +549,7 @@ background-color: #FF6600
       }
     }
     </script>
+    {{ end }}
   <script src="//instant.page/5.1.0" type="module" integrity="sha384-by67kQnR+pyfy8yWP4kPO12fHKRLHZPfEsiSXR8u2IKcTdxD805MGUXBzVPnkLHw"></script>
 </body>
 </html>

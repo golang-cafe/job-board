@@ -36,7 +36,9 @@ import (
 )
 
 const (
-	CacheKeyPinnedJobs = "pinnedJobs"
+	CacheKeyPinnedJobs       = "pinnedJobs"
+	CacheKeyNewJobsLastWeek  = "newJobsLastWeek"
+	CacheKeyNewJobsLastMonth = "newJobsLastMonth"
 )
 
 type Server struct {
@@ -236,6 +238,41 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		pageID = 1
 		showPage = false
 	}
+	var newJobsLastWeek, newJobsLastMonth int
+	newJobsLastWeekCached, okWeek := s.CacheGet(CacheKeyNewJobsLastWeek)
+	newJobsLastMonthCached, okMonth := s.CacheGet(CacheKeyNewJobsLastMonth)
+	if !okMonth || !okWeek {
+		// load and cache last jobs count
+		var err error
+		newJobsLastWeek, newJobsLastMonth, err = database.NewJobsLastWeekOrMonth(s.Conn)
+		if err != nil {
+			s.Log(err, "unable to retrieve new jobs last week last month")
+		}
+		buf := &bytes.Buffer{}
+		enc := gob.NewEncoder(buf)
+		if err := enc.Encode(newJobsLastWeek); err != nil {
+			s.Log(err, "unable to encode new jobs last week")
+		}
+		if err := s.CacheSet(CacheKeyNewJobsLastWeek, buf.Bytes()); err != nil {
+			s.Log(err, "unable to cache set new jobs lat week")
+		}
+		buf.Reset()
+		if err := enc.Encode(newJobsLastMonth); err != nil {
+			s.Log(err, "unable to encode new jobs last month")
+		}
+		if err := s.CacheSet(CacheKeyNewJobsLastMonth, buf.Bytes()); err != nil {
+			s.Log(err, "unable to cache set new jobs lat month")
+		}
+	} else {
+		dec := gob.NewDecoder(bytes.NewReader(newJobsLastWeekCached))
+		if err := dec.Decode(&newJobsLastWeek); err != nil {
+			s.Log(err, "unable to decode cached new jobs last week")
+		}
+		dec = gob.NewDecoder(bytes.NewReader(newJobsLastMonthCached))
+		if err := dec.Decode(&newJobsLastMonth); err != nil {
+			s.Log(err, "unable to decode cached new jobs last month")
+		}
+	}
 	var pinnedJobs []*database.JobPost
 	pinnedJobsCached, ok := s.CacheGet(CacheKeyPinnedJobs)
 	if !ok {
@@ -384,6 +421,8 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		"RelatedLocations":          relatedLocations,
 		"ComplementaryRemote":       complementaryRemote,
 		"MonthAndYear":              time.Now().UTC().Format("January 2006"),
+		"NewJobsLastWeek":           newJobsLastWeek,
+		"NewJobsLastMonth":          newJobsLastMonth,
 	})
 }
 
