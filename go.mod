@@ -14,6 +14,7 @@ require (
 	github.com/SparkPost/gosparkpost v0.0.0-20170825125937-4c6d2a3be658
 	github.com/aclements/go-moremath v0.0.0-20161014184102-0ff62e0875ff
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
+	github.com/allegro/bigcache/v3 v3.0.0
 	github.com/azr/backoff v0.0.0-20160115115103-53511d3c7330 // indirect
 	github.com/certifi/gocertifi v0.0.0-20180118203423-deb3ae2ef261 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect

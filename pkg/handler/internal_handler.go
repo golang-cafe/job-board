@@ -807,6 +807,9 @@ func ApproveJobPageHandler(svr server.Server) http.HandlerFunc {
 			if err != nil {
 				svr.Log(err, "unable to send email while approving job ad")
 			}
+			if err := svr.CacheDelete(server.CacheKeyPinnedJobs); err != nil {
+				svr.Log(err, "unable to cleanup cache after approving job")
+			}
 			svr.JSON(w, http.StatusOK, nil)
 		},
 	)

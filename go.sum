@@ -52,6 +52,9 @@ github.com/aclements/go-moremath v0.0.0-20161014184102-0ff62e0875ff h1:txKOXqsFQ
 github.com/aclements/go-moremath v0.0.0-20161014184102-0ff62e0875ff/go.mod h1:idZL3yvz4kzx1dsBOAC+oYv6L92P1oFEhUXUB1A/lwQ=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc h1:cAKDfWh5VpdgMhJosfJnn5/FoN2SRZ4p7fJNX58YPaU=
 github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc/go.mod h1:LOuyumcjzFXgccqObfd/Ljyb9UuFJ6TxHnclSeseNhc=
+github.com/allegro/bigcache v1.2.1 h1:hg1sY1raCwic3Vnsvje6TT7/pnZba83LeFck5NrFKSc=
+github.com/allegro/bigcache/v3 v3.0.0 h1:5Hxq+GTy8gHEeQccCZZDCfZRTydUfErdUf0iVDcMAFg=
+github.com/allegro/bigcache/v3 v3.0.0/go.mod h1:t5TAJn1B9qvf/VlJrSM1r6NlFAYoFDubYUsCuIO9nUQ=
 github.com/andybalholm/cascadia v1.1.0 h1:BuuO6sSfQNFRu1LppgbD25Hr2vLYW25JvxHs5zzsLTo=
 github.com/andybalholm/cascadia v1.1.0/go.mod h1:GsXiBklL0woXo1j/WYWtSYYC4ouU9PqHO0sqidkEA4Y=
 github.com/azr/backoff v0.0.0-20160115115103-53511d3c7330 h1:ekDALXAVvY/Ub1UtNta3inKQwZ/jMB/zpOtD8rAYh78=

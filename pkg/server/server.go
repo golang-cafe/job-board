@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"database/sql"
+	"encoding/gob"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -15,7 +16,6 @@ import (
 	"regexp"
 	"strconv"
 	"strings"
-	"sync"
 	"time"
 
 	stdtemplate "html/template"
@@ -31,7 +31,12 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 
+	"github.com/allegro/bigcache/v3"
 	raven "github.com/getsentry/raven-go"
+)
+
+const (
+	CacheKeyPinnedJobs = "pinnedJobs"
 )
 
 type Server struct {
@@ -42,7 +47,8 @@ type Server struct {
 	emailClient   email.Client
 	ipGeoLocation ipgeolocation.IPGeoLocation
 	SessionStore  *sessions.CookieStore
-	syncMap       *sync.Map
+	bigCache      *bigcache.BigCache
+	emailRe       *regexp.Regexp
 }
 
 func NewServer(
@@ -57,7 +63,8 @@ func NewServer(
 	// todo: move somewhere else
 	raven.SetDSN(cfg.SentryDSN)
 
-	return Server{
+	bigCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(12 * time.Hour))
+	svr := Server{
 		cfg:           cfg,
 		Conn:          conn,
 		router:        r,
@@ -65,8 +72,14 @@ func NewServer(
 		emailClient:   emailClient,
 		ipGeoLocation: ipGeoLocation,
 		SessionStore:  sessionStore,
-		syncMap:       &sync.Map{},
+		bigCache:      bigCache,
+		emailRe:       regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
 	}
+	if err != nil {
+		svr.Log(err, "unable to initialise big cache")
+	}
+
+	return svr
 }
 
 func (s Server) RegisterRoute(path string, handler func(w http.ResponseWriter, r *http.Request), methods []string) {
@@ -224,9 +237,37 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		showPage = false
 	}
 	var pinnedJobs []*database.JobPost
-	pinnedJobs, err = database.GetPinnedJobs(s.Conn)
-	if err != nil {
-		s.Log(err, "unable to get pinned jobs")
+	pinnedJobsCached, ok := s.CacheGet(CacheKeyPinnedJobs)
+	if !ok {
+		// load and cache jobs
+		pinnedJobs, err = database.GetPinnedJobs(s.Conn)
+		if err != nil {
+			s.Log(err, "unable to get pinned jobs")
+		}
+		for i, j := range pinnedJobs {
+			pinnedJobs[i].CompanyURLEnc = url.PathEscape(j.Company)
+			pinnedJobs[i].JobDescription = string(s.tmpl.MarkdownToHTML(j.JobDescription))
+			pinnedJobs[i].Perks = string(s.tmpl.MarkdownToHTML(j.Perks))
+			pinnedJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
+			pinnedJobs[i].InterviewProcess = string(s.tmpl.MarkdownToHTML(j.InterviewProcess))
+			if s.IsEmail(j.HowToApply) {
+				pinnedJobs[i].IsQuickApply = true
+			}
+		}
+		buf := &bytes.Buffer{}
+		enc := gob.NewEncoder(buf)
+		if err := enc.Encode(pinnedJobs); err != nil {
+			s.Log(err, "unable to encode pinned jobs")
+		}
+		if err := s.CacheSet(CacheKeyPinnedJobs, buf.Bytes()); err != nil {
+			s.Log(err, "unable to set pinnedJobs cache")
+		}
+	} else {
+		// pinned jobs are cached
+		dec := gob.NewDecoder(bytes.NewReader(pinnedJobsCached))
+		if err := dec.Decode(&pinnedJobs); err != nil {
+			s.Log(err, "unable to decode pinned jobs")
+		}
 	}
 	jobsForPage, totalJobCount, err := database.JobsByQuery(s.Conn, location, tag, pageID, s.cfg.JobsPerPage)
 	if err != nil {
@@ -270,14 +311,13 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 	}
 	var minSalary int64 = 1<<63 - 1
 	var maxSalary int64 = 0
-	emailRe := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 	for i, j := range jobsForPage {
 		jobsForPage[i].CompanyURLEnc = url.PathEscape(j.Company)
 		jobsForPage[i].JobDescription = string(s.tmpl.MarkdownToHTML(j.JobDescription))
 		jobsForPage[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
 		jobsForPage[i].Perks = string(s.tmpl.MarkdownToHTML(j.Perks))
 		jobsForPage[i].InterviewProcess = string(s.tmpl.MarkdownToHTML(j.InterviewProcess))
-		if emailRe.MatchString(j.HowToApply) {
+		if s.IsEmail(j.HowToApply) {
 			jobsForPage[i].IsQuickApply = true
 		}
 		if j.SalaryPeriod == "year" && j.SalaryCurrency == locFromDB.Currency && minSalary > j.SalaryMin {
@@ -285,16 +325,6 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		}
 		if j.SalaryPeriod == "year" && j.SalaryCurrency == locFromDB.Currency && maxSalary < j.SalaryMax {
 			maxSalary = j.SalaryMax
-		}
-	}
-	for i, j := range pinnedJobs {
-		pinnedJobs[i].CompanyURLEnc = url.PathEscape(j.Company)
-		pinnedJobs[i].JobDescription = string(s.tmpl.MarkdownToHTML(j.JobDescription))
-		pinnedJobs[i].Perks = string(s.tmpl.MarkdownToHTML(j.Perks))
-		pinnedJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
-		pinnedJobs[i].InterviewProcess = string(s.tmpl.MarkdownToHTML(j.InterviewProcess))
-		if emailRe.MatchString(j.HowToApply) {
-			pinnedJobs[i].IsQuickApply = true
 		}
 	}
 
@@ -634,13 +664,12 @@ func (s Server) RenderPageForLocationAndTagAdmin(w http.ResponseWriter, location
 	for i, j := firstPage, 1; i <= totalJobCount/s.cfg.JobsPerPage+1 && j <= pageLinksPerPage; i, j = i+1, j+1 {
 		pages = append(pages, i)
 	}
-	emailRe := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
 	for i, j := range jobsForPage {
 		jobsForPage[i].JobDescription = string(s.tmpl.MarkdownToHTML(j.JobDescription))
 		jobsForPage[i].Perks = string(s.tmpl.MarkdownToHTML(j.Perks))
 		jobsForPage[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
 		jobsForPage[i].InterviewProcess = string(s.tmpl.MarkdownToHTML(j.InterviewProcess))
-		if emailRe.MatchString(j.HowToApply) {
+		if s.IsEmail(j.HowToApply) {
 			jobsForPage[i].IsQuickApply = true
 		}
 	}
@@ -649,7 +678,7 @@ func (s Server) RenderPageForLocationAndTagAdmin(w http.ResponseWriter, location
 		pinnedJobs[i].Perks = string(s.tmpl.MarkdownToHTML(j.Perks))
 		pinnedJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
 		pinnedJobs[i].InterviewProcess = string(s.tmpl.MarkdownToHTML(j.InterviewProcess))
-		if emailRe.MatchString(j.HowToApply) {
+		if s.IsEmail(j.HowToApply) {
 			pinnedJobs[i].IsQuickApply = true
 		}
 	}
@@ -689,8 +718,7 @@ type SubscribeRqMailerlite struct {
 }
 
 func (s Server) SaveSubscriber(email string) error {
-	emailRe := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-	if !emailRe.MatchString(email) {
+	if !s.IsEmail(email) {
 		return fmt.Errorf("invalid email format for %s", email)
 	}
 	mailerliteRq := &SubscribeRqMailerlite{}
@@ -802,26 +830,48 @@ func (s Server) GetJWTSigningKey() []byte {
 	return s.cfg.JwtSigningKey
 }
 
+func (s Server) CacheGet(key string) ([]byte, bool) {
+	out, err := s.bigCache.Get(key)
+	if err != nil {
+		return []byte{}, false
+	}
+	return out, true
+}
+
+func (s Server) CacheSet(key string, val []byte) error {
+	return s.bigCache.Set(key, val)
+}
+
+func (s Server) CacheDelete(key string) error {
+	return s.bigCache.Delete(key)
+}
+
 func (s Server) SeenSince(r *http.Request, timeAgo time.Duration) bool {
 	ipAddrs := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
 	if len(ipAddrs) == 0 {
 		return false
 	}
-	lastSeen, ok := s.syncMap.Load(ipAddrs[0])
-	if !ok {
-		s.syncMap.Store(ipAddrs[0], time.Now().Format(time.RFC3339))
+	lastSeen, err := s.bigCache.Get(ipAddrs[0])
+	if err == bigcache.ErrEntryNotFound {
+		s.bigCache.Set(ipAddrs[0], []byte(time.Now().Format(time.RFC3339)))
 		return false
 	}
-	lastSeenTime, err := time.Parse(time.RFC3339, lastSeen.(string))
 	if err != nil {
-		s.syncMap.Store(ipAddrs[0], time.Now().Format(time.RFC3339))
+		return false
+	}
+	lastSeenTime, err := time.Parse(time.RFC3339, string(lastSeen))
+	if err != nil {
+		s.bigCache.Set(ipAddrs[0], []byte(time.Now().Format(time.RFC3339)))
 		return false
 	}
 	if !lastSeenTime.After(time.Now().Add(-timeAgo)) {
-		s.syncMap.Store(ipAddrs[0], time.Now().Format(time.RFC3339))
+		s.bigCache.Set(ipAddrs[0], []byte(time.Now().Format(time.RFC3339)))
 		return false
 	}
 
 	return true
+}
 
+func (s Server) IsEmail(val string) bool {
+	return s.emailRe.MatchString(val)
 }

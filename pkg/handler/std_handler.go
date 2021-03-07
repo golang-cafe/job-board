@@ -85,8 +85,7 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "request is invalid")
 			return
 		}
-		emailRe := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-		if !emailRe.MatchString(req.Email) {
+		if !svr.IsEmail(req.Email) {
 			svr.JSON(w, http.StatusBadRequest, "email is invalid")
 			return
 		}
@@ -843,8 +842,7 @@ func UpdateDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			emailRe := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-			if !emailRe.MatchString(req.Email) {
+			if !svr.IsEmail(req.Email) {
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
@@ -909,8 +907,7 @@ func DeleteDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			emailRe := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-			if !emailRe.MatchString(req.Email) {
+			if !svr.IsEmail(req.Email) {
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
@@ -956,8 +953,7 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		emailRe := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-		if !emailRe.MatchString(req.Email) {
+		if !svr.IsEmail(req.Email) {
 			svr.JSON(w, http.StatusBadRequest, "invalid email provided")
 			return
 		}
@@ -1187,8 +1183,7 @@ func SendFeedbackMessage(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		emailRe := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-		if !emailRe.MatchString(req.Email) {
+		if !svr.IsEmail(req.Email) {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
@@ -1224,8 +1219,7 @@ func RequestTokenSignOn(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		emailRe := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-		if !emailRe.MatchString(req.Email) {
+		if !svr.IsEmail(req.Email) {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
@@ -1372,8 +1366,7 @@ func JobBySlugPageHandler(svr server.Server) http.HandlerFunc {
 		}
 		jobLocations := strings.Split(job.Location, "/")
 		var isQuickApply bool
-		emailRe := regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$")
-		if emailRe.MatchString(job.HowToApply) {
+		if svr.IsEmail(job.HowToApply) {
 			isQuickApply = true
 		}
 		job.SalaryRange = fmt.Sprintf("%s%s to %s%s", job.SalaryCurrency, humanize.Comma(job.SalaryMin), job.SalaryCurrency, humanize.Comma(job.SalaryMax))
