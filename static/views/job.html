@@ -286,7 +286,7 @@ background-color: #FF6600
     </article>
       <article style="padding-bottom: 80px;">
             <p>
-	    {{ if not .Job.Expired }}
+	    {{ if .Job.Expired }}
 	    <code style="width: 100%;text-align: center;font-size: 14pt;padding: 10px;color: black;background: #e9e9e9;line-height: 1.5rem;">This job posting is no longer available</code>
 	    {{ end }}
                 <h1>{{ .Job.JobTitle }} at {{ .Job.Company }} - {{ .Job.Location }}</h1>
