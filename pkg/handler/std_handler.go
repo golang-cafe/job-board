@@ -108,7 +108,7 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			return
 		}
 		if existingDev.Email == req.Email {
-			svr.JSON(w, http.StatusInternalServerError, nil)
+			svr.JSON(w, http.StatusBadRequest, "developer profile with this email already exists")
 			return
 		}
 		k, err := ksuid.NewRandom()
@@ -140,7 +140,7 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 		err = database.SaveDeveloperProfile(svr.Conn, dev)
 		if err != nil {
 			svr.Log(err, "unable to save developer profile")
-			svr.JSON(w, http.StatusBadRequest, nil)
+			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
 		err = svr.GetEmail().SendEmail(
@@ -156,11 +156,10 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 		)
 		if err != nil {
 			svr.Log(err, "unable to send email while submitting developer profile")
-			svr.JSON(w, http.StatusBadRequest, nil)
+			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
 		svr.JSON(w, http.StatusOK, nil)
-
 	}
 }
 
