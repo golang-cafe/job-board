@@ -149,6 +149,12 @@ func main() {
 	// track job clickout + redirect to job page
 	svr.RegisterRoute("/x/r", handler.TrackJobClickoutAndRedirectToJobPage(svr), []string{"GET"})
 
+	// autocomplete locations
+	svr.RegisterRoute("/x/loc/autocomplete", handler.AutocompleteLocation(svr), []string{"GET"})
+
+	// autocomplete skills
+	svr.RegisterRoute("/x/skill/autocomplete", handler.AutocompleteSkill(svr), []string{"GET"})
+
 	// view job by slug
 	svr.RegisterRoute("/job/{slug}", handler.JobBySlugPageHandler(svr), []string{"GET"})
 

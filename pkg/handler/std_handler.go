@@ -1037,6 +1037,32 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
+func AutocompleteLocation(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		prefix := r.URL.Query().Get("k")
+		locs, err := database.LocationsByPrefix(svr.Conn, prefix)
+		if err != nil {
+			svr.Log(err, "unable to retrieve locations by prefix")
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+		svr.JSON(w, http.StatusOK, locs)
+	}
+}
+
+func AutocompleteSkill(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		prefix := r.URL.Query().Get("k")
+		skills, err := database.SkillsByPrefix(svr.Conn, prefix)
+		if err != nil {
+			svr.Log(err, "unable to retrieve skills by prefix")
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+		svr.JSON(w, http.StatusOK, skills)
+	}
+}
+
 func DeliverMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)

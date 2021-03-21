@@ -172,7 +172,7 @@ type SEOLocation struct {
 }
 
 type SEOSkill struct {
-	Name string
+	Name string `json:"name,omitempty"`
 }
 
 // Table Structure:
@@ -846,6 +846,50 @@ func GetJobsOlderThan(conn *sql.DB, since time.Time, adType JobAdType) ([]JobPos
 	return jobs, nil
 }
 
+func LocationsByPrefix(conn *sql.DB, prefix string) ([]Location, error) {
+	locs := make([]Location, 0)
+	if len(prefix) < 2 {
+		return locs, nil
+	}
+	rows, err := conn.Query(`SELECT name FROM seo_location WHERE name ILIKE $1 || '%' ORDER BY population DESC LIMIT 5`, prefix)
+	if err == sql.ErrNoRows {
+		return locs, nil
+	} else if err != nil {
+		return locs, err
+	}
+	for rows.Next() {
+		var loc Location
+		if err := rows.Scan(&loc.Name); err != nil {
+			return locs, err
+		}
+		locs = append(locs, loc)
+	}
+
+	return locs, nil
+}
+
+func SkillsByPrefix(conn *sql.DB, prefix string) ([]SEOSkill, error) {
+	skills := make([]SEOSkill, 0)
+	if len(prefix) < 2 {
+		return skills, nil
+	}
+	rows, err := conn.Query(`SELECT name FROM seo_skill WHERE name ILIKE $1 || '%' ORDER BY name ASC LIMIT 5`, prefix)
+	if err == sql.ErrNoRows {
+		return skills, nil
+	} else if err != nil {
+		return skills, err
+	}
+	for rows.Next() {
+		var skill SEOSkill
+		if err := rows.Scan(&skill.Name); err != nil {
+			return skills, err
+		}
+		skills = append(skills, skill)
+	}
+
+	return skills, nil
+}
+
 func UpdateJobAdType(conn *sql.DB, adType int, jobID int) error {
 	_, err := conn.Exec(`UPDATE job SET ad_type = $1, approved_at = NOW() WHERE id = $2`, adType, jobID)
 	return err
@@ -995,12 +1039,13 @@ func SaveSEOSkillFromCompany(conn *sql.DB) {
 }
 
 type Location struct {
-	Name       string
-	Country    string
-	Region     string
-	Population int64
-	Lat, Long  float64
-	Currency   string
+	Name       string  `json:"name,omitempty"`
+	Country    string  `json:"country,omitempty"`
+	Region     string  `json:"region,omitempty"`
+	Population int64   `json:"population,omitempty"`
+	Lat        float64 `json:"lat,omitempty"`
+	Long       float64 `json:"long,omitempty"`
+	Currency   string  `json:"currency,omitempty"`
 }
 
 func GetLocation(conn *sql.DB, location string) (Location, error) {
