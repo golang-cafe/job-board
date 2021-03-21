@@ -536,10 +536,10 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 				jsonMailerliteRq := []byte(fmt.Sprintf(`{
 		"groups": [%d],
 		"type": "regular",
-		"subject": "Newest Go Jobs This Week",
+		"subject": "Go Jobs This Week (%d New)",
 		"from": "team@golang.cafe",
 		"from_name": "Golang Cafe"
-		}`, 103091230))
+		}`, 103091230, len(jobs)))
 				client := &http.Client{}
 				req, err := http.NewRequest(http.MethodPost, "https://api.mailerlite.com/api/v2/campaigns", bytes.NewBuffer(jsonMailerliteRq))
 				if err != nil {
@@ -573,13 +573,13 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 				}
 				jobsTXT := strings.Join(jobsTXTArr, "\n")
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
-				campaignContentHTML := `<p>Here's a list of the newest Go jobs this week on Golang Cafe</p>
+				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobs)) + ` Go jobs this week on Golang Cafe</p>
 ` + jobsHTML + `
 	<p>Check out more jobs at <a title="Golang Cafe" href="https://golang.cafe">https://golang.cafe</a></p>
 	<p>Diego from Golang Cafe</p>
 	<hr />
 	<h6><strong> Golang Cafe</strong> | London, United Kingdom<br />This email was sent to <a href="mailto:{$email}"><strong>{$email}</strong></a> | <a href="{$unsubscribe}">Unsubscribe</a> | <a href="{$forward}">Forward this email to a friend</a></h6>`
-				campaignContentTxt := `Here's a list of the newest Go jobs this week on Golang Cafe
+				campaignContentTxt := `Here's a list of the newest ` + fmt.Sprintf("%d", len(jobs)) + ` Go jobs this week on Golang Cafe
 
 ` + jobsTXT + `
 Check out more jobs at https://golang.cafe
