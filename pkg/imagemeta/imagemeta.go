@@ -36,7 +36,7 @@ func GenerateImageForJob(job database.JobPost) (io.ReadWriter, error) {
 		B: uint8(144),
 		A: uint8(255),
 	}
-	fontPath := filepath.Join("static", "assets", "fonts", "Courier_Prime", "CourierPrime-Bold.ttf")
+	fontPath := filepath.Join("static", "assets", "fonts", "verdana", "verdana.ttf")
 	if err := dc.LoadFontFace(fontPath, 60); err != nil {
 		return w, errors.Wrap(err, "load Courier_Prime for job link")
 	}
