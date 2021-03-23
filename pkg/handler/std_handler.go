@@ -534,12 +534,12 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 				}
 				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobs), svr.GetConfig().NewsletterJobsToSend)
 				jsonMailerliteRq := []byte(fmt.Sprintf(`{
-		"groups": [%d],
+		"segments": [%d],
 		"type": "regular",
 		"subject": "Go Jobs This Week (%d New)",
 		"from": "team@golang.cafe",
 		"from_name": "Golang Cafe"
-		}`, 103091230, len(jobs)))
+		}`, 1585009, len(jobs)))
 				client := &http.Client{}
 				req, err := http.NewRequest(http.MethodPost, "https://api.mailerlite.com/api/v2/campaigns", bytes.NewBuffer(jsonMailerliteRq))
 				if err != nil {
