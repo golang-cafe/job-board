@@ -747,6 +747,9 @@ func UpdateJobPageHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
+		if err := svr.CacheDelete(server.CacheKeyPinnedJobs); err != nil {
+			svr.Log(err, "unable to cleanup cache after approving job")
+		}
 		svr.JSON(w, http.StatusOK, nil)
 	}
 }
