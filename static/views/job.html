@@ -293,9 +293,14 @@ background-color: #FF6600
 		{{ if .Job.CompanyIconID }}
 		<img src="/x/s/m/{{ .Job.CompanyIconID }}?w=100&h=100" width="100" height="100" title="{{ .Job.Company }} Logo" alt="{{ .Job.Company }} Logo" style="border-radius: 50px; border: 1px solid #ccc;"/><br />
 		{{ end }}
-		Salary {{ .Job.SalaryRange }} a {{ .Job.SalaryPeriod }}<br />
-		Company Website <a href="{{ .Job.CompanyURL }}" target="_blank" rel="nofollow">{{ .Job.CompanyURL }}</a><br />
-		Published: {{ .MonthAndYear }}<br /><br />
+		<br />
+		<b>Salary</b> {{ .Job.SalaryRange }} a {{ .Job.SalaryPeriod }}<br />
+		<b>Company Website</b> <a href="{{ .Job.CompanyURL }}" target="_blank" rel="nofollow">{{ .Job.CompanyURL }}</a><br />
+		<b>Published</b> {{ .MonthAndYear }}<br />
+		{{ if gt .Job.LastWeekClickouts 0 }}
+		<b>Applicants This Week</b> {{ .Job.LastWeekClickouts }}<br />
+		{{ end }}
+		<br />
                 <h3>Job Description</h3>
                 {{ .HTMLJobDescription }}
                 <br />
@@ -418,17 +423,20 @@ background-color: #FF6600
             <li><a target="_blank" href="/Golang-Developer-Salary-Paris">Golang Developer Salary Paris</a></li>
         </ul>
     </nav>
-    <nav style="margin-top: 20px;">
-      <small>
-        <a href="/">Home</a> &bull;
-        <a href="/support">Support</a> &bull;
-        <a href="https://twitter.com/golangcafe">Twitter</a> &bull;
-        <a href="/rss">RSS</a> &bull;
-        <a href="/about">About</a> &bull;
-        <a href="/terms-of-service">T&Cs</a>
-        <br>
-      </small>
-    </nav>
+    <h4 style="margin-left: 9px;">Golang Cafe</h4>
+    <nav class="subnav">
+        <ul>
+            <li><a href="/about">Home</a></li>
+            <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
+            <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
+            <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
+            <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+            <li><a href="/support">Ask for Support</a></li>
+            <li><a href="/about">About Golang Cafe</a></li>
+            <li><a href="/terms-of-service">T&Cs</a></li>
+            <li><a href="/privacy-policy">Privacy Policy</a></li>
+        </ul>
+	</nav>
   </footer>
     <script>
         function isEmail(email) {

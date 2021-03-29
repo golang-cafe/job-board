@@ -1,24 +1,23 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>How To Upgrade Dependencies in Go (Golang) - Golang Cafe</title>
+    <title>How to reuse HTTP connections in Go (Golang)</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
-    <meta name="title" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe" />
-    <meta name="keywords" content="golang, golang dependencies, golang modules, go modules, go dependency, go dependencies, upgrade go depenencies, bump go dependencies" />
-    <meta name="description" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe" />
-    <meta itemprop="name" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
-    <meta itemprop="description" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
+    <meta name="title" content="How to reuse HTTP connections in Go (Golang)" />
+    <meta name="keywords" content="golang http keepalive, golang reuse http connection, golang reuse tcp connection, golang http tcp connection, golang tutorial" />
+    <meta name="description" content="How to reuse HTTP connections in Go (Golang)" />
+    <meta itemprop="name" content="How to reuse HTTP connections in Go (Golang)">
+    <meta itemprop="description" content="How to reuse HTTP connections in Go (Golang)">
     <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta property="og:url" content="https://golang.cafe">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
-    <meta property="og:description" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
+    <meta property="og:title" content="How to reuse HTTP connections in Go (Golang)">
+    <meta property="og:description" content="How to reuse HTTP connections in Go (Golang)">
     <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
-    <meta name="twitter:description" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
+    <meta name="twitter:title" content="How to reuse HTTP connections in Go (Golang)">
+    <meta name="twitter:description" content="How to reuse HTTP connections in Go (Golang)">
     <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta name="twitter:site" content="@golangcafe"/>
     <style type="text/css">
@@ -44,50 +43,116 @@ body{background:#f7f7f7;}
     </header>
     <section style="margin:30px auto;">
       <article>
-        <h1 class="code-line" data-line-start=0 data-line-end=1 ><a id="How_To_Upgrade_Golang_Dependencies_0"></a>How To Upgrade Golang Dependencies</h1>
-        <p class="has-line-data" data-line-start="2" data-line-end="3">Regardless of whether you are using Go modules or not, upgrading Go dependencies is a trivial task by using the <code>go get</code> command. Here’s a couple of example on how to upgrade Go dependencies</p>
-        <script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7ITK3J&placement=golangcafe" id="_carbonads_js"></script><br />
-        <h4 class="code-line" data-line-start=4 data-line-end=5 ><a id="How_to_upgrade_dependency_to_the_latest_version_4"></a>How to upgrade dependency to the latest version</h4>
-<p class="has-line-data" data-line-start="6" data-line-end="7">This command will eventually update your go.mod and go.sum file</p>
-<pre><code class="has-line-data" data-line-start="9" data-line-end="11">go get example.com/pkg
+<h1 class="code-line" data-line-start=0 data-line-end=1 ><a id="How_to_reuse_HTTP_Connections_in_Go_Golang_0"></a>How to re-use HTTP Connections in Go (Golang)</h1>
+<p class="has-line-data" data-line-start="2" data-line-end="3">The HTTP 1.1 protocol supports <a href="https://en.wikipedia.org/wiki/HTTP_persistent_connection">HTTP Persistent connections</a>, or also known as HTTP Keep-Alive. This allows a client and a server to re-use the same underlying TCP connection when sending multiple HTTP Request/Responses. So instead of establishing a connection for each HTTP Request, the client re-uses the TCP connection previously created more than once. This is particularly useful for performance reasons and when sending multiple requests to the same host.</p>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7ITK3J&placement=golangcafe" id="_carbonads_js"></script><br />
+<h2 class="code-line" data-line-start=4 data-line-end=5 ><a id="HTTP_connection_not_reused_4"></a>HTTP connection not reused</h2>
+<p class="has-line-data" data-line-start="6" data-line-end="7">Here’s a test example of a series of HTTP requests to the same host. We are going to use the httptrace package to inspect the status of the underlying http connection info. Check more about the httptrace usage in this blogpost <a target="_blank" href="/blog/golang-httptrace-example.html">https://golang.cafe/blog/golang-httptrace-example.html</a></p>
+<pre><code class="language-go" data-line-start="9" data-line-end="45">package main
+
+import (
+    "context"
+    "log"
+    "net/http"
+    "net/http/httptrace"
+)
+
+func main() {
+    // client trace to log whether the request's underlying tcp connection was re-used
+    clientTrace := &httptrace.ClientTrace{
+        GotConn: func(info httptrace.GotConnInfo) { log.Printf("conn was reused: %t", info.Reused) },
+    }
+    traceCtx := httptrace.WithClientTrace(context.Background(), clientTrace)
+
+    // 1st request
+    req, err := http.NewRequestWithContext(traceCtx, http.MethodGet, "http://example.com", nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    _, err = http.DefaultClient.Do(req)
+    if err != nil {
+        log.Fatal(err)
+    }
+    // 2nd request
+    req, err = http.NewRequestWithContext(traceCtx, http.MethodGet, "http://example.com", nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    _, err = http.DefaultClient.Do(req)
+    if err != nil {
+        log.Fatal(err)
+    }
+}
 </code></pre>
-<h4 class="code-line" data-line-start=12 data-line-end=13 ><a id="How_to_upgrade_dependency_and_all_its_dependencies_to_the_latest_version_12"></a>How to upgrade dependency and all its dependencies to the latest version</h4>
-<p class="has-line-data" data-line-start="14" data-line-end="15">Similarly if you need to upgrade ta dependency and all its sub dependencies to latest version</p>
-<pre><code class="has-line-data" data-line-start="16" data-line-end="18">go get -u example.com/pkg
+<p class="has-line-data" data-line-start="46" data-line-end="47">The expected output is as follows. You can also view the source code in the Go playground <a href="https://play.golang.org/p/0ABI_PYj7MQ">https://play.golang.org/p/0ABI_PYj7MQ</a></p>
+<pre><code class="language-go" data-line-start="49" data-line-end="53">2021/03/29 20:30:18 conn was reused: false
+
+2021/03/29 20:30:18 conn was reused: false
 </code></pre>
-<h4 class="code-line" data-line-start=19 data-line-end=20 ><a id="How_to_view_available_dependency_upgrades_19"></a>How to view available dependency upgrades</h4>
-<p class="has-line-data" data-line-start="21" data-line-end="22">To view available minor and patch upgrades for all direct and indirect dependencies</p>
-<pre><code class="has-line-data" data-line-start="24" data-line-end="26">go list -u -m all
+<p class="has-line-data" data-line-start="54" data-line-end="55">The HTTP underlying tcp connection is not reused even though the requests are made to the same host. This is due to the following reason, specifically with the way we use the response body in our Go HTTP response.</p>
+<pre><code class="language-go" data-line-start="57" data-line-end="65">$ go doc http.Response.Body
+...
+// The default HTTP client's Transport
+// may not reuse HTTP/1.x "keep-alive" TCP connections 
+// if the Body is not read to completion and closed.
+...
+Body io.ReadCloser
 </code></pre>
-<h4 class="code-line" data-line-start=27 data-line-end=28 ><a id="How_to_upgrade_all_dependencies_at_once_27"></a>How to upgrade all dependencies at once</h4>
-<p class="has-line-data" data-line-start="28" data-line-end="29">To upgrade all dependencies at once for a given module, just run the following from the root directory of your module</p>
-<p class="has-line-data" data-line-start="30" data-line-end="31">This upgrades to the <strong>latest</strong> or <strong>minor</strong> patch release</p>
-<pre><code class="has-line-data" data-line-start="33" data-line-end="35">go get -u ./...
+<h2 class="code-line" data-line-start=66 data-line-end=67 ><a id="HTTP_connection_reused_66"></a>HTTP connection reused</h2>
+<p class="has-line-data" data-line-start="67" data-line-end="68">In order to let the client reuse the underlying connection we just need to read the body entirely and close it before we issue a new HTTP request. Let’s see a practical example.</p>
+<pre><code class="language-go" data-line-start="70" data-line-end="112">package main
+
+import (
+    "context"
+    "io"
+    "io/ioutil"
+    "log"
+    "net/http"
+    "net/http/httptrace"
+)
+
+func main() {
+    // client trace to log whether the request's underlying tcp connection was re-used
+    clientTrace := &httptrace.ClientTrace{
+        GotConn: func(info httptrace.GotConnInfo) { log.Printf("conn was reused: %t", info.Reused) },
+    }
+    traceCtx := httptrace.WithClientTrace(context.Background(), clientTrace)
+
+    // 1st request
+    req, err := http.NewRequestWithContext(traceCtx, http.MethodGet, "http://example.com", nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    res, err := http.DefaultClient.Do(req)
+    if err != nil {
+        log.Fatal(err)
+    }
+    if _, err := io.Copy(ioutil.Discard, res.Body); err != nil {
+        log.Fatal(err)
+    }
+    res.Body.Close()
+    // 2nd request
+    req, err = http.NewRequestWithContext(traceCtx, http.MethodGet, "http://example.com", nil)
+    if err != nil {
+        log.Fatal(err)
+    }
+    _, err = http.DefaultClient.Do(req)
+    if err != nil {
+        log.Fatal(err)
+    }
+}
 </code></pre>
-<p class="has-line-data" data-line-start="36" data-line-end="37">To also upgrade test dependencies</p>
-<pre><code class="has-line-data" data-line-start="39" data-line-end="41">go get -t -u ./...
+<p class="has-line-data" data-line-start="113" data-line-end="114">This now correctly reuses the tcp connection as expected. You can also view the source code in the Go playground <a href="https://play.golang.org/p/Ee3Cc77IQvT">https://play.golang.org/p/Ee3Cc77IQvT</a></p>
+<pre><code class="language-go" data-line-start="116" data-line-end="120">2021/03/29 20:31:05 conn was reused: false
+
+2021/03/29 20:31:05 conn was reused: true
 </code></pre>
-<h4 class="code-line" data-line-start=42 data-line-end=43 ><a id="How_to_upgrade_to_a_specific_version_using_Go_modules_42"></a>How to upgrade to a specific version using Go modules</h4>
-<p class="has-line-data" data-line-start="44" data-line-end="45">Using the same mechanism as described above we can use the <code>go get</code> command to upgrade to a specific dependency</p>
-<pre><code class="has-line-data" data-line-start="47" data-line-end="49">get foo@v1.6.2
-</code></pre>
-<p class="has-line-data" data-line-start="50" data-line-end="51">or specifying a commit hash</p>
-<pre><code class="has-line-data" data-line-start="53" data-line-end="55">go get foo@e3702bed2
-</code></pre>
-<p class="has-line-data" data-line-start="55" data-line-end="56">or you can explore further semantics defined in the <a href="https://golang.org/cmd/go/#hdr-Module_queries">Module Queries</a></p>
-<h4 class="code-line" data-line-start=57 data-line-end=58 ><a id="Test_after_upgrading_dependencies_57"></a>Test after upgrading dependencies</h4>
-<p class="has-line-data" data-line-start="59" data-line-end="60">To make sure your packages are working correctly after an upgrade you may want to run the following command to test that are working properly</p>
-<pre><code class="has-line-data" data-line-start="62" data-line-end="64">go test all
-</code></pre>
-<p class="has-line-data" data-line-start="65" data-line-end="66">For more reference please visit the official Go documentation website <a href="https://github.com/golang/go/wiki/Modules#how-to-upgrade-and-downgrade-dependencies">https://github.com/golang/go/wiki/Modules#how-to-upgrade-and-downgrade-dependencies</a></p>
-	        <br />
-<iframe width="560" height="315" src="https://www.youtube.com/embed/AJxKKmzRTUY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-<br />
-        <p>
-          Ready for your next Golang Job? Join other fellow Gophers, submit your profile and get hired
-          <input type="submit" onclick="window.location.href='/Submit-Developer-Profile'" value="Join for Free" style="margin-bottom: 0;"/>
-      </p>
+<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7ITK3J&placement=golangcafe" id="_carbonads_js"></script><br />
       </article>
+          <article class="line-item" style="margin-top:20px;">
+		  <div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;" id="email-subscribe-item-text">Ready for your next Go Job? Submit your profile and get hired on Golang Cafe</div>
+                <input type="submit" onclick="window.location.href='/Submit-Developer-Profile'" id="email-subscribe-item-btn" value="Get Hired" style="width:50%;display:table;margin:5px auto;"/>
+            </article>
   </section>
   <footer>
     <nav>
@@ -100,7 +165,7 @@ body{background:#f7f7f7;}
   </footer>
   <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js"></script>
   <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-go.min.js"></script>
-  <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-javascript.js"></script>  
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-javascript.js"></script>
 
   <script src="//instant.page/5.1.0" type="module" integrity="sha384-by67kQnR+pyfy8yWP4kPO12fHKRLHZPfEsiSXR8u2IKcTdxD805MGUXBzVPnkLHw"></script>
 </body>

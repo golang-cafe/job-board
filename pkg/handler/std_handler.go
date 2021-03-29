@@ -356,6 +356,22 @@ func TriggerExpiredJobsTask(svr server.Server) http.HandlerFunc {
 	)
 }
 
+func TriggerUpdateLastWeekClickouts(svr server.Server) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				err := database.UpdateLastWeekClickouts(svr.Conn)
+				if err != nil {
+					svr.Log(err, "unable to update last week clickouts")
+					return
+				}
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
+
 func TriggerCloudflareStatsExport(svr server.Server) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,

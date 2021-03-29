@@ -45,21 +45,22 @@ type DeveloperMessage struct {
 }
 
 type Job struct {
-	CreatedAt        int64
-	JobTitle         string
-	Company          string
-	SalaryMin        string
-	SalaryMax        string
-	SalaryCurrency   string
-	SalaryPeriod     string
-	SalaryRange      string
-	Location         string
-	Description      string
-	Perks            string
-	InterviewProcess string
-	HowToApply       string
-	Email            string
-	Expired          bool
+	CreatedAt         int64
+	JobTitle          string
+	Company           string
+	SalaryMin         string
+	SalaryMax         string
+	SalaryCurrency    string
+	SalaryPeriod      string
+	SalaryRange       string
+	Location          string
+	Description       string
+	Perks             string
+	InterviewProcess  string
+	HowToApply        string
+	Email             string
+	Expired           bool
+	LastWeekClickouts int
 }
 
 type JobRq struct {
@@ -109,31 +110,32 @@ type JobRqUpdate struct {
 }
 
 type JobPost struct {
-	ID               int
-	CreatedAt        int64
-	TimeAgo          string
-	JobTitle         string
-	Company          string
-	CompanyURL       string
-	SalaryRange      string
-	Location         string
-	JobDescription   string
-	Perks            string
-	InterviewProcess string
-	HowToApply       string
-	Slug             string
-	SalaryCurrency   string
-	AdType           int64
-	SalaryMin        int64
-	SalaryMax        int64
-	CompanyIconID    string
-	ExternalID       string
-	IsQuickApply     bool
-	ApprovedAt       *time.Time
-	CompanyEmail     string
-	SalaryPeriod     string
-	CompanyURLEnc    string
-	Expired          bool
+	ID                int
+	CreatedAt         int64
+	TimeAgo           string
+	JobTitle          string
+	Company           string
+	CompanyURL        string
+	SalaryRange       string
+	Location          string
+	JobDescription    string
+	Perks             string
+	InterviewProcess  string
+	HowToApply        string
+	Slug              string
+	SalaryCurrency    string
+	AdType            int64
+	SalaryMin         int64
+	SalaryMax         int64
+	CompanyIconID     string
+	ExternalID        string
+	IsQuickApply      bool
+	ApprovedAt        *time.Time
+	CompanyEmail      string
+	SalaryPeriod      string
+	CompanyURLEnc     string
+	Expired           bool
+	LastWeekClickouts int
 }
 
 type JobPostForEdit struct {
@@ -209,6 +211,7 @@ type SEOSkill struct {
 // ALTER TABLE job ADD COLUMN salary_period VARCHAR(10) NOT NULL DEFAULT 'year';
 // ALTER TABLE job ADD COLUMN estimated_salary BOOLEAN DEFAULT FALSE;
 // ALTER TABLE job ADD COLUMN expired BOOLEAN DEFAULT FALSE;
+// ALTER TABLE job ADD COLUMN last_week_clickouts INTEGER NOT NULL DEFAULT 0;
 
 // CREATE TABLE IF NOT EXISTS image (
 // 	id CHAR(27) NOT NULL UNIQUE,
@@ -1450,7 +1453,7 @@ func JobPostByCreatedAt(conn *sql.DB) ([]*JobPost, error) {
 	jobs := []*JobPost{}
 	var rows *sql.Rows
 	rows, err := conn.Query(
-		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired
+		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 		FROM job
 		WHERE approved_at IS NOT NULL
 		ORDER BY created_at DESC`)
@@ -1461,7 +1464,7 @@ func JobPostByCreatedAt(conn *sql.DB) ([]*JobPost, error) {
 		job := &JobPost{}
 		var createdAt time.Time
 		var perks, interview, companyIcon sql.NullString
-		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired)
+		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired, &job.LastWeekClickouts)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}
@@ -1527,13 +1530,13 @@ func TopNJobsByCurrencyAndLocation(conn *sql.DB, currency, location string, max 
 func JobPostBySlug(conn *sql.DB, slug string) (*JobPost, error) {
 	job := &JobPost{}
 	row := conn.QueryRow(
-		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired
+		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 		FROM job
 		WHERE approved_at IS NOT NULL
 		AND slug = $1`, slug)
 	var createdAt time.Time
 	var perks, interview, companyIcon sql.NullString
-	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired)
+	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired, &job.LastWeekClickouts)
 	if companyIcon.Valid {
 		job.CompanyIconID = companyIcon.String
 	}
@@ -1634,13 +1637,13 @@ func JobPostByExternalIDForEdit(conn *sql.DB, externalID string) (*JobPostForEdi
 func JobPostByURLID(conn *sql.DB, URLID int64) (*JobPost, error) {
 	job := &JobPost{}
 	row := conn.QueryRow(
-		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired
+		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 		FROM job
 		WHERE approved_at IS NOT NULL
 		AND url_id = $1`, URLID)
 	var createdAt time.Time
 	var perks, interview, companyIcon sql.NullString
-	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired)
+	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired, &job.LastWeekClickouts)
 	if err != nil {
 		return job, err
 	}
@@ -1741,7 +1744,7 @@ func GetPinnedJobs(conn *sql.DB) ([]*JobPost, error) {
 	jobs := []*JobPost{}
 	var rows *sql.Rows
 	rows, err := conn.Query(`
-	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period
+	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, last_week_clickouts
 		FROM job WHERE approved_at IS NOT NULL AND ad_type IN (2, 3) ORDER BY approved_at DESC`)
 	if err != nil {
 		return jobs, err
@@ -1751,7 +1754,7 @@ func GetPinnedJobs(conn *sql.DB) ([]*JobPost, error) {
 		job := &JobPost{}
 		var createdAt time.Time
 		var perks, interview, companyIcon sql.NullString
-		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod)
+		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.LastWeekClickouts)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}
@@ -1792,7 +1795,7 @@ func JobsByQuery(conn *sql.DB, location, tag string, pageId, jobsPerPage int) ([
 		job := &JobPost{}
 		var createdAt time.Time
 		var perks, interview, companyIcon sql.NullString
-		err = rows.Scan(&fullRowsCount, &job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired)
+		err = rows.Scan(&fullRowsCount, &job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired, &job.LastWeekClickouts)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}
@@ -1886,7 +1889,7 @@ func SaveTokenForJob(conn *sql.DB, token string, jobID int) error {
 func getQueryForArgs(conn *sql.DB, location, tag string, offset, max int) (*sql.Rows, error) {
 	if tag == "" && location == "" {
 		return conn.Query(`
-		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired
+		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 		FROM job
 		WHERE approved_at IS NOT NULL
 		AND ad_type not in (2, 3)
@@ -1894,7 +1897,7 @@ func getQueryForArgs(conn *sql.DB, location, tag string, offset, max int) (*sql.
 	}
 	if tag == "" && location != "" {
 		return conn.Query(`
-		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired
+		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts 
 		FROM job
 		WHERE approved_at IS NOT NULL
 		AND ad_type not in (2, 3)
@@ -1903,10 +1906,10 @@ func getQueryForArgs(conn *sql.DB, location, tag string, offset, max int) (*sql.
 	}
 	if tag != "" && location == "" {
 		return conn.Query(`
-	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired
+	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 	FROM
 	(
-		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
+		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
 		FROM job WHERE approved_at IS NOT NULL AND ad_type not in (2, 3)
 	) AS job_
 	WHERE job_.doc @@ to_tsquery($1)
@@ -1914,10 +1917,10 @@ func getQueryForArgs(conn *sql.DB, location, tag string, offset, max int) (*sql.
 	}
 
 	return conn.Query(`
-	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired
+	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 	FROM
 	(
-		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
+		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
 		FROM job WHERE approved_at IS NOT NULL AND ad_type not in (2, 3)
 	) AS job_
 	WHERE job_.doc @@ to_tsquery($1)
@@ -2247,6 +2250,12 @@ func SwapSitemapTable(conn *sql.DB) error {
 
 func MarkJobAsExpired(conn *sql.DB, jobID int) error {
 	_, err := conn.Exec(`UPDATE job SET expired = true WHERE id = $1`, jobID)
+	return err
+}
+
+func UpdateLastWeekClickouts(conn *sql.DB) error {
+	_, err := conn.Exec(`WITH cte AS (SELECT job_id, count(*) AS clickouts FROM job_event WHERE event_type = 'clickout' AND created_at > CURRENT_DATE - 7 GROUP BY job_id)
+UPDATE job SET last_week_clickouts = cte.clickouts FROM cte WHERE cte.job_id = id`)
 	return err
 }
 

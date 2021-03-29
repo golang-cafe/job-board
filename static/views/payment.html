@@ -15,6 +15,7 @@ body{background:#f7f7f7;}
         @keyframes lds-ring {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}#spinner-0{display: none;}input[type="checkbox"]{-webkit-appearance: checkbox;-moz-appearance: checkbox;appearance: checkbox;}
         .clearfix::after {content: "";clear: both;display: table;}.line-item {background:#fff;padding:20px;margin:10px auto;}.job-icon{float: left; width: 60px; border-radius: 60px; margin-right: 10px;border: 1px solid #ccc;}
     #feedback{border-radius: 5px;background: white;box-shadow: 0 6px 6px rgba(0,0,0,0.25) !important;position: fixed;bottom: 0;right: 0;margin: 0;font-size: 15px;text-align: center;padding-left: 10px;padding-right:10px;z-index: 9;border-radius: 3px;border-bottom-left-radius: 0;border-bottom-right-radius: 0;border-top-right-radius: 0;border-bottom: 0;border-right: 0;background: #000090}#feedback-box{display:none;border:1px solid #ccc;border-radius:5px;background:#fff;box-shadow: 0 6px 6px rgba(0,0,0,0.25) !important;position:fixed;bottom:0;right:0;width:180px;height:350px;}#feedback-text{width: 90%;font-size: 13px;padding-left: 10px;margin-bottom:10px;line-height:1rem;color:#555;}#feedback-email{width: 90%;border: 1px solid #ccc;font-size: 13px;padding: 1px;margin: auto;display: table;}#feedback:hover{cursor:pointer;}#feedback-title:hover{cursor:pointer;}#feedback-title{font-size:13px;font-weight:bold;padding-left:10px;}#feedback-message{height:130px;resize:none;font-size: 13px;border: 1px solid #ccc;min-width: 90%;padding:4px;max-width: 90%;display: table;margin: auto;margin-top: 10px;}#feedback-submit{font-size: 13px;padding: 4px;line-height: 1rem;float: right;margin-top: 10px;width: 50%;}
+    footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
     </style>
         <meta charset="utf-8">
         <title>Complete Your Payment | Golang Cafe</title>
@@ -65,14 +66,20 @@ body{background:#f7f7f7;}
       </article>
   </section>
   <footer>
-    <nav>
-      <small>
-        <a href="/">Home</a> &bull;
-        <a href="/support">Support</a> &bull;
-        <a href="/terms-of-service">T&Cs</a>
-        <br>
-      </small>
-    </nav>
+    <h4 style="margin-left: 9px;">Golang Cafe</h4>
+    <nav class="subnav">
+        <ul>
+            <li><a href="/about">Home</a></li>
+            <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
+            <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
+            <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
+            <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+            <li><a href="/support">Ask for Support</a></li>
+            <li><a href="/about">About Golang Cafe</a></li>
+            <li><a href="/terms-of-service">T&Cs</a></li>
+            <li><a href="/privacy-policy">Privacy Policy</a></li>
+        </ul>
+	</nav>
   </footer>
     <script>
         // Create a Stripe client.

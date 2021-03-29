@@ -36,6 +36,7 @@ body{background:#f7f7f7;}
     .lds-ring div:nth-child(1) {animation-delay: -0.45s;}.lds-ring div:nth-child(2) {animation-delay: -0.3s;}.lds-ring div:nth-child(3) {animation-delay: -0.15s;}
     @keyframes lds-ring {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}#spinner-0{display: none;}
     .apply-box {z-index: 100000;display: none;width: 50%; height: auto;position: fixed;margin: 5% auto; top: 40px; left: 0; right: 0;background: #fff;}@media only screen and (max-width: 768px) {.apply-box{width: 90%;}}
+    footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
     </style>
   </head>
   <body>
@@ -66,16 +67,20 @@ body{background:#f7f7f7;}
             </article>
   </section>
   <footer>
-    <nav>
-      <small>
-        <a href="/">Home</a> &bull;
-        <a href="/support">Support</a> &bull;
-        <a href="https://twitter.com/golangcafe">Twitter</a> &bull;
-        <a href="/about">About</a> &bull;
-        <a href="/terms-of-service">T&Cs</a>
-        <br>
-      </small>
-    </nav>
+    <h4 style="margin-left: 9px;">Golang Cafe</h4>
+    <nav class="subnav">
+        <ul>
+            <li><a href="/about">Home</a></li>
+            <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
+            <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
+            <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
+            <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+            <li><a href="/support">Ask for Support</a></li>
+            <li><a href="/about">About Golang Cafe</a></li>
+            <li><a href="/terms-of-service">T&Cs</a></li>
+            <li><a href="/privacy-policy">Privacy Policy</a></li>
+        </ul>
+	</nav>
   </footer>
     <script>
         function isEmail(email) {

@@ -21,6 +21,7 @@ body{background:#f7f7f7;}
         }
 //croppr
 	.croppr-container *{user-select:none;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;box-sizing:border-box;-webkit-box-sizing:border-box;-moz-box-sizing:border-box}.croppr-container img{vertical-align:middle;max-width:100%}.croppr{position:relative;display:inline-block}.croppr-handle,.croppr-imageClipped,.croppr-overlay,.croppr-region{position:absolute;top:0}.croppr-overlay{background:rgba(0,0,0,.5);right:0;bottom:0;left:0;z-index:1;cursor:crosshair}.croppr-region{border:1px dashed rgba(0,0,0,.5);z-index:3;cursor:move}.croppr-imageClipped{right:0;bottom:0;left:0;z-index:2;pointer-events:none}.croppr-handle{border:1px solid #000;background-color:#fff;width:10px;height:10px;z-index:4}
+    footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
     </style>
     <meta charset="utf-8">
     <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}" />
@@ -233,14 +234,11 @@ body{background:#f7f7f7;}
     </article>
   {{ end }}
   </section>
-  <footer>
+   <footer>
     <nav>
       <small>
         <a href="/">Home</a> &bull;
-        
         <a href="/support">Support</a> &bull;
-        <a href="https://twitter.com/golangcafe">Twitter</a> &bull;
-        <a href="/about">About</a> &bull;
         <a href="/terms-of-service">T&Cs</a>
         <br>
       </small>

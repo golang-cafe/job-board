@@ -108,17 +108,15 @@ body{background:#f7f7f7;}
 	    <h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b>{{ if not .ComplementaryRemote }}{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}{{ end }} in {{ .MonthAndYear }} at companies like <b>{{ .TextCompanies }}</b>{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }} working as a <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
         {{ end }}
     </p>
-    <div>
+    <div style="margin-bottom: 10px;">
 	<div id="search-tag-container">
         <input autocomplete="off" type="text" value="{{ .TagFilter }}" placeholder="Skills, Company" id="search-tag"/>
 	<div style="z-index:1000;display:none;" id="search-tag-suggestions" class="search-suggestions">
-		<div class="search-option">CSS</div>
 	</div>
 	</div>
 	<div id="search-location-container">
         <input autocomplete="off" type="text" value="{{ .LocationFilter }}" placeholder="City, Country" id="search-location"/>
 	<div id="search-location-suggestions" style="display:none;" class="search-suggestions">
-		<div class="search-option">Rome</div>
 	</div>
 	</div>
         <input type="submit" value="Find Jobs" id="search-btn"/>
@@ -158,6 +156,10 @@ body{background:#f7f7f7;}
 		<b>{{ .Location }}</b><br/>{{ .SalaryRange }} a {{ .SalaryPeriod }}
                 <br />
                 <small>{{ .TimeAgo }}</small>
+		{{ if gt .LastWeekClickouts 0 }}
+                	<br />
+                	<small>{{ .LastWeekClickouts }} Applicants This Week</small>
+		{{ end }}
                 </div>
                 <div class="job-desc" id="{{ .Slug }}" data-toggle="off">
                     <h3>Job Description</h3>
@@ -200,6 +202,10 @@ body{background:#f7f7f7;}
 		  <b>{{ .Location }}</b><br/>{{ .SalaryRange }} a {{ .SalaryPeriod }}
                   <br />
                   <small>{{ .TimeAgo }}</small>
+		{{ if gt .LastWeekClickouts 0 }}
+                	<br />
+                	<small>{{ .LastWeekClickouts }} Applicants This Week</small>
+		{{ end }}
                   </div>
                   <div class="job-desc" id="{{ .Slug }}" data-toggle="off">
 		      {{ if .Expired }}
@@ -241,6 +247,10 @@ body{background:#f7f7f7;}
 		  <b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
                   <br />
                   <small>{{ .TimeAgo }}</small>
+		{{ if gt .LastWeekClickouts 0 }}
+                	<br />
+                	<small>{{ .LastWeekClickouts }} Applicants This Week</small>
+		{{ end }}
                   </div>
                   <div class="job-desc" id="{{ .Slug }}" data-toggle="off">
 		      {{ if .Expired }}
@@ -389,17 +399,20 @@ body{background:#f7f7f7;}
               <li><a href="/Golang-Developer-Salary-Netherlands">Golang Developer Salary Netherlands</a></li>
             </ul>
         </nav>
-    <nav style="margin-top: 20px;">
-      <small>
-        <a href="/">Home</a> &bull;
-        <a href="/support">Support</a> &bull;
-        <a href="https://twitter.com/golangcafe">Twitter</a> &bull;
-        <a href="/rss">RSS</a> &bull;
-        <a href="/about">About</a> &bull;
-        <a href="/terms-of-service">T&Cs</a>
-        <br>
-      </small>
-    </nav>
+    <h4 style="margin-left: 9px;">Golang Cafe</h4>
+    <nav class="subnav">
+        <ul>
+            <li><a href="/about">Home</a></li>
+            <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
+            <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
+            <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
+            <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+            <li><a href="/support">Ask for Support</a></li>
+            <li><a href="/about">About Golang Cafe</a></li>
+            <li><a href="/terms-of-service">T&Cs</a></li>
+            <li><a href="/privacy-policy">Privacy Policy</a></li>
+        </ul>
+	</nav>
   </footer>
     <script>
         function copyTextToClipboard(text) {
@@ -560,7 +573,7 @@ body{background:#f7f7f7;}
         .addEventListener('keyup', function(event) {
             event.preventDefault();
             if (event.keyCode !== 13) {
-		document.getElementById('search-tag-suggestions').style.display = 'none';
+		document.getElementById('search-location-suggestions').style.display = 'none';
 		getJSON('/x/loc/autocomplete?k='+document.getElementById('search-location').value.trim(), function(status, res) {
 			if (status == 200 && typeof res != 'undefined') {
 				var suggestions = '';
@@ -596,7 +609,7 @@ body{background:#f7f7f7;}
         .addEventListener('keyup', function(event) {
             event.preventDefault();
             if (event.keyCode != 13) {
-		document.getElementById('search-location-suggestions').style.display = 'none';
+		document.getElementById('search-tag-suggestions').style.display = 'none';
 		getJSON('/x/skill/autocomplete?k='+document.getElementById('search-tag').value.trim(), function(status, res) {
 			if (status == 200 && typeof res != 'undefined') {
 				var suggestions = '';

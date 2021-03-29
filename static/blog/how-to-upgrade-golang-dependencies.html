@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>How To Convert A Byte Slice To io.Reader In Go (Golang)</title>
+    <title>How To Upgrade Dependencies in Go (Golang) - Golang Cafe</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta charset="utf-8">
-    <meta name="title" content="How To Convert A Byte Slice To io.Reader In Go (Golang)" />
-    <meta name="keywords" content="golang, golang byte slice to io reader, golang byte to io reader, golang byte to reader, golang convert byte slice to io reader, io reader golang, golang turorial" />
-    <meta name="description" content="How To Convert A Byte Slice To io.Reader In Go (Golang)" />
-    <meta itemprop="name" content="How To Convert A Byte Slice To io.Reader In Go (Golang)">
-    <meta itemprop="description" content="How To Convert A Byte Slice To io.Reader In Go (Golang)">
+    <meta name="title" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe" />
+    <meta name="keywords" content="golang, golang dependencies, golang modules, go modules, go dependency, go dependencies, upgrade go depenencies, bump go dependencies" />
+    <meta name="description" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe" />
+    <meta itemprop="name" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
+    <meta itemprop="description" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
     <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta property="og:url" content="https://golang.cafe">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="How To Convert A Byte Slice To io.Reader In Go (Golang)">
-    <meta property="og:description" content="How To Convert A Byte Slice To io.Reader In Go (Golang)">
+    <meta property="og:title" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
+    <meta property="og:description" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
     <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="How To Convert A Byte Slice To io.Reader In Go (Golang)">
-    <meta name="twitter:description" content="How To Convert A Byte Slice To io.Reader In Go (Golang)">
+    <meta name="twitter:title" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
+    <meta name="twitter:description" content="How To Upgrade Dependencies in Go (Golang) - Golang Cafe">
     <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta name="twitter:site" content="@golangcafe"/>
     <style type="text/css">
@@ -43,66 +43,44 @@ body{background:#f7f7f7;}
     </header>
     <section style="margin:30px auto;">
       <article>
-<h1 class="code-line" data-line-start=0 data-line-end=1 ><a id="How_to_convert_a_byte_slice_to_ioReader_in_Golang_0"></a>How to convert a byte slice to io.Reader in Golang</h1>
-<p class="has-line-data" data-line-start="2" data-line-end="3">In this article we are going to see how you can convert a byte slice to a io.Reader in Go (Golang). A byte slice is just a “dynamic” array (slice) of bytes in Go, which for example can represent any data in memory, like file contents, data sent across the network, etc… It might be useful to convert a byte slice into an io.Reader because the io.Reader allows us to compose it with other parts of our program and the Go standard library as it implements the <code>Read</code> method.</p>
-<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7ITK3J&placement=golangcafe" id="_carbonads_js"></script><br />
-<h2 class="code-line" data-line-start=4 data-line-end=5 ><a id="byte_slice_to_ioReader_4"></a>byte slice to io.Reader</h2>
-<p class="has-line-data" data-line-start="6" data-line-end="7">Let’s see an example on how we can convert a byte slice into an io.Reader in Go</p>
-<pre><code class="language-go" data-line-start="9" data-line-end="31">package main
-
-import (
-  "bytes"
-  "log"
-)
-
-func main() {
-  data := []byte("this is some data stored as a byte slice in Go Lang!")
-  
-  // convert byte slice to io.Reader
-  reader := bytes.NewReader(data)
-  
-  // read only 4 byte from our io.Reader
-  buf := make([]byte, 4)
-  n, err := reader.Read(buf)
-  if err != nil {
-    log.Fatal(err)
-  }
-  log.Println(string(buf[:n]))
-}
+        <h1 class="code-line" data-line-start=0 data-line-end=1 ><a id="How_To_Upgrade_Golang_Dependencies_0"></a>How To Upgrade Golang Dependencies</h1>
+        <p class="has-line-data" data-line-start="2" data-line-end="3">Regardless of whether you are using Go modules or not, upgrading Go dependencies is a trivial task by using the <code>go get</code> command. Here’s a couple of example on how to upgrade Go dependencies</p>
+        <script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7ITK3J&placement=golangcafe" id="_carbonads_js"></script><br />
+        <h4 class="code-line" data-line-start=4 data-line-end=5 ><a id="How_to_upgrade_dependency_to_the_latest_version_4"></a>How to upgrade dependency to the latest version</h4>
+<p class="has-line-data" data-line-start="6" data-line-end="7">This command will eventually update your go.mod and go.sum file</p>
+<pre><code class="has-line-data" data-line-start="9" data-line-end="11">go get example.com/pkg
 </code></pre>
-<p class="has-line-data" data-line-start="32" data-line-end="33">The expected output is the following</p>
-<pre><code class="language-go" data-line-start="35" data-line-end="37">2009/11/10 23:00:00 this
+<h4 class="code-line" data-line-start=12 data-line-end=13 ><a id="How_to_upgrade_dependency_and_all_its_dependencies_to_the_latest_version_12"></a>How to upgrade dependency and all its dependencies to the latest version</h4>
+<p class="has-line-data" data-line-start="14" data-line-end="15">Similarly if you need to upgrade ta dependency and all its sub dependencies to latest version</p>
+<pre><code class="has-line-data" data-line-start="16" data-line-end="18">go get -u example.com/pkg
 </code></pre>
-<p class="has-line-data" data-line-start="38" data-line-end="39">Try running this by yourself on the Go Playground <a href="https://play.golang.org/p/pzTj9J8aJyL">https://play.golang.org/p/pzTj9J8aJyL</a></p>
-<h2 class="code-line" data-line-start=40 data-line-end=41 ><a id="ioReader_to_byte_slice_40"></a>io.Reader to byte slice</h2>
-<p class="has-line-data" data-line-start="42" data-line-end="43">Let’s see an example on how we can now convert a io.Reader into a byte slice in Go</p>
-<pre><code class="language-go" data-line-start="45" data-line-end="67">package main
-
-import (
-  "bytes"
-  "log"
-  "strings"
-)
-
-func main() {
-  ioReaderData := strings.NewReader("this is some data stored as a byte slice in Go Lang!")
-  
-  // creates a bytes.Buffer and read from io.Reader
-  buf := &amp;bytes.Buffer{}
-  buf.ReadFrom(ioReaderData)
-  
-  // retrieve a byte slice from bytes.Buffer
-  data := buf.Bytes()
-  
-  // only read the first 4 bytes
-  log.Println(string(data[:4]))
-}
+<h4 class="code-line" data-line-start=19 data-line-end=20 ><a id="How_to_view_available_dependency_upgrades_19"></a>How to view available dependency upgrades</h4>
+<p class="has-line-data" data-line-start="21" data-line-end="22">To view available minor and patch upgrades for all direct and indirect dependencies</p>
+<pre><code class="has-line-data" data-line-start="24" data-line-end="26">go list -u -m all
 </code></pre>
-<p class="has-line-data" data-line-start="68" data-line-end="69">The expected output is the following</p>
-<pre><code class="language-go" data-line-start="71" data-line-end="73">2009/11/10 23:00:00 this
+<h4 class="code-line" data-line-start=27 data-line-end=28 ><a id="How_to_upgrade_all_dependencies_at_once_27"></a>How to upgrade all dependencies at once</h4>
+<p class="has-line-data" data-line-start="28" data-line-end="29">To upgrade all dependencies at once for a given module, just run the following from the root directory of your module</p>
+<p class="has-line-data" data-line-start="30" data-line-end="31">This upgrades to the <strong>latest</strong> or <strong>minor</strong> patch release</p>
+<pre><code class="has-line-data" data-line-start="33" data-line-end="35">go get -u ./...
 </code></pre>
-<p class="has-line-data" data-line-start="74" data-line-end="75">Try running this by yourself on the Go Playground <a href="https://play.golang.org/p/TPVm7Y7XIus">https://play.golang.org/p/TPVm7Y7XIus</a></p>
-<script async type="text/javascript" src="//cdn.carbonads.com/carbon.js?serve=CE7ITK3J&placement=golangcafe" id="_carbonads_js"></script><br />
+<p class="has-line-data" data-line-start="36" data-line-end="37">To also upgrade test dependencies</p>
+<pre><code class="has-line-data" data-line-start="39" data-line-end="41">go get -t -u ./...
+</code></pre>
+<h4 class="code-line" data-line-start=42 data-line-end=43 ><a id="How_to_upgrade_to_a_specific_version_using_Go_modules_42"></a>How to upgrade to a specific version using Go modules</h4>
+<p class="has-line-data" data-line-start="44" data-line-end="45">Using the same mechanism as described above we can use the <code>go get</code> command to upgrade to a specific dependency</p>
+<pre><code class="has-line-data" data-line-start="47" data-line-end="49">get foo@v1.6.2
+</code></pre>
+<p class="has-line-data" data-line-start="50" data-line-end="51">or specifying a commit hash</p>
+<pre><code class="has-line-data" data-line-start="53" data-line-end="55">go get foo@e3702bed2
+</code></pre>
+<p class="has-line-data" data-line-start="55" data-line-end="56">or you can explore further semantics defined in the <a href="https://golang.org/cmd/go/#hdr-Module_queries">Module Queries</a></p>
+<h4 class="code-line" data-line-start=57 data-line-end=58 ><a id="Test_after_upgrading_dependencies_57"></a>Test after upgrading dependencies</h4>
+<p class="has-line-data" data-line-start="59" data-line-end="60">To make sure your packages are working correctly after an upgrade you may want to run the following command to test that are working properly</p>
+<pre><code class="has-line-data" data-line-start="62" data-line-end="64">go test all
+</code></pre>
+<p class="has-line-data" data-line-start="65" data-line-end="66">For more reference please visit the official Go documentation website <a href="https://github.com/golang/go/wiki/Modules#how-to-upgrade-and-downgrade-dependencies">https://github.com/golang/go/wiki/Modules#how-to-upgrade-and-downgrade-dependencies</a></p>
+	        <br />
+<iframe width="560" height="315" src="https://www.youtube.com/embed/AJxKKmzRTUY" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </article>
           <article class="line-item" style="margin-top:20px;">
 		  <div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;" id="email-subscribe-item-text">Ready for your next Go Job? Submit your profile and get hired on Golang Cafe</div>
@@ -120,7 +98,7 @@ func main() {
   </footer>
   <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/prism.min.js"></script>
   <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-go.min.js"></script>
-  <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-javascript.js"></script>
+  <script async src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.17.1/components/prism-javascript.js"></script>  
 
   <script src="//instant.page/5.1.0" type="module" integrity="sha384-by67kQnR+pyfy8yWP4kPO12fHKRLHZPfEsiSXR8u2IKcTdxD805MGUXBzVPnkLHw"></script>
 </body>
