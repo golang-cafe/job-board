@@ -9,6 +9,7 @@
 - Browse companies hiring Go engineers and using Go in production
 - Browse Go developers
 - Weekly Job Newsletter Digest
+- Open Source
 
 ### Tech Stack
 
