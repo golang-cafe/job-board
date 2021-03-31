@@ -38,6 +38,8 @@ type Config struct {
 	CloudflareZoneTag            string
 	CloudflareAPIEndpoint        string
 	MachineToken                 string
+	WhatsappLink                 string
+	PhoneNumber                  string
 }
 
 func LoadConfig() (Config, error) {
@@ -153,6 +155,14 @@ func LoadConfig() (Config, error) {
 	if machineToken == "" {
 		return Config{}, fmt.Errorf("MACHINE_TOKEN cannot be empty")
 	}
+	whatsappLink := os.Getenv("WHATSAPP_LINK")
+	if machineToken == "" {
+		return Config{}, fmt.Errorf("WHATSAPP_LINK cannot be empty")
+	}
+	phoneNumber := os.Getenv("PHONE_NUMBER")
+	if machineToken == "" {
+		return Config{}, fmt.Errorf("PHONE_NUMBER cannot be empty")
+	}
 
 	return Config{
 		Port:                         port,
@@ -182,5 +192,7 @@ func LoadConfig() (Config, error) {
 		CloudflareZoneTag:            cloudflareZoneTag,
 		CloudflareAPIEndpoint:        cloudflareAPIEndpoint,
 		MachineToken:                 machineToken,
+		WhatsappLink:                 whtasappLink,
+		PhoneNumber:                  phoneNumber,
 	}, nil
 }
