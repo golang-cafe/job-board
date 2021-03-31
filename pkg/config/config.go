@@ -192,7 +192,7 @@ func LoadConfig() (Config, error) {
 		CloudflareZoneTag:            cloudflareZoneTag,
 		CloudflareAPIEndpoint:        cloudflareAPIEndpoint,
 		MachineToken:                 machineToken,
-		WhatsappLink:                 whtasappLink,
+		WhatsappLink:                 whatsappLink,
 		PhoneNumber:                  phoneNumber,
 	}, nil
 }
