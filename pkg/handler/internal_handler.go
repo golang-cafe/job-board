@@ -806,7 +806,7 @@ func ApproveJobPageHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			err = svr.GetEmail().SendEmail("Diego from Golang Cafe <team@golang.cafe>", jobRq.Email, email.GolangCafeEmailAddress, "Your Job Ad on Golang Cafe", fmt.Sprintf("Thanks for using Golang Cafe,\n\nYour Job Ad has been approved and it's currently live on Golang Cafe - https://golang.cafe.\n\nYour Job Dashboard: \nhttps://golang.cafe/edit/%s\n\nPriority Support via Whatsapp: %s\n\nThe ad expires in 90 days and does not automatically renew. If you wish to sponsor or pin again the job ad you can do so by following the edit link.\n\nI am always available to answer any questions you may have,\nBest,\n\nDiego", jobRq.Token, svr.GetConfig().WhatsappLink))
+			err = svr.GetEmail().SendEmail("Diego from Golang Cafe <team@golang.cafe>", jobRq.Email, email.GolangCafeEmailAddress, "Your Job Ad on Golang Cafe", fmt.Sprintf("Thanks for using Golang Cafe,\n\nYour Job Ad has been approved and it's currently live on Golang Cafe: https://golang.cafe.\n\nYour Job Dashboard: https://golang.cafe/edit/%s\n\nPriority Support via Whatsapp: %s\n\nThe ad expires in 90 days and does not automatically renew. If you wish to sponsor or pin again the job ad you can do so by following the edit link.\n\nI am always available to answer any questions you may have,\n\nBest,\n\nDiego\n%s\n%s", jobRq.Token, svr.GetConfig().WhatsappLink, svr.GetConfig().AdminEmail, svr.GetConfig().PhoneNumber))
 			if err != nil {
 				svr.Log(err, "unable to send email while approving job ad")
 			}
