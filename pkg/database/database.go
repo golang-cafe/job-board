@@ -612,7 +612,7 @@ func DeveloperProfileBySlug(conn *sql.DB, slug string) (Developer, error) {
 }
 
 func DeveloperProfileByEmail(conn *sql.DB, email string) (Developer, error) {
-	row := conn.QueryRow(`SELECT * FROM developer_profile WHERE email = $1`, email)
+	row := conn.QueryRow(`SELECT * FROM developer_profile WHERE lower(email) = lower($1)`, email)
 	dev := Developer{}
 	err := row.Scan(
 		&dev.ID,

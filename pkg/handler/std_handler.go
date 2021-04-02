@@ -127,11 +127,11 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			Available:   true,
 			CreatedAt:   t,
 			UpdatedAt:   t,
-			Email:       req.Email,
+			Email:       strings.ToLower(req.Email),
 			ImageID:     req.ProfileImageID,
 			Skills:      req.Tags,
 		}
-		err = database.SaveTokenSignOn(svr.Conn, req.Email, k.String())
+		err = database.SaveTokenSignOn(svr.Conn, strings.ToLower(req.Email), k.String())
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusInternalServerError, nil)
