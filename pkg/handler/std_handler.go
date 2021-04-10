@@ -639,19 +639,12 @@ Unsubscribe here {$unsubscribe} | Golang Cafe Newsletter {$url}`
 				}
 				res.Body.Close()
 				log.Printf("updated weekly campaign with html content\n")
-				sendReqRaw := struct {
-					Type int    `json:"type"`
-					Date string `json:"date"`
-				}{
-					Type: 1,
-					Date: time.Now().Format("2006-01-02 15:04"),
-				}
 				sendReq, err := json.Marshal(sendReqRaw)
 				if err != nil {
 					svr.Log(err, "unable to create send req json for campaign")
 					return
 				}
-				req, err = http.NewRequest(http.MethodPost, fmt.Sprintf("https://api.mailerlite.com/api/v2/campaigns/%d/actions/send", campaignResponse.ID), bytes.NewBuffer(sendReq))
+				req, err = http.NewRequest(http.MethodPost, fmt.Sprintf("https://api.mailerlite.com/api/v2/campaigns/%d/actions/send", campaignResponse.ID), nil)
 				if err != nil {
 					svr.Log(err, fmt.Sprintf("unable to create request for campaign id req for mailerlite %s", campaignResponse.ID))
 					return

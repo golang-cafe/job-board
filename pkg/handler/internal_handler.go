@@ -162,7 +162,7 @@ func ApplyForJobPageHandler(svr server.Server) http.HandlerFunc {
 		}
 		contentType := http.DetectContentType(fileBytes)
 		if contentType != "application/pdf" {
-			svr.Log(errors.New("PDF file is not application/pdf"), fmt.Sprintf("PDF file is not application/json got %s", contentType))
+			svr.Log(errors.New("PDF file is not application/pdf"), fmt.Sprintf("PDF file is not application/pdf got %s", contentType))
 			svr.JSON(w, http.StatusUnsupportedMediaType, nil)
 			return
 		}
