@@ -103,14 +103,14 @@ body{background:#f7f7f7;}
   <section>
       <article style="margin-top:20px;">
                 {{ if and .Location $isRemote }}
-                    <h1 style="margin-top:20px;">Hire Remote Go (Golang) Developers</h1>
+                    <h1 style="margin-top:20px;">Hire Remote Golang Developers</h1>
 		    <p style="font-size: 18px;"><b>Golang Cafe is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Remote Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                 {{ else }}
                     {{ if .Location }}
-                        <h1 style="margin-top: 20px;">Hire Go (Golang) Developers In {{ .Location }}</h1>
+                        <h1 style="margin-top: 20px;">Hire Golang Developers In {{ .Location }}</h1>
 			<p style="font-size: 18px;"><b>Golang Cafe is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers in {{ .Location }} today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                     {{ else }}
-                        <h1 style="margin-top: 20px;">Hire Go (Golang) Developers</h1>
+                        <h1 style="margin-top: 20px;">Hire Golang Developers</h1>
 		    <p style="font-size: 18px;"><b>Golang Cafe is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new last week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                     {{ end }}
                 {{ end }}
