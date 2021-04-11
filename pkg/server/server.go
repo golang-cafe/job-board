@@ -744,10 +744,28 @@ func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		s.Log(err, "could not find ip address in x-forwarded-for, defaulting currency to USD")
 	}
+	pageviewsLast30Days, err := database.GetWebsitePageViewsLast30Days(s.Conn)
+	if err != nil {
+		s.Log(err, "could not retrieve pageviews for last 30 days")
+		pageviewsLast30Days = 100000
+	}
+	jobPageviewsLast30Days, err := database.GetJobPageViewsLast30Days(s.Conn)
+	if err != nil {
+		s.Log(err, "could not retrieve job pageviews for last 30 days")
+		jobPageviewsLast30Days = 25000
+	}
+	jobApplicantsLast30Days, err := database.GetJobClickoutsLast30Days(s.Conn)
+	if err != nil {
+		s.Log(err, "could not retrieve job clickouts for last 30 days")
+		jobApplicantsLast30Days = 8000
+	}
 	s.Render(w, http.StatusOK, "post-a-job.html", map[string]interface{}{
-		"Location":             location,
-		"Currency":             currency,
-		"StripePublishableKey": s.GetConfig().StripePublishableKey,
+		"Location":               location,
+		"Currency":               currency,
+		"PageviewsLastMonth":     humanize.Comma(int64(pageviewsLast30Days)),
+		"JobPageviewsLastMonth":  humanize.Comma(int64(jobPageviewsLast30Days)),
+		"JobApplicantsLastMonth": humanize.Comma(int64(jobApplicantsLast30Days)),
+		"StripePublishableKey":   s.GetConfig().StripePublishableKey,
 	})
 }
 

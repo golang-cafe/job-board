@@ -639,11 +639,6 @@ Unsubscribe here {$unsubscribe} | Golang Cafe Newsletter {$url}`
 				}
 				res.Body.Close()
 				log.Printf("updated weekly campaign with html content\n")
-				sendReq, err := json.Marshal(sendReqRaw)
-				if err != nil {
-					svr.Log(err, "unable to create send req json for campaign")
-					return
-				}
 				req, err = http.NewRequest(http.MethodPost, fmt.Sprintf("https://api.mailerlite.com/api/v2/campaigns/%d/actions/send", campaignResponse.ID), nil)
 				if err != nil {
 					svr.Log(err, fmt.Sprintf("unable to create request for campaign id req for mailerlite %s", campaignResponse.ID))
@@ -855,6 +850,35 @@ func TriggerAdsManager(svr server.Server) http.HandlerFunc {
 					}
 					database.UpdateJobAdType(svr.Conn, database.JobAdBasic, j.ID)
 					log.Printf("demoted job id %d expired sponsored 7days pinned job ads\n", j.ID)
+				}
+				log.Printf("attempting to demote expired sponsored 60days pinned job ads\n")
+				jobs3, err := database.GetJobsOlderThan(svr.Conn, time.Now().AddDate(0, 0, -60), database.JobAdSponsoredPinnedFor60Days)
+				if err != nil {
+					svr.Log(err, "unable to demote expired sponsored 7 days pinned job ads")
+					return
+				}
+				for _, j := range jobs3 {
+					jobToken, err := database.TokenByJobID(svr.Conn, j.ID)
+					if err != nil {
+						svr.Log(err, fmt.Sprintf("unable to retrieve toke for job id %d and email %s", j.ID, j.CompanyEmail))
+						continue
+					} else {
+						err = svr.GetEmail().SendEmail(
+							"Diego from Golang Cafe <team@golang.cafe>",
+							j.CompanyEmail,
+							email.GolangCafeEmailAddress,
+							"Your Job Ad on Golang Cafe Has Expired",
+							fmt.Sprintf(
+								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://golang.cafe/edit/%s?expired=1", jobToken,
+							),
+						)
+						if err != nil {
+							svr.Log(err, fmt.Sprintf("unable to send email while updating job ad type for job id %d", j.ID))
+							continue
+						}
+					}
+					database.UpdateJobAdType(svr.Conn, database.JobAdBasic, j.ID)
+					log.Printf("demoted job id %d expired sponsored 60days pinned job ads\n", j.ID)
 				}
 			}()
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
@@ -1436,6 +1460,21 @@ func JobBySlugPageHandler(svr server.Server) http.HandlerFunc {
 			isQuickApply = true
 		}
 		job.SalaryRange = fmt.Sprintf("%s%s to %s%s", job.SalaryCurrency, humanize.Comma(job.SalaryMin), job.SalaryCurrency, humanize.Comma(job.SalaryMax))
+
+		relevantJobs, err := database.GetRelevantJobs(svr.Conn, job.ID, 3)
+		if err != nil {
+			svr.Log(err, "unable to get relevant jobs")
+		}
+		for i, j := range relevantJobs {
+			relevantJobs[i].CompanyURLEnc = url.PathEscape(j.Company)
+			relevantJobs[i].JobDescription = string(svr.MarkdownToHTML(j.JobDescription))
+			relevantJobs[i].Perks = string(svr.MarkdownToHTML(j.Perks))
+			relevantJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
+			relevantJobs[i].InterviewProcess = string(svr.MarkdownToHTML(j.InterviewProcess))
+			if svr.IsEmail(j.HowToApply) {
+				relevantJobs[i].IsQuickApply = true
+			}
+		}
 		svr.Render(w, http.StatusOK, "job.html", map[string]interface{}{
 			"Job":                     job,
 			"JobURIEncoded":           url.QueryEscape(job.Slug),
@@ -1450,6 +1489,7 @@ func JobBySlugPageHandler(svr server.Server) http.HandlerFunc {
 			"GoogleJobValidThrough":   time.Unix(job.CreatedAt, 0).AddDate(0, 5, 0),
 			"GoogleJobLocation":       jobLocations[0],
 			"GoogleJobDescription":    strconv.Quote(strings.ReplaceAll(string(svr.MarkdownToHTML(job.JobDescription)), "\n", "")),
+			"RelevantJobs":            relevantJobs,
 		})
 	}
 }

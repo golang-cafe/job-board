@@ -12,6 +12,9 @@ body{background:#f7f7f7;}
     .apply-box {display: none;z-index: 2;width: 50%; height: auto;position: fixed;margin: 5% auto; top: 40px; left: 0; right: 0;background: #fff;}@media only screen and (max-width: 768px) {.apply-box{width: 90%;}}
     .overlay-effect {display: none;width: 100%; height: 100%; position: fixed; top: 0; left: 0;background: rgba(0, 0, 0,0.5);z-index: 1}.upload-file-label:hover{cursor: pointer;}input[type="checkbox"]{-webkit-appearance: checkbox;-moz-appearance: checkbox;appearance: checkbox;}
     .apply-link {font-size: 18px;font-weight: 400;line-height: 29.7px;border-radius: 3.6px;background: #000090;color: #fff;cursor: pointer;display: inline;margin-bottom: 18px;margin-right: 7.2px;padding: 6.525px 23.4px;text-align: center;}.apply-link:hover {text-decoration:none;background:#0000c5;color:#ffffff;}
+    .line-item {background:#fff;padding:20px;margin:10px auto;}input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
+    .clearfix::after {content: "";clear: both;display: table;}input[type="checkbox"]{-webkit-appearance: checkbox;-moz-appearance: checkbox;appearance: checkbox;}
+    .job-desc {float:left;padding:0px 0px 0px 0px;font-size:12pt;display:none;}.job-desc>h3{margin-top:10px;}.job-icon{float: left; width: 60px; border-radius: 60px; margin-right: 10px;border: 1px solid #ccc;}
     .resp-sharing-button__link,
 .resp-sharing-button__icon {
   display: inline-block
@@ -371,6 +374,29 @@ background-color: #FF6600
             </p>
       </article>
       {{ end }}
+        {{ if .RelevantJovs }}
+	<h3>Relevant Jobs</h3>
+	{{ end }}
+          {{ range $i, $j := .RelevantJobs }}
+              <article class="line-item">
+                  {{ if .CompanyIconID }}
+                    <img width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+                  {{ end }}
+                  <div style="float: left;">
+			  <a href="/job/{{ .Slug }}" target="_blank"><b>{{ .JobTitle }}</b><br />
+				  <a style="font-size:12pt;" href="/Golang-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
+		  <b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
+                  <br />
+                  <small>{{ .TimeAgo }}</small>
+		{{ if gt .LastWeekClickouts 0 }}
+                	<br />
+                	<small>{{ .LastWeekClickouts }} Applicants This Week</small>
+		{{ end }}
+                  </div>
+                  <div class="clearfix"></div>
+              </article>
+	      {{ end }}
+	      <div class="clearfix"></div>
   </section>
   <footer>
     <h4 style="margin-left: 9px;">Submit Your Profile & Get Hired</h4>

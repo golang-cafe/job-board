@@ -814,6 +814,7 @@ const (
 	JobAdSponsoredPinnedFor30Days
 	JobAdSponsoredPinnedFor7Days
 	JobAdWithCompanyLogo
+	JobAdSponsoredPinnedFor60Days
 )
 
 // DemoteJobAdsOlderThan
@@ -1740,12 +1741,51 @@ func GetPendingJobs(conn *sql.DB) ([]*JobPost, error) {
 	return jobs, nil
 }
 
+// GetRelevantJobs returns pinned and most recent jobs for now
+// todo: takes a job and returns jobs with similar location
+func GetRelevantJobs(conn *sql.DB, jobID int, limit int) ([]*JobPost, error) {
+	jobs := []*JobPost{}
+	var rows *sql.Rows
+	rows, err := conn.Query(`
+	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, last_week_clickouts
+		FROM job WHERE approved_at IS NOT NULL AND id != $1 ORDER BY ad_type DESC, approved_at DESC LIMIT $2`, jobID, limit)
+	if err != nil {
+		return jobs, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		job := &JobPost{}
+		var createdAt time.Time
+		var perks, interview, companyIcon sql.NullString
+		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.LastWeekClickouts)
+		if companyIcon.Valid {
+			job.CompanyIconID = companyIcon.String
+		}
+		if perks.Valid {
+			job.Perks = perks.String
+		}
+		if interview.Valid {
+			job.InterviewProcess = interview.String
+		}
+		job.TimeAgo = createdAt.UTC().Format("January 2006")
+		if err != nil {
+			return jobs, err
+		}
+		jobs = append(jobs, job)
+	}
+	err = rows.Err()
+	if err != nil {
+		return jobs, err
+	}
+	return jobs, nil
+}
+
 func GetPinnedJobs(conn *sql.DB) ([]*JobPost, error) {
 	jobs := []*JobPost{}
 	var rows *sql.Rows
 	rows, err := conn.Query(`
 	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, last_week_clickouts
-		FROM job WHERE approved_at IS NOT NULL AND ad_type IN (2, 3) ORDER BY approved_at DESC`)
+		FROM job WHERE approved_at IS NOT NULL AND ad_type IN (2, 3, 5) ORDER BY approved_at DESC`)
 	if err != nil {
 		return jobs, err
 	}
@@ -1892,7 +1932,7 @@ func getQueryForArgs(conn *sql.DB, location, tag string, offset, max int) (*sql.
 		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 		FROM job
 		WHERE approved_at IS NOT NULL
-		AND ad_type not in (2, 3)
+		AND ad_type not in (2, 3, 5)
 		ORDER BY created_at DESC LIMIT $2 OFFSET $1`, offset, max)
 	}
 	if tag == "" && location != "" {
@@ -1900,7 +1940,7 @@ func getQueryForArgs(conn *sql.DB, location, tag string, offset, max int) (*sql.
 		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts 
 		FROM job
 		WHERE approved_at IS NOT NULL
-		AND ad_type not in (2, 3)
+		AND ad_type not in (2, 3, 5)
 		AND location ILIKE '%' || $1 || '%'
 		ORDER BY created_at DESC LIMIT $3 OFFSET $2`, location, offset, max)
 	}
@@ -1910,7 +1950,7 @@ func getQueryForArgs(conn *sql.DB, location, tag string, offset, max int) (*sql.
 	FROM
 	(
 		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
-		FROM job WHERE approved_at IS NOT NULL AND ad_type not in (2, 3)
+		FROM job WHERE approved_at IS NOT NULL AND ad_type not in (2, 3, 5)
 	) AS job_
 	WHERE job_.doc @@ to_tsquery($1)
 	ORDER BY ts_rank(job_.doc, to_tsquery($1)) DESC, created_at DESC LIMIT $3 OFFSET $2`, tag, offset, max)
@@ -1921,7 +1961,7 @@ func getQueryForArgs(conn *sql.DB, location, tag string, offset, max int) (*sql.
 	FROM
 	(
 		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
-		FROM job WHERE approved_at IS NOT NULL AND ad_type not in (2, 3)
+		FROM job WHERE approved_at IS NOT NULL AND ad_type not in (2, 3, 5)
 	) AS job_
 	WHERE job_.doc @@ to_tsquery($1)
 	AND location ILIKE '%' || $2 || '%'
@@ -2192,6 +2232,36 @@ func GetSitemapLastMod(conn *sql.DB) (time.Time, error) {
 	}
 
 	return lastMod, nil
+}
+
+func GetWebsitePageViewsLast30Days(conn *sql.DB) (int, error) {
+	var c int
+	row := conn.QueryRow(`SELECT SUM(page_views) AS c FROM cloudflare_browser_stats WHERE date > CURRENT_DATE - 30 AND ua_browser_family NOT ILIKE '%bot%'`)
+	if err := row.Scan(&c); err != nil {
+		return 100000, nil
+	}
+
+	return c, nil
+}
+
+func GetJobPageViewsLast30Days(conn *sql.DB) (int, error) {
+	var c int
+	row := conn.QueryRow(`SELECT COUNT(*) AS c FROM job_event WHERE event_type = 'page_view' AND created_at > CURRENT_DATE - 30`)
+	if err := row.Scan(&c); err != nil {
+		return 100000, nil
+	}
+
+	return c, nil
+}
+
+func GetJobClickoutsLast30Days(conn *sql.DB) (int, error) {
+	var c int
+	row := conn.QueryRow(`SELECT COUNT(*) AS c FROM job_event WHERE event_type = 'clickout' AND created_at > CURRENT_DATE - 30`)
+	if err := row.Scan(&c); err != nil {
+		return 100000, nil
+	}
+
+	return c, nil
 }
 
 func GetSitemapIndex(conn *sql.DB) ([]SitemapEntry, error) {

@@ -17,15 +17,17 @@ import (
 func AdTypeToAmount(adType int64) int64 {
 	switch adType {
 	case database.JobAdBasic:
-		return 900
+		return 3900
 	case database.JobAdSponsoredBackground:
 		return 3900
 	case database.JobAdSponsoredPinnedFor30Days:
-		return 9900
+		return 12900
 	case database.JobAdSponsoredPinnedFor7Days:
 		return 5900
 	case database.JobAdWithCompanyLogo:
-		return 2900
+		return 4900
+	case database.JobAdSponsoredPinnedFor60Days:
+		return 19900
 	}
 
 	return 0
@@ -43,6 +45,8 @@ func AdTypeToDescription(adType int64) string {
 		return "Sponsored Ad Pinned For 7 Days"
 	case database.JobAdWithCompanyLogo:
 		return "Standard Ad With Company Logo"
+	case database.JobAdSponsoredPinnedFor60Days:
+		return "Sponsored Ad Pinned For 60 Days"
 	}
 
 	return ""
