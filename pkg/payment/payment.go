@@ -69,7 +69,7 @@ func ProcessPaymentIfApplicable(stripeKey string, jobRq *database.JobRq) error {
 }
 
 func isApplicable(jobRq *database.JobRq) bool {
-	return jobRq.AdType >= 0 && jobRq.AdType <= 4
+	return jobRq.AdType >= 0 && jobRq.AdType <= 5
 }
 
 func CreateGenericSession(stripeKey, email, currency string, amount int) (*stripe.CheckoutSession, error) {
