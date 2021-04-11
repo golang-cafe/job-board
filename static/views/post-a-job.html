@@ -101,35 +101,29 @@ body{background:#f7f7f7;}
     <div class="spinner-box"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
   </div>
   <section>
-      <article>
-            <p>
+      <article style="margin-top:20px;">
                 {{ if and .Location $isRemote }}
-                    <h1>Hire Remote Go (Golang) Developers</h1>
-                    <p style="font-size: 18px;"><b>Golang Cafe is the most cost-effective platform to source Go engineers today.</b> Golang Cafe uses a unique and simple approach: directly connecting Go engineers and companies using the Go programming language. Golang Cafe is visited by thousands of engineers passionate about the Go programming language looking for Remote Go jobs. Hire Go Developers today and reach thousands of high-quality candidates</p><br />
+                    <h1 style="margin-top:20px;">Hire Remote Go (Golang) Developers</h1>
+		    <p style="font-size: 18px;"><b>Golang Cafe is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Remote Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                 {{ else }}
                     {{ if .Location }}
-                        <h1>Hire Go (Golang) Developers In {{ .Location }}</h1>
-                        <p style="font-size: 18px;"><b>Golang Cafe is the most cost-effective platform to source Go engineers today.</b> Golang Cafe uses a unique and simple approach: directly connecting Go engineers and companies using the Go programming language. Golang Cafe is visited by thousands of engineers passionate about the Go programming language looking for a Go job based in {{ .Location }}. Hire Go Developers today and reach thousands of high-quality candidates</p><br />
+                        <h1 style="margin-top: 20px;">Hire Go (Golang) Developers In {{ .Location }}</h1>
+			<p style="font-size: 18px;"><b>Golang Cafe is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers in {{ .Location }} today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                     {{ else }}
-                        <h1>Hire Go (Golang) Developers</h1>
-                        <p style="font-size: 18px;">
-                            <b>Golang Cafe is the most cost-effective platform to source Go engineers today.</b> Golang Cafe uses a unique and simple approach: directly connecting Go engineers and companies using the Go programming language.<br />
-                            Reach thousands of high-quality candidates, <b>hire your next Go engineer today</b></p><br />
+                        <h1 style="margin-top: 20px;">Hire Go (Golang) Developers</h1>
+		    <p style="font-size: 18px;"><b>Golang Cafe is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new last week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                     {{ end }}
                 {{ end }}
+		{{ if .FeaturedCompanies }}
                 <h3>Trusted By</h3>
-                <img src="/s/img/hello-fresh.png" width="100" title="Hello Fresh" />
-                <img src="/s/img/x-team.png" width="100" title="X-Team" />
-                <img src="/s/img/bud-financial.png" width="100" title="Bud Financial" />
-                <img src="/s/img/monzo.png" width="100" title="Monzo" />
-                <img src="/s/img/dollar-shave-club.png" width="100" title="Dollar Shave Club" />
-                <img src="/s/img/ask.png" width="100" title="Ask Media Group" />
-                <img src="/s/img/housing-anywhere.png" width="100" title="Housing Anywhere" />
-                <img src="/s/img/form3.png" width="100" title="Form3 Financial Cloud" />
-                <img src="/s/img/digital-ocean.png" width="100" title="Digital Ocean" />
-                <img src="/s/img/mongodb.png" width="100" title="MongoDB" />
-                <img src="/s/img/ons.jpeg" width="100" title="Office for National Statistics" />
-                <br />
+		<p>Golang Cafe is trusted by hundred of companies such as {{ .FeaturedCompaniesNames }}</p>
+		<div style="text-align:center;">
+		{{ range $i, $j := .FeaturedCompanies }}
+			<img style="vertical-align:middle;border-radius:50px;" src="/x/s/m/{{ .IconImageID }}?w=100&h=100" width="100" title="{{ .Name }}" />
+		{{ end }}
+		</div>
+		<br />
+		{{ end }}
 
                 <h3>Supercharge Your Hiring On Golang Cafe</h3>
                 <ul>
@@ -160,7 +154,7 @@ body{background:#f7f7f7;}
                 <input type="text" name="company-name" id="company-name" placeholder="Company Name" style="width: 100%;"/><br />
                 <input type="url" name="company-website" id="company-website" placeholder="Company Website" style="width: 100%;"/><br />
                 <div>
-                <label for="company-icon-file" style="float: left;cursor: pointer;background: #000090;color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload Company Logo</label>
+                <label for="company-icon-file" style="float: left;cursor: pointer;background: #000090;color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">⬆ Upload Company Logo</label>
 		<div style="float:left; width:100%;">
                 	<img id="company-icon-preview" src="" style="max-width:100%;cursor: pointer;display: none; float: left;"/>
 		</div>
@@ -171,8 +165,6 @@ body{background:#f7f7f7;}
                 <textarea id="job-description" placeholder="Job Description" style="resize:none; width: 100%;"></textarea><br />
                 <input type="text" name="how-to-apply" id="how-to-apply" placeholder="How To Apply (Email or URL)" style="width: 100%;"/><br />
                 <input type="email" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;"/><br />
-		<h4>Feedback</h4>
-		<textarea id="feedback-job" placeholder="Got any feedback about Golang Cafe? (Optional)" style="resize:none;width:100%;"></textarea><br />
                 <h4>Preview</h4>
                 <article id="job-preview" class="line-item">
                     <img src="" class="job-icon" id="job-preview-img" alt="Company Logo" title="Company Logo" style="display: none;"/>
@@ -195,9 +187,10 @@ body{background:#f7f7f7;}
                 <input type="checkbox" name="ad-type-5" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-5"><label>📌 Pinned to the Front Page for 60 days <b>{{ .Currency.Symbol }}199</b>  (save 60%)</label><br/>
                 <br />
                 <br />
-                <input type="submit" id="submit" value="Hire Go Developers {{ .Currency.Symbol }}59" onclick="post();" style="float: right;">
-                <br />
-            </p>
+                <input type="submit" id="submit" value="Hire Go Developers {{ .Currency.Symbol }}59" onclick="post();" style="float: right;margin-right:0px;margin-bottom:0px;">
+                <div class="clearfix"></div>
+		<p style="line-height:1rem;float:right;width:50%;text-align:right;font-size:9pt;margin-bottom:0px;margin-top:10px;">This is not a subscription. You will only be charged once. By continuing you accept the <a href="/terms-of-service" target="_blank">Terms of Service</a></p>
+                <div class="clearfix"></div>
       </article>
   </section>
      <footer>
@@ -390,7 +383,6 @@ body{background:#f7f7f7;}
             var jobDescription = jobDescriptionEditor.value();
             var howToApply = document.getElementById("how-to-apply").value;
             var companyEmail = document.getElementById("company-email").value;
-	    var feedback = document.getElementById('feedback-job').value;
             if (empty(jobTitle, jobLocation, salaryMin, salaryMax, companyName, companyWebsite, jobDescription, howToApply, companyEmail)) {
                 alert('You must fill all the mandatory forms in order to Hire Go Developers');
                 return;
@@ -466,7 +458,6 @@ body{background:#f7f7f7;}
                                 how_to_apply: howToApply,
                                 company_email: companyEmail,
                                 ad_type: adType,
-				feedback: feedback,
                                 currency_code: '{{ .Currency.Code }}',
                                 company_icon_id: companyIconId
                             },
@@ -510,7 +501,6 @@ body{background:#f7f7f7;}
                         how_to_apply: howToApply,
                         company_email: companyEmail,
                         ad_type: adType,
-			feedback: feedback,
                         currency_code: '{{ .Currency.Code }}'
                     },
                     function(success, body) {

@@ -449,6 +449,26 @@ func textifyCompanies(location string, pinnedJobs, jobs []*database.JobPost) str
 	return ""
 }
 
+func textifyCompanyNames(companies []database.Company, max int) string {
+	switch {
+	case len(companies) == 1:
+		return companies[0].Name
+	case len(companies) == 2:
+		return fmt.Sprintf("%s and %s", companies[0].Name, companies[1].Name)
+	case len(companies) > 2:
+		names := make([]string, 0, len(companies))
+		if max >= len(companies)-1 {
+			max = len(companies) - 1
+		}
+		for i := 0; i < max; i++ {
+			names = append(names, companies[i].Name)
+		}
+		return fmt.Sprintf("%s and many others", strings.Join(names, ", "))
+	}
+
+	return ""
+}
+
 func textifyJobTitles(jobs []*database.JobPost) string {
 	switch {
 	case len(jobs) == 1:
@@ -759,13 +779,33 @@ func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request
 		s.Log(err, "could not retrieve job clickouts for last 30 days")
 		jobApplicantsLast30Days = 8000
 	}
+	featuredCompanies, err := database.FeaturedCompaniesPostAJob(s.Conn)
+	if err != nil {
+		s.Log(err, "could not retrieve featured companies for post a job page")
+	}
+	lastJobPosted, err := database.LastJobPosted(s.Conn)
+	if err != nil {
+		s.Log(err, "could not retrieve last job posted at")
+		lastJobPosted = time.Now().AddDate(0, 0, -1)
+	}
+	newJobsLastWeek, newJobsLastMonth, err := database.NewJobsLastWeekOrMonth(s.Conn)
+	if err != nil {
+		s.Log(err, "unable to retrieve new jobs last week last month")
+		newJobsLastWeek = 1
+	}
 	s.Render(w, http.StatusOK, "post-a-job.html", map[string]interface{}{
-		"Location":               location,
-		"Currency":               currency,
-		"PageviewsLastMonth":     humanize.Comma(int64(pageviewsLast30Days)),
-		"JobPageviewsLastMonth":  humanize.Comma(int64(jobPageviewsLast30Days)),
-		"JobApplicantsLastMonth": humanize.Comma(int64(jobApplicantsLast30Days)),
-		"StripePublishableKey":   s.GetConfig().StripePublishableKey,
+		"Location":                 location,
+		"Currency":                 currency,
+		"PageviewsLastMonth":       humanize.Comma(int64(pageviewsLast30Days)),
+		"JobPageviewsLastMonth":    humanize.Comma(int64(jobPageviewsLast30Days)),
+		"JobApplicantsLastMonth":   humanize.Comma(int64(jobApplicantsLast30Days)),
+		"FeaturedCompanies":        featuredCompanies,
+		"FeaturedCompaniesNames":   textifyCompanyNames(featuredCompanies, 10),
+		"LastJobPostedAtHumanized": humanize.Time(lastJobPosted),
+		"LastJobPostedAt":          lastJobPosted.Format(time.RFC3339),
+		"NewJobsLastWeek":          newJobsLastWeek,
+		"NewJobsLastMonth":         newJobsLastMonth,
+		"StripePublishableKey":     s.GetConfig().StripePublishableKey,
 	})
 }
 

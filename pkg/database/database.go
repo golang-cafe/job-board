@@ -352,6 +352,7 @@ type SEOSkill struct {
 //	active_job_count INT NOT NULL,
 //	PRIMARY KEY(id)
 //);
+// ALTER TABLE company ADD COLUMN featured_post_a_job BOOLEAN DEFAULT FALSE;
 
 // CREATE UNIQUE INDEX company_name_idx ON company (name);
 // ALTER TABLE company ADD COLUMN description VARCHAR(255) NOT NULL DEFAULT '';
@@ -1895,6 +1896,27 @@ func CompaniesByQuery(conn *sql.DB, location string, pageID, companiesPerPage in
 	return companies, fullRowsCount, nil
 }
 
+func FeaturedCompaniesPostAJob(conn *sql.DB) ([]Company, error) {
+	companies := []Company{}
+	rows, err := conn.Query(`SELECT name, icon_image_id FROM company WHERE featured_post_a_job IS TRUE LIMIT 15`)
+	if err != nil {
+		return companies, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		c := Company{}
+		err = rows.Scan(
+			&c.Name,
+			&c.IconImageID,
+		)
+		companies = append(companies, c)
+	}
+	err = rows.Err()
+	if err != nil {
+		return companies, err
+	}
+	return companies, nil
+}
 func TokenByJobID(conn *sql.DB, jobID int) (string, error) {
 	tokenRow := conn.QueryRow(
 		`SELECT token
@@ -1916,6 +1938,16 @@ func JobPostIDByToken(conn *sql.DB, token string) (int, error) {
 		return 0, err
 	}
 	return jobID, nil
+}
+
+func LastJobPosted(conn *sql.DB) (time.Time, error) {
+	row := conn.QueryRow(`SELECT created_at FROM job WHERE approved_at IS NOT NULL ORDER BY created_at DESC LIMIT 1`)
+	var last time.Time
+	if err := row.Scan(&last); err != nil {
+		return last, err
+	}
+
+	return last, nil
 }
 
 func SaveTokenForJob(conn *sql.DB, token string, jobID int) error {
