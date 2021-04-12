@@ -951,7 +951,7 @@ func EditJobViewPageHandler(svr server.Server) http.HandlerFunc {
 			"ConversionRate":             conversionRate,
 			"IsCallback":                 isCallback,
 			"PaymentSuccess":             paymentSuccess,
-			"IsUpsell":                   expiredUpsell,
+			"IsUpsell":                   len(expiredUpsell) > 0,
 			"Currency":                   currency,
 			"StripePublishableKey":       svr.GetConfig().StripePublishableKey,
 			"IsUnpinned":                 job.AdType != database.JobAdSponsoredPinnedFor30Days && job.AdType != database.JobAdSponsoredPinnedFor30Days,

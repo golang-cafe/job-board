@@ -70,6 +70,72 @@ body{background:#f7f7f7;}
             <br />
         </p>
     </article>
+    <script>
+      function pin() {
+        document.getElementById("spinner-0").style.display = "block";
+            var adType = 0;
+            if (document.getElementById("ad-type-3").checked) {
+                adType = 3;
+            }
+            if (document.getElementById("ad-type-2").checked) {
+                adType = 2;
+            }
+            var email = document.getElementById("company-email").value;
+            if (!isEmail(email)) {
+                alert('You must provide a valid email address.');
+                return;
+            }
+        httpReq('/x/s/upsell',
+                            {
+                                ad_type: adType,
+                                email: email,
+                                currency_code: '{{ .Currency.Code }}',
+                                token: '{{ .Token }}'
+                            },
+                            function(success, body) {
+                                if (success) {
+                                    try {
+                                        var res = JSON.parse(body);
+                                        stripe.redirectToCheckout({
+                                            sessionId: res.s_id
+                                        }).then(function (result) {
+                                            document.getElementById("spinner-0").style.display = "none";
+                                            if (result.error) {
+                                                console.log(result.error);
+                                                alert('Oops, there was a problem with your payment. Please try again later');
+                                            }
+                                        });
+                                    } catch (err) {
+                                        document.getElementById("spinner-0").style.display = "none";
+                                        console.log(err);
+                                        alert('Oops, there was a problem with your payment. Please try again later');
+                                    }
+                                } else {
+                                    document.getElementById("spinner-0").style.display = "none";
+                                    window.location.href = "/x/j/p/0";
+                                }
+                            }
+                        );
+      }
+      document.getElementById("ad-type-2").addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById("ad-type-3").checked = false;
+                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}129';
+            } else {
+                document.getElementById("ad-type-3").checked = true;
+                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}59';
+            }
+        });
+        document.getElementById("ad-type-3").addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById("ad-type-2").checked = false;
+                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}59';
+            } else {
+                document.getElementById("ad-type-2").checked = true;
+                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}129';
+            }
+        });
+    </script>
     {{ end }}
     {{ if .IsCallback }}
         <article style="margin-bottom: 30px;">
@@ -113,7 +179,7 @@ body{background:#f7f7f7;}
         </p>
     </article>
     {{ $notUpsell := not .IsUpsell }}
-    {{ if or .IsUnpinned $notUpsell }}
+    {{ if and .IsUnpinned $notUpsell }}
     <article style="margin-top: 30px;">
         <p>
             <h3>Sponsor Your Job Ad</h3>
@@ -126,6 +192,72 @@ body{background:#f7f7f7;}
             <br />
         </p>
     </article>
+    <script>
+      function pin() {
+        document.getElementById("spinner-0").style.display = "block";
+            var adType = 0;
+            if (document.getElementById("ad-type-3").checked) {
+                adType = 3;
+            }
+            if (document.getElementById("ad-type-2").checked) {
+                adType = 2;
+            }
+            var email = document.getElementById("company-email").value;
+            if (!isEmail(email)) {
+                alert('You must provide a valid email address.');
+                return;
+            }
+        httpReq('/x/s/upsell',
+                            {
+                                ad_type: adType,
+                                email: email,
+                                currency_code: '{{ .Currency.Code }}',
+                                token: '{{ .Token }}'
+                            },
+                            function(success, body) {
+                                if (success) {
+                                    try {
+                                        var res = JSON.parse(body);
+                                        stripe.redirectToCheckout({
+                                            sessionId: res.s_id
+                                        }).then(function (result) {
+                                            document.getElementById("spinner-0").style.display = "none";
+                                            if (result.error) {
+                                                console.log(result.error);
+                                                alert('Oops, there was a problem with your payment. Please try again later');
+                                            }
+                                        });
+                                    } catch (err) {
+                                        document.getElementById("spinner-0").style.display = "none";
+                                        console.log(err);
+                                        alert('Oops, there was a problem with your payment. Please try again later');
+                                    }
+                                } else {
+                                    document.getElementById("spinner-0").style.display = "none";
+                                    window.location.href = "/x/j/p/0";
+                                }
+                            }
+                        );
+      }
+      document.getElementById("ad-type-2").addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById("ad-type-3").checked = false;
+                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}129';
+            } else {
+                document.getElementById("ad-type-3").checked = true;
+                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}59';
+            }
+        });
+        document.getElementById("ad-type-3").addEventListener('change', function() {
+            if (this.checked) {
+                document.getElementById("ad-type-2").checked = false;
+                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}59';
+            } else {
+                document.getElementById("ad-type-2").checked = true;
+                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}129';
+            }
+        });
+    </script>
     {{ end }}
     <article style="margin-top: 30px;">
         <p>
@@ -571,72 +703,6 @@ x.domain(d3.extent(data, function(d) { return d.date; }));
   // Add the Y Axis
   clickoutsSvg.append("g")
       .call(d3.axisLeft(y));
-      {{ end }}
-      {{ if .IsUnpinned }}
-      function pin() {
-        document.getElementById("spinner-0").style.display = "block";
-            var adType = 0;
-            if (document.getElementById("ad-type-3").checked) {
-                adType = 3;
-            }
-            if (document.getElementById("ad-type-2").checked) {
-                adType = 2;
-            }
-            var email = document.getElementById("company-email").value;
-            if (!isEmail(email)) {
-                alert('You must provide a valid email address.');
-                return;
-            }
-        httpReq('/x/s/upsell',
-                            {
-                                ad_type: adType,
-                                email: email,
-                                currency_code: '{{ .Currency.Code }}',
-                                token: '{{ .Token }}'
-                            },
-                            function(success, body) {
-                                if (success) {
-                                    try {
-                                        var res = JSON.parse(body);
-                                        stripe.redirectToCheckout({
-                                            sessionId: res.s_id
-                                        }).then(function (result) {
-                                            document.getElementById("spinner-0").style.display = "none";
-                                            if (result.error) {
-                                                console.log(result.error);
-                                                alert('Oops, there was a problem with your payment. Please try again later');
-                                            }
-                                        });
-                                    } catch (err) {
-                                        document.getElementById("spinner-0").style.display = "none";
-                                        console.log(err);
-                                        alert('Oops, there was a problem with your payment. Please try again later');
-                                    }
-                                } else {
-                                    document.getElementById("spinner-0").style.display = "none";
-                                    window.location.href = "/x/j/p/0";
-                                }
-                            }
-                        );
-      }
-      document.getElementById("ad-type-2").addEventListener('change', function() {
-            if (this.checked) {
-                document.getElementById("ad-type-3").checked = false;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}129';
-            } else {
-                document.getElementById("ad-type-3").checked = true;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}59';
-            }
-        });
-        document.getElementById("ad-type-3").addEventListener('change', function() {
-            if (this.checked) {
-                document.getElementById("ad-type-2").checked = false;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}59';
-            } else {
-                document.getElementById("ad-type-2").checked = true;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}129';
-            }
-        });
       {{ end }}
     </script>
   <script src="//instant.page/5.1.0" type="module" integrity="sha384-by67kQnR+pyfy8yWP4kPO12fHKRLHZPfEsiSXR8u2IKcTdxD805MGUXBzVPnkLHw"></script>
