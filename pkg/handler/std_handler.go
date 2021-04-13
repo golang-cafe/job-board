@@ -1021,11 +1021,6 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "invalid email provided")
 			return
 		}
-		linkRe := regexp.MustCompile(`(?:(?:https?|ftp):\/\/)?[\w/\-?=%.]+\.[\w/\-&?=%.]+`)
-		if linkRe.MatchString(req.Content) {
-			svr.JSON(w, http.StatusUnprocessableEntity, "message should not contain links")
-			return
-		}
 		dev, err := database.DeveloperProfileByID(svr.Conn, profileID)
 		if err != nil {
 			svr.Log(err, "unable to find developer profile by id "+profileID)
