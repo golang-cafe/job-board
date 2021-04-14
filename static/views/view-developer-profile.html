@@ -378,7 +378,8 @@ background-color: #FF6600
         var post = function(uri, formData, cb) {
             var xhr = new XMLHttpRequest();
             xhr.open('POST', uri, true);
-            xhr.send(formData);
+            xhr.setRequestHeader('Content-Type', 'application/json');
+            xhr.send(JSON.stringify(formData));
             xhr.onreadystatechange = function() {
                 if (xhr.readyState === 4) {
                     cb(xhr.status);
