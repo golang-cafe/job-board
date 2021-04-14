@@ -1014,10 +1014,12 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			Email   string `json:"email"`
 		}{}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			svr.Log(err, "unable to decode request body from developer profile message")
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
 		if !svr.IsEmail(req.Email) {
+			svr.Log(errors.New("invalid email"), "request email is not a valid email")
 			svr.JSON(w, http.StatusBadRequest, "invalid email provided")
 			return
 		}
