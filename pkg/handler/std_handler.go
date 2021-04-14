@@ -1014,9 +1014,9 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			Email   string `json:"email"`
 		}{}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			reqData, err := ioutil.ReadAll(r.Body)
-			if err != nil {
-				svr.Log(err, "unable to read request body data for developer profile message")
+			reqData, ioErr := ioutil.ReadAll(r.Body)
+			if ioErr != nil {
+				svr.Log(ioErr, "unable to read request body data for developer profile message")
 			}
 			svr.Log(err, fmt.Sprintf("unable to decode request body from developer profile message %+v", string(reqData)))
 			svr.JSON(w, http.StatusBadRequest, nil)
