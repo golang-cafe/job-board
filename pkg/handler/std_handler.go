@@ -1053,8 +1053,8 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 		}
 		err = svr.GetEmail().SendEmail(
 			"Diego from Golang Cafe <team@golang.cafe>",
-			dev.Email,
 			req.Email,
+			dev.Email,
 			"Confirm Your Message on Golang Cafe",
 			fmt.Sprintf(
 				"You have sent a message through Golang Cafe: \n\nMessage: %s\n\nPlease follow this link to confirm and deliver your message: %s\n\nIf this was not requested by you, you can ignore this email.",
