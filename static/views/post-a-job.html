@@ -344,7 +344,9 @@ body{background:#f7f7f7;}
                     return;
                 }
 		var imgSrc = URL.createObjectURL(this.files[0]);
-		if (!cropInstance) {
+		if (cropInstance) {
+			cropInstance.destroy();
+		}
                 	var img = document.getElementById("company-icon-preview");
                 	img.style.display = "block";
 			img.src = imgSrc;
@@ -352,10 +354,6 @@ body{background:#f7f7f7;}
 				startSize: [100, 100, '%'],
 				aspectRatio: 1,
 			});
-          	} else {
-            		cropInstance.imageClippedEl.src = imgSrc
-            		cropInstance.imageEl.src = imgSrc
-          	}
                 updateJobPreviewImg();
             }
         });

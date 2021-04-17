@@ -261,6 +261,9 @@ body{background:#f7f7f7;}
                     alert('Max file size for company logo is 5MB');
                     return;
                 }
+		if (cropInstance) {
+			cropInstance.destroy();
+		}
 		var imgSrc = URL.createObjectURL(this.files[0]);
             	cropInstance.imageClippedEl.src = imgSrc
             	cropInstance.imageEl.src = imgSrc
