@@ -265,8 +265,13 @@ body{background:#f7f7f7;}
 			cropInstance.destroy();
 		}
 		var imgSrc = URL.createObjectURL(this.files[0]);
-            	cropInstance.imageClippedEl.src = imgSrc
-            	cropInstance.imageEl.src = imgSrc
+                var img = document.getElementById("profile-image-preview");
+                img.style.display = "block";
+		img.src = imgSrc;
+		cropInstance = new Croppr('#profile-image-preview', {
+			startSize: [100, 100, '%'],
+			aspectRatio: 1,
+		});
             }
         });
         function empty() {
