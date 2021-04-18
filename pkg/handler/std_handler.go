@@ -1462,7 +1462,7 @@ func JobBySlugPageHandler(svr server.Server) http.HandlerFunc {
 		}
 		job.SalaryRange = fmt.Sprintf("%s%s to %s%s", job.SalaryCurrency, humanize.Comma(job.SalaryMin), job.SalaryCurrency, humanize.Comma(job.SalaryMax))
 
-		relevantJobs, err := database.GetRelevantJobs(svr.Conn, job.ID, 3)
+		relevantJobs, err := database.GetRelevantJobs(svr.Conn, job.Location, job.ID, 3)
 		if err != nil {
 			svr.Log(err, "unable to get relevant jobs")
 		}

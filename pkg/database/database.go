@@ -177,6 +177,11 @@ type SEOSkill struct {
 	Name string `json:"name,omitempty"`
 }
 
+// Extensions
+//
+// CREATE EXTENSION fuzzystrmatch;
+// CREATE EXTENSION pg_trgm;
+//
 // Table Structure:
 //
 // CREATE TABLE IF NOT EXISTS job (
@@ -1743,13 +1748,12 @@ func GetPendingJobs(conn *sql.DB) ([]*JobPost, error) {
 }
 
 // GetRelevantJobs returns pinned and most recent jobs for now
-// todo: takes a job and returns jobs with similar location
-func GetRelevantJobs(conn *sql.DB, jobID int, limit int) ([]*JobPost, error) {
+func GetRelevantJobs(conn *sql.DB, location string, jobID int, limit int) ([]*JobPost, error) {
 	jobs := []*JobPost{}
 	var rows *sql.Rows
 	rows, err := conn.Query(`
 	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, last_week_clickouts
-		FROM job WHERE approved_at IS NOT NULL AND id != $1 ORDER BY ad_type DESC, approved_at DESC LIMIT $2`, jobID, limit)
+		FROM job WHERE approved_at IS NOT NULL AND id != $1 AND expired IS FALSE ORDER BY ad_type DESC, approved_at DESC, word_similarity($2, location) LIMIT $3`, jobID, location, limit)
 	if err != nil {
 		return jobs, err
 	}
