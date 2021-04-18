@@ -690,8 +690,9 @@ func TriggerTelegramScheduler(svr server.Server) http.HandlerFunc {
 				}
 				lastJobID := lastTelegramJobID
 				api := telegram.New(svr.GetConfig().TelegramAPIToken)
+				ctx := context.Background()
 				for _, j := range jobs {
-					_, err := api.SendMessage(r.Context(), telegram.NewMessage(svr.GetConfig().TelegramChannelID, fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://golang.cafe/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug)))
+					_, err := api.SendMessage(ctx, telegram.NewMessage(svr.GetConfig().TelegramChannelID, fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://golang.cafe/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug)))
 					if err != nil {
 						svr.Log(err, "unable to post on telegram")
 						continue
