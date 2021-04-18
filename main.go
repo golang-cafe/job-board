@@ -83,6 +83,7 @@ func main() {
 	svr.RegisterRoute("/x/task/weekly-newsletter", handler.TriggerWeeklyNewsletter(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/ads-manager", handler.TriggerAdsManager(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/twitter-scheduler", handler.TriggerTwitterScheduler(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/telegram-scheduler", handler.TriggerTelegramScheduler(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/company-update", handler.TriggerCompanyUpdate(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/sitemap-update", handler.TriggerSitemapUpdate(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/cloudflare-stats-export", handler.TriggerCloudflareStatsExport(svr), []string{"POST"})

@@ -40,6 +40,8 @@ type Config struct {
 	MachineToken                 string
 	WhatsappLink                 string
 	PhoneNumber                  string
+	TelegramAPIToken             string
+	TelegramChannelID            int64
 }
 
 func LoadConfig() (Config, error) {
@@ -163,6 +165,18 @@ func LoadConfig() (Config, error) {
 	if machineToken == "" {
 		return Config{}, fmt.Errorf("PHONE_NUMBER cannot be empty")
 	}
+	telegramAPIToken := os.Getenv("TELEGRAM_API_TOKEN")
+	if telegramAPIToken == "" {
+		return Config{}, fmt.Errorf("TELEGRAM_API_TOKEN cannot be empty")
+	}
+	telegramChannelIDStr := os.Getenv("TELEGRAM_CHANNEL_ID")
+	if telegramChannelIDStr == "" {
+		return Config{}, fmt.Errorf("TELEGRAM_CHANNEL_ID cannot be empty")
+	}
+	telegramChannelID, err := strconv.Atoi(telegramChannelIDStr)
+	if err != nil {
+		return Config{}, errors.Wrap(err, "unable to convert telegram channel id to int")
+	}
 
 	return Config{
 		Port:                         port,
@@ -194,5 +208,7 @@ func LoadConfig() (Config, error) {
 		MachineToken:                 machineToken,
 		WhatsappLink:                 whatsappLink,
 		PhoneNumber:                  phoneNumber,
+		TelegramAPIToken:             telegramAPIToken,
+		TelegramChannelID:            int64(telegramChannelID),
 	}, nil
 }

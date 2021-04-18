@@ -23,6 +23,7 @@ import (
 	"github.com/0x13a/golang.cafe/pkg/server"
 	"github.com/ChimeraCoder/anaconda"
 	"github.com/PuerkitoBio/goquery"
+	"github.com/bot-api/telegram"
 	jwt "github.com/dgrijalva/jwt-go"
 	humanize "github.com/dustin/go-humanize"
 	"github.com/gorilla/feeds"
@@ -661,6 +662,50 @@ Unsubscribe here {$unsubscribe} | Golang Cafe Newsletter {$url}`
 					svr.Log(err, "unable to save last weekly newsletter job id to db")
 					return
 				}
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
+
+func TriggerTelegramScheduler(svr server.Server) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				lastTelegramJobIDStr, err := database.GetValue(svr.Conn, "last_telegram_job_id")
+				if err != nil {
+					svr.Log(err, "unable to retrieve last telegram job id")
+					return
+				}
+				lastTelegramJobID, err := strconv.Atoi(lastTelegramJobIDStr)
+				if err != nil {
+					svr.Log(err, "unable to convert job str to id")
+					return
+				}
+				jobs, err := database.GetLastNJobsFromID(svr.Conn, svr.GetConfig().TwitterJobsToPost, lastTelegramJobID)
+				log.Printf("found %d/%d jobs to post on telegram\n", len(jobs), svr.GetConfig().TwitterJobsToPost)
+				if len(jobs) == 0 {
+					return
+				}
+				lastJobID := lastTelegramJobID
+				api := telegram.New(svr.GetConfig().TelegramAPIToken)
+				for _, j := range jobs {
+					_, err := api.SendMessage(r.Context(), telegram.NewMessage(svr.GetConfig().TelegramChannelID, fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://golang.cafe/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug)))
+					if err != nil {
+						svr.Log(err, "unable to post on telegram")
+						continue
+					}
+					lastJobID = j.ID
+				}
+				lastJobIDStr := strconv.Itoa(lastJobID)
+				err = database.SetValue(svr.Conn, "last_telegram_job_id", lastJobIDStr)
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to save last telegram job id to db as %s", lastJobIDStr))
+					return
+				}
+				log.Printf("updated last telegram job id to %s\n", lastJobIDStr)
+				log.Printf("posted last %d jobs to telegram", len(jobs))
 			}()
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
@@ -1344,7 +1389,7 @@ func VerifyTokenSignOn(svr server.Server, adminEmail string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		token := vars["token"]
-		user, err := database.ValidateSignOnToken(svr.Conn, token)
+		user, _, err := database.GetOrCreateUserFromToken(svr.Conn, token)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to validate signon token %s", token))
 			svr.TEXT(w, http.StatusBadRequest, "Invalid or expired token")
