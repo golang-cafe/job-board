@@ -584,7 +584,7 @@ body{background:#f7f7f7;}
 				  document.getElementById('search-location-suggestions').innerHTML = suggestions;
 				  for (var item of res) {
 					document.getElementById('loc-option-'+item.name).addEventListener('click', function(e) {
-						document.getElementById('search-location').value = e.target.outerText;
+						document.getElementById('search-location').value = e.target.textContent;
 						document.getElementById('search-location-suggestions').style.display = 'none';
 					});
 				  }
