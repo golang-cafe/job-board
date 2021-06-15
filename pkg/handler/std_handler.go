@@ -1277,7 +1277,7 @@ func ShowPaymentPage(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "invalid amount")
 			return
 		}
-		if amount < 900 || amount > 9900 {
+		if amount < 900 || amount > 19900 {
 			svr.JSON(w, http.StatusBadRequest, "invalid amount")
 			return
 		}
