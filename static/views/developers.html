@@ -77,7 +77,7 @@ body{background:#f7f7f7;}
     <p>
         <input type="submit" value="Submit Your Profile" id="post-btn" onclick="window.location.href='/Submit-Developer-Profile';">
             <h1 class="main-title">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }} </h1><br/>
-	    <h2 style="font-size:12pt;font-weight:100;margin-top:20px">Hire <b>{{ .TextJobCount }} Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }}</b> developers for hire {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }}. Last developer joined <time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></h2>
+	    <h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse, view and reach <b>{{ .TextJobCount }} Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }}</b> developers for hire {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }}. Last developer joined <time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></h2>
     </p>
     <div style="margin-bottom: 10px;">
 	<div id="search-tag-container">
