@@ -40,14 +40,3 @@ func ViewSupportPageHandler(svr server.Server) http.HandlerFunc {
 		svr.RenderPageForLocationAndTag(w, r, "", "", "", "support.html")
 	}
 }
-
-func SaveMemberToNewsletterPageHandler(svr server.Server) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		email := strings.ToLower(r.URL.Query().Get("email"))
-		if err := svr.SaveSubscriber(email); err != nil {
-			svr.JSON(w, http.StatusBadRequest, nil)
-			return
-		}
-		svr.JSON(w, http.StatusOK, nil)
-	}
-}

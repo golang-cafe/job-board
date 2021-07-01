@@ -28,6 +28,9 @@ func NewClient(apiKey string) (Client, error) {
 }
 
 func (e Client) SendEmail(from, to, replyTo, subject, text string) error {
+	if replyTo == "" {
+		replyTo = from
+	}
 	tx := &sp.Transmission{
 		Recipients: []string{to},
 		Content: sp.Content{

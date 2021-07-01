@@ -1051,6 +1051,86 @@ func DeleteDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	)
 }
 
+func ConfirmEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		token := vars["token"]
+		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+			reqData, ioErr := ioutil.ReadAll(r.Body)
+			if ioErr != nil {
+				svr.Log(ioErr, "unable to read request body")
+			}
+			svr.Log(err, fmt.Sprintf("unable to decode request data %+v", string(reqData)))
+			svr.TEXT(w, http.StatusBadRequest, "There was an error with your request. Please try again later.")
+			return
+		}
+		err = database.ConfirmEmailSubscriber(svr.Conn, token)
+		if err != nil {
+			svr.Log(err, "unable to confirm subscriber using token "+token)
+			svr.TEXT(w, http.StatusInternalServerError, "There was an error with your request. Please try again later.")
+			return
+		}
+		svr.TEXT(w, http.StatusOK, "Your email subscription has been confirmed successfully.")
+	}
+}
+
+func RemoveEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := strings.ToLower(r.URL.Query().Get("email"))
+		if !svr.IsEmail(email) {
+			svr.Log(errors.New("invalid email"), "request email is not a valid email")
+			svr.TEXT(w, http.StatusBadRequest, "invalid email provided")
+			return
+		}
+		err = database.RemoveEmailSubscriber(svr.Conn, email, r.URL.Query().Get("token"))
+		if err != nil {
+			svr.Log(err, "unable to add email subscriber to db")
+			svr.TEXT(w, http.StatusInternalServerError, "")
+			return
+		}
+		svr.TEXT(w, http.StatusOK, "Your email has been successfully removed.")
+	}
+}
+
+func AddEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		email := strings.ToLower(r.URL.Query().Get("email"))
+		if !svr.IsEmail(email) {
+			svr.Log(errors.New("invalid email"), "request email is not a valid email")
+			svr.JSON(w, http.StatusBadRequest, "invalid email provided")
+			return
+		}
+		k, err := ksuid.NewRandom()
+		if err != nil {
+			svr.Log(err, "unable to generate email subscriber token")
+			svr.JSON(w, http.StatusBadRequest, nil)
+			return
+		}
+		err = database.AddEmailSubscriber(svr.Conn, email, k.String())
+		if err != nil {
+			svr.Log(err, "unable to add email subscriber to db")
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+		err = svr.GetEmail().SendEmail(
+			"Diego from Golang Cafe <team@golang.cafe>",
+			email,
+			"",
+			"Confirm Your Email Subscription on Golang Cafe",
+			fmt.Sprintf(
+				"Please click on the link below to confirm your subscription to receive weekly emails from Golang Cafe\n\n%s\n\nIf this was not requested by you, please ignore this email.",
+				fmt.Sprintf("https://golang.cafe/x/email/confirm/%s", k.String()),
+			),
+		)
+		if err != nil {
+			svr.Log(err, "unable to send email while submitting message")
+			svr.JSON(w, http.StatusBadRequest, nil)
+			return
+		}
+		svr.JSON(w, http.StatusOK, nil)
+	}
+}
+
 func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
