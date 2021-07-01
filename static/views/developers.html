@@ -403,7 +403,7 @@ body{background:#f7f7f7;}
             alert('Please enter a valid email address!');
             return;
         }
-        get('/x/n/m/s?email='+encodeURIComponent(email), function(success) {
+        get('/x/email/subscribe?email='+encodeURIComponent(email), function(success) {
             if (success) {
 		hideEmailBanner();
                 alert('Thanks for subscribing!');
@@ -422,7 +422,7 @@ body{background:#f7f7f7;}
 			alert('Please enter a valid email address!');
 			return;
 		}
-        	get('/x/n/m/s?email='+encodeURIComponent(email), function(success) {
+        	get('/x/email/subscribe?email='+encodeURIComponent(email), function(success) {
             		if (success) {
 				hideEmailBanner();
                 		alert('Thanks for subscribing!');

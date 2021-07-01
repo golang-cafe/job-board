@@ -147,7 +147,7 @@ body{background:#f7f7f7;}
             alert('Please enter a valid email address!');
             return;
         }
-        get('/x/n/m/s?email='+encodeURIComponent(email), function(success) {
+        get('/x/email/subscribe?email='+encodeURIComponent(email), function(success) {
             if (success) {
                 alert('Thanks for subscribing!');
                 document.getElementById('job-email-subscription').value = '';
