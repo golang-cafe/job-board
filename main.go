@@ -115,7 +115,7 @@ func main() {
 	// newsletter member save
 	svr.RegisterRoute("/x/email/subscribe", handler.AddEmailSubscriberHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/x/email/unsubscribe", handler.RemoveEmailSubscriberHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/x/email/confirm", handler.ConfirmEmailSubscriberHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/x/email/confirm/{token}", handler.ConfirmEmailSubscriberHandler(svr), []string{"GET"})
 
 	// apply for job
 	svr.RegisterRoute("/x/a/e", handler.ApplyForJobPageHandler(svr), []string{"POST"})

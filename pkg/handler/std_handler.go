@@ -550,111 +550,37 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 					return
 				}
 				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobs), svr.GetConfig().NewsletterJobsToSend)
-				jsonMailerliteRq := []byte(fmt.Sprintf(`{
-		"segments": [%d],
-		"type": "regular",
-		"subject": "Go Jobs This Week (%d New)",
-		"from": "team@golang.cafe",
-		"from_name": "Golang Cafe"
-		}`, 1585009, len(jobs)))
-				client := &http.Client{}
-				req, err := http.NewRequest(http.MethodPost, "https://api.mailerlite.com/api/v2/campaigns", bytes.NewBuffer(jsonMailerliteRq))
+				subscribers, err := database.GetEmailSubscribers(svr.Conn)
 				if err != nil {
-					svr.Log(err, "unable to create weekly req for mailerlite")
+					svr.Log(err, fmt.Sprintf("unable to retrieve subscribers"))
 					return
 				}
-				req.Header.Add("X-MailerLite-ApiKey", svr.GetConfig().MailerLiteAPIKey)
-				req.Header.Add("content-type", "application/json")
-				res, err := client.Do(req)
-				if err != nil {
-					svr.Log(err, "unable to create weekly campaign on mailerlite")
-					return
-				}
-				var campaignResponse struct {
-					ID    int             `json:"id"`
-					Error json.RawMessage `json:"error"`
-				}
-				if err := json.NewDecoder(res.Body).Decode(&campaignResponse); err != nil {
-					svr.Log(err, "unable to read json response weekly campaign id from mailerlite")
-					return
-				}
-				res.Body.Close()
-				log.Printf("created campaign for weekly golang job alert with ID %d", campaignResponse.ID)
-				// update campaign content
 				var jobsHTMLArr []string
-				var jobsTXTArr []string
 				for _, j := range jobs {
 					jobsHTMLArr = append(jobsHTMLArr, fmt.Sprintf(`<p><b>Job Title:</b> %s<br /><b>Company:</b> %s<br /><b>Location:</b> %s<br /><b>Salary:</b> %s<br /><b>Detail:</b> <a href="https://golang.cafe/job/%s">https://golang.cafe/job/%s</a></p>`, j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug, j.Slug))
-					jobsTXTArr = append(jobsTXTArr, fmt.Sprintf("Job Title: %s\nCompany: %s\nLocation: %s\nSalary: %s\nDetail: https://golang.cafe/job/%s\n\n", j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug))
 					lastJobID = j.ID
 				}
-				jobsTXT := strings.Join(jobsTXTArr, "\n")
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
 				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobs)) + ` Go jobs this week on Golang Cafe</p>
 ` + jobsHTML + `
 	<p>Check out more jobs at <a title="Golang Cafe" href="https://golang.cafe">https://golang.cafe</a></p>
 	<p>Diego from Golang Cafe</p>
 	<hr />
-	<h6><strong> Golang Cafe</strong> | London, United Kingdom<br />This email was sent to <a href="mailto:{$email}"><strong>{$email}</strong></a> | <a href="{$unsubscribe}">Unsubscribe</a> | <a href="{$forward}">Forward this email to a friend</a></h6>`
-				campaignContentTxt := `Here's a list of the newest ` + fmt.Sprintf("%d", len(jobs)) + ` Go jobs this week on Golang Cafe
+	<h6><strong> Golang Cafe</strong> | London, United Kingdom<br />This email was sent to <strong>%s</strong> | <a href="https://golang.cafe/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
 
-` + jobsTXT + `
-Check out more jobs at https://golang.cafe
-	
-Diego from Golang Cafe
-	
-Unsubscribe here {$unsubscribe} | Golang Cafe Newsletter {$url}`
-				campaignContentHtmlJSON, err := json.Marshal(campaignContentHTML)
-				if err != nil {
-					svr.Log(err, "unable to json marshal campaign content html")
-					return
+				for _, s := range subscribers {
+					err = svr.GetEmail().SendHTMLEmail(
+						"Diego from Golang Cafe <team@golang.cafe>",
+						s.Email,
+						email.GolangCafeEmailAddress,
+						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobs)),
+						fmt.Sprintf(campaignContentHTML, s.Email, s.Token),
+					)
+					if err != nil {
+						svr.Log(err, fmt.Sprintf("unable to send email for newsletter email %s", s.Email))
+						continue
+					}
 				}
-				campaignContentTextJSON, err := json.Marshal(campaignContentTxt)
-				if err != nil {
-					svr.Log(err, "unable to json marshal campaign content txt")
-					return
-				}
-				updateCampaignRq := []byte(fmt.Sprintf(`{"html": %s, "plain": %s}`, string(campaignContentHtmlJSON), string(campaignContentTextJSON)))
-				req, err = http.NewRequest(http.MethodPut, fmt.Sprintf("https://api.mailerlite.com/api/v2/campaigns/%d/content", campaignResponse.ID), bytes.NewBuffer(updateCampaignRq))
-				if err != nil {
-					svr.Log(err, fmt.Sprintf("unable to create request for mailerlite %v", jsonMailerliteRq))
-					return
-				}
-				req.Header.Add("X-MailerLite-ApiKey", svr.GetConfig().MailerLiteAPIKey)
-				req.Header.Add("content-type", "application/json")
-				res, err = client.Do(req)
-				if err != nil {
-					svr.Log(err, fmt.Sprintf("unable to create weekly campaign %v", jsonMailerliteRq))
-					return
-				}
-				var campaignUpdateRes struct {
-					OK bool `json:"success"`
-				}
-				if err := json.NewDecoder(res.Body).Decode(&campaignUpdateRes); err != nil {
-					svr.Log(err, "unable to update weekly campaign content")
-					return
-				}
-				if !campaignUpdateRes.OK {
-					svr.Log(err, "unable to update weekly campaign content got non OK response")
-					return
-				}
-				res.Body.Close()
-				log.Printf("updated weekly campaign with html content\n")
-				req, err = http.NewRequest(http.MethodPost, fmt.Sprintf("https://api.mailerlite.com/api/v2/campaigns/%d/actions/send", campaignResponse.ID), nil)
-				if err != nil {
-					svr.Log(err, fmt.Sprintf("unable to create request for campaign id req for mailerlite %s", campaignResponse.ID))
-					return
-				}
-				req.Header.Add("X-MailerLite-ApiKey", svr.GetConfig().MailerLiteAPIKey)
-				req.Header.Add("content-type", "application/json")
-				res, err = client.Do(req)
-				if err != nil {
-					svr.Log(err, fmt.Sprintf("unable to send weeky campaign id %s", campaignResponse.ID))
-					return
-				}
-				out, _ := ioutil.ReadAll(res.Body)
-				log.Println(string(out))
-				res.Body.Close()
 				log.Printf("sent weekly campaign with %d jobs via mailerlite api\n", len(jobsHTMLArr))
 				lastJobIDStr = strconv.Itoa(lastJobID)
 				err = database.SetValue(svr.Conn, "last_sent_job_id_weekly", lastJobIDStr)
@@ -1055,16 +981,7 @@ func ConfirmEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		token := vars["token"]
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			reqData, ioErr := ioutil.ReadAll(r.Body)
-			if ioErr != nil {
-				svr.Log(ioErr, "unable to read request body")
-			}
-			svr.Log(err, fmt.Sprintf("unable to decode request data %+v", string(reqData)))
-			svr.TEXT(w, http.StatusBadRequest, "There was an error with your request. Please try again later.")
-			return
-		}
-		err = database.ConfirmEmailSubscriber(svr.Conn, token)
+		err := database.ConfirmEmailSubscriber(svr.Conn, token)
 		if err != nil {
 			svr.Log(err, "unable to confirm subscriber using token "+token)
 			svr.TEXT(w, http.StatusInternalServerError, "There was an error with your request. Please try again later.")
@@ -1076,13 +993,7 @@ func ConfirmEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
 
 func RemoveEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		email := strings.ToLower(r.URL.Query().Get("email"))
-		if !svr.IsEmail(email) {
-			svr.Log(errors.New("invalid email"), "request email is not a valid email")
-			svr.TEXT(w, http.StatusBadRequest, "invalid email provided")
-			return
-		}
-		err = database.RemoveEmailSubscriber(svr.Conn, email, r.URL.Query().Get("token"))
+		err := database.RemoveEmailSubscriber(svr.Conn, r.URL.Query().Get("token"))
 		if err != nil {
 			svr.Log(err, "unable to add email subscriber to db")
 			svr.TEXT(w, http.StatusInternalServerError, "")

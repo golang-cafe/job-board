@@ -459,8 +459,8 @@ func ConfirmEmailSubscriber(conn *sql.DB, token string) error {
 	return err
 }
 
-func RemoveEmailSubscriber(conn *sql.DB, email, token string) error {
-	_, err := conn.Execl(`DELETE FROM email_subscribers WHERE email = $1 AND token = $2`, email, token)
+func RemoveEmailSubscriber(conn *sql.DB, token string) error {
+	_, err := conn.Exec(`DELETE FROM email_subscribers WHERE token = $1`, token)
 	return err
 }
 
@@ -478,13 +478,14 @@ func GetEmailSubscribers(conn *sql.DB) ([]EmailSubscriber, error) {
 		var confirmedAt sql.NullTime
 		if err := rows.Scan(
 			&e.Email,
+			&e.Token,
 			&e.CreatedAt,
 			&confirmedAt,
 		); err != nil {
 			return res, err
 		}
 		if confirmedAt.Valid {
-			e.ConfirmedAt = confirmedAt.Value
+			e.ConfirmedAt = &confirmedAt.Time
 		}
 		res = append(res, e)
 	}

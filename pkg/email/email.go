@@ -53,6 +53,32 @@ func (e Client) SendEmail(from, to, replyTo, subject, text string) error {
 	return nil
 }
 
+func (e Client) SendHTMLEmail(from, to, replyTo, subject, text string) error {
+	if replyTo == "" {
+		replyTo = from
+	}
+	tx := &sp.Transmission{
+		Recipients: []string{to},
+		Content: sp.Content{
+			HTML:    text,
+			From:    from,
+			Subject: subject,
+			ReplyTo: replyTo,
+		},
+		Options: &sp.TxOptions{
+			TmplOptions: sp.TmplOptions{
+				ClickTracking: new(bool),
+				OpenTracking:  new(bool),
+			},
+		},
+	}
+	_, _, err := e.client.Send(tx)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
 func (e Client) SendEmailWithPDFAttachment(from, to, replyTo, subject, text string, attachment []byte, fileName string) error {
 	a := sp.Attachment{
 		MIMEType: "application/pdf",

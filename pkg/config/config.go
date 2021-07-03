@@ -23,7 +23,6 @@ type Config struct {
 	Env                          string
 	IPGeoLocationGeoliteFile     string
 	IPGeoLocationCurrencyMapFile string
-	MailerLiteAPIKey             string
 	SentryDSN                    string
 	JobsPerPage                  int
 	DevelopersPerPage            int
@@ -100,10 +99,6 @@ func LoadConfig() (Config, error) {
 	adminEmail := os.Getenv("ADMIN_EMAIL")
 	if adminEmail == "" {
 		return Config{}, fmt.Errorf("ADMIN_EMAIL cannot be empty")
-	}
-	mailerliteAPIKey := os.Getenv("MAILERLITE_API_KEY")
-	if mailerliteAPIKey == "" {
-		return Config{}, fmt.Errorf("MAILERLITE_API_KEY cannot be empty")
 	}
 	sentryDSN := os.Getenv("SENTRY_DSN")
 	if sentryDSN == "" {
@@ -191,7 +186,6 @@ func LoadConfig() (Config, error) {
 		Env:                          env,
 		IPGeoLocationCurrencyMapFile: ipGeolocationCurrencyMapFile,
 		IPGeoLocationGeoliteFile:     ipGeolocationGeoliteFile,
-		MailerLiteAPIKey:             mailerliteAPIKey,
 		SentryDSN:                    sentryDSN,
 		JobsPerPage:                  20,
 		DevelopersPerPage:            10,
