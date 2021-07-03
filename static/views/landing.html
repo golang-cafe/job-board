@@ -618,7 +618,7 @@ body{background:#f7f7f7;}
 				  document.getElementById('search-tag-suggestions').innerHTML = suggestions;
 				  for (var item of res) {
 					document.getElementById('tag-option-'+item.name).addEventListener('click', function(e) {
-						document.getElementById('search-tag').value = e.target.outerText;
+						document.getElementById('search-tag').value = e.target.textContent;
 						document.getElementById('search-tag-suggestions').style.display = 'none';
 					});
 				  }
