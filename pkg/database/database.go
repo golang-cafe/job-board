@@ -434,6 +434,65 @@ type SEOSkill struct {
 //   PRIMARY KEY(loc)
 // );
 
+// CREATE TABLE IF NOT EXISTS email_subscribers (
+//   email VARCHAR(255) NOT NULL UNIQUE,
+//   token CHAR(27) NOT NULL UNIQUE,
+//   confirmed_at TIMESTAMP DEFAULT NULL,
+//   created_at TIMESTAMP NOT NULL,
+//   PRIMARY KEY(email)
+// );
+
+type EmailSubscriber struct {
+	Email       string
+	Token       string
+	CreatedAt   time.Time
+	ConfirmedAt *time.Time
+}
+
+func AddEmailSubscriber(conn *sql.DB, email, token string) error {
+	_, err := conn.Exec(`INSERT INTO email_subscribers (email, token, created_at) VALUES ($1, $2, NOW()) ON CONFLICT DO NOTHING`, email, token)
+	return err
+}
+
+func ConfirmEmailSubscriber(conn *sql.DB, token string) error {
+	_, err := conn.Exec(`UPDATE email_subscribers SET confirmed_at = NOW() WHERE token = $1`, token)
+	return err
+}
+
+func RemoveEmailSubscriber(conn *sql.DB, token string) error {
+	_, err := conn.Exec(`DELETE FROM email_subscribers WHERE token = $1`, token)
+	return err
+}
+
+func GetEmailSubscribers(conn *sql.DB) ([]EmailSubscriber, error) {
+	rows, err := conn.Query(`SELECT * FROM email_subscribers WHERE confirmed_at IS NOT NULL`)
+	res := make([]EmailSubscriber, 0)
+	if err == sql.ErrNoRows {
+		return res, nil
+	}
+	if err != nil {
+		return res, err
+	}
+	for rows.Next() {
+		var e EmailSubscriber
+		var confirmedAt sql.NullTime
+		if err := rows.Scan(
+			&e.Email,
+			&e.Token,
+			&e.CreatedAt,
+			&confirmedAt,
+		); err != nil {
+			return res, err
+		}
+		if confirmedAt.Valid {
+			e.ConfirmedAt = &confirmedAt.Time
+		}
+		res = append(res, e)
+	}
+
+	return res, nil
+}
+
 const (
 	jobEventPageView = "page_view"
 	jobEventClickout = "clickout"
