@@ -814,42 +814,6 @@ type SubscribeRqMailerlite struct {
 	Fields map[string]interface{} `json:"fields"`
 }
 
-func (s Server) SaveSubscriber(email string) error {
-	if !s.IsEmail(email) {
-		return fmt.Errorf("invalid email format for %s", email)
-	}
-	mailerliteRq := &SubscribeRqMailerlite{}
-	mailerliteRq.Fields = make(map[string]interface{})
-	mailerliteRq.Email = email
-	mailerliteRq.Fields["frequency"] = "weekly"
-	jsonMailerliteRq, err := json.Marshal(mailerliteRq)
-	if err != nil {
-		s.Log(err, fmt.Sprintf("unable to marshal mailerliteRq %v: %v", mailerliteRq, err))
-		return err
-	}
-	// send http request to mailerlite
-	client := &http.Client{}
-	req, err := http.NewRequest("POST", "https://api.mailerlite.com/api/v2/subscribers", bytes.NewBuffer(jsonMailerliteRq))
-	if err != nil {
-		s.Log(err, fmt.Sprintf("unable to create req for mailerlite %v: %v", jsonMailerliteRq, err))
-		return err
-	}
-	req.Header.Add("X-MailerLite-ApiKey", s.GetConfig().MailerLiteAPIKey)
-	req.Header.Add("content-type", "application/json")
-	res, err := client.Do(req)
-	if err != nil {
-		s.Log(err, fmt.Sprintf("unable to save subscriber to mailerlite %v: %v", jsonMailerliteRq, err))
-		return err
-	}
-	defer res.Body.Close()
-	if res.StatusCode != http.StatusOK {
-		s.Log(errors.New("got non 200 status code from mailerlite"), fmt.Sprintf("got non 200 status code: %v req: %v", res.StatusCode, jsonMailerliteRq))
-		return errors.New("got non 200 status code from mailerlite")
-	}
-
-	return nil
-}
-
 func (s Server) GetCurrencyFromRequest(r *http.Request) (ipgeolocation.Currency, error) {
 	currency := ipgeolocation.Currency{ipgeolocation.CurrencyUSD, "$"}
 	ip, err := ipgeolocation.GetIPFromRequest(r)
