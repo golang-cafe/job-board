@@ -808,11 +808,6 @@ func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request
 	})
 }
 
-type SubscribeRqMailerlite struct {
-	Email  string                 `json:"email"`
-	Fields map[string]interface{} `json:"fields"`
-}
-
 func (s Server) GetCurrencyFromRequest(r *http.Request) (ipgeolocation.Currency, error) {
 	currency := ipgeolocation.Currency{ipgeolocation.CurrencyUSD, "$"}
 	ip, err := ipgeolocation.GetIPFromRequest(r)
