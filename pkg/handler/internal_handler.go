@@ -210,8 +210,32 @@ func ApplyForJobPageHandler(svr server.Server) http.HandlerFunc {
 			return
 		}
 		if r.FormValue("notify-jobs") == "true" {
-			if err := svr.SaveSubscriber(emailAddr); err != nil {
-				svr.Log(err, fmt.Sprintf("unable to save subscriber while saving job application %v", err))
+			k, err := ksuid.NewRandom()
+			if err != nil {
+				svr.Log(err, "unable to generate email subscriber token")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			err = database.AddEmailSubscriber(svr.Conn, emailAddr, k.String())
+			if err != nil {
+				svr.Log(err, "unable to add email subscriber to db")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			err = svr.GetEmail().SendEmail(
+				"Diego from Golang Cafe <team@golang.cafe>",
+				emailAddr,
+				"",
+				"Confirm Your Email Subscription on Golang Cafe",
+				fmt.Sprintf(
+					"Please click on the link below to confirm your subscription to receive weekly emails from Golang Cafe\n\n%s\n\nIf this was not requested by you, please ignore this email.",
+					fmt.Sprintf("https://golang.cafe/x/email/confirm/%s", k.String()),
+				),
+			)
+			if err != nil {
+				svr.Log(err, "unable to send email while submitting message")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
 			}
 		}
 		svr.JSON(w, http.StatusOK, nil)
