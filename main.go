@@ -195,6 +195,7 @@ func main() {
 	svr.RegisterRoute("/Golang-Jobs", handler.PermanentRedirectHandler(svr, "/"), []string{"GET"})
 	svr.RegisterRoute("/Remote-Jobs", handler.PermanentRedirectHandler(svr, "/Remote-Golang-Jobs"), []string{"GET"})
 	svr.RegisterRoute("/youtube", handler.PermanentExternalRedirectHandler(svr, "https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w"), []string{"GET"})
+	svr.RegisterRoute("/telegram", handler.PermanentExternalRedirectHandler(svr, "https://t.me/golangcafe"), []string{"GET"})
 	svr.RegisterRoute("/twitter", handler.PermanentExternalRedirectHandler("https://twitter.com/GolangCafe"), []string{"GET"})
 	svr.RegisterRoute("/linkedin", handler.PermanentExternalRedirectHandler("https://www.linkedin.com/company/15868466"), []string{"GET"})
 	svr.RegisterRoute("/github", handler.PermanentExternalRedirectHandler("https://github.com/golang-cafe/golang.cafe"), []string{"GET"})
