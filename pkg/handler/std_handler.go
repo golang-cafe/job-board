@@ -1259,6 +1259,12 @@ func PermanentRedirectHandler(svr server.Server, dst string) http.HandlerFunc {
 	}
 }
 
+func PermanentExternalRedirectHandler(svr server.Server, dst string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		svr.Redirect(w, r, http.StatusMovedPermanently, dst)
+	}
+}
+
 func PostAJobPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		svr.RenderPostAJobForLocation(w, r, "")
