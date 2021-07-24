@@ -196,9 +196,9 @@ func main() {
 	svr.RegisterRoute("/Remote-Jobs", handler.PermanentRedirectHandler(svr, "/Remote-Golang-Jobs"), []string{"GET"})
 	svr.RegisterRoute("/youtube", handler.PermanentExternalRedirectHandler(svr, "https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w"), []string{"GET"})
 	svr.RegisterRoute("/telegram", handler.PermanentExternalRedirectHandler(svr, "https://t.me/golangcafe"), []string{"GET"})
-	svr.RegisterRoute("/twitter", handler.PermanentExternalRedirectHandler("https://twitter.com/GolangCafe"), []string{"GET"})
-	svr.RegisterRoute("/linkedin", handler.PermanentExternalRedirectHandler("https://www.linkedin.com/company/15868466"), []string{"GET"})
-	svr.RegisterRoute("/github", handler.PermanentExternalRedirectHandler("https://github.com/golang-cafe/golang.cafe"), []string{"GET"})
+	svr.RegisterRoute("/twitter", handler.PermanentExternalRedirectHandler(svr, "https://twitter.com/GolangCafe"), []string{"GET"})
+	svr.RegisterRoute("/linkedin", handler.PermanentExternalRedirectHandler(svr, "https://www.linkedin.com/company/15868466"), []string{"GET"})
+	svr.RegisterRoute("/github", handler.PermanentExternalRedirectHandler(svr, "https://github.com/golang-cafe/golang.cafe"), []string{"GET"})
 
 	// Remote Landing Page No Skill
 	svr.RegisterRoute("/Remote-Golang-Jobs", handler.LandingPageForLocationHandler(svr, "Remote"), []string{"GET"})
