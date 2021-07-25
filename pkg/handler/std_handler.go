@@ -670,10 +670,10 @@ func TriggerMonthlyHighlights(svr server.Server) http.HandlerFunc {
 					svr.Log(err, "unable to retrieve new jobs last week last month")
 					return
 				}
-				pageviewsLast30DaysText := humanize.Comma(pageviewsLast30Days)
-				jobPageviewsLast30DaysText := humanize.Comma(jobPageviewsLast30Days)
-				jobApplicantsLast30DaysText := humanize.Comma(jobApplicantsLast30Days)
-				newJobsLastMonthText := humanize.Comma(newJobsLastMonthText)
+				pageviewsLast30DaysText := humanize.Comma(int64(pageviewsLast30Days))
+				jobPageviewsLast30DaysText := humanize.Comma(int64(jobPageviewsLast30Days))
+				jobApplicantsLast30DaysText := humanize.Comma(int64(jobApplicantsLast30Days))
+				newJobsLastMonthText := humanize.Comma(int64(newJobsLastMonth))
 				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
 				highlights := fmt.Sprintf(`This months highlight ✨ 
 
@@ -685,13 +685,13 @@ func TriggerMonthlyHighlights(svr server.Server) http.HandlerFunc {
 Find your next job on Golang Cafe ⏩ https://golang.cafe 
 
 #go #golang #gojobs`, newJobsLastMonthText, jobApplicantsLast30DaysText, pageviewsLast30DaysText, jobPageviewsLast30DaysText)
-				_, err := api.PostTweet(highlights, url.Values{})
+				_, err = api.PostTweet(highlights, url.Values{})
 				if err != nil {
 					svr.Log(err, "unable to post monthly highlight tweet")
 					return
 				}
 				telegramApi := telegram.New(svr.GetConfig().TelegramAPIToken)
-				_, err := telegramApi.SendMessage(context.Background(), telegram.NewMessage(svr.GetConfig().TelegramChannelID, highlights))
+				_, err = telegramApi.SendMessage(context.Background(), telegram.NewMessage(svr.GetConfig().TelegramChannelID, highlights))
 				if err != nil {
 					svr.Log(err, "unable to post on telegram monthly highlights")
 					return
