@@ -645,6 +645,73 @@ func TriggerTelegramScheduler(svr server.Server) http.HandlerFunc {
 	)
 }
 
+func TriggerMonthlyHighlights(svr server.Server) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				pageviewsLast30Days, err := database.GetWebsitePageViewsLast30Days(svr.Conn)
+				if err != nil {
+					svr.Log(err, "could not retrieve pageviews for last 30 days")
+					return
+				}
+				jobPageviewsLast30Days, err := database.GetJobPageViewsLast30Days(svr.Conn)
+				if err != nil {
+					svr.Log(err, "could not retrieve job pageviews for last 30 days")
+					return
+				}
+				jobApplicantsLast30Days, err := database.GetJobClickoutsLast30Days(svr.Conn)
+				if err != nil {
+					svr.Log(err, "could not retrieve job clickouts for last 30 days")
+					return
+				}
+				_, newJobsLastMonth, err := database.NewJobsLastWeekOrMonth(svr.Conn)
+				if err != nil {
+					svr.Log(err, "unable to retrieve new jobs last week last month")
+					return
+				}
+				pageviewsLast30DaysText := humanize.Comma(pageviewsLast30Days)
+				jobPageviewsLast30DaysText := humanize.Comma(jobPageviewsLast30Days)
+				jobApplicantsLast30DaysText := humanize.Comma(jobApplicantsLast30Days)
+				newJobsLastMonthText := humanize.Comma(newJobsLastMonthText)
+				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
+				highlights := fmt.Sprintf(`This months highlight ✨ 
+
+📣 %s new jobs posted last month
+✉️  %s applicants last month
+🌎 %s pageviews last month
+💼 %s jobs viewed last month
+
+Find your next job on Golang Cafe ⏩ https://golang.cafe 
+
+#go #golang #gojobs`, newJobsLastMonthText, jobApplicantsLast30DaysText, pageviewsLast30DaysText, jobPageviewsLast30DaysText)
+				_, err := api.PostTweet(highlights, url.Values{})
+				if err != nil {
+					svr.Log(err, "unable to post monthly highlight tweet")
+					return
+				}
+				telegramApi := telegram.New(svr.GetConfig().TelegramAPIToken)
+				_, err := telegramApi.SendMessage(context.Background(), telegram.NewMessage(svr.GetConfig().TelegramChannelID, highlights))
+				if err != nil {
+					svr.Log(err, "unable to post on telegram monthly highlights")
+					return
+				}
+				err = svr.GetEmail().SendEmail(
+					"Diego from Golang Cafe <team@golang.cafe>",
+					email.GolangCafeEmailAddress,
+					email.GolangCafeEmailAddress,
+					"Golang Cafe Monthly Highlights",
+					highlights,
+				)
+				if err != nil {
+					svr.Log(err, "unable to send monthtly highlights email")
+					return
+				}
+			}()
+		},
+	)
+}
+
 func TriggerTwitterScheduler(svr server.Server) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,

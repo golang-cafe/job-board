@@ -89,6 +89,7 @@ func main() {
 	svr.RegisterRoute("/x/task/cloudflare-stats-export", handler.TriggerCloudflareStatsExport(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/expired-jobs", handler.TriggerExpiredJobsTask(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/update-last-week-clickouts", handler.TriggerUpdateLastWeekClickouts(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/monthly-highlights", handler.TriggerMonthlyHighlights(svr), []string{"POST"})
 
 	// view newsletter
 	svr.RegisterRoute("/newsletter", handler.ViewNewsletterPageHandler(svr), []string{"GET"})
