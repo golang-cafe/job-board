@@ -2858,7 +2858,7 @@ func EditJobViewPageHandler(svr server.Server) http.HandlerFunc {
 			"IsUpsell":                   len(expiredUpsell) > 0,
 			"Currency":                   currency,
 			"StripePublishableKey":       svr.GetConfig().StripePublishableKey,
-			"IsUnpinned":                 job.AdType != database.JobAdSponsoredPinnedFor30Days && job.AdType != database.JobAdSponsoredPinnedFor30Days,
+			"IsUnpinned":                 job.AdType < 1,
 		})
 	}
 }
