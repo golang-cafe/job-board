@@ -563,7 +563,7 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 				}
 				var jobsHTMLArr []string
 				for _, j := range jobs {
-					jobsHTMLArr = append(jobsHTMLArr, fmt.Sprintf(`<p><b>Job Title:</b> %s<br /><b>Company:</b> %s<br /><b>Location:</b> %s<br /><b>Salary:</b> %s<br /><b>Detail:</b> <a href="https://golang.cafe/job/%s">https://golang.cafe/job/%s</a></p>`, j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug, j.Slug))
+					jobsHTMLArr = append(jobsHTMLArr, `<p><b>Job Title:</b> `+j.JobTitle+`<br /><b>Company:</b> `+j.Company+`<br /><b>Location:</b> `+j.Location+`<br /><b>Salary:</b> `+j.SalaryRange+`<br /><b>Detail:</b> <a href="https://golang.cafe/job/`+j.Slug+`">https://golang.cafe/job/`+j.Slug+`</a></p>`)
 					lastJobID = j.ID
 				}
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
@@ -571,7 +571,8 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 ` + jobsHTML + `
 	<p>Check out more jobs at <a title="Golang Cafe" href="https://golang.cafe">https://golang.cafe</a></p>
 	<p>Diego from Golang Cafe</p>
-	<hr />
+	<hr />`
+				unsubscribeLink := `
 	<h6><strong> Golang Cafe</strong> | London, United Kingdom<br />This email was sent to <strong>%s</strong> | <a href="https://golang.cafe/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
 
 				for _, s := range subscribers {
@@ -580,14 +581,13 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 						s.Email,
 						email.GolangCafeEmailAddress,
 						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobs)),
-						fmt.Sprintf(campaignContentHTML, s.Email, s.Token),
+						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
 					)
 					if err != nil {
 						svr.Log(err, fmt.Sprintf("unable to send email for newsletter email %s", s.Email))
 						continue
 					}
 				}
-				log.Printf("sent weekly campaign with %d jobs\n", len(jobsHTMLArr))
 				lastJobIDStr = strconv.Itoa(lastJobID)
 				err = database.SetValue(svr.Conn, "last_sent_job_id_weekly", lastJobIDStr)
 				if err != nil {
