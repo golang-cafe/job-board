@@ -1177,6 +1177,9 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
+		if err := database.TrackDeveloperProfileMessageSent(svr.Conn, dev); err != nil {
+			svr.Log(err, "unable to track message sent to developer profile")
+		}
 		svr.JSON(w, http.StatusOK, nil)
 	}
 }

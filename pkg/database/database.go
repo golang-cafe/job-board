@@ -510,8 +510,9 @@ const (
 	jobEventPageView = "page_view"
 	jobEventClickout = "clickout"
 
-	companyEventPageView          = "company_page_view"
-	developerProfileEventPageView = "developer_profile_page_view"
+	companyEventPageView             = "company_page_view"
+	developerProfileEventPageView    = "developer_profile_page_view"
+	developerProfileEventMessageSent = "developer_profile_message_sent"
 
 	SearchTypeJob       = "job"
 	SearchTypeSalary    = "salary"
@@ -652,6 +653,12 @@ func TrackCompanyView(conn *sql.DB, company *Company) error {
 func TrackDeveloperProfileView(conn *sql.DB, dev Developer) error {
 	stmt := `INSERT INTO developer_profile_event (event_type, developer_profile_id, created_at) VALUES ($1, $2, NOW())`
 	_, err := conn.Exec(stmt, developerProfileEventPageView, dev.ID)
+	return err
+}
+
+func TrackDeveloperProfileMessageSent(conn *sql.DB, dev Developer) error {
+	stmt := `INSERT INTO developer_profile_event (event_type, developer_profile_id, created_at) VALUES ($1, $2, NOW())`
+	_, err := conn.Exec(stmt, developerProfileEventMessageSent, dev.ID)
 	return err
 }
 
