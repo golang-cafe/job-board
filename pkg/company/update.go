@@ -10,6 +10,7 @@ import (
 	"github.com/0x13a/golang.cafe/pkg/database"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/gosimple/slug"
 	"github.com/segmentio/ksuid"
 )
 
@@ -48,14 +49,17 @@ func main() {
 			log.Println(err)
 			continue
 		}
-		var description string
+		description := doc.Find("title").Text()
 		doc.Find("meta").Each(func(i int, s *goquery.Selection) {
 			if name, _ := s.Attr("name"); strings.EqualFold(name, "description") {
 				var ok bool
-				description, ok = s.Attr("content")
+				desc, ok := s.Attr("content")
 				if !ok {
 					log.Println("unable to retrieve content for description tag for companyURL ", c.URL)
 					return
+				}
+				if desc != "" {
+					description = desc
 				}
 				log.Printf("%s: description: %s\n", c.URL, description)
 			}
@@ -78,6 +82,7 @@ func main() {
 			continue
 		}
 		c.ID = companyID.String()
+		c.Slug = slug.Make(c.Name)
 		c.IconImageID = newIconID.String()
 		if err := database.SaveCompany(conn, c); err != nil {
 			log.Println(err)

@@ -163,6 +163,9 @@ func main() {
 	// view job by slug
 	svr.RegisterRoute("/job/{slug}", handler.JobBySlugPageHandler(svr), []string{"GET"})
 
+	// view company by slug
+	svr.RegisterRoute("/company/{slug}", handler.CompanyBySlugPageHandler(svr), []string{"GET"})
+
 	//
 	// auth routes
 	//

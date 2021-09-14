@@ -1611,6 +1611,42 @@ func JobBySlugPageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
+func CompanyBySlugPageHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		slug := vars["slug"]
+		company, err := database.CompanyBySlug(svr.Conn, slug)
+		if err != nil || company == nil {
+			svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Company golang.cafe/job/%s not found", slug))
+			return
+		}
+		if err := database.TrackCompanyView(svr.Conn, company); err != nil {
+			svr.Log(err, fmt.Sprintf("unable to track company view for %s: %v", slug, err))
+		}
+		companyJobs, err := database.GetCompanyJobs(svr.Conn, company.Name, 3)
+		if err != nil {
+			svr.Log(err, "unable to get company jobs")
+		}
+		for i, j := range companyJobs {
+			companyJobs[i].CompanyURLEnc = url.PathEscape(j.Company)
+			companyJobs[i].JobDescription = string(svr.MarkdownToHTML(j.JobDescription))
+			companyJobs[i].Perks = string(svr.MarkdownToHTML(j.Perks))
+			companyJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
+			companyJobs[i].InterviewProcess = string(svr.MarkdownToHTML(j.InterviewProcess))
+			if svr.IsEmail(j.HowToApply) {
+				companyJobs[i].IsQuickApply = true
+			}
+		}
+		if err := svr.Render(w, http.StatusOK, "company.html", map[string]interface{}{
+			"Company":      company,
+			"MonthAndYear": time.Now().UTC().Format("January 2006"),
+			"CompanyJobs":  companyJobs,
+		}); err != nil {
+			svr.Log(err, "unable to render template")
+		}
+	}
+}
+
 func LandingPageForLocationHandler(svr server.Server, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		page := r.URL.Query().Get("p")

@@ -321,6 +321,14 @@ type SEOSkill struct {
 
 // CREATE INDEX job_idx ON job_event (job_id);
 
+// CREATE TABLE IF NOT EXISTS company_event (
+// 	event_type VARCHAR(128) NOT NULL,
+// 	company_id CHAR(27) NOT NULL REFERENCES company(id),
+// 	created_at TIMESTAMP NOT NULL
+// );
+
+// ALTER TABLE company ALTER COLUMN slug SET NOT NULL;
+
 // CREATE TABLE IF NOT EXISTS seo_salary (
 //  id VARCHAR(255) NOT NULL,
 //  location VARCHAR(255) NOT NULL,
@@ -358,6 +366,7 @@ type SEOSkill struct {
 //	PRIMARY KEY(id)
 //);
 // ALTER TABLE company ADD COLUMN featured_post_a_job BOOLEAN DEFAULT FALSE;
+// ALTER TABLE company ADD COLUMN slug VARCHAR(255) DEFAULT NULL;
 
 // CREATE UNIQUE INDEX company_name_idx ON company (name);
 // ALTER TABLE company ADD COLUMN description VARCHAR(255) NOT NULL DEFAULT '';
@@ -497,6 +506,8 @@ const (
 	jobEventPageView = "page_view"
 	jobEventClickout = "clickout"
 
+	companyEventPageView = "company_page_view"
+
 	SearchTypeJob       = "job"
 	SearchTypeSalary    = "salary"
 	SearchTypeCompany   = "company"
@@ -534,6 +545,8 @@ type Company struct {
 	LastJobCreatedAt time.Time
 	TotalJobCount    int
 	ActiveJobCount   int
+	Featured         bool
+	Slug             string
 
 	LastJobCreatedAtHumanized string
 }
@@ -599,19 +612,19 @@ func DeleteStaleImages(conn *sql.DB) error {
 func SaveCompany(conn *sql.DB, c Company) error {
 	var err error
 	if c.Description != nil {
-		stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count, description)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
+		stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count, description, slug)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
 	ON CONFLICT (name) 
-	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8, description = $9`
+	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8, description = $9, slug = $10`
 
-		_, err = conn.Exec(stmt, c.ID, c.Name, c.URL, c.Locations, c.IconImageID, c.LastJobCreatedAt, c.TotalJobCount, c.ActiveJobCount, c.Description)
+		_, err = conn.Exec(stmt, c.ID, c.Name, c.URL, c.Locations, c.IconImageID, c.LastJobCreatedAt, c.TotalJobCount, c.ActiveJobCount, c.Description, c.Slug)
 
 	} else {
-		stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8) 
+		stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count, slug)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
 	ON CONFLICT (name) 
-	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8`
-		_, err = conn.Exec(stmt, c.ID, c.Name, c.URL, c.Locations, c.IconImageID, c.LastJobCreatedAt, c.TotalJobCount, c.ActiveJobCount)
+	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8, slug = $9`
+		_, err = conn.Exec(stmt, c.ID, c.Name, c.URL, c.Locations, c.IconImageID, c.LastJobCreatedAt, c.TotalJobCount, c.ActiveJobCount, c.Slug)
 	}
 
 	return err
@@ -620,6 +633,12 @@ func SaveCompany(conn *sql.DB, c Company) error {
 func TrackJobView(conn *sql.DB, job *JobPost) error {
 	stmt := `INSERT INTO job_event (event_type, job_id, created_at) VALUES ($1, $2, NOW())`
 	_, err := conn.Exec(stmt, jobEventPageView, job.ID)
+	return err
+}
+
+func TrackCompanyView(conn *sql.DB, company *Company) error {
+	stmt := `INSERT INTO company_event (event_type, company_id, created_at) VALUES ($1, $2, NOW())`
+	_, err := conn.Exec(stmt, companyEventPageView, company.ID)
 	return err
 }
 
@@ -1595,6 +1614,16 @@ func TopNJobsByCurrencyAndLocation(conn *sql.DB, currency, location string, max 
 	return jobs, nil
 }
 
+func CompanyBySlug(conn *sql.DB, slug string) (*Company, error) {
+	company := &Company{}
+	row := conn.QueryRow(`SELECT id, name, url, locations, last_job_created_at, icon_image_id, total_job_count, active_job_count, description, featured_post_a_job, slug FROM company WHERE slug = $1`, slug)
+	if err := row.Scan(&company.ID, &company.Name, &company.URL, &company.Locations, &company.LastJobCreatedAt, &company.IconImageID, &company.TotalJobCount, &company.ActiveJobCount, &company.Description, &company.Featured, &company.Slug); err != nil {
+		return company, err
+	}
+
+	return company, nil
+}
+
 func JobPostBySlug(conn *sql.DB, slug string) (*JobPost, error) {
 	job := &JobPost{}
 	row := conn.QueryRow(
@@ -1786,6 +1815,44 @@ func GetPendingJobs(conn *sql.DB) ([]*JobPost, error) {
 		var createdAt time.Time
 		var perks, interview, companyIcon sql.NullString
 		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod)
+		if companyIcon.Valid {
+			job.CompanyIconID = companyIcon.String
+		}
+		if perks.Valid {
+			job.Perks = perks.String
+		}
+		if interview.Valid {
+			job.InterviewProcess = interview.String
+		}
+		job.TimeAgo = createdAt.UTC().Format("January 2006")
+		if err != nil {
+			return jobs, err
+		}
+		jobs = append(jobs, job)
+	}
+	err = rows.Err()
+	if err != nil {
+		return jobs, err
+	}
+	return jobs, nil
+}
+
+// GetCompanyJobs returns jobs for a given company
+func GetCompanyJobs(conn *sql.DB, companyName string, limit int) ([]*JobPost, error) {
+	jobs := []*JobPost{}
+	var rows *sql.Rows
+	rows, err := conn.Query(`
+	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, last_week_clickouts
+		FROM job WHERE approved_at IS NOT NULL AND expired IS FALSE AND company = $1 ORDER BY ad_type DESC, approved_at DESC LIMIT $2`, companyName, limit)
+	if err != nil {
+		return jobs, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		job := &JobPost{}
+		var createdAt time.Time
+		var perks, interview, companyIcon sql.NullString
+		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.LastWeekClickouts)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}
