@@ -1279,6 +1279,9 @@ func ViewDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
+		if err := database.TrackDeveloperProfileView(svr.Conn, dev); err != nil {
+			svr.Log(err, "unable to track developer profile view")
+		}
 		dev.UpdatedAtHumanized = dev.UpdatedAt.UTC().Format("January 2006")
 		dev.SkillsArray = strings.Split(dev.Skills, ",")
 		svr.Render(w, http.StatusOK, "view-developer-profile.html", map[string]interface{}{

@@ -312,6 +312,7 @@ type SEOSkill struct {
 // ALTER TABLE developer_profile ADD COLUMN bio TEXT;
 // ALTER TABLE developer_profile DROP COLUMN github_url;
 // ALTER TABLE developer_profile ALTER COLUMN bio SET NOT NULL;
+// ALTER TABLE developer_profile ADD CONSTRAINT developer_profile_image_id_fk FOREIGN KEY (image_id) REFERENCES image(id);
 
 // CREATE TABLE IF NOT EXISTS job_event (
 // 	event_type VARCHAR(128) NOT NULL,
@@ -327,7 +328,11 @@ type SEOSkill struct {
 // 	created_at TIMESTAMP NOT NULL
 // );
 
-// ALTER TABLE company ALTER COLUMN slug SET NOT NULL;
+// CREATE TABLE IF NOT EXISTS developer_profile_event (
+// 	event_type VARCHAR(128) NOT NULL,
+// 	developer_profile_id CHAR(27) NOT NULL REFERENCES developer_profile(id),
+// 	created_at TIMESTAMP NOT NULL
+// );
 
 // CREATE TABLE IF NOT EXISTS seo_salary (
 //  id VARCHAR(255) NOT NULL,
@@ -367,10 +372,9 @@ type SEOSkill struct {
 //);
 // ALTER TABLE company ADD COLUMN featured_post_a_job BOOLEAN DEFAULT FALSE;
 // ALTER TABLE company ADD COLUMN slug VARCHAR(255) DEFAULT NULL;
-
 // CREATE UNIQUE INDEX company_name_idx ON company (name);
 // ALTER TABLE company ADD COLUMN description VARCHAR(255) NOT NULL DEFAULT '';
-// ALTER TABLE developer_profile ADD CONSTRAINT developer_profile_image_id_fk FOREIGN KEY (image_id) REFERENCES image(id);
+// ALTER TABLE company ALTER COLUMN slug SET NOT NULL;
 
 // CREATE TABLE IF NOT EXISTS developer_profile_message (
 //     id CHAR(27) NOT NULL UNIQUE,
@@ -506,7 +510,8 @@ const (
 	jobEventPageView = "page_view"
 	jobEventClickout = "clickout"
 
-	companyEventPageView = "company_page_view"
+	companyEventPageView          = "company_page_view"
+	developerProfileEventPageView = "developer_profile_page_view"
 
 	SearchTypeJob       = "job"
 	SearchTypeSalary    = "salary"
@@ -551,6 +556,8 @@ type Company struct {
 	LastJobCreatedAtHumanized string
 }
 
+// smart group by in golang to map lower/upper case to same map entry with many entries and pickup the upper case one
+// smart group by to find typos
 func InferCompaniesFromJobs(conn *sql.DB, since time.Time) ([]Company, error) {
 	stmt := `SELECT   trim(from company), 
          max(company_url)               AS company_url, 
@@ -615,9 +622,9 @@ func SaveCompany(conn *sql.DB, c Company) error {
 		stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count, description, slug)
 	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
 	ON CONFLICT (name) 
-	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8, description = $9, slug = $10`
+	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8 slug = $9`
 
-		_, err = conn.Exec(stmt, c.ID, c.Name, c.URL, c.Locations, c.IconImageID, c.LastJobCreatedAt, c.TotalJobCount, c.ActiveJobCount, c.Description, c.Slug)
+		_, err = conn.Exec(stmt, c.ID, c.Name, c.URL, c.Locations, c.IconImageID, c.LastJobCreatedAt, c.TotalJobCount, c.ActiveJobCount, c.Slug)
 
 	} else {
 		stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count, slug)
@@ -639,6 +646,12 @@ func TrackJobView(conn *sql.DB, job *JobPost) error {
 func TrackCompanyView(conn *sql.DB, company *Company) error {
 	stmt := `INSERT INTO company_event (event_type, company_id, created_at) VALUES ($1, $2, NOW())`
 	_, err := conn.Exec(stmt, companyEventPageView, company.ID)
+	return err
+}
+
+func TrackDeveloperProfileView(conn *sql.DB, dev Developer) error {
+	stmt := `INSERT INTO developer_profile_event (event_type, developer_profile_id, created_at) VALUES ($1, $2, NOW())`
+	_, err := conn.Exec(stmt, developerProfileEventPageView, dev.ID)
 	return err
 }
 
