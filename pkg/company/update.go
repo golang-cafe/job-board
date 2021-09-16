@@ -50,6 +50,7 @@ func main() {
 			continue
 		}
 		description := doc.Find("title").Text()
+		twitter := ""
 		doc.Find("meta").Each(func(i int, s *goquery.Selection) {
 			if name, _ := s.Attr("name"); strings.EqualFold(name, "description") {
 				var ok bool
@@ -61,11 +62,50 @@ func main() {
 				if desc != "" {
 					description = desc
 				}
-				log.Printf("%s: description: %s\n", c.URL, description)
+				log.Printf("description: %s\n", description)
+			}
+			if name, _ := s.Attr("name"); strings.EqualFold(name, "twitter:site") {
+				var ok bool
+				twtr, ok := s.Attr("content")
+				if !ok {
+					log.Println("unable to retrieve content for twitter:site")
+					return
+				}
+				if twtr != "" {
+					twitter = "https://twitter.com/" + strings.Trim(twtr, "@")
+				}
+				log.Printf("twitter: %s\n", twitter)
+			}
+		})
+		github := ""
+		linkedin := ""
+		doc.Find("a").Each(func(i int, s *goquery.Selection) {
+			if href, ok := s.Attr("href"); ok && strings.Contains(href, "github.com/") {
+				github = href
+				log.Printf("github: %s\n", github)
+			}
+			if href, ok := s.Attr("href"); ok && strings.Contains(href, "linkedin.com/") {
+				linkedin = href
+				log.Printf("linkedin: %s\n", linkedin)
+			}
+			if twitter == "" {
+				if href, ok := s.Attr("href"); ok && strings.Contains(href, "twitter.com/") {
+					twitter = href
+					log.Printf("twitter: %s\n", twitter)
+				}
 			}
 		})
 		if description != "" {
 			c.Description = &description
+		}
+		if twitter != "" {
+			c.Twitter = &twitter
+		}
+		if github != "" {
+			c.Github = &github
+		}
+		if linkedin != "" {
+			c.Linkedin = &linkedin
 		}
 		companyID, err := ksuid.NewRandom()
 		if err != nil {

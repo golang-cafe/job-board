@@ -160,6 +160,7 @@ func GenerateDevelopersLocationPages(conn *sql.DB) ([]string, error) {
 
 	return landingPages, nil
 }
+
 func GenerateDevelopersProfileLandingPages(conn *sql.DB) ([]string, error) {
 	var landingPages []string
 	profiles, err := database.GetDeveloperSlugs(conn)
@@ -168,6 +169,19 @@ func GenerateDevelopersProfileLandingPages(conn *sql.DB) ([]string, error) {
 	}
 	for _, slug := range profiles {
 		landingPages = append(landingPages, fmt.Sprintf("developer/%s", url.PathEscape(slug)))
+	}
+
+	return landingPages, nil
+}
+
+func GenerateCompanyProfileLandingPages(conn *sql.DB) ([]string, error) {
+	var landingPages []string
+	companies, err := database.GetCompanySlugs(conn)
+	if err != nil {
+		return landingPages, err
+	}
+	for _, slug := range companies {
+		landingPages = append(landingPages, fmt.Sprintf("company/%s", url.PathEscape(slug)))
 	}
 
 	return landingPages, nil

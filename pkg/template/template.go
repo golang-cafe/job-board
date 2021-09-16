@@ -6,6 +6,7 @@ import (
 	stdtemplate "html/template"
 
 	customtemplate "github.com/alecthomas/template"
+	humanize "github.com/dustin/go-humanize"
 	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
 
@@ -28,6 +29,7 @@ func NewTemplate() *Template {
 			}
 			return a[len(a)-1]
 		},
+		"humantime": humanize.Time,
 	}
 	return &Template{
 		templates: customtemplate.Must(customtemplate.New("stdtmpl").Funcs(funcMap).ParseGlob("static/views/*.html")),

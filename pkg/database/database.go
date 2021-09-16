@@ -375,6 +375,12 @@ type SEOSkill struct {
 // CREATE UNIQUE INDEX company_name_idx ON company (name);
 // ALTER TABLE company ADD COLUMN description VARCHAR(255) NOT NULL DEFAULT '';
 // ALTER TABLE company ALTER COLUMN slug SET NOT NULL;
+// ALTER TABLE company ADD COLUMN twitter VARCHAR(255) DEFAULT NULL;
+// ALTER TABLE company ADD COLUMN github VARCHAR(255) DEFAULT NULL;
+// ALTER TABLE company ADD COLUMN linkedin VARCHAR(255) DEFAULT NULL;
+// ALTER TABLE company ALTER COLUMN description TYPE TEXT;
+// ALTER TABLE company ALTER COLUMN description SET DEFAULT NULL;
+// CREATE UNIQUE INDEX company_slug_idx ON company (slug);
 
 // CREATE TABLE IF NOT EXISTS developer_profile_message (
 //     id CHAR(27) NOT NULL UNIQUE,
@@ -553,8 +559,9 @@ type Company struct {
 	ActiveJobCount   int
 	Featured         bool
 	Slug             string
-
-	LastJobCreatedAtHumanized string
+	Twitter          *string
+	Github           *string
+	Linkedin         *string
 }
 
 // smart group by in golang to map lower/upper case to same map entry with many entries and pickup the upper case one
@@ -619,21 +626,12 @@ func DeleteStaleImages(conn *sql.DB) error {
 
 func SaveCompany(conn *sql.DB, c Company) error {
 	var err error
-	if c.Description != nil {
-		stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count, description, slug)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) 
+	stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count, description, slug, twitter, linkedin, github)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) 
 	ON CONFLICT (name) 
-	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8 slug = $9`
+	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8, slug = $10`
 
-		_, err = conn.Exec(stmt, c.ID, c.Name, c.URL, c.Locations, c.IconImageID, c.LastJobCreatedAt, c.TotalJobCount, c.ActiveJobCount, c.Slug)
-
-	} else {
-		stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count, slug)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) 
-	ON CONFLICT (name) 
-	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8, slug = $9`
-		_, err = conn.Exec(stmt, c.ID, c.Name, c.URL, c.Locations, c.IconImageID, c.LastJobCreatedAt, c.TotalJobCount, c.ActiveJobCount, c.Slug)
-	}
+	_, err = conn.Exec(stmt, c.ID, c.Name, c.URL, c.Locations, c.IconImageID, c.LastJobCreatedAt, c.TotalJobCount, c.ActiveJobCount, c.Description, c.Slug, c.Twitter, c.Linkedin, c.Github)
 
 	return err
 }
@@ -1119,6 +1117,25 @@ func GetDeveloperSlugs(conn *sql.DB) ([]string, error) {
 	slugs := make([]string, 0)
 	var rows *sql.Rows
 	rows, err := conn.Query(`select slug from developer_profile where updated_at != created_at`)
+	if err != nil {
+		return slugs, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var slug string
+		if err := rows.Scan(&slug); err != nil {
+			return slugs, err
+		}
+		slugs = append(slugs, slug)
+	}
+
+	return slugs, nil
+}
+
+func GetCompanySlugs(conn *sql.DB) ([]string, error) {
+	slugs := make([]string, 0)
+	var rows *sql.Rows
+	rows, err := conn.Query(`SELECT slug FROM company WHERE description IS NOT NULL`)
 	if err != nil {
 		return slugs, err
 	}
@@ -1636,8 +1653,8 @@ func TopNJobsByCurrencyAndLocation(conn *sql.DB, currency, location string, max 
 
 func CompanyBySlug(conn *sql.DB, slug string) (*Company, error) {
 	company := &Company{}
-	row := conn.QueryRow(`SELECT id, name, url, locations, last_job_created_at, icon_image_id, total_job_count, active_job_count, description, featured_post_a_job, slug FROM company WHERE slug = $1`, slug)
-	if err := row.Scan(&company.ID, &company.Name, &company.URL, &company.Locations, &company.LastJobCreatedAt, &company.IconImageID, &company.TotalJobCount, &company.ActiveJobCount, &company.Description, &company.Featured, &company.Slug); err != nil {
+	row := conn.QueryRow(`SELECT id, name, url, locations, last_job_created_at, icon_image_id, total_job_count, active_job_count, description, featured_post_a_job, slug, github, linkedin, twitter FROM company WHERE slug = $1`, slug)
+	if err := row.Scan(&company.ID, &company.Name, &company.URL, &company.Locations, &company.LastJobCreatedAt, &company.IconImageID, &company.TotalJobCount, &company.ActiveJobCount, &company.Description, &company.Featured, &company.Slug, &company.Github, &company.Linkedin, &company.Twitter); err != nil {
 		return company, err
 	}
 
@@ -2023,7 +2040,7 @@ func CompaniesByQuery(conn *sql.DB, location string, pageID, companiesPerPage in
 	var fullRowsCount int
 	for rows.Next() {
 		c := Company{}
-		var nullStr sql.NullString
+		var description, twitter, github, linkedin sql.NullString
 		err = rows.Scan(
 			&fullRowsCount,
 			&c.ID,
@@ -2034,10 +2051,23 @@ func CompaniesByQuery(conn *sql.DB, location string, pageID, companiesPerPage in
 			&c.LastJobCreatedAt,
 			&c.TotalJobCount,
 			&c.ActiveJobCount,
-			&nullStr,
+			&description,
+			&c.Slug,
+			&twitter,
+			&github,
+			&linkedin,
 		)
-		if nullStr.Valid {
-			c.Description = &nullStr.String
+		if description.Valid {
+			c.Description = &description.String
+		}
+		if twitter.Valid {
+			c.Twitter = &twitter.String
+		}
+		if github.Valid {
+			c.Github = &github.String
+		}
+		if linkedin.Valid {
+			c.Linkedin = &linkedin.String
 		}
 		companies = append(companies, c)
 	}
@@ -2165,7 +2195,11 @@ func getCompanyQueryForArgs(conn *sql.DB, location string, offset, max int) (*sq
        last_job_created_at,
        total_job_count,
        active_job_count,
-       description 
+       description,
+       slug,
+       twitter,
+       github,
+       linkedin
 FROM   company
 ORDER  BY last_job_created_at DESC
 LIMIT $2 OFFSET $1`, offset, max)
@@ -2182,7 +2216,11 @@ LIMIT $2 OFFSET $1`, offset, max)
        last_job_created_at,
        total_job_count,
        active_job_count,
-       description 
+       description,
+       slug,
+       twitter,
+       github,
+       linkedin
 FROM   company
 WHERE locations ILIKE '%' || $1 || '%'
 ORDER  BY last_job_created_at DESC

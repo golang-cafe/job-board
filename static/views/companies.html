@@ -141,10 +141,10 @@ body{background:#f7f7f7;}
               <article class="line-item">
                   <img src="/x/s/m/{{ .IconImageID }}" class="job-icon" alt="{{ .Name }} Logo" title="{{ .Name }} Logo" />
                   <div style="float: left;">
-			  <a href="/Golang-{{ .Name }}-Jobs" title="Golang {{ .Name }} Jobs"><b>{{ .Name }}</b></a><br />
+			  <a href="/company/{{ .Slug }}" title="{{ .Name }} is Hiring Go (Golang) Engineers"><b>{{ .Name }}</b></a><br />
 		  <b>{{ .Locations }}</b>
                   <br />
-		  <small><b>Last Job Posted:</b> {{ .LastJobCreatedAtHumanized }}</small><br/>
+		  <small><b>Last Job Posted:</b> {{ humantime .LastJobCreatedAt }}</small><br/>
 		  <small><b>Golang Job Openings:</b> {{ .ActiveJobCount }}</small>
 		  {{ if .Description }}<br /><small>{{ .Description }}</small>{{ end }}
                   </div>

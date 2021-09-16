@@ -602,9 +602,6 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, l
 		loc.Name = "Remote"
 		loc.Currency = "$"
 	}
-	for idx, c := range companiesForPage {
-		companiesForPage[idx].LastJobCreatedAtHumanized = humanize.Time(c.LastJobCreatedAt.UTC())
-	}
 	pages := []int{}
 	pageLinksPerPage := 8
 	pageLinkShift := ((pageLinksPerPage / 2) + 1)

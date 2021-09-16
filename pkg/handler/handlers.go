@@ -206,6 +206,11 @@ func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
 					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
 					return
 				}
+				companyProfilePages, err := seo.GenerateDevelopersProfileLandingPages(svr.Conn)
+				if err != nil {
+					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
+					return
+				}
 				developerLocationPages, err := seo.GenerateDevelopersLocationPages(svr.Conn)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersLocationPages")
@@ -306,6 +311,15 @@ func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
 				}
 
 				for _, p := range developerProfilePages {
+					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
+						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						LastMod:    n,
+						ChangeFreq: "weekly",
+					}); err != nil {
+						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", p))
+					}
+				}
+				for _, p := range companyProfilePages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
 						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
 						LastMod:    n,

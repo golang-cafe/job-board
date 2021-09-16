@@ -57,8 +57,18 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				{{ end }}
 				<br />
 				<b>Company Website</b> <a href="{{ .Company.URL }}" target="_blank" rel="nofollow">{{ .Company.URL }}</a><br />
-				<b>Last Job Posted</b> {{ .Company.LastJobCreatedAt }}<br />
+				<b>Last Job Posted</b> {{ humantime .Company.LastJobCreatedAt }}<br />
+				<b>Golang Job Openings:</b> {{ .Company.ActiveJobCount }}<br />
 				<b>Locations</b> {{ .Company.Locations }}<br />
+				{{ if .Company.Github }}
+				<b>GitHub</b> <a href="{{ .Company.Github }}" target="_blank">{{ .Company.Github }}</a><br />
+				{{ end }}
+				{{ if .Company.Twitter }}
+				<b>Twitter</b> <a href="{{ .Company.Twitter }}" target="_blank">{{ .Company.Twitter }}</a><br />
+				{{ end }}
+				{{ if .Company.Linkedin }}
+				<b>Linkedin</b> <a href="{{ .Company.Linkedin }}" target="_blank">{{ .Company.Linkedin }}</a><br />
+				{{ end }}
 				<br />
 				<h3>Company Description</h3>
 				{{ .Company.Description }}
