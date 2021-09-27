@@ -33,6 +33,7 @@ import (
 	humanize "github.com/dustin/go-humanize"
 	"github.com/gorilla/feeds"
 	"github.com/gorilla/mux"
+	"github.com/gosimple/slug"
 	"github.com/machinebox/graphql"
 	"github.com/microcosm-cc/bluemonday"
 	"github.com/nfnt/resize"
@@ -799,29 +800,72 @@ func TriggerCompanyUpdate(svr server.Server) http.HandlerFunc {
 						svr.Log(err, "goquery.NewDocumentFromReader")
 						continue
 					}
-					var description string
+					description := doc.Find("title").Text()
+					twitter := ""
 					doc.Find("meta").Each(func(i int, s *goquery.Selection) {
 						if name, _ := s.Attr("name"); strings.EqualFold(name, "description") {
 							var ok bool
-							description, ok = s.Attr("content")
+							desc, ok := s.Attr("content")
 							if !ok {
-								svr.Log(errors.New("s.Attr error"), fmt.Sprintf("unable to retrieve content for description tag for company url: %s", c.URL))
+								log.Println("unable to retrieve content for description tag for companyURL ", c.URL)
 								return
 							}
-							log.Printf("%s: description: %s\n", c.URL, description)
+							if desc != "" {
+								description = desc
+							}
+							log.Printf("description: %s\n", description)
+						}
+						if name, _ := s.Attr("name"); strings.EqualFold(name, "twitter:site") {
+							var ok bool
+							twtr, ok := s.Attr("content")
+							if !ok {
+								log.Println("unable to retrieve content for twitter:site")
+								return
+							}
+							if twtr != "" {
+								twitter = "https://twitter.com/" + strings.Trim(twtr, "@")
+							}
+							log.Printf("twitter: %s\n", twitter)
+						}
+					})
+					github := ""
+					linkedin := ""
+					doc.Find("a").Each(func(i int, s *goquery.Selection) {
+						if href, ok := s.Attr("href"); ok && strings.Contains(href, "github.com/") {
+							github = href
+							log.Printf("github: %s\n", github)
+						}
+						if href, ok := s.Attr("href"); ok && strings.Contains(href, "linkedin.com/") {
+							linkedin = href
+							log.Printf("linkedin: %s\n", linkedin)
+						}
+						if twitter == "" {
+							if href, ok := s.Attr("href"); ok && strings.Contains(href, "twitter.com/") {
+								twitter = href
+								log.Printf("twitter: %s\n", twitter)
+							}
 						}
 					})
 					if description != "" {
 						c.Description = &description
 					}
+					if twitter != "" {
+						c.Twitter = &twitter
+					}
+					if github != "" {
+						c.Github = &github
+					}
+					if linkedin != "" {
+						c.Linkedin = &linkedin
+					}
 					companyID, err := ksuid.NewRandom()
 					if err != nil {
-						svr.Log(err, "ksuid.NewRandom: unable to generate company id")
+						svr.Log(err, "ksuid.NewRandom: companyID")
 						continue
 					}
 					newIconID, err := ksuid.NewRandom()
 					if err != nil {
-						svr.Log(err, "ksuid.NewRandom: unable to generate new icon id")
+						svr.Log(err, "ksuid.NewRandom: newIconID")
 						continue
 					}
 					if err := database.DuplicateImage(svr.Conn, c.IconImageID, newIconID.String()); err != nil {
@@ -829,6 +873,7 @@ func TriggerCompanyUpdate(svr server.Server) http.HandlerFunc {
 						continue
 					}
 					c.ID = companyID.String()
+					c.Slug = slug.Make(c.Name)
 					c.IconImageID = newIconID.String()
 					if err := database.SaveCompany(svr.Conn, c); err != nil {
 						svr.Log(err, "database.SaveCompany")
