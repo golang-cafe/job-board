@@ -21,10 +21,6 @@
 - [Digital Ocean App Platform](https://www.digitalocean.com/products/app-platform/)
 - [Cloudflare](https://cloudflare.com)
 
-### Get 60-day DigitalOcean $100 Credit
-
-Signup for DigitalOcean and get $100 Credit [https://m.do.co/c/1a2d92c7bce8](https://m.do.co/c/1a2d92c7bce8)
-
 ### Feedback?
 
 Feel free to open an issue on GitHub or if you prefer send me an email [team@golang.cafe](mailto:team@golang.cafe)

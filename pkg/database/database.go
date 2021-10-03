@@ -1094,6 +1094,46 @@ func GetSEOLocations(conn *sql.DB) ([]SEOLocation, error) {
 	return locations, nil
 }
 
+func GetTopDeveloperNames(conn *sql.DB, limit int) ([]string, error) {
+	names := make([]string, 0, limit)
+	var rows *sql.Rows
+	rows, err := conn.Query(`select split_part(name, ' ', 1) from developer_profile where updated_at != created_at order by updated_at desc limit $1`, limit)
+	if err != nil {
+		return names, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var name string
+		if err := rows.Scan(&name); err != nil {
+			return names, err
+		}
+		names = append(names, name)
+	}
+
+	return names, nil
+}
+
+func GetTopDeveloperSkills(conn *sql.DB, limit int) ([]string, error) {
+	skills := make([]string, 0, limit)
+	var rows *sql.Rows
+	rows, err := conn.Query(`select count(*) c, trim(both from unnest(regexp_split_to_array(skills, ','))) as skill from developer_profile where updated_at != created_at group by skill order by c desc limit $1`, limit)
+	if err != nil {
+		return skills, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var c int
+		var skill string
+		if err := rows.Scan(&c, &skill); err != nil {
+			return skills, err
+		}
+		skills = append(skills, skill)
+	}
+
+	return skills, nil
+
+}
+
 func GetDeveloperSkills(conn *sql.DB) ([]string, error) {
 	skills := make([]string, 0)
 	var rows *sql.Rows
