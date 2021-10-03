@@ -151,18 +151,6 @@ type JobPostForEdit struct {
 	SalaryPeriod                                                              string
 }
 
-type ScrapedJob struct {
-	Href           string
-	JobTitle       string
-	Company        string
-	Location       string
-	Salary         string
-	Description    string
-	CompanyWebsite string
-	CompanyTwitter string
-	Currency       string
-}
-
 type SEOLandingPage struct {
 	URI      string
 	Location string
@@ -313,6 +301,8 @@ type SEOSkill struct {
 // ALTER TABLE developer_profile DROP COLUMN github_url;
 // ALTER TABLE developer_profile ALTER COLUMN bio SET NOT NULL;
 // ALTER TABLE developer_profile ADD CONSTRAINT developer_profile_image_id_fk FOREIGN KEY (image_id) REFERENCES image(id);
+// ALTER TABLE developer_profile ADD COLUMN github_url VARCHAR(255) DEFAULT NULL;
+// ALTER TABLE developer_profile ADD COLUMN twitter_url VARCHAR(255) DEFAULT NULL;
 
 // CREATE TABLE IF NOT EXISTS job_event (
 // 	event_type VARCHAR(128) NOT NULL,
@@ -690,7 +680,7 @@ func ConfirmApplyToJob(conn *sql.DB, token string) error {
 }
 
 func DeveloperProfileBySlug(conn *sql.DB, slug string) (Developer, error) {
-	row := conn.QueryRow(`SELECT * FROM developer_profile WHERE slug = $1`, slug)
+	row := conn.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE slug = $1`, slug)
 	dev := Developer{}
 	err := row.Scan(
 		&dev.ID,
@@ -714,7 +704,7 @@ func DeveloperProfileBySlug(conn *sql.DB, slug string) (Developer, error) {
 }
 
 func DeveloperProfileByEmail(conn *sql.DB, email string) (Developer, error) {
-	row := conn.QueryRow(`SELECT * FROM developer_profile WHERE lower(email) = lower($1)`, email)
+	row := conn.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE lower(email) = lower($1)`, email)
 	dev := Developer{}
 	err := row.Scan(
 		&dev.ID,
@@ -741,7 +731,7 @@ func DeveloperProfileByEmail(conn *sql.DB, email string) (Developer, error) {
 }
 
 func DeveloperProfileByID(conn *sql.DB, id string) (Developer, error) {
-	row := conn.QueryRow(`SELECT * FROM developer_profile WHERE id = $1`, id)
+	row := conn.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
 	err := row.Scan(
 		&dev.ID,
@@ -806,13 +796,13 @@ func DevelopersByLocationAndTag(conn *sql.DB, loc, tag string, pageID, pageSize 
 	var developers []Developer
 	switch {
 	case tag != "" && loc != "":
-		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, * FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND skills ILIKE '%' || $2 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $3 OFFSET $4`, loc, tag, pageSize, offset)
+		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND skills ILIKE '%' || $2 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $3 OFFSET $4`, loc, tag, pageSize, offset)
 	case tag != "" && loc == "":
-		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, * FROM developer_profile WHERE skills ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, tag, pageSize, offset)
+		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE skills ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, tag, pageSize, offset)
 	case tag == "" && loc != "":
-		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, * FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, loc, pageSize, offset)
+		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, loc, pageSize, offset)
 	default:
-		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, * FROM developer_profile WHERE created_at != updated_at ORDER BY updated_at DESC LIMIT $1 OFFSET $2`, pageSize, offset)
+		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE created_at != updated_at ORDER BY updated_at DESC LIMIT $1 OFFSET $2`, pageSize, offset)
 	}
 	if err == sql.ErrNoRows {
 		return developers, 0, nil
