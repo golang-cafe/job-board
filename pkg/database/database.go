@@ -28,6 +28,8 @@ type Developer struct {
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
 	Skills      string
+	GithubURL   *string
+	TwitterURL  *string
 
 	Bio                string
 	SkillsArray        []string
@@ -856,7 +858,7 @@ func ActivateDeveloperProfile(conn *sql.DB, email string) error {
 
 func SaveDeveloperProfile(conn *sql.DB, dev Developer) error {
 	dev.Slug = slug.Make(fmt.Sprintf("%s %d", dev.Name, time.Now().UTC().Unix()))
-	_, err := conn.Exec(`INSERT INTO developer_profile (email, location, linkedin_url, bio, available, image_id, slug, created_at, updated_at, skills, name, id) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8, $9, $10)`, dev.Email, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Slug, dev.Skills, dev.Name, dev.ID)
+	_, err := conn.Exec(`INSERT INTO developer_profile (email, location, linkedin_url, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8, $9, $10, $11, $12)`, dev.Email, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Slug, dev.Skills, dev.Name, dev.ID, dev.GithubURL, dev.TwitterURL)
 	return err
 }
 
@@ -1084,23 +1086,63 @@ func GetSEOLocations(conn *sql.DB) ([]SEOLocation, error) {
 	return locations, nil
 }
 
-func GetTopDeveloperNames(conn *sql.DB, limit int) ([]string, error) {
-	names := make([]string, 0, limit)
+func GetLastDevUpdatedAt(conn *sql.DB) (time.Time, error) {
+	var updatedAt time.Time
+	row := conn.QueryRow(`SELECT updated_at FROM developer_profile WHERE updated_at != created_at ORDER BY updated_at DESC LIMIT 1`)
+	if err := row.Scan(&updatedAt); err != nil {
+		return updatedAt, err
+	}
+
+	return updatedAt, nil
+}
+
+func GetDevelopersRegisteredLastMonth(conn *sql.DB) (int, error) {
+	var count int
+	row := conn.QueryRow(`select count(*) from developer_profile where created_at > NOW() - INTERVAL '30 days'`)
+	if err := row.Scan(&count); err != nil {
+		return count, err
+	}
+
+	return count, nil
+}
+
+func GetDeveloperMessagesSentLastMonth(conn *sql.DB) (int, error) {
+	var count int
+	row := conn.QueryRow(`select count(*) from developer_profile_message where created_at > NOW() - INTERVAL '30 days'`)
+	if err := row.Scan(&count); err != nil {
+		return count, err
+	}
+
+	return count, nil
+}
+
+func GetDeveloperProfilePageViewsLastMonth(conn *sql.DB) (int, error) {
+	var count int
+	row := conn.QueryRow(`select count(*) as c from developer_profile_event where event_type = 'developer_profile_page_view' and created_at > NOW() - INTERVAL '30 days'`)
+	if err := row.Scan(&count); err != nil {
+		return count, err
+	}
+
+	return count, nil
+}
+
+func GetTopDevelopers(conn *sql.DB, limit int) ([]Developer, error) {
+	devs := make([]Developer, 0, limit)
 	var rows *sql.Rows
-	rows, err := conn.Query(`select split_part(name, ' ', 1) from developer_profile where updated_at != created_at order by updated_at desc limit $1`, limit)
+	rows, err := conn.Query(`select name, image_id from developer_profile where updated_at != created_at order by updated_at desc limit $1`, limit)
 	if err != nil {
-		return names, err
+		return devs, err
 	}
 	defer rows.Close()
 	for rows.Next() {
-		var name string
-		if err := rows.Scan(&name); err != nil {
-			return names, err
+		var dev Developer
+		if err := rows.Scan(&dev.Name, &dev.ImageID); err != nil {
+			return devs, err
 		}
-		names = append(names, name)
+		devs = append(devs, dev)
 	}
 
-	return names, nil
+	return devs, nil
 }
 
 func GetTopDeveloperSkills(conn *sql.DB, limit int) ([]string, error) {

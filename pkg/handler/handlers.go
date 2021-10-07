@@ -74,20 +74,22 @@ func DevelopersHandler(svr server.Server) http.HandlerFunc {
 
 func SubmitDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.Render(w, http.StatusOK, "submit-developer-profile.html", nil)
+		svr.RenderPageForDeveloperRegistration(w, r, "submit-developer-profile.html")
 	}
 }
 
 func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
-			Fullname        string `json:"fullname"`
-			LinkedinURL     string `json:"linkedin_url"`
-			Bio             string `json:"bio"`
-			CurrentLocation string `json:"current_location"`
-			Tags            string `json:"tags"`
-			ProfileImageID  string `json:"profile_image_id"`
-			Email           string `json:"email"`
+			Fullname        string  `json:"fullname"`
+			LinkedinURL     string  `json:"linkedin_url"`
+			GithubURL       *string `json:"github_url,omitempty"`
+			TwitterURL      *string `json:"twitter_url,omitempty"`
+			Bio             string  `json:"bio"`
+			CurrentLocation string  `json:"current_location"`
+			Tags            string  `json:"tags"`
+			ProfileImageID  string  `json:"profile_image_id"`
+			Email           string  `json:"email"`
 		}{}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			svr.JSON(w, http.StatusBadRequest, "request is invalid")
@@ -131,6 +133,8 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			Name:        req.Fullname,
 			Location:    req.CurrentLocation,
 			LinkedinURL: req.LinkedinURL,
+			GithubURL:   req.GithubURL,
+			TwitterURL:  req.TwitterURL,
 			Bio:         req.Bio,
 			Available:   true,
 			CreatedAt:   t,

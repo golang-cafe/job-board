@@ -494,6 +494,49 @@ func textifyJobTitles(jobs []*database.JobPost) string {
 	return ""
 }
 
+func (s Server) RenderPageForDeveloperRegistration(w http.ResponseWriter, r *http.Request, htmlView string) {
+	topDevelopers, err := database.GetTopDevelopers(s.Conn, 10)
+	if err != nil {
+		s.Log(err, "unable to get top developers")
+	}
+	topDeveloperSkills, err := database.GetTopDeveloperSkills(s.Conn, 7)
+	if err != nil {
+		s.Log(err, "unable to get top developer skills")
+	}
+	lastDevUpdatedAt, err := database.GetLastDevUpdatedAt(s.Conn)
+	if err != nil {
+		s.Log(err, "unable to retrieve last developer joined at")
+	}
+	topDeveloperNames := make([]string, 0, len(topDevelopers))
+	for _, d := range topDevelopers {
+		topDeveloperNames = append(topDeveloperNames, strings.Split(d.Name, " ")[0])
+	}
+	messagesSentLastMonth, err := database.GetDeveloperMessagesSentLastMonth(s.Conn)
+	if err != nil {
+		s.Log(err, "GetDeveloperMessagesSentLastMonth")
+	}
+	devsRegisteredLastMonth, err := database.GetDevelopersRegisteredLastMonth(s.Conn)
+	if err != nil {
+		s.Log(err, "GetDevelopersRegisteredLastMonth")
+	}
+	devPageViewsLastMonth, err := database.GetDeveloperProfilePageViewsLastMonth(s.Conn)
+	if err != nil {
+		s.Log(err, "GetDeveloperProfilePageViewsLastMonth")
+	}
+	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
+		"TopDevelopers":                      topDevelopers,
+		"TopDeveloperNames":                  textifyGeneric(topDeveloperNames),
+		"TopDeveloperSkills":                 textifyGeneric(topDeveloperSkills),
+		"DeveloperMessagesSentLastMonth":     messagesSentLastMonth,
+		"DevelopersRegisteredLastMonth":      devsRegisteredLastMonth,
+		"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
+		"MonthAndYear":                       time.Now().UTC().Format("January 2006"),
+		"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
+		"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
+	})
+
+}
+
 func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, location, tag, page, htmlView string) {
 	showPage := true
 	if page == "" {
@@ -559,13 +602,17 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		loc.Name = "Remote"
 		loc.Currency = "$"
 	}
-	topDeveloperNames, err := database.GetTopDeveloperNames(s.Conn, 5)
+	topDevelopers, err := database.GetTopDevelopers(s.Conn, 5)
 	if err != nil {
 		s.Log(err, "unable to get top developer names")
 	}
 	topDeveloperSkills, err := database.GetTopDeveloperSkills(s.Conn, 7)
 	if err != nil {
 		s.Log(err, "unable to get top developer skills")
+	}
+	topDeveloperNames := make([]string, 0, len(topDevelopers))
+	for _, d := range topDevelopers {
+		topDeveloperNames = append(topDeveloperNames, strings.Split(d.Name, " ")[0])
 	}
 	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
 		"Developers":                developersForPage,
