@@ -187,6 +187,11 @@ func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, 
 			s.Log(err, "database.TopNJobsByCurrencyAndLocation")
 		}
 	}
+	lastJobPosted, err := database.LastJobPosted(s.Conn)
+	if err != nil {
+		s.Log(err, "could not retrieve last job posted at")
+		lastJobPosted = time.Now().AddDate(0, 0, -1)
+	}
 	s.Render(w, http.StatusOK, "salary-explorer.html", map[string]interface{}{
 		"Location":                 strings.ReplaceAll(location, "-", " "),
 		"LocationURLEncoded":       url.PathEscape(strings.ReplaceAll(location, "-", " ")),
@@ -212,18 +217,41 @@ func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, 
 		"Min":                      int64(math.Round(min)),
 		"Max":                      int64(math.Round(max)),
 		"ComplimentaryRemote":      complimentaryRemote,
-		"LastJobPostedAt":          time.Unix(jobs[0].CreatedAt, 0).Format(time.RFC3339),
-		"LastJobPostedAtHumanized": humanize.Time(time.Unix(jobs[0].CreatedAt, 0)),
+		"LastJobPostedAt":          lastJobPosted.Format(time.RFC3339),
+		"LastJobPostedAtHumanized": humanize.Time(lastJobPosted),
 		"MonthAndYear":             time.Now().UTC().Format("January 2006"),
 	})
 }
 
-func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Request, location, tag, page, htmlView string) {
+func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Request, location, tag, page, salary, currency, htmlView string) {
+	var validSalary bool
+	for _, band := range s.GetConfig().AvailableSalaryBands {
+		if fmt.Sprintf("%d", band) == salary {
+			validSalary = true
+			break
+		}
+	}
+	var validCurrency bool
+	for _, availableCurrency := range s.GetConfig().AvailableCurrencies {
+		if availableCurrency == currency {
+			validCurrency = true
+			break
+		}
+	}
+	if (salary != "" && !validSalary) || (currency != "" && !validCurrency) {
+		s.Redirect(w, r, http.StatusMovedPermanently, "/")
+		return
+	}
 	showPage := true
 	if page == "" {
 		page = "1"
 		showPage = false
 	}
+	salaryInt, err := strconv.Atoi(salary)
+	if err != nil {
+		salaryInt = 0
+	}
+	salaryInt = int(salaryInt)
 	tag = strings.TrimSpace(tag)
 	location = strings.TrimSpace(location)
 	reg, err := regexp.Compile("[^a-zA-Z0-9\\s]+")
@@ -237,6 +265,7 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		pageID = 1
 		showPage = false
 	}
+	isLandingPage := tag == "" && location == "" && page == "1" && salary == ""
 	var newJobsLastWeek, newJobsLastMonth int
 	newJobsLastWeekCached, okWeek := s.CacheGet(CacheKeyNewJobsLastWeek)
 	newJobsLastMonthCached, okMonth := s.CacheGet(CacheKeyNewJobsLastMonth)
@@ -273,39 +302,42 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		}
 	}
 	var pinnedJobs []*database.JobPost
-	pinnedJobsCached, ok := s.CacheGet(CacheKeyPinnedJobs)
-	if !ok {
-		// load and cache jobs
-		pinnedJobs, err = database.GetPinnedJobs(s.Conn)
-		if err != nil {
-			s.Log(err, "unable to get pinned jobs")
-		}
-		for i, j := range pinnedJobs {
-			pinnedJobs[i].CompanyURLEnc = url.PathEscape(j.Company)
-			pinnedJobs[i].JobDescription = string(s.tmpl.MarkdownToHTML(j.JobDescription))
-			pinnedJobs[i].Perks = string(s.tmpl.MarkdownToHTML(j.Perks))
-			pinnedJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
-			pinnedJobs[i].InterviewProcess = string(s.tmpl.MarkdownToHTML(j.InterviewProcess))
-			if s.IsEmail(j.HowToApply) {
-				pinnedJobs[i].IsQuickApply = true
+	// only load pinned jobs for main landing page
+	if isLandingPage {
+		pinnedJobsCached, ok := s.CacheGet(CacheKeyPinnedJobs)
+		if !ok {
+			// load and cache jobs
+			pinnedJobs, err = database.GetPinnedJobs(s.Conn)
+			if err != nil {
+				s.Log(err, "unable to get pinned jobs")
+			}
+			for i, j := range pinnedJobs {
+				pinnedJobs[i].CompanyURLEnc = url.PathEscape(j.Company)
+				pinnedJobs[i].JobDescription = string(s.tmpl.MarkdownToHTML(j.JobDescription))
+				pinnedJobs[i].Perks = string(s.tmpl.MarkdownToHTML(j.Perks))
+				pinnedJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
+				pinnedJobs[i].InterviewProcess = string(s.tmpl.MarkdownToHTML(j.InterviewProcess))
+				if s.IsEmail(j.HowToApply) {
+					pinnedJobs[i].IsQuickApply = true
+				}
+			}
+			buf := &bytes.Buffer{}
+			enc := gob.NewEncoder(buf)
+			if err := enc.Encode(pinnedJobs); err != nil {
+				s.Log(err, "unable to encode pinned jobs")
+			}
+			if err := s.CacheSet(CacheKeyPinnedJobs, buf.Bytes()); err != nil {
+				s.Log(err, "unable to set pinnedJobs cache")
+			}
+		} else {
+			// pinned jobs are cached
+			dec := gob.NewDecoder(bytes.NewReader(pinnedJobsCached))
+			if err := dec.Decode(&pinnedJobs); err != nil {
+				s.Log(err, "unable to decode pinned jobs")
 			}
 		}
-		buf := &bytes.Buffer{}
-		enc := gob.NewEncoder(buf)
-		if err := enc.Encode(pinnedJobs); err != nil {
-			s.Log(err, "unable to encode pinned jobs")
-		}
-		if err := s.CacheSet(CacheKeyPinnedJobs, buf.Bytes()); err != nil {
-			s.Log(err, "unable to set pinnedJobs cache")
-		}
-	} else {
-		// pinned jobs are cached
-		dec := gob.NewDecoder(bytes.NewReader(pinnedJobsCached))
-		if err := dec.Decode(&pinnedJobs); err != nil {
-			s.Log(err, "unable to decode pinned jobs")
-		}
 	}
-	jobsForPage, totalJobCount, err := database.JobsByQuery(s.Conn, location, tag, pageID, s.cfg.JobsPerPage)
+	jobsForPage, totalJobCount, err := database.JobsByQuery(s.Conn, location, tag, pageID, salaryInt, currency, s.cfg.JobsPerPage, !isLandingPage)
 	if err != nil {
 		s.Log(err, "unable to get jobs by query")
 		s.JSON(w, http.StatusInternalServerError, "Oops! An internal error has occurred")
@@ -314,9 +346,9 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 	var complementaryRemote bool
 	if len(jobsForPage) == 0 {
 		complementaryRemote = true
-		jobsForPage, totalJobCount, err = database.JobsByQuery(s.Conn, "Remote", tag, pageID, s.cfg.JobsPerPage)
+		jobsForPage, totalJobCount, err = database.JobsByQuery(s.Conn, "Remote", tag, pageID, salaryInt, currency, s.cfg.JobsPerPage, !isLandingPage)
 		if len(jobsForPage) == 0 {
-			jobsForPage, totalJobCount, err = database.JobsByQuery(s.Conn, "Remote", "", pageID, s.cfg.JobsPerPage)
+			jobsForPage, totalJobCount, err = database.JobsByQuery(s.Conn, "Remote", "", pageID, salaryInt, currency, s.cfg.JobsPerPage, !isLandingPage)
 		}
 	}
 	if err != nil {
@@ -391,6 +423,14 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 			s.Log(err, fmt.Sprintf("unable to get random locations for country %s", locFromDB.Country))
 		}
 	}
+	if currency == "" {
+		currency = "USD"
+	}
+	lastJobPosted, err := database.LastJobPosted(s.Conn)
+	if err != nil {
+		s.Log(err, "could not retrieve last job posted at")
+		lastJobPosted = time.Now().AddDate(0, 0, -1)
+	}
 	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
 		"Jobs":                      jobsForPage,
 		"PinnedJobs":                pinnedJobs,
@@ -399,6 +439,10 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		"LocationFilterWithCountry": locationWithCountry,
 		"LocationFilterURLEnc":      url.PathEscape(strings.Title(location)),
 		"TagFilter":                 tag,
+		"SalaryFilter":              salaryInt,
+		"CurrencyFilter":            currency,
+		"AvailableCurrencies":       s.GetConfig().AvailableCurrencies,
+		"AvailableSalaryBands":      s.GetConfig().AvailableSalaryBands,
 		"TagFilterURLEnc":           url.PathEscape(tag),
 		"CurrentPage":               pageID,
 		"ShowPage":                  showPage,
@@ -408,8 +452,8 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		"TextJobCount":              textifyJobCount(totalJobCount),
 		"TextCompanies":             textifyCompanies(location, pinnedJobs, jobsForPage),
 		"TextJobTitles":             textifyJobTitles(jobsForPage),
-		"LastJobPostedAt":           time.Unix(jobsForPage[0].CreatedAt, 0).Format(time.RFC3339),
-		"LastJobPostedAtHumanized":  humanize.Time(time.Unix(jobsForPage[0].CreatedAt, 0)),
+		"LastJobPostedAt":           lastJobPosted.Format(time.RFC3339),
+		"LastJobPostedAtHumanized":  humanize.Time(lastJobPosted),
 		"HasSalaryInfo":             maxSalary > 0,
 		"MinSalary":                 fmt.Sprintf("%s%s", locFromDB.Currency, humanize.Comma(minSalary)),
 		"MaxSalary":                 fmt.Sprintf("%s%s", locFromDB.Currency, humanize.Comma(maxSalary)),
@@ -728,12 +772,17 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, l
 
 }
 
-func (s Server) RenderPageForLocationAndTagAdmin(w http.ResponseWriter, location, tag, page, htmlView string) {
+func (s Server) RenderPageForLocationAndTagAdmin(w http.ResponseWriter, location, tag, page, salary, currency, htmlView string) {
 	showPage := true
 	if page == "" {
 		page = "1"
 		showPage = false
 	}
+	salaryInt, err := strconv.Atoi(salary)
+	if err != nil {
+		salaryInt = 0
+	}
+	salaryInt = int(salaryInt)
 	tag = strings.TrimSpace(tag)
 	location = strings.TrimSpace(location)
 	reg, err := regexp.Compile("[^a-zA-Z0-9\\s]+")
@@ -760,7 +809,7 @@ func (s Server) RenderPageForLocationAndTagAdmin(w http.ResponseWriter, location
 	for i, j := range pendingJobs {
 		pendingJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
 	}
-	jobsForPage, totalJobCount, err := database.JobsByQuery(s.Conn, location, tag, pageID, s.cfg.JobsPerPage)
+	jobsForPage, totalJobCount, err := database.JobsByQuery(s.Conn, location, tag, pageID, salaryInt, currency, s.cfg.JobsPerPage, false)
 	if err != nil {
 		s.Log(err, "unable to get jobs by query")
 		s.JSON(w, http.StatusInternalServerError, "Oops! An internal error has occurred")
@@ -769,9 +818,9 @@ func (s Server) RenderPageForLocationAndTagAdmin(w http.ResponseWriter, location
 	var complementaryRemote bool
 	if len(jobsForPage) == 0 {
 		complementaryRemote = true
-		jobsForPage, totalJobCount, err = database.JobsByQuery(s.Conn, "Remote", tag, pageID, s.cfg.JobsPerPage)
+		jobsForPage, totalJobCount, err = database.JobsByQuery(s.Conn, "Remote", tag, pageID, salaryInt, currency, s.cfg.JobsPerPage, false)
 		if len(jobsForPage) == 0 {
-			jobsForPage, totalJobCount, err = database.JobsByQuery(s.Conn, "Remote", "", pageID, s.cfg.JobsPerPage)
+			jobsForPage, totalJobCount, err = database.JobsByQuery(s.Conn, "Remote", "", pageID, salaryInt, currency, s.cfg.JobsPerPage, false)
 		}
 	}
 	if err != nil {
@@ -933,9 +982,10 @@ func (s Server) Redirect(w http.ResponseWriter, r *http.Request, status int, dst
 }
 
 func (s Server) Run() error {
-	addr := fmt.Sprintf("0.0.0.0:%s", s.cfg.Port)
-	if s.cfg.Env != "dev" {
-		addr = fmt.Sprintf(":%s", s.cfg.Port)
+	addr := fmt.Sprintf(":%s", s.cfg.Port)
+	if s.cfg.Env == "dev" {
+		log.Printf("local env http://localhost:%s", s.cfg.Port)
+		addr = fmt.Sprintf("localhost:%s", s.cfg.Port)
 	}
 	return http.ListenAndServe(
 		addr,

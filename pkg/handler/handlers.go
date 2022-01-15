@@ -175,6 +175,72 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
+func TriggerFXRateUpdate(svr server.Server) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				log.Println("going through list of available currencies")
+				for _, base := range svr.GetConfig().AvailableCurrencies {
+					req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://freecurrencyapi.net/api/v2/latest?apikey=%s&base_currency=%s", svr.GetConfig().FXAPIKey, base), nil)
+					if err != nil {
+						svr.Log(err, "http.NewRequest")
+						continue
+					}
+					res, err := http.DefaultClient.Do(req)
+					if err != nil {
+						svr.Log(err, "http.DefaultClient.Do")
+						continue
+					}
+					var ratesResponse struct {
+						Query struct {
+							Base      string `json:"base_currency"`
+							Timestamp int    `json:"timestamp"`
+						} `json:"query"`
+						Rates map[string]interface{} `json:"data"`
+					}
+					defer res.Body.Close()
+					if err := json.NewDecoder(res.Body).Decode(&ratesResponse); err != nil {
+						svr.Log(err, "json.NewDecoder(res.Body).Decode(ratesResponse)")
+						continue
+					}
+					log.Printf("rate response for currency %s: %#v", base, ratesResponse)
+					if ratesResponse.Query.Base != base {
+						svr.Log(errors.New("got different base currency than requested"), "inconsistent reply from APIs")
+						continue
+					}
+					for _, target := range svr.GetConfig().AvailableCurrencies {
+						if target == base {
+							continue
+						}
+						value, ok := ratesResponse.Rates[target]
+						if !ok {
+							svr.Log(errors.New("could not find target currency"), fmt.Sprintf("could not find target currency %s for base %s", target, base))
+							continue
+						}
+						log.Println("updating fx rate pair ", base, target, value)
+						valueFloat, ok := value.(float64)
+						if !ok {
+							svr.Log(errors.New("unable to cast to float"), "parsing value to float64")
+							continue
+						}
+						fx := database.FXRate{
+							Base:      base,
+							UpdatedAt: time.Now(),
+							Target:    target,
+							Value:     valueFloat,
+						}
+						if err := database.AddFXRate(svr.Conn, fx); err != nil {
+							svr.Log(err, "database.AddFxRate")
+							continue
+						}
+					}
+				}
+			}()
+		},
+	)
+}
+
 func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
@@ -1383,9 +1449,37 @@ func IndexPageHandler(svr server.Server) http.HandlerFunc {
 		}
 		if dst != "" {
 			svr.Redirect(w, r, http.StatusMovedPermanently, dst)
+			return
+		}
+		vars := mux.Vars(r)
+		salary := vars["salary"]
+		currency := vars["currency"]
+		location = vars["location"]
+		tag = vars["tag"]
+		var validSalary bool
+		for _, band := range svr.GetConfig().AvailableSalaryBands {
+			if fmt.Sprintf("%d", band) == salary {
+				validSalary = true
+				break
+			}
+		}
+		dst = "/"
+		if location != "" && tag != "" {
+			dst = fmt.Sprintf("/Golang-%s-Jobs-In-%s", tag, location)
+		} else if location != "" {
+			dst = fmt.Sprintf("/Golang-Jobs-In-%s", location)
+		} else if tag != "" {
+			dst = fmt.Sprintf("/Golang-%s-Jobs", tag)
+		}
+		if page != "" {
+			dst += fmt.Sprintf("?p=%s", page)
+		}
+		if (salary != "" && !validSalary) || (currency != "" && currency != "USD") {
+			svr.Redirect(w, r, http.StatusMovedPermanently, dst)
+			return
 		}
 
-		svr.RenderPageForLocationAndTag(w, r, "", "", page, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, "", "", page, salary, currency, "landing.html")
 	}
 }
 
@@ -1602,7 +1696,9 @@ func ListJobsAsAdminPageHandler(svr server.Server) http.HandlerFunc {
 			loc := r.URL.Query().Get("l")
 			skill := r.URL.Query().Get("s")
 			page := r.URL.Query().Get("p")
-			svr.RenderPageForLocationAndTagAdmin(w, loc, skill, page, "list-jobs-admin.html")
+			salary := ""
+			currency := "USD"
+			svr.RenderPageForLocationAndTagAdmin(w, loc, skill, page, salary, currency, "list-jobs-admin.html")
 		},
 	)
 }
@@ -1718,45 +1814,56 @@ func CompanyBySlugPageHandler(svr server.Server) http.HandlerFunc {
 
 func LandingPageForLocationHandler(svr server.Server, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		salary := vars["salary"]
+		currency := vars["currency"]
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, location, "", page, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, location, "", page, salary, currency, "landing.html")
 	}
 }
 
 func LandingPageForLocationAndSkillPlaceholderHandler(svr server.Server, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+		salary := vars["salary"]
+		currency := vars["currency"]
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, location, skill, page, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, location, skill, page, salary, currency, "landing.html")
 	}
 }
 
 func LandingPageForLocationPlaceholderHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+		salary := vars["salary"]
+		currency := vars["currency"]
 		loc := strings.ReplaceAll(vars["location"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, loc, "", page, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, loc, "", page, salary, currency, "landing.html")
 	}
 }
 
 func LandingPageForSkillPlaceholderHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+		salary := vars["salary"]
+		currency := vars["currency"]
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, "", skill, page, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, "", skill, page, salary, currency, "landing.html")
 	}
 }
 
 func LandingPageForSkillAndLocationPlaceholderHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
+		salary := vars["salary"]
+		currency := vars["currency"]
 		loc := strings.ReplaceAll(vars["location"], "-", " ")
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, loc, skill, page, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, loc, skill, page, salary, currency, "landing.html")
 	}
 }
 
@@ -1984,13 +2091,13 @@ func SalaryLandingPageLocationHandler(svr server.Server, location string) http.H
 
 func ViewNewsletterPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, "", "", "", "newsletter.html")
+		svr.RenderPageForLocationAndTag(w, r, "", "", "", "", "", "newsletter.html")
 	}
 }
 
 func ViewCommunityNewsletterPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, "", "", "", "news.html")
+		svr.RenderPageForLocationAndTag(w, r, "", "", "", "", "", "news.html")
 	}
 }
 
@@ -2007,7 +2114,7 @@ func DisableDirListing(next http.Handler) http.Handler {
 
 func ViewSupportPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, "", "", "", "support.html")
+		svr.RenderPageForLocationAndTag(w, r, "", "", "", "", "", "support.html")
 	}
 }
 

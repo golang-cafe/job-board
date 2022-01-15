@@ -89,6 +89,7 @@ func main() {
 	svr.RegisterRoute("/x/task/expired-jobs", handler.TriggerExpiredJobsTask(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/update-last-week-clickouts", handler.TriggerUpdateLastWeekClickouts(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/monthly-highlights", handler.TriggerMonthlyHighlights(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/fx-rate-update", handler.TriggerFXRateUpdate(svr), []string{"POST"})
 
 	// view newsletter
 	svr.RegisterRoute("/newsletter", handler.ViewNewsletterPageHandler(svr), []string{"GET"})
@@ -205,20 +206,30 @@ func main() {
 
 	// Remote Landing Page No Skill
 	svr.RegisterRoute("/Remote-Golang-Jobs", handler.LandingPageForLocationHandler(svr, "Remote"), []string{"GET"})
+	svr.RegisterRoute("/Remote-Golang-Jobs-Paying-{salary}-{currency}-year", handler.LandingPageForLocationHandler(svr, "Remote"), []string{"GET"})
+
+	// Salary Only Landing Page
+	svr.RegisterRoute("/Golang-Jobs-Paying-{salary}-{currency}-year", handler.IndexPageHandler(svr), []string{"GET"})
 
 	// Remote Landing Page Skill
 	svr.RegisterRoute("/Remote-Golang-{skill}-Jobs", handler.LandingPageForLocationAndSkillPlaceholderHandler(svr, "Remote"), []string{"GET"})
+	svr.RegisterRoute("/Remote-Golang-{skill}-Jobs-Paying-{salary}-{currency}-year", handler.LandingPageForLocationAndSkillPlaceholderHandler(svr, "Remote"), []string{"GET"})
 
 	// Location Only Landing Page
+	svr.RegisterRoute("/Golang-Jobs-In-{location}-Paying-{salary}-{currency}-year", handler.LandingPageForLocationPlaceholderHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/Golang-Jobs-in-{location}-Paying-{salary}-{currency}-year", handler.LandingPageForLocationPlaceholderHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/Golang-Jobs-In-{location}", handler.LandingPageForLocationPlaceholderHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/Golang-Jobs-in-{location}", handler.LandingPageForLocationPlaceholderHandler(svr), []string{"GET"})
 
 	// Skill Only Landing Page
 	svr.RegisterRoute("/Golang-{skill}-Jobs", handler.LandingPageForSkillPlaceholderHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/Golang-{skill}-Jobs-Paying-{salary}-{currency}-year", handler.LandingPageForSkillPlaceholderHandler(svr), []string{"GET"})
 
 	// Skill And Location Landing Page
 	svr.RegisterRoute("/Golang-{skill}-Jobs-In-{location}", handler.LandingPageForSkillAndLocationPlaceholderHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/Golang-{skill}-Jobs-in-{location}", handler.LandingPageForSkillAndLocationPlaceholderHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/Golang-{skill}-Jobs-In-{location}-Paying-{salary}-{currency}-year", handler.LandingPageForSkillAndLocationPlaceholderHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/Golang-{skill}-Jobs-in-{location}-Paying-{salary}-{currency}-year", handler.LandingPageForSkillAndLocationPlaceholderHandler(svr), []string{"GET"})
 
 	// Golang Salary for location
 	svr.RegisterRoute("/Golang-Developer-Salary-{location}", handler.SalaryLandingPageLocationPlaceholderHandler(svr), []string{"GET"})

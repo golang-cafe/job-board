@@ -66,23 +66,24 @@ type Job struct {
 }
 
 type JobRq struct {
-	JobTitle         string `json:"job_title"`
-	Location         string `json:"job_location"`
-	Company          string `json:"company_name"`
-	CompanyURL       string `json:"company_url"`
-	SalaryMin        string `json:"salary_min"`
-	SalaryMax        string `json:"salary_max"`
-	SalaryCurrency   string `json:"salary_currency"`
-	Description      string `json:"job_description"`
-	HowToApply       string `json:"how_to_apply"`
-	Perks            string `json:"perks"`
-	InterviewProcess string `json:"interview_process,omitempty"`
-	Email            string `json:"company_email"`
-	StripeToken      string `json:"stripe_token,omitempty"`
-	AdType           int64  `json:"ad_type"`
-	CurrencyCode     string `json:"currency_code"`
-	CompanyIconID    string `json:"company_icon_id,omitempty"`
-	Feedback         string `json:"feedback,omitempty"`
+	JobTitle          string `json:"job_title"`
+	Location          string `json:"job_location"`
+	Company           string `json:"company_name"`
+	CompanyURL        string `json:"company_url"`
+	SalaryMin         string `json:"salary_min"`
+	SalaryMax         string `json:"salary_max"`
+	SalaryCurrency    string `json:"salary_currency"`
+	Description       string `json:"job_description"`
+	HowToApply        string `json:"how_to_apply"`
+	Perks             string `json:"perks"`
+	InterviewProcess  string `json:"interview_process,omitempty"`
+	Email             string `json:"company_email"`
+	StripeToken       string `json:"stripe_token,omitempty"`
+	AdType            int64  `json:"ad_type"`
+	CurrencyCode      string `json:"currency_code"`
+	CompanyIconID     string `json:"company_icon_id,omitempty"`
+	Feedback          string `json:"feedback,omitempty"`
+	SalaryCurrencyISO string `json:"salary_currency_iso"`
 }
 
 type JobRqUpsell struct {
@@ -207,6 +208,7 @@ type SEOSkill struct {
 // ALTER TABLE job ADD COLUMN estimated_salary BOOLEAN DEFAULT FALSE;
 // ALTER TABLE job ADD COLUMN expired BOOLEAN DEFAULT FALSE;
 // ALTER TABLE job ADD COLUMN last_week_clickouts INTEGER NOT NULL DEFAULT 0;
+// ALTER TABLE job ADD COLUMN salary_currency_iso CHAR(3) DEFAULT NULL;
 
 // CREATE TABLE IF NOT EXISTS image (
 // 	id CHAR(27) NOT NULL UNIQUE,
@@ -306,6 +308,14 @@ type SEOSkill struct {
 // ALTER TABLE developer_profile ADD COLUMN github_url VARCHAR(255) DEFAULT NULL;
 // ALTER TABLE developer_profile ADD COLUMN twitter_url VARCHAR(255) DEFAULT NULL;
 
+// CREATE TABLE IF NOT EXISTS fx_rate (
+//   base       CHAR(3) NOT NULL,
+//   target     CHAR(3) NOT NULL,
+//   value      FLOAT NOT NULL,
+//   updated_at TIMESTAMP NOT NULL,
+//   PRIMARY KEY(base, target)
+// );
+
 // CREATE TABLE IF NOT EXISTS job_event (
 // 	event_type VARCHAR(128) NOT NULL,
 // 	job_id INTEGER NOT NULL REFERENCES job (id),
@@ -350,6 +360,7 @@ type SEOSkill struct {
 // alter table seo_location add column iso2 CHAR(2) DEFAULT NULL
 // alter table seo_location add column region VARCHAR(255) DEFAULT NULL
 // alter table seo_location add column population INTEGER DEFAULT NULL
+// ALTER TABLE seo_location ADD COLUMN emoji VARCHAR(5);
 
 // CREATE TABLE IF NOT EXISTS company (
 //	id CHAR(27) NOT NULL UNIQUE,
@@ -452,6 +463,18 @@ type SEOSkill struct {
 //   created_at TIMESTAMP NOT NULL,
 //   PRIMARY KEY(email)
 // );
+
+type FXRate struct {
+	Base      string
+	Target    string
+	Value     float64
+	UpdatedAt time.Time
+}
+
+func AddFXRate(conn *sql.DB, fx FXRate) error {
+	_, err := conn.Exec(`INSERT INTO fx_rate (base, target, value, updated_at) VALUES ($1, $2, $3, $4) ON CONFLICT(base, target) DO UPDATE SET value = $3, updated_at = $4`, fx.Base, fx.Target, fx.Value, fx.UpdatedAt)
+	return err
+}
 
 type EmailSubscriber struct {
 	Email       string
@@ -949,7 +972,7 @@ func LocationsByPrefix(conn *sql.DB, prefix string) ([]Location, error) {
 	if len(prefix) < 2 {
 		return locs, nil
 	}
-	rows, err := conn.Query(`SELECT name FROM seo_location WHERE name ILIKE $1 || '%' ORDER BY population DESC LIMIT 5`, prefix)
+	rows, err := conn.Query(`SELECT name, country, emoji FROM seo_location WHERE name ILIKE $1 || '%' ORDER BY population DESC LIMIT 5`, prefix)
 	if err == sql.ErrNoRows {
 		return locs, nil
 	} else if err != nil {
@@ -957,8 +980,12 @@ func LocationsByPrefix(conn *sql.DB, prefix string) ([]Location, error) {
 	}
 	for rows.Next() {
 		var loc Location
-		if err := rows.Scan(&loc.Name); err != nil {
+		var nullCountry sql.NullString
+		if err := rows.Scan(&loc.Name, &nullCountry, &loc.Emoji); err != nil {
 			return locs, err
+		}
+		if nullCountry.Valid {
+			loc.Country = nullCountry.String
 		}
 		locs = append(locs, loc)
 	}
@@ -1243,6 +1270,7 @@ type Location struct {
 	Lat        float64 `json:"lat,omitempty"`
 	Long       float64 `json:"long,omitempty"`
 	Currency   string  `json:"currency,omitempty"`
+	Emoji      string  `json:"emoji,omitempty"`
 }
 
 func GetLocation(conn *sql.DB, location string) (Location, error) {
@@ -1405,12 +1433,12 @@ func SaveDraft(db *sql.DB, job *JobRq) (int, error) {
 		return 0, err
 	}
 	sqlStatement := `
-			INSERT INTO job (job_title, company, company_url, salary_range, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, company_email, ad_type, external_id, salary_period)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, 'year') RETURNING id`
+			INSERT INTO job (job_title, company, company_url, salary_range, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, company_email, ad_type, external_id, salary_period, salary_currency_iso)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, 'year', $19) RETURNING id`
 	if job.CompanyIconID != "" {
 		sqlStatement = `
-			INSERT INTO job (job_title, company, company_url, salary_range, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, company_email, ad_type, company_icon_image_id, external_id, salary_period)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 'year') RETURNING id`
+			INSERT INTO job (job_title, company, company_url, salary_range, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, company_email, ad_type, company_icon_image_id, external_id, salary_period, salary_currency_iso)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 'year', $20) RETURNING id`
 	}
 	slugTitle := slug.Make(fmt.Sprintf("%s %s %d", job.JobTitle, job.Company, time.Now().UTC().Unix()))
 	createdAt := time.Now().UTC().Unix()
@@ -1426,9 +1454,9 @@ func SaveDraft(db *sql.DB, job *JobRq) (int, error) {
 	var lastInsertID int
 	var res *sql.Row
 	if job.CompanyIconID != "" {
-		res = db.QueryRow(sqlStatement, job.JobTitle, job.Company, job.CompanyURL, salaryRange, job.SalaryMin, job.SalaryMax, job.SalaryCurrency, job.Location, job.Description, job.Perks, job.InterviewProcess, job.HowToApply, time.Unix(createdAt, 0), createdAt, slugTitle, job.Email, job.AdType, job.CompanyIconID, externalID)
+		res = db.QueryRow(sqlStatement, job.JobTitle, job.Company, job.CompanyURL, salaryRange, job.SalaryMin, job.SalaryMax, job.SalaryCurrency, job.Location, job.Description, job.Perks, job.InterviewProcess, job.HowToApply, time.Unix(createdAt, 0), createdAt, slugTitle, job.Email, job.AdType, job.CompanyIconID, externalID, job.SalaryCurrencyISO)
 	} else {
-		res = db.QueryRow(sqlStatement, job.JobTitle, job.Company, job.CompanyURL, salaryRange, job.SalaryMin, job.SalaryMax, job.SalaryCurrency, job.Location, job.Description, job.Perks, job.InterviewProcess, job.HowToApply, time.Unix(createdAt, 0), createdAt, slugTitle, job.Email, job.AdType, externalID)
+		res = db.QueryRow(sqlStatement, job.JobTitle, job.Company, job.CompanyURL, salaryRange, job.SalaryMin, job.SalaryMax, job.SalaryCurrency, job.Location, job.Description, job.Perks, job.InterviewProcess, job.HowToApply, time.Unix(createdAt, 0), createdAt, slugTitle, job.Email, job.AdType, externalID, job.SalaryCurrencyISO)
 	}
 	res.Scan(&lastInsertID)
 	if err != nil {
@@ -2059,7 +2087,7 @@ func GetPinnedJobs(conn *sql.DB) ([]*JobPost, error) {
 	return jobs, nil
 }
 
-func JobsByQuery(conn *sql.DB, location, tag string, pageId, jobsPerPage int) ([]*JobPost, int, error) {
+func JobsByQuery(conn *sql.DB, location, tag string, pageId, salary int, currency string, jobsPerPage int, includePinnedJobs bool) ([]*JobPost, int, error) {
 	jobs := []*JobPost{}
 	var rows *sql.Rows
 	offset := pageId*jobsPerPage - jobsPerPage
@@ -2067,7 +2095,7 @@ func JobsByQuery(conn *sql.DB, location, tag string, pageId, jobsPerPage int) ([
 	// remove double white spaces
 	// join with `|` for ps query
 	tag = strings.Join(strings.Fields(strings.ReplaceAll(tag, "|", " ")), "|")
-	rows, err := getQueryForArgs(conn, location, tag, offset, jobsPerPage)
+	rows, err := getQueryForArgs(conn, location, tag, salary, currency, offset, jobsPerPage, includePinnedJobs)
 	if err != nil {
 		return jobs, 0, err
 	}
@@ -2212,34 +2240,70 @@ func SaveTokenForJob(conn *sql.DB, token string, jobID int) error {
 	return err
 }
 
-func getQueryForArgs(conn *sql.DB, location, tag string, offset, max int) (*sql.Rows, error) {
-	if tag == "" && location == "" {
+func getQueryForArgs(conn *sql.DB, location, tag string, salary int, currency string, offset, max int, includePinnedJobs bool) (*sql.Rows, error) {
+	adTypeFilter := "AND ad_type NOT IN (2, 3, 5)"
+	if includePinnedJobs {
+		adTypeFilter = "AND 1=1"
+	}
+	if tag == "" && location == "" && salary == 0 {
 		return conn.Query(`
 		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 		FROM job
-		WHERE approved_at IS NOT NULL
-		AND ad_type not in (2, 3, 5)
-		ORDER BY created_at DESC LIMIT $2 OFFSET $1`, offset, max)
+		WHERE approved_at IS NOT NULL `+adTypeFilter+` ORDER BY created_at DESC LIMIT $2 OFFSET $1`, offset, max)
 	}
-	if tag == "" && location != "" {
+	if tag == "" && location != "" && salary == 0 {
 		return conn.Query(`
 		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts 
 		FROM job
-		WHERE approved_at IS NOT NULL
-		AND ad_type not in (2, 3, 5)
-		AND location ILIKE '%' || $1 || '%'
+		WHERE approved_at IS NOT NULL `+adTypeFilter+` AND location ILIKE '%' || $1 || '%'
 		ORDER BY created_at DESC LIMIT $3 OFFSET $2`, location, offset, max)
 	}
-	if tag != "" && location == "" {
+	if tag != "" && location == "" && salary == 0 {
 		return conn.Query(`
 	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 	FROM
 	(
 		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
-		FROM job WHERE approved_at IS NOT NULL AND ad_type not in (2, 3, 5)
+		FROM job WHERE approved_at IS NOT NULL `+adTypeFilter+`
 	) AS job_
 	WHERE job_.doc @@ to_tsquery($1)
 	ORDER BY ts_rank(job_.doc, to_tsquery($1)) DESC, created_at DESC LIMIT $3 OFFSET $2`, tag, offset, max)
+	}
+	if tag != "" && location != "" && salary == 0 {
+		return conn.Query(`
+	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+	FROM
+	(
+		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
+		FROM job WHERE approved_at IS NOT NULL `+adTypeFilter+`
+	) AS job_
+	WHERE job_.doc @@ to_tsquery($1)
+	AND location ILIKE '%' || $2 || '%'
+	ORDER BY ts_rank(job_.doc, to_tsquery($1)) DESC, created_at DESC LIMIT $4 OFFSET $3`, tag, location, offset, max)
+	}
+	if tag == "" && location == "" && salary != 0 {
+		return conn.Query(`
+		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+		FROM job JOIN fx_rate ON fx_rate.base = job.salary_currency_iso AND fx_rate.target = $4
+		WHERE approved_at IS NOT NULL `+adTypeFilter+` AND (fx_rate.value*job.salary_max) >= $3 ORDER BY created_at DESC LIMIT $2 OFFSET $1`, offset, max, salary, currency)
+	}
+	if tag == "" && location != "" && salary != 0 {
+		return conn.Query(`
+		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts 
+		FROM job JOIN fx_rate ON fx_rate.base = job.salary_currency_iso AND fx_rate.target = $5
+		WHERE approved_at IS NOT NULL `+adTypeFilter+` AND location ILIKE '%' || $1 || '%' AND (fx_rate.value*job.salary_max) >= $4
+		ORDER BY created_at DESC LIMIT $3 OFFSET $2`, location, offset, max, salary, currency)
+	}
+	if tag != "" && location == "" && salary == 0 {
+		return conn.Query(`
+	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+	FROM
+	(
+		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
+		FROM job JOIN fx_rate ON fx_rate.base = job.salary_currency_iso AND fx_rate.target = $5 WHERE approved_at IS NOT NULL `+adTypeFilter+` AND (fx_rate.value*job.salary_max) >= $4
+	) AS job_
+	WHERE job_.doc @@ to_tsquery($1)
+	ORDER BY ts_rank(job_.doc, to_tsquery($1)) DESC, created_at DESC LIMIT $3 OFFSET $2`, tag, offset, max, salary, currency)
 	}
 
 	return conn.Query(`
@@ -2247,11 +2311,11 @@ func getQueryForArgs(conn *sql.DB, location, tag string, offset, max int) (*sql.
 	FROM
 	(
 		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
-		FROM job WHERE approved_at IS NOT NULL AND ad_type not in (2, 3, 5)
+		FROM job JOIN fx_rate ON fx_rate.base = job.salary_currency_iso AND fx_rate.target = $6 WHERE approved_at IS NOT NULL `+adTypeFilter+` AND (fx_rate.value*job.salary_max) >= $5
 	) AS job_
 	WHERE job_.doc @@ to_tsquery($1)
 	AND location ILIKE '%' || $2 || '%'
-	ORDER BY ts_rank(job_.doc, to_tsquery($1)) DESC, created_at DESC LIMIT $4 OFFSET $3`, tag, location, offset, max)
+	ORDER BY ts_rank(job_.doc, to_tsquery($1)) DESC, created_at DESC LIMIT $4 OFFSET $3`, tag, location, offset, max, salary, currency)
 }
 
 func getCompanyQueryForArgs(conn *sql.DB, location string, offset, max int) (*sql.Rows, error) {

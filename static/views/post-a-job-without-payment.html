@@ -61,16 +61,16 @@ body{background:#f7f7f7;}
                 <input type="number" name="salary-min" id="salary-min" placeholder="Min Annual Salary" style="width: 35%;"/>
                 <input type="number" name="salary-max" id="salary-max" placeholder="Max Annual Salary" style="width: 35%;"/>
                 <select name="salary-currency" id="salary-currency" style="height: 42px;">
-                    <option value="$">USD</option>
-                    <option value="£">GBP</option>
-                    <option value="€">EUR</option>
-                    <option value="A$">AUD</option>
-                    <option value="C$">CAD</option>
-                    <option value="S$">SGD</option>
-                    <option value="Fr">CHF</option>
-                    <option value="₹">INR</option>
-                    <option value="₽">RUB</option>
-                    <option value="¥">JPY</option>
+                    <option value="USD-$">USD</option>
+                    <option value="GBP-£">GBP</option>
+                    <option value="EUR-€">EUR</option>
+                    <option value="AUD-A$">AUD</option>
+                    <option value="CAD-C$">CAD</option>
+                    <option value="SGD-S$">SGD</option>
+                    <option value="CHF-Fr">CHF</option>
+                    <option value="INR-₹">INR</option>
+                    <option value="RUB-₽">RUB</option>
+                    <option value="JPY-¥">JPY</option>
                 </select><br />
                 <input type="text" name="company-name" id="company-name" placeholder="Company Name" style="width: 100%;"/><br />
                 <input type="url" name="company-website" id="company-website" placeholder="Company Website" style="width: 100%;"/><br />
@@ -143,6 +143,8 @@ body{background:#f7f7f7;}
             var jobDescription = jobDescriptionEditor.value();
             var howToApply = document.getElementById("how-to-apply").value;
             var companyEmail = document.getElementById("company-email").value;
+	    var salaryCurrencyISO = salaryCurrency.split('-')[0];
+	    var salaryCurrencySymbol = salaryCurrency.split('-')[1];
             if (empty(jobTitle, jobLocation, salaryMin, salaryMax, companyName, companyWebsite, jobDescription, howToApply, companyEmail)) {
                 alert('You must fill all the mandatory forms in order to Hire Go Developers');
                 return;
@@ -193,7 +195,8 @@ body{background:#f7f7f7;}
                                 job_location: jobLocation,
                                 salary_min: salaryMin,
                                 salary_max: salaryMax,
-                                salary_currency: salaryCurrency,
+                                salary_currency: salaryCurrencySymbol,
+                                salary_currency_iso: salaryCurrencyISO,
                                 company_name: companyName,
                                 company_url: companyWebsite,
                                 job_description: jobDescription,
@@ -222,7 +225,8 @@ body{background:#f7f7f7;}
                         job_location: jobLocation,
                         salary_min: salaryMin,
                         salary_max: salaryMax,
-                        salary_currency: salaryCurrency,
+                        salary_currency: salaryCurrencySymbol,
+                        salary_currency_iso: salaryCurrencyISO,
                         company_name: companyName,
                         company_url: companyWebsite,
                         job_description: jobDescription,

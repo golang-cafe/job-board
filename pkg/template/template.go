@@ -30,6 +30,38 @@ func NewTemplate() *Template {
 			return a[len(a)-1]
 		},
 		"humantime": humanize.Time,
+		"humannumber": func(n int) string {
+			return humanize.Comma(int64(n))
+		},
+		"currencysymbol": func(currency string) string {
+			symbols := map[string]string{
+				"USD": "$",
+				"EUR": "€",
+				"JPY": "¥",
+				"GBP": "£",
+				"AUD": "A$",
+				"CAD": "C$",
+				"CHF": "Fr",
+				"CNY": "元",
+				"HKD": "HK$",
+				"NZD": "NZ$",
+				"SEK": "kr",
+				"KRW": "₩",
+				"SGD": "S$",
+				"NOK": "kr",
+				"MXN": "MX$",
+				"INR": "₹",
+				"RUB": "₽",
+				"ZAR": "R",
+				"TRY": "₺",
+				"BRL": "R$",
+			}
+			symbol, ok := symbols[currency]
+			if !ok {
+				return "$"
+			}
+			return symbol
+		},
 	}
 	return &Template{
 		templates: customtemplate.Must(customtemplate.New("stdtmpl").Funcs(funcMap).ParseGlob("static/views/*.html")),
