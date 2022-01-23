@@ -82,8 +82,8 @@ type JobRq struct {
 	AdType            int64  `json:"ad_type"`
 	CurrencyCode      string `json:"currency_code"`
 	CompanyIconID     string `json:"company_icon_id,omitempty"`
-	Feedback          string `json:"feedback,omitempty"`
 	SalaryCurrencyISO string `json:"salary_currency_iso"`
+	VisaSponsorship   bool   `json:"visa_sponsorship,omitempty"`
 }
 
 type JobRqUpsell struct {
@@ -209,6 +209,7 @@ type SEOSkill struct {
 // ALTER TABLE job ADD COLUMN expired BOOLEAN DEFAULT FALSE;
 // ALTER TABLE job ADD COLUMN last_week_clickouts INTEGER NOT NULL DEFAULT 0;
 // ALTER TABLE job ADD COLUMN salary_currency_iso CHAR(3) DEFAULT NULL;
+// ALTER TABLE job ADD COLUMN visa_sponsorship BOOLEAN DEFAULT FALSE;
 
 // CREATE TABLE IF NOT EXISTS image (
 // 	id CHAR(27) NOT NULL UNIQUE,
@@ -1433,12 +1434,12 @@ func SaveDraft(db *sql.DB, job *JobRq) (int, error) {
 		return 0, err
 	}
 	sqlStatement := `
-			INSERT INTO job (job_title, company, company_url, salary_range, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, company_email, ad_type, external_id, salary_period, salary_currency_iso)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, 'year', $19) RETURNING id`
+			INSERT INTO job (job_title, company, company_url, salary_range, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, company_email, ad_type, external_id, salary_period, salary_currency_iso, visa_sponsorship)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, 'year', $19, $20) RETURNING id`
 	if job.CompanyIconID != "" {
 		sqlStatement = `
-			INSERT INTO job (job_title, company, company_url, salary_range, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, company_email, ad_type, company_icon_image_id, external_id, salary_period, salary_currency_iso)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 'year', $20) RETURNING id`
+			INSERT INTO job (job_title, company, company_url, salary_range, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, company_email, ad_type, company_icon_image_id, external_id, salary_period, salary_currency_iso, visa_sponsorship)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 'year', $20, $21) RETURNING id`
 	}
 	slugTitle := slug.Make(fmt.Sprintf("%s %s %d", job.JobTitle, job.Company, time.Now().UTC().Unix()))
 	createdAt := time.Now().UTC().Unix()
@@ -1454,9 +1455,9 @@ func SaveDraft(db *sql.DB, job *JobRq) (int, error) {
 	var lastInsertID int
 	var res *sql.Row
 	if job.CompanyIconID != "" {
-		res = db.QueryRow(sqlStatement, job.JobTitle, job.Company, job.CompanyURL, salaryRange, job.SalaryMin, job.SalaryMax, job.SalaryCurrency, job.Location, job.Description, job.Perks, job.InterviewProcess, job.HowToApply, time.Unix(createdAt, 0), createdAt, slugTitle, job.Email, job.AdType, job.CompanyIconID, externalID, job.SalaryCurrencyISO)
+		res = db.QueryRow(sqlStatement, job.JobTitle, job.Company, job.CompanyURL, salaryRange, job.SalaryMin, job.SalaryMax, job.SalaryCurrency, job.Location, job.Description, job.Perks, job.InterviewProcess, job.HowToApply, time.Unix(createdAt, 0), createdAt, slugTitle, job.Email, job.AdType, job.CompanyIconID, externalID, job.SalaryCurrencyISO, job.VisaSponsorship)
 	} else {
-		res = db.QueryRow(sqlStatement, job.JobTitle, job.Company, job.CompanyURL, salaryRange, job.SalaryMin, job.SalaryMax, job.SalaryCurrency, job.Location, job.Description, job.Perks, job.InterviewProcess, job.HowToApply, time.Unix(createdAt, 0), createdAt, slugTitle, job.Email, job.AdType, externalID, job.SalaryCurrencyISO)
+		res = db.QueryRow(sqlStatement, job.JobTitle, job.Company, job.CompanyURL, salaryRange, job.SalaryMin, job.SalaryMax, job.SalaryCurrency, job.Location, job.Description, job.Perks, job.InterviewProcess, job.HowToApply, time.Unix(createdAt, 0), createdAt, slugTitle, job.Email, job.AdType, externalID, job.SalaryCurrencyISO, job.VisaSponsorship)
 	}
 	res.Scan(&lastInsertID)
 	if err != nil {

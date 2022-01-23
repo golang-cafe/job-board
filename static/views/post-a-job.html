@@ -163,6 +163,9 @@ body{background:#f7f7f7;}
                 </div>
                 <br />
                 <textarea id="job-description" placeholder="Job Description" style="resize:none; width: 100%;"></textarea><br />
+		<div style="width=100%;margin-bottom:10px;">
+			<label style="display: inline-block;white-space: nowrap;padding-right: 10px;"><input type="checkbox" id="visa-sponsorship" name="visa-sponsorship" style="margin-right:0;vertical-align:middle;"> <span style="vertical-align: middle;">VISA Sponsorship</span></label>
+		</div>
                 <input type="text" name="how-to-apply" id="how-to-apply" placeholder="How To Apply (Email or URL)" style="width: 100%;"/><br />
                 <input type="email" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;"/><br />
                 <h4>Preview</h4>
@@ -381,6 +384,7 @@ body{background:#f7f7f7;}
             var jobDescription = jobDescriptionEditor.value();
             var howToApply = document.getElementById("how-to-apply").value;
             var companyEmail = document.getElementById("company-email").value;
+	    var visaSponsorship = document.getElementById("visa-sponsorship").checked;
             var salaryCurrencySymbol = salaryCurrency.split('-')[1];
 	    var salaryCurrencyISO = salaryCurrency.split('-')[0];
             if (empty(jobTitle, jobLocation, salaryMin, salaryMax, companyName, companyWebsite, jobDescription, howToApply, companyEmail)) {
@@ -456,7 +460,8 @@ body{background:#f7f7f7;}
                                 company_email: companyEmail,
                                 ad_type: adType,
                                 currency_code: '{{ .Currency.Code }}',
-                                company_icon_id: companyIconId
+                                company_icon_id: companyIconId,
+				visa_sponsorship: visaSponsorship
                             },
                             function(success, body) {
                                 if (success) {
@@ -499,7 +504,8 @@ body{background:#f7f7f7;}
                         how_to_apply: howToApply,
                         company_email: companyEmail,
                         ad_type: adType,
-                        currency_code: '{{ .Currency.Code }}'
+                        currency_code: '{{ .Currency.Code }}',
+			visa_sponsorship: visaSponsorship
                     },
                     function(success, body) {
                         if (success) {

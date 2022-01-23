@@ -2539,9 +2539,6 @@ func SubmitJobPostPageHandler(svr server.Server) http.HandlerFunc {
 			svr.Log(err, "unable to create payment session")
 		}
 		approveMsg := fmt.Sprintf("Hey! There is a new Ad on Golang Cafe. Please approve https://golang.cafe/manage/%s", randomTokenStr)
-		if strings.TrimSpace(jobRq.Feedback) != "" {
-			approveMsg = fmt.Sprintf("Hey! There is a new Ad on Golang Cafe. Please approve https://golang.cafe/manage/%s.\nFeedback: %s", randomTokenStr, jobRq.Feedback)
-		}
 		err = svr.GetEmail().SendEmail("Diego from Golang Cafe <team@golang.cafe>", email.GolangCafeEmailAddress, jobRq.Email, "New Job Ad on Golang Cafe", approveMsg)
 		if err != nil {
 			svr.Log(err, "unable to send email to admin while posting job ad")
