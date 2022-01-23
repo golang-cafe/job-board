@@ -75,7 +75,7 @@ body{background:#f7f7f7;}
       </header>
   <section style="padding: 0 10px;">
     <p>
-        <input type="submit" value="Submit Your Profile" id="post-btn" onclick="window.location.href='/Submit-Developer-Profile';">
+        <input type="submit" value="Join the Community" id="post-btn" onclick="window.location.href='/Join-Golang-Community';">
             <h1 class="main-title">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }} </h1><br/>
 	    <h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse, view and reach <b>{{ .TextJobCount }} Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} developers</b> for hire {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }}. Search developers experienced in <b>{{ .TopDeveloperSkills }}</b>. Golang developers like <b>{{ .TopDeveloperNames }}</b> and many more are available for hire on Golang Cafe. Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></h2>
     </p>
@@ -90,7 +90,7 @@ body{background:#f7f7f7;}
 	<div id="search-location-suggestions" style="display:none;" class="search-suggestions">
 	</div>
 	</div>
-        <input type="submit" value="Find Developers" id="search-btn"/>
+        <input type="submit" value="Search" id="search-btn"/>
     </div>
     <div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
     <article class="apply-box" id="apply-box-0">
@@ -178,7 +178,7 @@ body{background:#f7f7f7;}
 	  <h4 style="margin-left: 9px;">Get Hired{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</h4>
     <nav class="subnav" style="width:100%;">
         <ul>
-            <li><a href="/Submit-Developer-Profile">Submit Your Profile</a></li>
+            <li><a href="/Join-Golang-Community">Join the Golang Developers Community</a></li>
         </ul>
     </nav>
     <h4 style="margin-left: 9px;">Related To Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Developers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</h4>

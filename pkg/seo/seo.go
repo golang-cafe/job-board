@@ -111,6 +111,33 @@ func appendCompaniesLandingPagesForLocation(landingPages []string, loc string) [
 	}
 	return append(landingPages, fmt.Sprintf(tmpl, strings.ReplaceAll(loc, " ", "-")))
 }
+
+func appendSearchSEOSalaryLandingPageForLocation(seoLandingPages []database.SEOLandingPage, loc database.SEOLocation) []database.SEOLandingPage {
+	salaryBands := []string{"50000", "10000", "150000", "200000"}
+	tmp := make([]database.SEOLandingPage, 0, len(salaryBands))
+	if loc.Name == "" {
+		for _, salaryBand := range salaryBands {
+			tmp = append(tmp, database.SEOLandingPage{
+				URI: fmt.Sprintf("Golang-Jobs-Paying-%s-USD-year", salaryBand),
+			})
+		}
+
+		return append(seoLandingPages, tmp...)
+	}
+
+	if loc.Population < 1000000 {
+		return seoLandingPages
+	}
+
+	for _, salaryBand := range salaryBands {
+		tmp = append(tmp, database.SEOLandingPage{
+			URI: fmt.Sprintf("Golang-Jobs-In-%s-Paying-%s-USD-year", url.PathEscape(strings.ReplaceAll(loc.Name, " ", "-")), salaryBand),
+		})
+	}
+
+	return append(seoLandingPages, tmp...)
+}
+
 func GenerateSearchSEOLandingPages(conn *sql.DB) ([]database.SEOLandingPage, error) {
 	var seoLandingPages []database.SEOLandingPage
 	locs, err := database.GetSEOLocations(conn)
@@ -122,11 +149,11 @@ func GenerateSearchSEOLandingPages(conn *sql.DB) ([]database.SEOLandingPage, err
 		return seoLandingPages, err
 	}
 
+	seoLandingPages = appendSearchSEOSalaryLandingPageForLocation(seoLandingPages, database.SEOLocation{})
+
 	for _, loc := range locs {
 		seoLandingPages = appendSearchSEOLandingPageForLocationAndSkill(seoLandingPages, loc, database.SEOSkill{})
-		// for _, skill := range skills {
-		// 	seoLandingPages = appendSearchSEOLandingPageForLocationAndSkill(seoLandingPages, loc, skill)
-		// }
+		seoLandingPages = appendSearchSEOSalaryLandingPageForLocation(seoLandingPages, loc)
 	}
 	for _, skill := range skills {
 		seoLandingPages = appendSearchSEOLandingPageForLocationAndSkill(seoLandingPages, database.SEOLocation{}, skill)

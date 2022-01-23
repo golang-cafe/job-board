@@ -461,6 +461,7 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		"CountryFromDB":             locFromDB.Country,
 		"RegionFromDB":              locFromDB.Region,
 		"PopulationFromDB":          locFromDB.Population,
+		"LocationEmojiFromDB":       locFromDB.Emoji,
 		"RelatedLocations":          relatedLocations,
 		"ComplementaryRemote":       complementaryRemote,
 		"MonthAndYear":              time.Now().UTC().Format("January 2006"),

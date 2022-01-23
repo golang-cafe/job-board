@@ -161,7 +161,8 @@ type SEOLandingPage struct {
 }
 
 type SEOLocation struct {
-	Name string
+	Name       string
+	Population int
 }
 
 type SEOSkill struct {
@@ -1094,14 +1095,14 @@ func SaveSEOLandingPage(conn *sql.DB, seoLandingPage SEOLandingPage) error {
 func GetSEOLocations(conn *sql.DB) ([]SEOLocation, error) {
 	var locations []SEOLocation
 	var rows *sql.Rows
-	rows, err := conn.Query(`SELECT name FROM seo_location`)
+	rows, err := conn.Query(`SELECT name, population FROM seo_location`)
 	if err != nil {
 		return locations, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		loc := SEOLocation{}
-		err = rows.Scan(&loc.Name)
+		err = rows.Scan(&loc.Name, &loc.Population)
 		if err != nil {
 			return locations, err
 		}
@@ -1277,8 +1278,8 @@ type Location struct {
 func GetLocation(conn *sql.DB, location string) (Location, error) {
 	var country, region, lat, long, population sql.NullString
 	var loc Location
-	res := conn.QueryRow(`SELECT name, currency, country, region, population, lat, long FROM seo_location WHERE LOWER(name) = LOWER($1)`, location)
-	err := res.Scan(&loc.Name, &loc.Currency, &country, &region, &population, &lat, &long)
+	res := conn.QueryRow(`SELECT name, currency, country, region, population, lat, long, emoji FROM seo_location WHERE LOWER(name) = LOWER($1)`, location)
+	err := res.Scan(&loc.Name, &loc.Currency, &country, &region, &population, &lat, &long, &loc.Emoji)
 	if err != nil {
 		return loc, err
 	}
