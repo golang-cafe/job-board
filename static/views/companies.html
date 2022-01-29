@@ -139,7 +139,7 @@ body{background:#ffffff;}
     {{ end }}
           {{ range $i, $j := .Companies }}
               <article class="line-item">
-                  <img src="/x/s/m/{{ .IconImageID }}" class="job-icon" alt="{{ .Name }} Logo" title="{{ .Name }} Logo" />
+                  <img loading="lazy" width="60" height="60" src="/x/s/m/{{ .IconImageID }}?w=100&h=100" class="job-icon" alt="{{ .Name }} Logo" title="{{ .Name }} Logo" />
                   <div style="float: left;">
 			  <a href="/company/{{ .Slug }}" title="{{ .Name }} is Hiring Go (Golang) Engineers"><b>{{ .Name }}</b></a><br />
 		  <b>{{ .Locations }}</b>

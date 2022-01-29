@@ -113,7 +113,7 @@ body{background:#ffffff;}
     <div class="container">
 	    {{ range $i, $j := .Developers }}
               <article class="line-item">
-		  <img src="/x/s/m/{{ .ImageID }}" class="job-icon" alt="{{ .Name }}" title="{{ .Name }}" />
+		  <img loading="lazy" width="120" height="120" src="/x/s/m/{{ .ImageID }}?w=100&h=100" class="job-icon" alt="{{ .Name }}" title="{{ .Name }}" />
                   <div style="float: left;">
 			  <a href="/developer/{{ .Slug }}"target="_blank"><b>{{ .Name }}</b></a><br />
 		  Currently in <b id="location-{{ .ID }}">{{ .Location }}</b><br/>

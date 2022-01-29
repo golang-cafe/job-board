@@ -158,7 +158,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 			{{ range $i, $j := .PinnedJobs }}
 			<article class="line-item line-item-sponsored-1">
 				{{ if .CompanyIconID }}
-				<img width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+				<img loading="lazy" width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
 				{{ end }}
 				<div style="float: left;">
 					<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a> &bull; <small>Sponsored</small><br />
@@ -209,7 +209,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 			{{ if eq .AdType 1 }}
 			<article class="line-item line-item-sponsored-1">
 				{{ if .CompanyIconID }}
-				<img width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+				<img loading="lazy" width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
 				{{ end }}
 				<div style="float: left;">
 					<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a> &bull; <small>Sponsored</small><br />
@@ -254,7 +254,7 @@ header{padding:0 10px;width:780px;margin:auto;}
           {{ else }}
               <article class="line-item">
                   {{ if .CompanyIconID }}
-                    <img width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+                    <img loading="lazy" width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
                   {{ end }}
                   <div style="float: left;">
 			  <a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a>{{ if or (eq .AdType 2) (eq .AdType 3) (eq .AdType 5) }} &bull; <small>Sponsored</small>{{ end }}<br />
