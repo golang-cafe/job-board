@@ -281,7 +281,7 @@ background-color: #FF6600
       <article style="padding-bottom: 80px;">
             <p>
 	    <h1>{{ .DeveloperProfile.Name }}</h1>
-		<img src="/x/s/m/{{ .DeveloperProfile.ImageID }}" width="100" height="100" title="{{ .DeveloperProfile.Name }}" alt="{{ .DeveloperProfile.Name }}" style="border-radius: 50px; border: 1px solid #ccc;"/><br />
+		<img src="/x/s/m/{{ .DeveloperProfile.ImageID }}?w=100&h=100" width="100" height="100" title="{{ .DeveloperProfile.Name }}" alt="{{ .DeveloperProfile.Name }}" style="border-radius: 50px; border: 1px solid #ccc;"/><br />
 		Current Location <b id="location-{{ .DeveloperProfile.ID }}">{{ .DeveloperProfile.Location }}</b><br />
 		Last Updated <b>{{ .DeveloperProfile.UpdatedAtHumanized }}</b><br />
 		<p id="skills-{{ .DeveloperProfile.ID }}">
