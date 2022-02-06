@@ -32,7 +32,7 @@ require (
 	github.com/gorilla/sessions v1.2.0
 	github.com/gosimple/slug v1.3.0
 	github.com/kr/pretty v0.2.1 // indirect
-	github.com/lib/pq v1.0.0
+	github.com/lib/pq v1.10.4
 	github.com/machinebox/graphql v0.2.2
 	github.com/microcosm-cc/bluemonday v1.0.2
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
