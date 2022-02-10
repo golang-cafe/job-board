@@ -24,7 +24,6 @@ type Repository interface {
 	DevelopersByLocationAndTag(loc, tag string, pageID, pageSize int) ([]Developer, int, error)
 	UpdateDeveloperProfile(dev Developer) error
 	DeleteDeveloperProfile(id, email string) error
-	DeleteUserByEmail(email string) error // TO CONFIRM
 	ActivateDeveloperProfile(email string) error
 	SaveDeveloperProfile(dev Developer) error // TO CONFIRM
 	TrackDeveloperProfileView(dev Developer) error
@@ -209,11 +208,6 @@ func (r *repository) UpdateDeveloperProfile(dev Developer) error {
 
 func (r *repository) DeleteDeveloperProfile(id, email string) error {
 	_, err := r.db.Exec(`DELETE FROM developer_profile WHERE id = $1 AND email = $2`, id, email)
-	return err
-}
-
-func (r *repository) DeleteUserByEmail(email string) error {
-	_, err := r.db.Exec(`DELETE FROM users WHERE email = $1`, email)
 	return err
 }
 

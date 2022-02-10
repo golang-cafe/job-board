@@ -12,6 +12,7 @@ import (
 type Repository interface {
 	SaveTokenSignOn(email, token string) error
 	GetOrCreateUserFromToken(token string) (User, bool, error)
+	DeleteUserByEmail(email string) error
 }
 
 type repository struct {
@@ -64,4 +65,9 @@ func (r *repository) GetOrCreateUserFromToken(token string) (User, bool, error) 
 	u.CreatedAtHumanised = humanize.Time(u.CreatedAt.UTC())
 
 	return u, true, nil
+}
+
+func (r *repository) DeleteUserByEmail(email string) error {
+	_, err := r.db.Exec(`DELETE FROM users WHERE email = $1`, email)
+	return err
 }
