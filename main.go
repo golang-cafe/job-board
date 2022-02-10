@@ -4,6 +4,8 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/0x13a/golang.cafe/internal/developer"
+	"github.com/0x13a/golang.cafe/internal/user"
 	"github.com/0x13a/golang.cafe/pkg/config"
 	"github.com/0x13a/golang.cafe/pkg/database"
 	"github.com/0x13a/golang.cafe/pkg/email"
@@ -36,6 +38,9 @@ func main() {
 	defer ipGeolocation.Close()
 	sessionStore := sessions.NewCookieStore(cfg.SessionKey)
 
+	devRepo := developer.NewRepository(conn)
+	userRepo := user.NewRepository(conn)
+
 	svr := server.NewServer(
 		cfg,
 		conn,
@@ -44,6 +49,8 @@ func main() {
 		emailClient,
 		ipGeolocation,
 		sessionStore,
+		devRepo,
+		userRepo,
 	)
 
 	svr.RegisterRoute("/sitemap.xml", handler.SitemapIndexHandler(svr), []string{"GET"})
