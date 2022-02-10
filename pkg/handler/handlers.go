@@ -19,6 +19,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/0x13a/golang.cafe/internal/developer"
 	"github.com/0x13a/golang.cafe/pkg/database"
 	"github.com/0x13a/golang.cafe/pkg/email"
 	"github.com/0x13a/golang.cafe/pkg/imagemeta"
@@ -112,7 +113,7 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "too many skills")
 			return
 		}
-		existingDev, err := database.DeveloperProfileByEmail(svr.Conn, req.Email)
+		existingDev, err := svr.DeveloperRepo.DeveloperProfileByEmail(req.Email)
 		if err != nil {
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
@@ -128,7 +129,7 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			return
 		}
 		t := time.Now().UTC()
-		dev := database.Developer{
+		dev := developer.Developer{
 			ID:          k.String(),
 			Name:        req.Fullname,
 			Location:    req.CurrentLocation,
@@ -143,13 +144,13 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			ImageID:     req.ProfileImageID,
 			Skills:      req.Tags,
 		}
-		err = database.SaveTokenSignOn(svr.Conn, strings.ToLower(req.Email), k.String())
+		err = svr.UserRepo.SaveTokenSignOn(strings.ToLower(req.Email), k.String())
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		err = database.SaveDeveloperProfile(svr.Conn, dev)
+		err = svr.DeveloperRepo.SaveDeveloperProfile(dev)
 		if err != nil {
 			svr.Log(err, "unable to save developer profile")
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -267,17 +268,17 @@ func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
 					svr.Log(err, "seo.GenerateCompaniesLandingPages")
 					return
 				}
-				developerSkillsPages, err := seo.GenerateDevelopersSkillLandingPages(svr.Conn)
+				developerSkillsPages, err := seo.GenerateDevelopersSkillLandingPages(svr.DeveloperRepo)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersSkillLandingPages")
 					return
 				}
-				developerProfilePages, err := seo.GenerateDevelopersProfileLandingPages(svr.Conn)
+				developerProfilePages, err := seo.GenerateDevelopersProfileLandingPages(svr.DeveloperRepo)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
 					return
 				}
-				companyProfilePages, err := seo.GenerateDevelopersProfileLandingPages(svr.Conn)
+				companyProfilePages, err := seo.GenerateDevelopersProfileLandingPages(svr.DeveloperRepo)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
 					return
@@ -1108,7 +1109,7 @@ func UpdateDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				return
 			}
 			t := time.Now().UTC()
-			dev := database.Developer{
+			dev := developer.Developer{
 				ID:          req.ID,
 				Name:        req.Fullname,
 				Location:    req.CurrentLocation,
@@ -1120,7 +1121,7 @@ func UpdateDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				Skills:      req.Skills,
 				ImageID:     req.ImageID,
 			}
-			err = database.UpdateDeveloperProfile(svr.Conn, dev)
+			err = svr.DeveloperRepo.UpdateDeveloperProfile(dev)
 			if err != nil {
 				svr.Log(err, "unable to update developer profile")
 				svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1159,7 +1160,7 @@ func DeleteDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
 			}
-			err = database.DeleteDeveloperProfile(svr.Conn, req.ID, req.Email)
+			err = svr.DeveloperRepo.DeleteDeveloperProfile(req.ID, req.Email)
 			if err != nil {
 				svr.Log(err, "unable to delete developer profile")
 				svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1170,7 +1171,7 @@ func DeleteDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusInternalServerError, nil)
 				return
 			}
-			if userErr := database.DeleteUserByEmail(svr.Conn, req.Email); userErr != nil {
+			if userErr := svr.DeveloperRepo.DeleteUserByEmail(req.Email); userErr != nil {
 				svr.Log(err, "unable to delete user by email "+req.Email)
 				svr.JSON(w, http.StatusInternalServerError, nil)
 			}
@@ -1266,7 +1267,7 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "invalid email provided")
 			return
 		}
-		dev, err := database.DeveloperProfileByID(svr.Conn, profileID)
+		dev, err := svr.DeveloperRepo.DeveloperProfileByID(profileID)
 		if err != nil {
 			svr.Log(err, "unable to find developer profile by id "+profileID)
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1278,13 +1279,13 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		message := database.DeveloperMessage{
+		message := developer.DeveloperMessage{
 			ID:        k.String(),
 			Email:     req.Email,
 			Content:   req.Content,
 			ProfileID: dev.ID,
 		}
-		err = database.SendMessageDeveloperProfile(svr.Conn, message)
+		err = svr.DeveloperRepo.SendMessageDeveloperProfile(message)
 		if err != nil {
 			svr.Log(err, "unable to send message to developer profile")
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1306,7 +1307,7 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		if err := database.TrackDeveloperProfileMessageSent(svr.Conn, dev); err != nil {
+		if err := svr.DeveloperRepo.TrackDeveloperProfileMessageSent(dev); err != nil {
 			svr.Log(err, "unable to track message sent to developer profile")
 		}
 		svr.JSON(w, http.StatusOK, nil)
@@ -1343,7 +1344,7 @@ func DeliverMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		messageID := vars["id"]
-		message, email, err := database.MessageForDeliveryByID(svr.Conn, messageID)
+		message, email, err := svr.DeveloperRepo.MessageForDeliveryByID(messageID)
 		if err != nil {
 			svr.JSON(w, http.StatusBadRequest, "Your link may be invalid or expired")
 			return
@@ -1364,7 +1365,7 @@ func DeliverMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "There was a problem while sending the email")
 			return
 		}
-		if err := database.MarkDeveloperMessageAsSent(svr.Conn, messageID); err != nil {
+		if err := svr.DeveloperRepo.MarkDeveloperMessageAsSent(messageID); err != nil {
 			svr.Log(err, "unable to mark developer message as sent "+messageID)
 		}
 		svr.JSON(w, http.StatusOK, "Message Sent Successfully")
@@ -1384,7 +1385,7 @@ func EditDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusUnauthorized, "unauthorized")
 				return
 			}
-			dev, err := database.DeveloperProfileByID(svr.Conn, profileID)
+			dev, err := svr.DeveloperRepo.DeveloperProfileByID(profileID)
 			if err != nil {
 				svr.Log(err, "unable to find developer profile by id "+profileID)
 				svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1405,13 +1406,13 @@ func ViewDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		profileSlug := vars["slug"]
-		dev, err := database.DeveloperProfileBySlug(svr.Conn, profileSlug)
+		dev, err := svr.DeveloperRepo.DeveloperProfileBySlug(profileSlug)
 		if err != nil {
 			svr.Log(err, "unable to find developer profile by slug "+profileSlug)
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		if err := database.TrackDeveloperProfileView(svr.Conn, dev); err != nil {
+		if err := svr.DeveloperRepo.TrackDeveloperProfileView(dev); err != nil {
 			svr.Log(err, "unable to track developer profile view")
 		}
 		dev.UpdatedAtHumanized = dev.UpdatedAt.UTC().Format("January 2006")
@@ -1599,7 +1600,7 @@ func RequestTokenSignOn(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = database.SaveTokenSignOn(svr.Conn, req.Email, k.String())
+		err = svr.UserRepo.SaveTokenSignOn(req.Email, k.String())
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -1623,7 +1624,7 @@ func VerifyTokenSignOn(svr server.Server, adminEmail string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		token := vars["token"]
-		user, _, err := database.GetOrCreateUserFromToken(svr.Conn, token)
+		user, _, err := svr.UserRepo.GetOrCreateUserFromToken(token)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to validate signon token %s", token))
 			svr.TEXT(w, http.StatusBadRequest, "Invalid or expired token")
@@ -1657,12 +1658,12 @@ func VerifyTokenSignOn(svr server.Server, adminEmail string) http.HandlerFunc {
 		next := r.URL.Query().Get("next")
 		switch {
 		case AuthStepVerifyDeveloperProfile == next:
-			if activateDevProfileErr := database.ActivateDeveloperProfile(svr.Conn, user.Email); activateDevProfileErr != nil {
+			if activateDevProfileErr := svr.DeveloperRepo.ActivateDeveloperProfile(user.Email); activateDevProfileErr != nil {
 				svr.Log(err, "unable to activate developer profile")
 				svr.JSON(w, http.StatusInternalServerError, nil)
 				return
 			}
-			dev, err := database.DeveloperProfileByEmail(svr.Conn, user.Email)
+			dev, err := svr.DeveloperRepo.DeveloperProfileByEmail(user.Email)
 			if err != nil {
 				svr.Log(err, "unable to find developer profile by email")
 				svr.JSON(w, http.StatusNotFound, "unable to find developer profile by email")
@@ -1671,7 +1672,7 @@ func VerifyTokenSignOn(svr server.Server, adminEmail string) http.HandlerFunc {
 			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("/edit/profile/%s", dev.ID))
 			return
 		case AuthStepLoginDeveloperProfile == next:
-			dev, err := database.DeveloperProfileByEmail(svr.Conn, user.Email)
+			dev, err := svr.DeveloperRepo.DeveloperProfileByEmail(user.Email)
 			if err != nil {
 				svr.Log(err, "unable to find developer profile by email")
 				svr.JSON(w, http.StatusNotFound, "unable to find developer profile by email")
