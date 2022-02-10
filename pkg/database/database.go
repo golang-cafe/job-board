@@ -2,7 +2,6 @@ package database
 
 import (
 	"database/sql"
-	"errors"
 	"fmt"
 	"math"
 	"regexp"
@@ -10,41 +9,10 @@ import (
 	"strings"
 	"time"
 
-	humanize "github.com/dustin/go-humanize"
 	"github.com/gosimple/slug"
 	"github.com/lib/pq"
 	"github.com/segmentio/ksuid"
 )
-
-type Developer struct {
-	ID          string
-	Name        string
-	LinkedinURL string
-	Email       string
-	Location    string
-	Available   bool
-	ImageID     string
-	Slug        string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
-	Skills      string
-	GithubURL   *string
-	TwitterURL  *string
-
-	Bio                string
-	SkillsArray        []string
-	CreatedAtHumanized string
-	UpdatedAtHumanized string
-}
-
-type DeveloperMessage struct {
-	ID        string
-	Email     string
-	Content   string
-	ProfileID string
-	CreatedAt time.Time
-	SentAt    time.Time
-}
 
 type Job struct {
 	CreatedAt         int64
@@ -239,29 +207,6 @@ type SEOSkill struct {
 
 // CREATE INDEX news_comment_parent_id_idx on news_comment (parent_id);
 
-// CREATE TABLE IF NOT EXISTS users (
-// 	id CHAR(27) NOT NULL UNIQUE,
-// 	email VARCHAR(255) NOT NULL,
-// 	username VARCHAR(255) NOT NULL,
-// 	created_at TIMESTAMP,
-// 	PRIMARY KEY (id)
-// );
-// ALTER TABLE users DROP COLUMN username;
-
-// CREATE TABLE IF NOT EXISTS user_sign_on_token (
-// 	token CHAR(27) NOT NULL UNIQUE,
-// 	email VARCHAR(255) NOT NULL
-// );
-
-// CREATE INDEX user_sign_on_token_token_idx on user_sign_on_token (token);
-
-// CREATE TABLE IF NOT EXISTS edit_token (
-//   token      CHAR(27) NOT NULL,
-//   job_id     INTEGER NOT NULL REFERENCES job (id),
-//   created_at TIMESTAMP NOT NULL
-// );
-// CREATE UNIQUE INDEX token_idx on edit_token (token);
-
 // CREATE TABLE IF NOT EXISTS purchase_event (
 // 	stripe_session_id VARCHAR(255) NOT NULL,
 //      amount INTEGER NOT NULL,
@@ -286,30 +231,6 @@ type SEOSkill struct {
 // );
 // CREATE UNIQUE INDEX token_idx on apply_token (token);
 
-// CREATE TABLE IF NOT EXISTS developer_profile (
-//   id        CHAR(27) NOT NULL,
-//   email       VARCHAR(255) NOT NULL,
-//   location VARCHAR(255) NOT NULL,
-//   available BOOLEAN NOT NULL,
-//   linkedin_url VARCHAR(255) NOT NULL,
-//   github_url VARCHAR(255) NOT NULL,
-//   image_id CHAR(27) NOT NULL,
-//   slug VARCHAR(255) NOT NULL,
-//   created_at   TIMESTAMP NOT NULL,
-//   updated_at TIMESTAMP DEFAULT NULL,
-//   PRIMARY KEY(id)
-// );
-// CREATE UNIQUE INDEX developer_profile_slug_idx on developer_profile (slug);
-// CREATE UNIQUE INDEX developer_profile_email_idx on developer_profile (email);
-// ALTER TABLE developer_profile ADD COLUMN skills VARCHAR(255) NOT NULL DEFAULT 'Go';
-// ALTER TABLE developer_profile ADD COLUMN name VARCHAR(255) NOT NULL;
-// ALTER TABLE developer_profile ADD COLUMN bio TEXT;
-// ALTER TABLE developer_profile DROP COLUMN github_url;
-// ALTER TABLE developer_profile ALTER COLUMN bio SET NOT NULL;
-// ALTER TABLE developer_profile ADD CONSTRAINT developer_profile_image_id_fk FOREIGN KEY (image_id) REFERENCES image(id);
-// ALTER TABLE developer_profile ADD COLUMN github_url VARCHAR(255) DEFAULT NULL;
-// ALTER TABLE developer_profile ADD COLUMN twitter_url VARCHAR(255) DEFAULT NULL;
-
 // CREATE TABLE IF NOT EXISTS fx_rate (
 //   base       CHAR(3) NOT NULL,
 //   target     CHAR(3) NOT NULL,
@@ -329,12 +250,6 @@ type SEOSkill struct {
 // CREATE TABLE IF NOT EXISTS company_event (
 // 	event_type VARCHAR(128) NOT NULL,
 // 	company_id CHAR(27) NOT NULL REFERENCES company(id),
-// 	created_at TIMESTAMP NOT NULL
-// );
-
-// CREATE TABLE IF NOT EXISTS developer_profile_event (
-// 	event_type VARCHAR(128) NOT NULL,
-// 	developer_profile_id CHAR(27) NOT NULL REFERENCES developer_profile(id),
 // 	created_at TIMESTAMP NOT NULL
 // );
 
@@ -386,16 +301,6 @@ type SEOSkill struct {
 // ALTER TABLE company ALTER COLUMN description TYPE TEXT;
 // ALTER TABLE company ALTER COLUMN description SET DEFAULT NULL;
 // CREATE UNIQUE INDEX company_slug_idx ON company (slug);
-
-// CREATE TABLE IF NOT EXISTS developer_profile_message (
-//     id CHAR(27) NOT NULL UNIQUE,
-//     email VARCHAR(255) NOT NULL,
-//     content TEXT NOT NULL,
-//     profile_id CHAR(27) NOT NULL,
-//     created_at TIMESTAMP NOT NULL,
-//     sent_at TIMESTAMP,
-//     PRIMARY KEY(id)
-// );
 
 // CREATE TABLE IF NOT EXISTS seo_landing_page (
 //  uri VARCHAR(255) NOT NULL UNIQUE,
@@ -533,14 +438,11 @@ const (
 	jobEventPageView = "page_view"
 	jobEventClickout = "clickout"
 
-	companyEventPageView             = "company_page_view"
-	developerProfileEventPageView    = "developer_profile_page_view"
-	developerProfileEventMessageSent = "developer_profile_message_sent"
+	companyEventPageView = "company_page_view"
 
-	SearchTypeJob       = "job"
-	SearchTypeSalary    = "salary"
-	SearchTypeCompany   = "company"
-	SearchTypeDeveloper = "developer"
+	SearchTypeJob     = "job"
+	SearchTypeSalary  = "salary"
+	SearchTypeCompany = "company"
 )
 
 // GetDbConn tries to establish a connection to postgres and return the connection handler
@@ -665,18 +567,6 @@ func TrackCompanyView(conn *sql.DB, company *Company) error {
 	return err
 }
 
-func TrackDeveloperProfileView(conn *sql.DB, dev Developer) error {
-	stmt := `INSERT INTO developer_profile_event (event_type, developer_profile_id, created_at) VALUES ($1, $2, NOW())`
-	_, err := conn.Exec(stmt, developerProfileEventPageView, dev.ID)
-	return err
-}
-
-func TrackDeveloperProfileMessageSent(conn *sql.DB, dev Developer) error {
-	stmt := `INSERT INTO developer_profile_event (event_type, developer_profile_id, created_at) VALUES ($1, $2, NOW())`
-	_, err := conn.Exec(stmt, developerProfileEventMessageSent, dev.ID)
-	return err
-}
-
 func TrackSearchEvent(conn *sql.DB, ua string, sessionID string, loc string, tag string, results int, typ string) error {
 	hasBot := regexp.MustCompile(`(?i)(googlebot|bingbot|slurp|baiduspider|duckduckbot|yandexbot|sogou|exabot|facebookexternalhit|facebot|ia_archiver|linkedinbot|python-urllib|python-requests|go-http-client|msnbot|ahrefs)`)
 	if hasBot.MatchString(ua) {
@@ -703,187 +593,6 @@ func ConfirmApplyToJob(conn *sql.DB, token string) error {
 		`UPDATE apply_token SET confirmed_at = NOW() WHERE token = $1`,
 		token,
 	)
-	return err
-}
-
-func DeveloperProfileBySlug(conn *sql.DB, slug string) (Developer, error) {
-	row := conn.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE slug = $1`, slug)
-	dev := Developer{}
-	err := row.Scan(
-		&dev.ID,
-		&dev.Email,
-		&dev.Location,
-		&dev.Available,
-		&dev.LinkedinURL,
-		&dev.ImageID,
-		&dev.Slug,
-		&dev.CreatedAt,
-		&dev.UpdatedAt,
-		&dev.Skills,
-		&dev.Name,
-		&dev.Bio,
-	)
-	if err != nil {
-		return dev, err
-	}
-
-	return dev, nil
-}
-
-func DeveloperProfileByEmail(conn *sql.DB, email string) (Developer, error) {
-	row := conn.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE lower(email) = lower($1)`, email)
-	dev := Developer{}
-	err := row.Scan(
-		&dev.ID,
-		&dev.Email,
-		&dev.Location,
-		&dev.Available,
-		&dev.LinkedinURL,
-		&dev.ImageID,
-		&dev.Slug,
-		&dev.CreatedAt,
-		&dev.UpdatedAt,
-		&dev.Skills,
-		&dev.Name,
-		&dev.Bio,
-	)
-	if err == sql.ErrNoRows {
-		return dev, nil
-	}
-	if err != nil {
-		return dev, err
-	}
-
-	return dev, nil
-}
-
-func DeveloperProfileByID(conn *sql.DB, id string) (Developer, error) {
-	row := conn.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE id = $1`, id)
-	dev := Developer{}
-	err := row.Scan(
-		&dev.ID,
-		&dev.Email,
-		&dev.Location,
-		&dev.Available,
-		&dev.LinkedinURL,
-		&dev.ImageID,
-		&dev.Slug,
-		&dev.CreatedAt,
-		&dev.UpdatedAt,
-		&dev.Skills,
-		&dev.Name,
-		&dev.Bio,
-	)
-	if err != nil {
-		return dev, err
-	}
-
-	return dev, nil
-}
-
-func SendMessageDeveloperProfile(conn *sql.DB, message DeveloperMessage) error {
-	_, err := conn.Exec(
-		`INSERT INTO developer_profile_message (id, email, content, profile_id, created_at) VALUES ($1, $2, $3, $4, NOW())`,
-		message.ID,
-		message.Email,
-		message.Content,
-		message.ProfileID,
-	)
-	return err
-}
-
-func MessageForDeliveryByID(conn *sql.DB, id string) (DeveloperMessage, string, error) {
-	row := conn.QueryRow(`SELECT dpm.id, dpm.email, dpm.content, dpm.profile_id, dpm.created_at, dp.email as dev_email FROM developer_profile_message dpm JOIN developer_profile dp ON dp.id = dpm.profile_id WHERE dpm.id = $1 AND dpm.sent_at IS NULL`, id)
-	var devEmail string
-	var message DeveloperMessage
-	err := row.Scan(
-		&message.ID,
-		&message.Email,
-		&message.Content,
-		&message.ProfileID,
-		&message.CreatedAt,
-		&devEmail,
-	)
-	if err != nil {
-		return message, devEmail, err
-	}
-
-	return message, devEmail, nil
-}
-
-func MarkDeveloperMessageAsSent(conn *sql.DB, id string) error {
-	_, err := conn.Exec(`UPDATE developer_profile_message SET sent_at = NOW() WHERE id = $1`, id)
-	return err
-}
-
-func DevelopersByLocationAndTag(conn *sql.DB, loc, tag string, pageID, pageSize int) ([]Developer, int, error) {
-	var rows *sql.Rows
-	var err error
-	offset := pageID*pageSize - pageSize
-	var developers []Developer
-	switch {
-	case tag != "" && loc != "":
-		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND skills ILIKE '%' || $2 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $3 OFFSET $4`, loc, tag, pageSize, offset)
-	case tag != "" && loc == "":
-		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE skills ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, tag, pageSize, offset)
-	case tag == "" && loc != "":
-		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, loc, pageSize, offset)
-	default:
-		rows, err = conn.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE created_at != updated_at ORDER BY updated_at DESC LIMIT $1 OFFSET $2`, pageSize, offset)
-	}
-	if err == sql.ErrNoRows {
-		return developers, 0, nil
-	}
-	var fullRowsCount int
-	for rows.Next() {
-		var dev Developer
-		err := rows.Scan(
-			&fullRowsCount,
-			&dev.ID,
-			&dev.Email,
-			&dev.Location,
-			&dev.Available,
-			&dev.LinkedinURL,
-			&dev.ImageID,
-			&dev.Slug,
-			&dev.CreatedAt,
-			&dev.UpdatedAt,
-			&dev.Skills,
-			&dev.Name,
-			&dev.Bio,
-		)
-		if err != nil {
-			return developers, fullRowsCount, err
-		}
-		developers = append(developers, dev)
-	}
-
-	return developers, fullRowsCount, nil
-}
-
-func UpdateDeveloperProfile(conn *sql.DB, dev Developer) error {
-	_, err := conn.Exec(`UPDATE developer_profile SET name = $1, location = $2, linkedin_url = $3, bio = $4, available = $5, image_id = $6, updated_at = NOW(), skills = $7  WHERE id = $8`, dev.Name, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Skills, dev.ID)
-	return err
-}
-
-func DeleteDeveloperProfile(conn *sql.DB, id, email string) error {
-	_, err := conn.Exec(`DELETE FROM developer_profile WHERE id = $1 AND email = $2`, id, email)
-	return err
-}
-
-func DeleteUserByEmail(conn *sql.DB, email string) error {
-	_, err := conn.Exec(`DELETE FROM users WHERE email = $1`, email)
-	return err
-}
-
-func ActivateDeveloperProfile(conn *sql.DB, email string) error {
-	_, err := conn.Exec(`UPDATE developer_profile SET updated_at = NOW() WHERE email = $1`, email)
-	return err
-}
-
-func SaveDeveloperProfile(conn *sql.DB, dev Developer) error {
-	dev.Slug = slug.Make(fmt.Sprintf("%s %d", dev.Name, time.Now().UTC().Unix()))
-	_, err := conn.Exec(`INSERT INTO developer_profile (email, location, linkedin_url, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8, $9, $10, $11, $12)`, dev.Email, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Slug, dev.Skills, dev.Name, dev.ID, dev.GithubURL, dev.TwitterURL)
 	return err
 }
 
@@ -1115,124 +824,6 @@ func GetSEOLocations(conn *sql.DB) ([]SEOLocation, error) {
 	return locations, nil
 }
 
-func GetLastDevUpdatedAt(conn *sql.DB) (time.Time, error) {
-	var updatedAt time.Time
-	row := conn.QueryRow(`SELECT updated_at FROM developer_profile WHERE updated_at != created_at ORDER BY updated_at DESC LIMIT 1`)
-	if err := row.Scan(&updatedAt); err != nil {
-		return updatedAt, err
-	}
-
-	return updatedAt, nil
-}
-
-func GetDevelopersRegisteredLastMonth(conn *sql.DB) (int, error) {
-	var count int
-	row := conn.QueryRow(`select count(*) from developer_profile where created_at > NOW() - INTERVAL '30 days'`)
-	if err := row.Scan(&count); err != nil {
-		return count, err
-	}
-
-	return count, nil
-}
-
-func GetDeveloperMessagesSentLastMonth(conn *sql.DB) (int, error) {
-	var count int
-	row := conn.QueryRow(`select count(*) from developer_profile_message where created_at > NOW() - INTERVAL '30 days'`)
-	if err := row.Scan(&count); err != nil {
-		return count, err
-	}
-
-	return count, nil
-}
-
-func GetDeveloperProfilePageViewsLastMonth(conn *sql.DB) (int, error) {
-	var count int
-	row := conn.QueryRow(`select count(*) as c from developer_profile_event where event_type = 'developer_profile_page_view' and created_at > NOW() - INTERVAL '30 days'`)
-	if err := row.Scan(&count); err != nil {
-		return count, err
-	}
-
-	return count, nil
-}
-
-func GetTopDevelopers(conn *sql.DB, limit int) ([]Developer, error) {
-	devs := make([]Developer, 0, limit)
-	var rows *sql.Rows
-	rows, err := conn.Query(`select name, image_id from developer_profile where updated_at != created_at order by updated_at desc limit $1`, limit)
-	if err != nil {
-		return devs, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var dev Developer
-		if err := rows.Scan(&dev.Name, &dev.ImageID); err != nil {
-			return devs, err
-		}
-		devs = append(devs, dev)
-	}
-
-	return devs, nil
-}
-
-func GetTopDeveloperSkills(conn *sql.DB, limit int) ([]string, error) {
-	skills := make([]string, 0, limit)
-	var rows *sql.Rows
-	rows, err := conn.Query(`select count(*) c, trim(both from unnest(regexp_split_to_array(skills, ','))) as skill from developer_profile where updated_at != created_at group by skill order by c desc limit $1`, limit)
-	if err != nil {
-		return skills, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var c int
-		var skill string
-		if err := rows.Scan(&c, &skill); err != nil {
-			return skills, err
-		}
-		skills = append(skills, skill)
-	}
-
-	return skills, nil
-
-}
-
-func GetDeveloperSkills(conn *sql.DB) ([]string, error) {
-	skills := make([]string, 0)
-	var rows *sql.Rows
-	rows, err := conn.Query(`select distinct trim(both from unnest(regexp_split_to_array(skills, ','))) as skill from developer_profile where updated_at != created_at`)
-	if err != nil {
-		return skills, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var skill string
-		if err := rows.Scan(&skill); err != nil {
-			return skills, err
-		}
-		skills = append(skills, skill)
-	}
-
-	return skills, nil
-}
-
-func GetDeveloperSlugs(conn *sql.DB) ([]string, error) {
-	slugs := make([]string, 0)
-	var rows *sql.Rows
-	rows, err := conn.Query(`select slug from developer_profile where updated_at != created_at`)
-	if err != nil {
-		return slugs, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var slug string
-		if err := rows.Scan(&slug); err != nil {
-			return slugs, err
-		}
-		slugs = append(slugs, slug)
-	}
-
-	return slugs, nil
-}
-
 func GetCompanySlugs(conn *sql.DB) ([]string, error) {
 	slugs := make([]string, 0)
 	var rows *sql.Rows
@@ -1375,58 +966,6 @@ func GetSEOskills(conn *sql.DB) ([]SEOSkill, error) {
 		return skills, err
 	}
 	return skills, nil
-}
-
-type User struct {
-	ID                 string
-	Email              string
-	CreatedAtHumanised string
-	CreatedAt          time.Time
-	IsAdmin            bool
-}
-
-func SaveTokenSignOn(db *sql.DB, email, token string) error {
-	if _, err := db.Exec(`INSERT INTO user_sign_on_token (token, email) VALUES ($1, $2)`, token, email); err != nil {
-		return err
-	}
-	return nil
-}
-
-// GetOrCreateUserFromToken creates or get existing user given a token
-// returns the user struct, whether the user existed already and an error
-func GetOrCreateUserFromToken(db *sql.DB, token string) (User, bool, error) {
-	u := User{}
-	row := db.QueryRow(`SELECT t.token, t.email, u.id, u.email, u.created_at FROM user_sign_on_token t LEFT JOIN users u ON t.email = u.email WHERE t.token = $1`, token)
-	var tokenRes, id, email, tokenEmail sql.NullString
-	var createdAt sql.NullTime
-	if err := row.Scan(&tokenRes, &tokenEmail, &id, &email, &createdAt); err != nil {
-		return u, false, err
-	}
-	if !tokenRes.Valid {
-		return u, false, errors.New("token not found")
-	}
-	if !email.Valid {
-		// user not found create new one
-		userID, err := ksuid.NewRandom()
-		if err != nil {
-			return u, false, err
-		}
-		u.ID = userID.String()
-		u.Email = tokenEmail.String
-		u.CreatedAt = time.Now()
-		u.CreatedAtHumanised = humanize.Time(u.CreatedAt.UTC())
-		if _, err := db.Exec(`INSERT INTO users (id, email, created_at) VALUES ($1, $2, $3)`, u.ID, u.Email, u.CreatedAt); err != nil {
-			return User{}, false, err
-		}
-
-		return u, false, nil
-	}
-	u.ID = id.String
-	u.Email = email.String
-	u.CreatedAt = createdAt.Time
-	u.CreatedAtHumanised = humanize.Time(u.CreatedAt.UTC())
-
-	return u, true, nil
 }
 
 func SaveDraft(db *sql.DB, job *JobRq) (int, error) {
