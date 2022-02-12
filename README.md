@@ -10,6 +10,8 @@
 - Browse Go developers
 - Weekly Job Newsletter Digest
 - Open Source
+- Filter by minimum Salary
+- The site home page weights under 250kb ([188kb uncompressed]((https://gtmetrix.com/reports/golang.cafe/FQEvpFuT/))
 
 ### Tech Stack
 
