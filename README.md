@@ -29,8 +29,11 @@ It's possible to setup a blank instance of Golang Cafe locally. This is a local 
 
 **Requirements**
 
-- Bash
-- Docker
+These are basic requirements with the respective versions have been tested to work locally on MacOS. The same should apply both on Linux and WSL/Windows.
+
+- Bash 3.2.x or higher
+- Docker 20.10.x or higher
+- Go 1.15.x or higher
 
 **Dependencies**
 
