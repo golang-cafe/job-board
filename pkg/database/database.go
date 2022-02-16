@@ -10,7 +10,7 @@ import (
 	"strings"
 	"time"
 
-	humanize "github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize"
 	"github.com/gosimple/slug"
 	"github.com/lib/pq"
 	"github.com/segmentio/ksuid"
@@ -374,7 +374,7 @@ type SEOSkill struct {
 //	total_job_count INT NOT NULL,
 //	active_job_count INT NOT NULL,
 //	PRIMARY KEY(id)
-//);
+// );
 // ALTER TABLE company ADD COLUMN featured_post_a_job BOOLEAN DEFAULT FALSE;
 // ALTER TABLE company ADD COLUMN slug VARCHAR(255) DEFAULT NULL;
 // CREATE UNIQUE INDEX company_name_idx ON company (name);
@@ -2227,7 +2227,8 @@ func JobPostIDByToken(conn *sql.DB, token string) (int, error) {
 func LastJobPosted(conn *sql.DB) (time.Time, error) {
 	row := conn.QueryRow(`SELECT created_at FROM job WHERE approved_at IS NOT NULL ORDER BY created_at DESC LIMIT 1`)
 	var last time.Time
-	if err := row.Scan(&last); err != nil {
+	err := row.Scan(&last)
+	if err != nil && !errors.Is(err, sql.ErrNoRows) {
 		return last, err
 	}
 
