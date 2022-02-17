@@ -8,6 +8,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	stdtemplate "html/template"
 	"log"
 	"math"
 	"net/http"
@@ -17,8 +18,6 @@ import (
 	"strings"
 	"time"
 
-	stdtemplate "html/template"
-
 	"github.com/0x13a/golang.cafe/pkg/config"
 	"github.com/0x13a/golang.cafe/pkg/database"
 	"github.com/0x13a/golang.cafe/pkg/email"
@@ -26,12 +25,12 @@ import (
 	"github.com/0x13a/golang.cafe/pkg/middleware"
 	"github.com/0x13a/golang.cafe/pkg/template"
 	"github.com/aclements/go-moremath/stats"
-	humanize "github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 
 	"github.com/allegro/bigcache/v3"
-	raven "github.com/getsentry/raven-go"
+	"github.com/getsentry/raven-go"
 )
 
 const (
@@ -659,6 +658,14 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 	for _, d := range topDevelopers {
 		topDeveloperNames = append(topDeveloperNames, strings.Split(d.Name, " ")[0])
 	}
+
+	var lastDevCreatedAt, lastDevCreatedAtHumanized string
+
+	if len(developersForPage) > 0 {
+		lastDevCreatedAt = developersForPage[0].UpdatedAt.Format(time.RFC3339)
+		lastDevCreatedAtHumanized = humanize.Time(developersForPage[0].UpdatedAt)
+	}
+
 	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
 		"Developers":                developersForPage,
 		"TopDeveloperNames":         textifyGeneric(topDeveloperNames),
@@ -678,8 +685,8 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		"TotalDevelopersCount":      totalDevelopersCount,
 		"ComplementaryRemote":       complementaryRemote,
 		"MonthAndYear":              time.Now().UTC().Format("January 2006"),
-		"LastDevCreatedAt":          developersForPage[0].UpdatedAt.Format(time.RFC3339),
-		"LastDevCreatedAtHumanized": humanize.Time(developersForPage[0].UpdatedAt),
+		"LastDevCreatedAt":          lastDevCreatedAt,
+		"LastDevCreatedAtHumanized": lastDevCreatedAtHumanized,
 	})
 
 }
@@ -749,6 +756,14 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, l
 			s.Log(err, "database.TopNJobsByCurrencyAndLocation")
 		}
 	}
+
+	var lastJobPostedAt, lastJobPostedAtHumanized string
+
+	if len(jobs) > 0 {
+		lastJobPostedAt = time.Unix(jobs[0].CreatedAt, 0).Format(time.RFC3339)
+		lastJobPostedAtHumanized = humanize.Time(time.Unix(jobs[0].CreatedAt, 0))
+	}
+
 	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
 		"Companies":                companiesForPage,
 		"CompaniesMinusOne":        len(companiesForPage) - 1,
@@ -767,8 +782,8 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, l
 		"Country":                  loc.Country,
 		"Region":                   loc.Region,
 		"Population":               loc.Population,
-		"LastJobPostedAt":          time.Unix(jobs[0].CreatedAt, 0).Format(time.RFC3339),
-		"LastJobPostedAtHumanized": humanize.Time(time.Unix(jobs[0].CreatedAt, 0)),
+		"LastJobPostedAt":          lastJobPostedAt,
+		"LastJobPostedAtHumanized": lastJobPostedAtHumanized,
 	})
 
 }
