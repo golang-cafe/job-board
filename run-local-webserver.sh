@@ -28,5 +28,9 @@ export MACHINE_TOKEN=a123
 export TELEGRAM_API_TOKEN=a123
 export TELEGRAM_CHANNEL_ID=1233123123
 export FX_API_KEY=a123
-go build -o golang.cafe main.go
-./golang.cafe
+export SITE_NAME="Golang Cafe"
+export SITE_JOB_CATEGORY="golang"
+
+go build -o ./bin/server main.go
+
+./bin/server

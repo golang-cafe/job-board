@@ -44,6 +44,8 @@ type Config struct {
 	FXAPIKey                     string
 	AvailableCurrencies          []string
 	AvailableSalaryBands         []int
+	SiteName                     string
+	SiteJobCategory              string
 }
 
 func LoadConfig() (Config, error) {
@@ -179,6 +181,14 @@ func LoadConfig() (Config, error) {
 	if fxAPIKey == "" {
 		return Config{}, fmt.Errorf("FX_API_KEY cannot be empty")
 	}
+	siteName := os.Getenv("SITE_NAME")
+	if siteName == "" {
+		return Config{}, fmt.Errorf("SITE_NAME cannot be empty")
+	}
+	siteJobCategory := os.Getenv("SITE_JOB_CATEGORY")
+	if siteJobCategory == "" {
+		return Config{}, fmt.Errorf("SITE_JOB_CATEGORU cannot be empty")
+	}
 
 	return Config{
 		Port:                         port,
@@ -212,6 +222,8 @@ func LoadConfig() (Config, error) {
 		TelegramAPIToken:             telegramAPIToken,
 		TelegramChannelID:            int64(telegramChannelID),
 		FXAPIKey:                     fxAPIKey,
+		SiteName:                     siteName,
+		SiteJobCategory:              siteJobCategory,
 		AvailableCurrencies:          []string{"USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN", "INR", "RUB", "ZAR", "TRY", "BRL"},
 		AvailableSalaryBands:         []int{10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000, 240000, 250000},
 	}, nil
