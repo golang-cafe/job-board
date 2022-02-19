@@ -225,7 +225,7 @@ func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, 
 		"LastJobPostedAt":          lastJobPosted.Format(time.RFC3339),
 		"LastJobPostedAtHumanized": humanize.Time(lastJobPosted),
 		"MonthAndYear":             time.Now().UTC().Format("January 2006"),
-		"EmailSubscribersCount":    emailSubscribersCount,
+		"EmailSubscribersCount":    humanize.Comma(int64(emailSubscribersCount)),
 	})
 }
 
@@ -479,7 +479,7 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		"MonthAndYear":              time.Now().UTC().Format("January 2006"),
 		"NewJobsLastWeek":           newJobsLastWeek,
 		"NewJobsLastMonth":          newJobsLastMonth,
-		"EmailSubscribersCount":     emailSubscribersCount,
+		"EmailSubscribersCount":     humanize.Comma(int64(emailSubscribersCount)),
 	})
 }
 
@@ -705,7 +705,7 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		"MonthAndYear":              time.Now().UTC().Format("January 2006"),
 		"LastDevCreatedAt":          lastDevCreatedAt,
 		"LastDevCreatedAtHumanized": lastDevCreatedAtHumanized,
-		"EmailSubscribersCount":     emailSubscribersCount,
+		"EmailSubscribersCount":     humanize.Comma(int64(emailSubscribersCount)),
 	})
 
 }
@@ -807,7 +807,7 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, l
 		"Population":               loc.Population,
 		"LastJobPostedAt":          lastJobPostedAt,
 		"LastJobPostedAtHumanized": lastJobPostedAtHumanized,
-		"EmailSubscribersCount":    emailSubscribersCount,
+		"EmailSubscribersCount":    humanize.Comma(int64(emailSubscribersCount)),
 	})
 
 }
