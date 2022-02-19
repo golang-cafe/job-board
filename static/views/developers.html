@@ -135,7 +135,8 @@ body{background:#ffffff;}
 	      {{ end }}
 	      </div>
           <article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
-		  <div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;" id="email-subscribe-item-text">Get a weekly email with all new Go jobs</div>
+              <div style="text-align: center; font-weight: bold; color:#000090">Join {{ .EmailSubscribersCount }}+ others</div>
+		  <div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:5px auto 20px auto;" id="email-subscribe-item-text">Get a weekly email with all new Go jobs</div>
                 <input type="email" name="job-email-subscription" id="job-email-subscription" style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
                 <input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Subscribe" style="width:50%;display:table;margin:5px auto;"/>
             </article>
@@ -336,7 +337,7 @@ body{background:#ffffff;}
 				  document.getElementById('search-location-suggestions').style.display = 'block';
 				}
 			}
-		})	
+		})
                 return;
             }
             if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '') {
@@ -372,7 +373,7 @@ body{background:#ffffff;}
 				  document.getElementById('search-tag-suggestions').style.display = 'block';
 				}
 			}
-		})	
+		})
                 return;
             }
             if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '') {
@@ -487,6 +488,6 @@ body{background:#ffffff;}
 		document.getElementById('feedback').style.display = 'block';
     	});
     </script>
-  
+
 </body>
 </html>
