@@ -956,7 +956,10 @@ func (s Server) GetCurrencyFromRequest(r *http.Request) (ipgeolocation.Currency,
 func (s Server) Render(w http.ResponseWriter, status int, htmlView string, data interface{}) error {
 	dataMap := data.(map[string]interface{})
 	dataMap["SiteName"] = s.GetConfig().SiteName
-	dataMap["SiteJobCategory"] = strings.ToUpper(s.GetConfig().SiteJobCategory)
+	dataMap["SiteJobCategory"] = strings.Title(strings.ToLower(s.GetConfig().SiteJobCategory))
+	dataMap["SiteJobCategoryURLEncoded"] = strings.ReplaceAll(strings.Title(strings.ToLower(s.GetConfig().SiteJobCategory)), " ", "-")
+	dataMap["SupportEmail"] = s.GetConfig().SupportEmail
+
 	return s.tmpl.Render(w, status, htmlView, dataMap)
 }
 
