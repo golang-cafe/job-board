@@ -529,6 +529,13 @@ func GetEmailSubscribers(conn *sql.DB) ([]EmailSubscriber, error) {
 	return res, nil
 }
 
+func CountEmailSubscribers(conn *sql.DB) (int, error) {
+	row := conn.QueryRow(`SELECT count(*) FROM email_subscribers WHERE confirmed_at IS NOT NULL`)
+	var count int
+	err := row.Scan(&count)
+	return count, err
+}
+
 const (
 	jobEventPageView = "page_view"
 	jobEventClickout = "clickout"
