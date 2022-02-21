@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/0x13a/golang.cafe/internal/developer"
+	"github.com/0x13a/golang.cafe/internal/user"
 	"github.com/0x13a/golang.cafe/pkg/database"
 	"github.com/0x13a/golang.cafe/pkg/email"
 	"github.com/0x13a/golang.cafe/pkg/imagemeta"
@@ -47,6 +48,23 @@ const (
 	AuthStepLoginDeveloperProfile  = "1mEvrSr2G4e4iGeucwolKW6o64d"
 )
 
+type devGetter interface {
+	DeveloperProfileByEmail(email string) (developer.Developer, error)
+}
+
+type devSaver interface {
+	SaveDeveloperProfile(dev developer.Developer) error
+}
+
+type devGetSaver interface {
+	devGetter
+	devSaver
+}
+
+type tokenSaver interface {
+	SaveTokenSignOn(email, token string) error
+}
+
 func GetAuthPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		next := r.URL.Query().Get("next")
@@ -63,23 +81,23 @@ func CompaniesHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func DevelopersHandler(svr server.Server) http.HandlerFunc {
+func DevelopersHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		location := vars["location"]
 		tag := vars["tag"]
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForDevelopers(w, r, location, tag, page, "developers.html")
+		svr.RenderPageForDevelopers(w, r, devRepo, location, tag, page, "developers.html")
 	}
 }
 
-func SubmitDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func SubmitDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForDeveloperRegistration(w, r, "submit-developer-profile.html")
+		svr.RenderPageForDeveloperRegistration(w, r, devRepo, "submit-developer-profile.html")
 	}
 }
 
-func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRepo tokenSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
 			Fullname        string  `json:"fullname"`
@@ -113,7 +131,7 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "too many skills")
 			return
 		}
-		existingDev, err := svr.DeveloperRepo.DeveloperProfileByEmail(req.Email)
+		existingDev, err := devRepo.DeveloperProfileByEmail(req.Email)
 		if err != nil {
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
@@ -144,13 +162,13 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			ImageID:     req.ProfileImageID,
 			Skills:      req.Tags,
 		}
-		err = svr.UserRepo.SaveTokenSignOn(strings.ToLower(req.Email), k.String())
+		err = userRepo.SaveTokenSignOn(strings.ToLower(req.Email), k.String())
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		err = svr.DeveloperRepo.SaveDeveloperProfile(dev)
+		err = devRepo.SaveDeveloperProfile(dev)
 		if err != nil {
 			svr.Log(err, "unable to save developer profile")
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -242,7 +260,7 @@ func TriggerFXRateUpdate(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
+func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
@@ -268,17 +286,17 @@ func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
 					svr.Log(err, "seo.GenerateCompaniesLandingPages")
 					return
 				}
-				developerSkillsPages, err := seo.GenerateDevelopersSkillLandingPages(svr.DeveloperRepo)
+				developerSkillsPages, err := seo.GenerateDevelopersSkillLandingPages(devRepo)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersSkillLandingPages")
 					return
 				}
-				developerProfilePages, err := seo.GenerateDevelopersProfileLandingPages(svr.DeveloperRepo)
+				developerProfilePages, err := seo.GenerateDevelopersProfileLandingPages(devRepo)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
 					return
 				}
-				companyProfilePages, err := seo.GenerateDevelopersProfileLandingPages(svr.DeveloperRepo)
+				companyProfilePages, err := seo.GenerateDevelopersProfileLandingPages(devRepo)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
 					return
@@ -1061,7 +1079,7 @@ func TriggerAdsManager(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func UpdateDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return middleware.UserAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
@@ -1121,7 +1139,7 @@ func UpdateDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				Skills:      req.Skills,
 				ImageID:     req.ImageID,
 			}
-			err = svr.DeveloperRepo.UpdateDeveloperProfile(dev)
+			err = devRepo.UpdateDeveloperProfile(dev)
 			if err != nil {
 				svr.Log(err, "unable to update developer profile")
 				svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1132,7 +1150,7 @@ func UpdateDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func DeleteDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func DeleteDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository, userRepo *user.Repository) http.HandlerFunc {
 	return middleware.UserAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
@@ -1160,7 +1178,7 @@ func DeleteDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
 			}
-			err = svr.DeveloperRepo.DeleteDeveloperProfile(req.ID, req.Email)
+			err = devRepo.DeleteDeveloperProfile(req.ID, req.Email)
 			if err != nil {
 				svr.Log(err, "unable to delete developer profile")
 				svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1171,7 +1189,7 @@ func DeleteDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusInternalServerError, nil)
 				return
 			}
-			if userErr := svr.DeveloperRepo.DeleteUserByEmail(req.Email); userErr != nil {
+			if userErr := userRepo.DeleteUserByEmail(req.Email); userErr != nil {
 				svr.Log(err, "unable to delete user by email "+req.Email)
 				svr.JSON(w, http.StatusInternalServerError, nil)
 			}
@@ -1245,7 +1263,7 @@ func AddEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func SendMessageDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		profileID := vars["id"]
@@ -1267,7 +1285,7 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "invalid email provided")
 			return
 		}
-		dev, err := svr.DeveloperRepo.DeveloperProfileByID(profileID)
+		dev, err := devRepo.DeveloperProfileByID(profileID)
 		if err != nil {
 			svr.Log(err, "unable to find developer profile by id "+profileID)
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1285,7 +1303,7 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			Content:   req.Content,
 			ProfileID: dev.ID,
 		}
-		err = svr.DeveloperRepo.SendMessageDeveloperProfile(message)
+		err = devRepo.SendMessageDeveloperProfile(message)
 		if err != nil {
 			svr.Log(err, "unable to send message to developer profile")
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1307,7 +1325,7 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		if err := svr.DeveloperRepo.TrackDeveloperProfileMessageSent(dev); err != nil {
+		if err := devRepo.TrackDeveloperProfileMessageSent(dev); err != nil {
 			svr.Log(err, "unable to track message sent to developer profile")
 		}
 		svr.JSON(w, http.StatusOK, nil)
@@ -1340,11 +1358,11 @@ func AutocompleteSkill(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func DeliverMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func DeliverMessageDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		messageID := vars["id"]
-		message, email, err := svr.DeveloperRepo.MessageForDeliveryByID(messageID)
+		message, email, err := devRepo.MessageForDeliveryByID(messageID)
 		if err != nil {
 			svr.JSON(w, http.StatusBadRequest, "Your link may be invalid or expired")
 			return
@@ -1365,14 +1383,14 @@ func DeliverMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "There was a problem while sending the email")
 			return
 		}
-		if err := svr.DeveloperRepo.MarkDeveloperMessageAsSent(messageID); err != nil {
+		if err := devRepo.MarkDeveloperMessageAsSent(messageID); err != nil {
 			svr.Log(err, "unable to mark developer message as sent "+messageID)
 		}
 		svr.JSON(w, http.StatusOK, "Message Sent Successfully")
 	}
 }
 
-func EditDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func EditDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return middleware.UserAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
@@ -1385,7 +1403,7 @@ func EditDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusUnauthorized, "unauthorized")
 				return
 			}
-			dev, err := svr.DeveloperRepo.DeveloperProfileByID(profileID)
+			dev, err := devRepo.DeveloperProfileByID(profileID)
 			if err != nil {
 				svr.Log(err, "unable to find developer profile by id "+profileID)
 				svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1402,17 +1420,17 @@ func EditDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func ViewDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		profileSlug := vars["slug"]
-		dev, err := svr.DeveloperRepo.DeveloperProfileBySlug(profileSlug)
+		dev, err := devRepo.DeveloperProfileBySlug(profileSlug)
 		if err != nil {
 			svr.Log(err, "unable to find developer profile by slug "+profileSlug)
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		if err := svr.DeveloperRepo.TrackDeveloperProfileView(dev); err != nil {
+		if err := devRepo.TrackDeveloperProfileView(dev); err != nil {
 			svr.Log(err, "unable to track developer profile view")
 		}
 		dev.UpdatedAtHumanized = dev.UpdatedAt.UTC().Format("January 2006")
@@ -1580,7 +1598,7 @@ func SendFeedbackMessage(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func RequestTokenSignOn(svr server.Server) http.HandlerFunc {
+func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		next := r.URL.Query().Get("next")
 		req := &struct {
@@ -1600,7 +1618,7 @@ func RequestTokenSignOn(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = svr.UserRepo.SaveTokenSignOn(req.Email, k.String())
+		err = userRepo.SaveTokenSignOn(req.Email, k.String())
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -1620,11 +1638,11 @@ func RequestTokenSignOn(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func VerifyTokenSignOn(svr server.Server, adminEmail string) http.HandlerFunc {
+func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *developer.Repository, adminEmail string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		token := vars["token"]
-		user, _, err := svr.UserRepo.GetOrCreateUserFromToken(token)
+		user, _, err := userRepo.GetOrCreateUserFromToken(token)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to validate signon token %s", token))
 			svr.TEXT(w, http.StatusBadRequest, "Invalid or expired token")
@@ -1658,12 +1676,12 @@ func VerifyTokenSignOn(svr server.Server, adminEmail string) http.HandlerFunc {
 		next := r.URL.Query().Get("next")
 		switch {
 		case AuthStepVerifyDeveloperProfile == next:
-			if activateDevProfileErr := svr.DeveloperRepo.ActivateDeveloperProfile(user.Email); activateDevProfileErr != nil {
+			if activateDevProfileErr := devRepo.ActivateDeveloperProfile(user.Email); activateDevProfileErr != nil {
 				svr.Log(err, "unable to activate developer profile")
 				svr.JSON(w, http.StatusInternalServerError, nil)
 				return
 			}
-			dev, err := svr.DeveloperRepo.DeveloperProfileByEmail(user.Email)
+			dev, err := devRepo.DeveloperProfileByEmail(user.Email)
 			if err != nil {
 				svr.Log(err, "unable to find developer profile by email")
 				svr.JSON(w, http.StatusNotFound, "unable to find developer profile by email")
@@ -1672,7 +1690,7 @@ func VerifyTokenSignOn(svr server.Server, adminEmail string) http.HandlerFunc {
 			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("/edit/profile/%s", dev.ID))
 			return
 		case AuthStepLoginDeveloperProfile == next:
-			dev, err := svr.DeveloperRepo.DeveloperProfileByEmail(user.Email)
+			dev, err := devRepo.DeveloperProfileByEmail(user.Email)
 			if err != nil {
 				svr.Log(err, "unable to find developer profile by email")
 				svr.JSON(w, http.StatusNotFound, "unable to find developer profile by email")
