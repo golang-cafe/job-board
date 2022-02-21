@@ -1,0 +1,44 @@
+{{ define "common-css" }}
+<style type="text/css">
+@media (prefers-color-scheme: dark) {
+	body,
+	.line-item {
+		background: #000;
+		color: #999;
+	}
+
+	.menu-header {
+		border: none;
+	}
+
+	.menu-header a,
+	article a,
+	nav a,
+	.subnav a {
+		color: #999;
+	}
+
+	.main-title {
+		color: lightblue;
+	}
+
+	section h2 {
+		color: #999;
+	}
+
+	.search-suggestions {
+		background: #333;
+		color: #bbb;
+		border-color: gray;
+	}
+
+	.search-option:hover {
+		color: #000;
+	}
+
+	article {
+		border-color: #333;
+	}
+}
+</style>
+{{ end }}
