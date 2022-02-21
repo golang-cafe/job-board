@@ -9,21 +9,15 @@ import (
 	"github.com/segmentio/ksuid"
 )
 
-type Repository interface {
-	SaveTokenSignOn(email, token string) error
-	GetOrCreateUserFromToken(token string) (User, bool, error)
-	DeleteUserByEmail(email string) error
-}
-
-type repository struct {
+type Repository struct {
 	db *sql.DB
 }
 
-func NewRepository(db *sql.DB) Repository {
-	return &repository{db}
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{db}
 }
 
-func (r *repository) SaveTokenSignOn(email, token string) error {
+func (r *Repository) SaveTokenSignOn(email, token string) error {
 	if _, err := r.db.Exec(`INSERT INTO user_sign_on_token (token, email) VALUES ($1, $2)`, token, email); err != nil {
 		return err
 	}
@@ -32,7 +26,7 @@ func (r *repository) SaveTokenSignOn(email, token string) error {
 
 // GetOrCreateUserFromToken creates or get existing user given a token
 // returns the user struct, whether the user existed already and an error
-func (r *repository) GetOrCreateUserFromToken(token string) (User, bool, error) {
+func (r *Repository) GetOrCreateUserFromToken(token string) (User, bool, error) {
 	u := User{}
 	row := r.db.QueryRow(`SELECT t.token, t.email, u.id, u.email, u.created_at FROM user_sign_on_token t LEFT JOIN users u ON t.email = u.email WHERE t.token = $1`, token)
 	var tokenRes, id, email, tokenEmail sql.NullString
@@ -67,7 +61,7 @@ func (r *repository) GetOrCreateUserFromToken(token string) (User, bool, error) 
 	return u, true, nil
 }
 
-func (r *repository) DeleteUserByEmail(email string) error {
+func (r *Repository) DeleteUserByEmail(email string) error {
 	_, err := r.db.Exec(`DELETE FROM users WHERE email = $1`, email)
 	return err
 }

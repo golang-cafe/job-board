@@ -14,39 +14,15 @@ const (
 	SearchTypeDeveloper              = "developer"
 )
 
-type Repository interface {
-	DeveloperProfileBySlug(slug string) (Developer, error)
-	DeveloperProfileByEmail(email string) (Developer, error)
-	DeveloperProfileByID(id string) (Developer, error)
-	SendMessageDeveloperProfile(message DeveloperMessage) error
-	MessageForDeliveryByID(id string) (DeveloperMessage, string, error)
-	MarkDeveloperMessageAsSent(id string) error
-	DevelopersByLocationAndTag(loc, tag string, pageID, pageSize int) ([]Developer, int, error)
-	UpdateDeveloperProfile(dev Developer) error
-	DeleteDeveloperProfile(id, email string) error
-	ActivateDeveloperProfile(email string) error
-	SaveDeveloperProfile(dev Developer) error // TO CONFIRM
-	TrackDeveloperProfileView(dev Developer) error
-	TrackDeveloperProfileMessageSent(dev Developer) error
-	GetLastDevUpdatedAt() (time.Time, error)
-	GetDevelopersRegisteredLastMonth() (int, error)
-	GetDeveloperMessagesSentLastMonth() (int, error)
-	GetDeveloperProfilePageViewsLastMonth() (int, error)
-	GetTopDevelopers(limit int) ([]Developer, error)
-	GetTopDeveloperSkills(limit int) ([]string, error)
-	GetDeveloperSkills() ([]string, error)
-	GetDeveloperSlugs() ([]string, error)
-}
-
-type repository struct {
+type Repository struct {
 	db *sql.DB
 }
 
-func NewRepository(db *sql.DB) Repository {
-	return &repository{db}
+func NewRepository(db *sql.DB) *Repository {
+	return &Repository{db}
 }
 
-func (r *repository) DeveloperProfileBySlug(slug string) (Developer, error) {
+func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE slug = $1`, slug)
 	dev := Developer{}
 	err := row.Scan(
@@ -70,7 +46,7 @@ func (r *repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 	return dev, nil
 }
 
-func (r *repository) DeveloperProfileByEmail(email string) (Developer, error) {
+func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE lower(email) = lower($1)`, email)
 	dev := Developer{}
 	err := row.Scan(
@@ -97,7 +73,7 @@ func (r *repository) DeveloperProfileByEmail(email string) (Developer, error) {
 	return dev, nil
 }
 
-func (r *repository) DeveloperProfileByID(id string) (Developer, error) {
+func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
 	err := row.Scan(
@@ -121,7 +97,7 @@ func (r *repository) DeveloperProfileByID(id string) (Developer, error) {
 	return dev, nil
 }
 
-func (r *repository) SendMessageDeveloperProfile(message DeveloperMessage) error {
+func (r *Repository) SendMessageDeveloperProfile(message DeveloperMessage) error {
 	_, err := r.db.Exec(
 		`INSERT INTO developer_profile_message (id, email, content, profile_id, created_at) VALUES ($1, $2, $3, $4, NOW())`,
 		message.ID,
@@ -132,7 +108,7 @@ func (r *repository) SendMessageDeveloperProfile(message DeveloperMessage) error
 	return err
 }
 
-func (r *repository) MessageForDeliveryByID(id string) (DeveloperMessage, string, error) {
+func (r *Repository) MessageForDeliveryByID(id string) (DeveloperMessage, string, error) {
 	row := r.db.QueryRow(`SELECT dpm.id, dpm.email, dpm.content, dpm.profile_id, dpm.created_at, dp.email as dev_email FROM developer_profile_message dpm JOIN developer_profile dp ON dp.id = dpm.profile_id WHERE dpm.id = $1 AND dpm.sent_at IS NULL`, id)
 	var devEmail string
 	var message DeveloperMessage
@@ -151,12 +127,12 @@ func (r *repository) MessageForDeliveryByID(id string) (DeveloperMessage, string
 	return message, devEmail, nil
 }
 
-func (r *repository) MarkDeveloperMessageAsSent(id string) error {
+func (r *Repository) MarkDeveloperMessageAsSent(id string) error {
 	_, err := r.db.Exec(`UPDATE developer_profile_message SET sent_at = NOW() WHERE id = $1`, id)
 	return err
 }
 
-func (r *repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSize int) ([]Developer, int, error) {
+func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSize int) ([]Developer, int, error) {
 	var rows *sql.Rows
 	var err error
 	offset := pageID*pageSize - pageSize
@@ -201,28 +177,28 @@ func (r *repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 	return developers, fullRowsCount, nil
 }
 
-func (r *repository) UpdateDeveloperProfile(dev Developer) error {
+func (r *Repository) UpdateDeveloperProfile(dev Developer) error {
 	_, err := r.db.Exec(`UPDATE developer_profile SET name = $1, location = $2, linkedin_url = $3, bio = $4, available = $5, image_id = $6, updated_at = NOW(), skills = $7  WHERE id = $8`, dev.Name, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Skills, dev.ID)
 	return err
 }
 
-func (r *repository) DeleteDeveloperProfile(id, email string) error {
+func (r *Repository) DeleteDeveloperProfile(id, email string) error {
 	_, err := r.db.Exec(`DELETE FROM developer_profile WHERE id = $1 AND email = $2`, id, email)
 	return err
 }
 
-func (r *repository) ActivateDeveloperProfile(email string) error {
+func (r *Repository) ActivateDeveloperProfile(email string) error {
 	_, err := r.db.Exec(`UPDATE developer_profile SET updated_at = NOW() WHERE email = $1`, email)
 	return err
 }
 
-func (r *repository) SaveDeveloperProfile(dev Developer) error {
+func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 	dev.Slug = slug.Make(fmt.Sprintf("%s %d", dev.Name, time.Now().UTC().Unix()))
 	_, err := r.db.Exec(`INSERT INTO developer_profile (email, location, linkedin_url, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8, $9, $10, $11, $12)`, dev.Email, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Slug, dev.Skills, dev.Name, dev.ID, dev.GithubURL, dev.TwitterURL)
 	return err
 }
 
-func (r *repository) GetTopDevelopers(limit int) ([]Developer, error) {
+func (r *Repository) GetTopDevelopers(limit int) ([]Developer, error) {
 	devs := make([]Developer, 0, limit)
 	var rows *sql.Rows
 	rows, err := r.db.Query(`select name, image_id from developer_profile where updated_at != created_at order by updated_at desc limit $1`, limit)
@@ -241,7 +217,7 @@ func (r *repository) GetTopDevelopers(limit int) ([]Developer, error) {
 	return devs, nil
 }
 
-func (r *repository) GetTopDeveloperSkills(limit int) ([]string, error) {
+func (r *Repository) GetTopDeveloperSkills(limit int) ([]string, error) {
 	skills := make([]string, 0, limit)
 	var rows *sql.Rows
 	rows, err := r.db.Query(`select count(*) c, trim(both from unnest(regexp_split_to_array(skills, ','))) as skill from developer_profile where updated_at != created_at group by skill order by c desc limit $1`, limit)
@@ -262,7 +238,7 @@ func (r *repository) GetTopDeveloperSkills(limit int) ([]string, error) {
 
 }
 
-func (r *repository) GetDeveloperSkills() ([]string, error) {
+func (r *Repository) GetDeveloperSkills() ([]string, error) {
 	skills := make([]string, 0)
 	var rows *sql.Rows
 	rows, err := r.db.Query(`select distinct trim(both from unnest(regexp_split_to_array(skills, ','))) as skill from developer_profile where updated_at != created_at`)
@@ -281,7 +257,7 @@ func (r *repository) GetDeveloperSkills() ([]string, error) {
 	return skills, nil
 }
 
-func (r *repository) GetDeveloperSlugs() ([]string, error) {
+func (r *Repository) GetDeveloperSlugs() ([]string, error) {
 	slugs := make([]string, 0)
 	var rows *sql.Rows
 	rows, err := r.db.Query(`select slug from developer_profile where updated_at != created_at`)
@@ -300,7 +276,7 @@ func (r *repository) GetDeveloperSlugs() ([]string, error) {
 	return slugs, nil
 }
 
-func (r *repository) GetLastDevUpdatedAt() (time.Time, error) {
+func (r *Repository) GetLastDevUpdatedAt() (time.Time, error) {
 	var updatedAt time.Time
 	row := r.db.QueryRow(`SELECT updated_at FROM developer_profile WHERE updated_at != created_at ORDER BY updated_at DESC LIMIT 1`)
 	if err := row.Scan(&updatedAt); err != nil {
@@ -310,7 +286,7 @@ func (r *repository) GetLastDevUpdatedAt() (time.Time, error) {
 	return updatedAt, nil
 }
 
-func (r *repository) GetDevelopersRegisteredLastMonth() (int, error) {
+func (r *Repository) GetDevelopersRegisteredLastMonth() (int, error) {
 	var count int
 	row := r.db.QueryRow(`select count(*) from developer_profile where created_at > NOW() - INTERVAL '30 days'`)
 	if err := row.Scan(&count); err != nil {
@@ -320,7 +296,7 @@ func (r *repository) GetDevelopersRegisteredLastMonth() (int, error) {
 	return count, nil
 }
 
-func (r *repository) GetDeveloperMessagesSentLastMonth() (int, error) {
+func (r *Repository) GetDeveloperMessagesSentLastMonth() (int, error) {
 	var count int
 	row := r.db.QueryRow(`select count(*) from developer_profile_message where created_at > NOW() - INTERVAL '30 days'`)
 	if err := row.Scan(&count); err != nil {
@@ -330,7 +306,7 @@ func (r *repository) GetDeveloperMessagesSentLastMonth() (int, error) {
 	return count, nil
 }
 
-func (r *repository) GetDeveloperProfilePageViewsLastMonth() (int, error) {
+func (r *Repository) GetDeveloperProfilePageViewsLastMonth() (int, error) {
 	var count int
 	row := r.db.QueryRow(`select count(*) as c from developer_profile_event where event_type = 'developer_profile_page_view' and created_at > NOW() - INTERVAL '30 days'`)
 	if err := row.Scan(&count); err != nil {
@@ -340,13 +316,13 @@ func (r *repository) GetDeveloperProfilePageViewsLastMonth() (int, error) {
 	return count, nil
 }
 
-func (r *repository) TrackDeveloperProfileView(dev Developer) error {
+func (r *Repository) TrackDeveloperProfileView(dev Developer) error {
 	stmt := `INSERT INTO developer_profile_event (event_type, developer_profile_id, created_at) VALUES ($1, $2, NOW())`
 	_, err := r.db.Exec(stmt, developerProfileEventPageView, dev.ID)
 	return err
 }
 
-func (r *repository) TrackDeveloperProfileMessageSent(dev Developer) error {
+func (r *Repository) TrackDeveloperProfileMessageSent(dev Developer) error {
 	stmt := `INSERT INTO developer_profile_event (event_type, developer_profile_id, created_at) VALUES ($1, $2, NOW())`
 	_, err := r.db.Exec(stmt, developerProfileEventMessageSent, dev.ID)
 	return err

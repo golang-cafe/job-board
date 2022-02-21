@@ -163,7 +163,7 @@ func GenerateSearchSEOLandingPages(conn *sql.DB) ([]database.SEOLandingPage, err
 	return seoLandingPages, nil
 }
 
-func GenerateDevelopersSkillLandingPages(repo developer.Repository) ([]string, error) {
+func GenerateDevelopersSkillLandingPages(repo *developer.Repository) ([]string, error) {
 	var landingPages []string
 	devSkills, err := repo.GetDeveloperSkills()
 	if err != nil {
@@ -189,7 +189,7 @@ func GenerateDevelopersLocationPages(conn *sql.DB) ([]string, error) {
 	return landingPages, nil
 }
 
-func GenerateDevelopersProfileLandingPages(repo developer.Repository) ([]string, error) {
+func GenerateDevelopersProfileLandingPages(repo *developer.Repository) ([]string, error) {
 	var landingPages []string
 	profiles, err := repo.GetDeveloperSlugs()
 	if err != nil {
