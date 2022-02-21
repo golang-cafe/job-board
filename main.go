@@ -49,8 +49,6 @@ func main() {
 		emailClient,
 		ipGeolocation,
 		sessionStore,
-		devRepo,
-		userRepo,
 	)
 
 	svr.RegisterRoute("/sitemap.xml", handler.SitemapIndexHandler(svr), []string{"GET"})
@@ -72,19 +70,19 @@ func main() {
 	svr.RegisterRoute("/Companies-Using-Golang-In-{location}", handler.CompaniesHandler(svr), []string{"GET"})
 
 	// developers pages
-	svr.RegisterRoute("/Golang-Developers", handler.DevelopersHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/Golang-Developers-In-{location}", handler.DevelopersHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/Golang-{tag}-Developers", handler.DevelopersHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/Golang-{tag}-Developers-In-{location}", handler.DevelopersHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/Golang-Developers", handler.DevelopersHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute("/Golang-Developers-In-{location}", handler.DevelopersHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute("/Golang-{tag}-Developers", handler.DevelopersHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute("/Golang-{tag}-Developers-In-{location}", handler.DevelopersHandler(svr, devRepo), []string{"GET"})
 	svr.RegisterRoute("/Submit-Developer-Profile", handler.PermanentRedirectHandler(svr, "/Join-Golang-Community"), []string{"GET"})
-	svr.RegisterRoute("/Join-Golang-Community", handler.SubmitDeveloperProfileHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/x/sdp", handler.SaveDeveloperProfileHandler(svr), []string{"POST"})
-	svr.RegisterRoute("/x/udp", handler.UpdateDeveloperProfileHandler(svr), []string{"POST"})
-	svr.RegisterRoute("/x/ddp", handler.DeleteDeveloperProfileHandler(svr), []string{"POST"})
-	svr.RegisterRoute("/x/smdp/{id}", handler.SendMessageDeveloperProfileHandler(svr), []string{"POST"})
-	svr.RegisterRoute("/edit/profile/{id}", handler.EditDeveloperProfileHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/developer/{slug}", handler.ViewDeveloperProfileHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/x/auth/message/{id}", handler.DeliverMessageDeveloperProfileHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/Join-Golang-Community", handler.SubmitDeveloperProfileHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute("/x/sdp", handler.SaveDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
+	svr.RegisterRoute("/x/udp", handler.UpdateDeveloperProfileHandler(svr, devRepo), []string{"POST"})
+	svr.RegisterRoute("/x/ddp", handler.DeleteDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
+	svr.RegisterRoute("/x/smdp/{id}", handler.SendMessageDeveloperProfileHandler(svr, devRepo), []string{"POST"})
+	svr.RegisterRoute("/edit/profile/{id}", handler.EditDeveloperProfileHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute("/developer/{slug}", handler.ViewDeveloperProfileHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute("/x/auth/message/{id}", handler.DeliverMessageDeveloperProfileHandler(svr, devRepo), []string{"GET"})
 
 	// tasks
 	svr.RegisterRoute("/x/task/weekly-newsletter", handler.TriggerWeeklyNewsletter(svr), []string{"POST"})
@@ -92,7 +90,7 @@ func main() {
 	svr.RegisterRoute("/x/task/twitter-scheduler", handler.TriggerTwitterScheduler(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/telegram-scheduler", handler.TriggerTelegramScheduler(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/company-update", handler.TriggerCompanyUpdate(svr), []string{"POST"})
-	svr.RegisterRoute("/x/task/sitemap-update", handler.TriggerSitemapUpdate(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/sitemap-update", handler.TriggerSitemapUpdate(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/cloudflare-stats-export", handler.TriggerCloudflareStatsExport(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/expired-jobs", handler.TriggerExpiredJobsTask(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/update-last-week-clickouts", handler.TriggerUpdateLastWeekClickouts(svr), []string{"POST"})
@@ -182,8 +180,8 @@ func main() {
 	svr.RegisterRoute("/auth", handler.GetAuthPageHandler(svr), []string{"GET"})
 
 	// sign on email link
-	svr.RegisterRoute("/x/auth/link", handler.RequestTokenSignOn(svr), []string{"POST"})
-	svr.RegisterRoute("/x/auth/{token}", handler.VerifyTokenSignOn(svr, cfg.AdminEmail), []string{"GET"})
+	svr.RegisterRoute("/x/auth/link", handler.RequestTokenSignOn(svr, userRepo), []string{"POST"})
+	svr.RegisterRoute("/x/auth/{token}", handler.VerifyTokenSignOn(svr, userRepo, devRepo, cfg.AdminEmail), []string{"GET"})
 
 	//
 	// private routes

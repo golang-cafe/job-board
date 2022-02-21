@@ -20,7 +20,6 @@ import (
 	stdtemplate "html/template"
 
 	"github.com/0x13a/golang.cafe/internal/developer"
-	"github.com/0x13a/golang.cafe/internal/user"
 	"github.com/0x13a/golang.cafe/pkg/config"
 	"github.com/0x13a/golang.cafe/pkg/database"
 	"github.com/0x13a/golang.cafe/pkg/email"
@@ -52,9 +51,6 @@ type Server struct {
 	SessionStore  *sessions.CookieStore
 	bigCache      *bigcache.BigCache
 	emailRe       *regexp.Regexp
-
-	DeveloperRepo developer.Repository
-	UserRepo      user.Repository
 }
 
 func NewServer(
@@ -65,8 +61,6 @@ func NewServer(
 	emailClient email.Client,
 	ipGeoLocation ipgeolocation.IPGeoLocation,
 	sessionStore *sessions.CookieStore,
-	dr developer.Repository,
-	ur user.Repository,
 ) Server {
 	// todo: move somewhere else
 	raven.SetDSN(cfg.SentryDSN)
@@ -82,9 +76,6 @@ func NewServer(
 		SessionStore:  sessionStore,
 		bigCache:      bigCache,
 		emailRe:       regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
-
-		DeveloperRepo: dr,
-		UserRepo:      ur,
 	}
 	if err != nil {
 		svr.Log(err, "unable to initialise big cache")
@@ -549,16 +540,16 @@ func textifyJobTitles(jobs []*database.JobPost) string {
 	return ""
 }
 
-func (s Server) RenderPageForDeveloperRegistration(w http.ResponseWriter, r *http.Request, htmlView string) {
-	topDevelopers, err := s.DeveloperRepo.GetTopDevelopers(10)
+func (s Server) RenderPageForDeveloperRegistration(w http.ResponseWriter, r *http.Request, devRepo *developer.Repository, htmlView string) {
+	topDevelopers, err := devRepo.GetTopDevelopers(10)
 	if err != nil {
 		s.Log(err, "unable to get top developers")
 	}
-	topDeveloperSkills, err := s.DeveloperRepo.GetTopDeveloperSkills(7)
+	topDeveloperSkills, err := devRepo.GetTopDeveloperSkills(7)
 	if err != nil {
 		s.Log(err, "unable to get top developer skills")
 	}
-	lastDevUpdatedAt, err := s.DeveloperRepo.GetLastDevUpdatedAt()
+	lastDevUpdatedAt, err := devRepo.GetLastDevUpdatedAt()
 	if err != nil {
 		s.Log(err, "unable to retrieve last developer joined at")
 	}
@@ -566,15 +557,15 @@ func (s Server) RenderPageForDeveloperRegistration(w http.ResponseWriter, r *htt
 	for _, d := range topDevelopers {
 		topDeveloperNames = append(topDeveloperNames, strings.Split(d.Name, " ")[0])
 	}
-	messagesSentLastMonth, err := s.DeveloperRepo.GetDeveloperMessagesSentLastMonth()
+	messagesSentLastMonth, err := devRepo.GetDeveloperMessagesSentLastMonth()
 	if err != nil {
 		s.Log(err, "GetDeveloperMessagesSentLastMonth")
 	}
-	devsRegisteredLastMonth, err := s.DeveloperRepo.GetDevelopersRegisteredLastMonth()
+	devsRegisteredLastMonth, err := devRepo.GetDevelopersRegisteredLastMonth()
 	if err != nil {
 		s.Log(err, "GetDevelopersRegisteredLastMonth")
 	}
-	devPageViewsLastMonth, err := s.DeveloperRepo.GetDeveloperProfilePageViewsLastMonth()
+	devPageViewsLastMonth, err := devRepo.GetDeveloperProfilePageViewsLastMonth()
 	if err != nil {
 		s.Log(err, "GetDeveloperProfilePageViewsLastMonth")
 	}
@@ -592,7 +583,7 @@ func (s Server) RenderPageForDeveloperRegistration(w http.ResponseWriter, r *htt
 
 }
 
-func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, location, tag, page, htmlView string) {
+func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, devRepo *developer.Repository, location, tag, page, htmlView string) {
 	showPage := true
 	if page == "" {
 		page = "1"
@@ -616,7 +607,7 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 	if strings.EqualFold(location, "remote") {
 		locSearch = ""
 	}
-	developersForPage, totalDevelopersCount, err := s.DeveloperRepo.DevelopersByLocationAndTag(locSearch, tag, pageID, s.cfg.DevelopersPerPage)
+	developersForPage, totalDevelopersCount, err := devRepo.DevelopersByLocationAndTag(locSearch, tag, pageID, s.cfg.DevelopersPerPage)
 	if err != nil {
 		s.Log(err, "unable to get developers by location and tag")
 		s.JSON(w, http.StatusInternalServerError, "Oops! An internal error has occurred")
@@ -624,7 +615,7 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 	}
 	if len(developersForPage) == 0 {
 		complementaryRemote = true
-		developersForPage, totalDevelopersCount, err = s.DeveloperRepo.DevelopersByLocationAndTag("", "", pageID, s.cfg.DevelopersPerPage)
+		developersForPage, totalDevelopersCount, err = devRepo.DevelopersByLocationAndTag("", "", pageID, s.cfg.DevelopersPerPage)
 	}
 	pages := []int{}
 	pageLinksPerPage := 8
@@ -657,11 +648,11 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		loc.Name = "Remote"
 		loc.Currency = "$"
 	}
-	topDevelopers, err := s.DeveloperRepo.GetTopDevelopers(5)
+	topDevelopers, err := devRepo.GetTopDevelopers(5)
 	if err != nil {
 		s.Log(err, "unable to get top developer names")
 	}
-	topDeveloperSkills, err := s.DeveloperRepo.GetTopDeveloperSkills(7)
+	topDeveloperSkills, err := devRepo.GetTopDeveloperSkills(7)
 	if err != nil {
 		s.Log(err, "unable to get top developer skills")
 	}
