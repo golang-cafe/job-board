@@ -19,6 +19,7 @@ import (
 
 	stdtemplate "html/template"
 
+	"github.com/0x13a/golang.cafe/internal/company"
 	"github.com/0x13a/golang.cafe/internal/developer"
 	"github.com/0x13a/golang.cafe/pkg/config"
 	"github.com/0x13a/golang.cafe/pkg/database"
@@ -507,7 +508,7 @@ func textifyGeneric(items []string) string {
 	return ""
 }
 
-func textifyCompanyNames(companies []database.Company, max int) string {
+func textifyCompanyNames(companies []company.Company, max int) string {
 	switch {
 	case len(companies) == 1:
 		return companies[0].Name
@@ -685,7 +686,7 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 
 }
 
-func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, location, page, htmlView string) {
+func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, companyRepo *company.Repository, location, page, htmlView string) {
 	showPage := true
 	if page == "" {
 		page = "1"
@@ -703,7 +704,7 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, l
 		showPage = false
 	}
 	var complementaryRemote bool
-	companiesForPage, totalCompaniesCount, err := database.CompaniesByQuery(s.Conn, location, pageID, s.cfg.CompaniesPerPage)
+	companiesForPage, totalCompaniesCount, err := companyRepo.CompaniesByQuery(location, pageID, s.cfg.CompaniesPerPage)
 	if err != nil {
 		s.Log(err, "unable to get companies by query")
 		s.JSON(w, http.StatusInternalServerError, "Oops! An internal error has occurred")
@@ -711,7 +712,7 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, l
 	}
 	if len(companiesForPage) == 0 {
 		complementaryRemote = true
-		companiesForPage, totalCompaniesCount, err = database.CompaniesByQuery(s.Conn, "Remote", pageID, s.cfg.CompaniesPerPage)
+		companiesForPage, totalCompaniesCount, err = companyRepo.CompaniesByQuery("Remote", pageID, s.cfg.CompaniesPerPage)
 	}
 	loc, err := database.GetLocation(s.Conn, location)
 	if err != nil {
@@ -876,7 +877,7 @@ func (s Server) RenderPageForLocationAndTagAdmin(w http.ResponseWriter, location
 	})
 }
 
-func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request, location string) {
+func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request, companyRepo *company.Repository, location string) {
 	currency, err := s.GetCurrencyFromRequest(r)
 	if err != nil {
 		s.Log(err, "could not find ip address in x-forwarded-for, defaulting currency to USD")
@@ -896,7 +897,7 @@ func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request
 		s.Log(err, "could not retrieve job clickouts for last 30 days")
 		jobApplicantsLast30Days = 8000
 	}
-	featuredCompanies, err := database.FeaturedCompaniesPostAJob(s.Conn)
+	featuredCompanies, err := companyRepo.FeaturedCompaniesPostAJob()
 	if err != nil {
 		s.Log(err, "could not retrieve featured companies for post a job page")
 	}

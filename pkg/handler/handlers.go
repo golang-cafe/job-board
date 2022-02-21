@@ -19,6 +19,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/0x13a/golang.cafe/internal/company"
 	"github.com/0x13a/golang.cafe/internal/developer"
 	"github.com/0x13a/golang.cafe/internal/user"
 	"github.com/0x13a/golang.cafe/pkg/database"
@@ -72,12 +73,12 @@ func GetAuthPageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func CompaniesHandler(svr server.Server) http.HandlerFunc {
+func CompaniesHandler(svr server.Server, companyRepo *company.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		location := vars["location"]
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForCompanies(w, r, location, page, "companies.html")
+		svr.RenderPageForCompanies(w, r, companyRepo, location, page, "companies.html")
 	}
 }
 
@@ -860,13 +861,13 @@ func TriggerTwitterScheduler(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func TriggerCompanyUpdate(svr server.Server) http.HandlerFunc {
+func TriggerCompanyUpdate(svr server.Server, companyRepo *company.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
 				since := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
-				cs, err := database.InferCompaniesFromJobs(svr.Conn, since)
+				cs, err := companyRepo.InferCompaniesFromJobs(since)
 				if err != nil {
 					svr.Log(err, "unable to infer companies from jobs")
 					return
@@ -964,14 +965,14 @@ func TriggerCompanyUpdate(svr server.Server) http.HandlerFunc {
 					c.ID = companyID.String()
 					c.Slug = slug.Make(c.Name)
 					c.IconImageID = newIconID.String()
-					if err := database.SaveCompany(svr.Conn, c); err != nil {
-						svr.Log(err, "database.SaveCompany")
+					if err := companyRepo.SaveCompany(c); err != nil {
+						svr.Log(err, "companyRepo.SaveCompany")
 						continue
 					}
 					log.Println(c.Name)
 				}
-				if err := database.DeleteStaleImages(svr.Conn); err != nil {
-					svr.Log(err, "database.DeleteStaleImages")
+				if err := companyRepo.DeleteStaleImages(); err != nil {
+					svr.Log(err, "companyRepo.DeleteStaleImages")
 					return
 				}
 			}()
@@ -1442,10 +1443,10 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 	}
 }
 
-func CompaniesForLocationHandler(svr server.Server, loc string) http.HandlerFunc {
+func CompaniesForLocationHandler(svr server.Server, companyRepo *company.Repository, loc string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForCompanies(w, r, loc, page, "companies.html")
+		svr.RenderPageForCompanies(w, r, companyRepo, loc, page, "companies.html")
 	}
 }
 
@@ -1514,9 +1515,9 @@ func PermanentExternalRedirectHandler(svr server.Server, dst string) http.Handle
 	}
 }
 
-func PostAJobPageHandler(svr server.Server) http.HandlerFunc {
+func PostAJobPageHandler(svr server.Server, companyRepo *company.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPostAJobForLocation(w, r, "")
+		svr.RenderPostAJobForLocation(w, r, companyRepo, "")
 	}
 }
 
@@ -1722,13 +1723,13 @@ func ListJobsAsAdminPageHandler(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func PostAJobForLocationPageHandler(svr server.Server, location string) http.HandlerFunc {
+func PostAJobForLocationPageHandler(svr server.Server, companyRepo *company.Repository, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPostAJobForLocation(w, r, location)
+		svr.RenderPostAJobForLocation(w, r, companyRepo, location)
 	}
 }
 
-func PostAJobForLocationFromURLPageHandler(svr server.Server) http.HandlerFunc {
+func PostAJobForLocationFromURLPageHandler(svr server.Server, companyRepo *company.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		location := vars["location"]
@@ -1738,7 +1739,7 @@ func PostAJobForLocationFromURLPageHandler(svr server.Server) http.HandlerFunc {
 			log.Fatal(err)
 		}
 		location = reg.ReplaceAllString(location, "")
-		svr.RenderPostAJobForLocation(w, r, location)
+		svr.RenderPostAJobForLocation(w, r, companyRepo, location)
 	}
 }
 
@@ -1795,16 +1796,16 @@ func JobBySlugPageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func CompanyBySlugPageHandler(svr server.Server) http.HandlerFunc {
+func CompanyBySlugPageHandler(svr server.Server, companyRepo *company.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		slug := vars["slug"]
-		company, err := database.CompanyBySlug(svr.Conn, slug)
+		company, err := companyRepo.CompanyBySlug(slug)
 		if err != nil || company == nil {
 			svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Company golang.cafe/job/%s not found", slug))
 			return
 		}
-		if err := database.TrackCompanyView(svr.Conn, company); err != nil {
+		if err := companyRepo.TrackCompanyView(company); err != nil {
 			svr.Log(err, fmt.Sprintf("unable to track company view for %s: %v", slug, err))
 		}
 		companyJobs, err := database.GetCompanyJobs(svr.Conn, company.Name, 3)

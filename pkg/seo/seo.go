@@ -7,6 +7,7 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/0x13a/golang.cafe/internal/company"
 	"github.com/0x13a/golang.cafe/internal/developer"
 	"github.com/0x13a/golang.cafe/pkg/database"
 )
@@ -202,9 +203,9 @@ func GenerateDevelopersProfileLandingPages(repo *developer.Repository) ([]string
 	return landingPages, nil
 }
 
-func GenerateCompanyProfileLandingPages(conn *sql.DB) ([]string, error) {
+func GenerateCompanyProfileLandingPages(companyRepo *company.Repository) ([]string, error) {
 	var landingPages []string
-	companies, err := database.GetCompanySlugs(conn)
+	companies, err := companyRepo.GetCompanySlugs()
 	if err != nil {
 		return landingPages, err
 	}

@@ -247,12 +247,6 @@ type SEOSkill struct {
 
 // CREATE INDEX job_idx ON job_event (job_id);
 
-// CREATE TABLE IF NOT EXISTS company_event (
-// 	event_type VARCHAR(128) NOT NULL,
-// 	company_id CHAR(27) NOT NULL REFERENCES company(id),
-// 	created_at TIMESTAMP NOT NULL
-// );
-
 // CREATE TABLE IF NOT EXISTS seo_salary (
 //  id VARCHAR(255) NOT NULL,
 //  location VARCHAR(255) NOT NULL,
@@ -278,29 +272,6 @@ type SEOSkill struct {
 // alter table seo_location add column region VARCHAR(255) DEFAULT NULL
 // alter table seo_location add column population INTEGER DEFAULT NULL
 // ALTER TABLE seo_location ADD COLUMN emoji VARCHAR(5);
-
-// CREATE TABLE IF NOT EXISTS company (
-//	id CHAR(27) NOT NULL UNIQUE,
-//	name VARCHAR(255) NOT NULL,
-//	url VARCHAR(255) NOT NULL,
-// 	locations VARCHAR(255) NOT NULL,
-//	last_job_created_at TIMESTAMP NOT NULL,
-//	icon_image_id CHAR(27) NOT NULL,
-//	total_job_count INT NOT NULL,
-//	active_job_count INT NOT NULL,
-//	PRIMARY KEY(id)
-//);
-// ALTER TABLE company ADD COLUMN featured_post_a_job BOOLEAN DEFAULT FALSE;
-// ALTER TABLE company ADD COLUMN slug VARCHAR(255) DEFAULT NULL;
-// CREATE UNIQUE INDEX company_name_idx ON company (name);
-// ALTER TABLE company ADD COLUMN description VARCHAR(255) NOT NULL DEFAULT '';
-// ALTER TABLE company ALTER COLUMN slug SET NOT NULL;
-// ALTER TABLE company ADD COLUMN twitter VARCHAR(255) DEFAULT NULL;
-// ALTER TABLE company ADD COLUMN github VARCHAR(255) DEFAULT NULL;
-// ALTER TABLE company ADD COLUMN linkedin VARCHAR(255) DEFAULT NULL;
-// ALTER TABLE company ALTER COLUMN description TYPE TEXT;
-// ALTER TABLE company ALTER COLUMN description SET DEFAULT NULL;
-// CREATE UNIQUE INDEX company_slug_idx ON company (slug);
 
 // CREATE TABLE IF NOT EXISTS seo_landing_page (
 //  uri VARCHAR(255) NOT NULL UNIQUE,
@@ -438,8 +409,6 @@ const (
 	jobEventPageView = "page_view"
 	jobEventClickout = "clickout"
 
-	companyEventPageView = "company_page_view"
-
 	SearchTypeJob     = "job"
 	SearchTypeSalary  = "salary"
 	SearchTypeCompany = "company"
@@ -466,66 +435,6 @@ func CloseDbConn(conn *sql.DB) {
 	conn.Close()
 }
 
-type Company struct {
-	ID               string
-	Name             string
-	URL              string
-	Locations        string
-	IconImageID      string
-	Description      *string
-	LastJobCreatedAt time.Time
-	TotalJobCount    int
-	ActiveJobCount   int
-	Featured         bool
-	Slug             string
-	Twitter          *string
-	Github           *string
-	Linkedin         *string
-}
-
-// smart group by in golang to map lower/upper case to same map entry with many entries and pickup the upper case one
-// smart group by to find typos
-func InferCompaniesFromJobs(conn *sql.DB, since time.Time) ([]Company, error) {
-	stmt := `SELECT   trim(from company), 
-         max(company_url)               AS company_url, 
-         max(location)                  AS locations, 
-         max(company_icon_image_id)     AS company_icon_id, 
-         max(created_at)                AS last_job_created_at, 
-         count(id)                      AS job_count, 
-         count(approved_at IS NOT NULL) AS live_jobs_count 
-FROM     job 
-WHERE    company_icon_image_id IS NOT NULL 
-AND      created_at > $1
-AND      approved_at IS NOT NULL
-GROUP BY trim(FROM company) 
-ORDER BY trim(FROM company)`
-	rows, err := conn.Query(stmt, since)
-	res := make([]Company, 0)
-	if err == sql.ErrNoRows {
-		return res, nil
-	}
-	if err != nil {
-		return res, err
-	}
-	for rows.Next() {
-		var c Company
-		if err := rows.Scan(
-			&c.Name,
-			&c.URL,
-			&c.Locations,
-			&c.IconImageID,
-			&c.LastJobCreatedAt,
-			&c.TotalJobCount,
-			&c.ActiveJobCount,
-		); err != nil {
-			return res, err
-		}
-		res = append(res, c)
-	}
-
-	return res, nil
-}
-
 func DuplicateImage(conn *sql.DB, oldID, newID string) error {
 	stmt := `INSERT INTO image (id, bytes, media_type) SELECT $1, bytes, media_type FROM image WHERE id = $2`
 	_, err := conn.Exec(stmt, newID, oldID)
@@ -537,33 +446,9 @@ func DeleteImageByID(conn *sql.DB, id string) error {
 	return err
 }
 
-func DeleteStaleImages(conn *sql.DB) error {
-	stmt := `DELETE FROM image WHERE id NOT IN (SELECT company_icon_image_id FROM job WHERE company_icon_image_id IS NOT NULL) AND id NOT IN (SELECT icon_image_id FROM company) AND id NOT IN (SELECT image_id FROM developer_profile)`
-	_, err := conn.Exec(stmt)
-	return err
-}
-
-func SaveCompany(conn *sql.DB, c Company) error {
-	var err error
-	stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count, description, slug, twitter, linkedin, github)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) 
-	ON CONFLICT (name) 
-	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8, slug = $10`
-
-	_, err = conn.Exec(stmt, c.ID, c.Name, c.URL, c.Locations, c.IconImageID, c.LastJobCreatedAt, c.TotalJobCount, c.ActiveJobCount, c.Description, c.Slug, c.Twitter, c.Linkedin, c.Github)
-
-	return err
-}
-
 func TrackJobView(conn *sql.DB, job *JobPost) error {
 	stmt := `INSERT INTO job_event (event_type, job_id, created_at) VALUES ($1, $2, NOW())`
 	_, err := conn.Exec(stmt, jobEventPageView, job.ID)
-	return err
-}
-
-func TrackCompanyView(conn *sql.DB, company *Company) error {
-	stmt := `INSERT INTO company_event (event_type, company_id, created_at) VALUES ($1, $2, NOW())`
-	_, err := conn.Exec(stmt, companyEventPageView, company.ID)
 	return err
 }
 
@@ -824,25 +709,6 @@ func GetSEOLocations(conn *sql.DB) ([]SEOLocation, error) {
 	return locations, nil
 }
 
-func GetCompanySlugs(conn *sql.DB) ([]string, error) {
-	slugs := make([]string, 0)
-	var rows *sql.Rows
-	rows, err := conn.Query(`SELECT slug FROM company WHERE description IS NOT NULL`)
-	if err != nil {
-		return slugs, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		var slug string
-		if err := rows.Scan(&slug); err != nil {
-			return slugs, err
-		}
-		slugs = append(slugs, slug)
-	}
-
-	return slugs, nil
-}
-
 func SaveSEOLocation(conn *sql.DB, name, country, currency string) string {
 	res := conn.QueryRow(`INSERT INTO seo_location (name, country, currency) VALUES ($1, $2, $3) on conflict do nothing returning name`, name, country, currency)
 	var insert string
@@ -1083,17 +949,6 @@ func SalaryToSalaryRangeString(salaryMin, salaryMax int, currency string) string
 	return fmt.Sprintf("%s%s - %s%s", currency, salaryMinStr, currency, salaryMaxStr)
 }
 
-func CompanyExists(db *sql.DB, company string) (bool, error) {
-	var count int
-	row := db.QueryRow(`SELECT COUNT(*) as c FROM job WHERE company ILIKE '%` + company + `%'`)
-	err := row.Scan(&count)
-	if count > 0 {
-		return true, err
-	}
-
-	return false, err
-}
-
 func GetViewCountForJob(conn *sql.DB, jobID int) (int, error) {
 	var count int
 	row := conn.QueryRow(`select count(*) as c from job_event where job_event.event_type = 'page_view' and job_event.job_id = $1`, jobID)
@@ -1290,16 +1145,6 @@ func TopNJobsByCurrencyAndLocation(conn *sql.DB, currency, location string, max 
 		return jobs, err
 	}
 	return jobs, nil
-}
-
-func CompanyBySlug(conn *sql.DB, slug string) (*Company, error) {
-	company := &Company{}
-	row := conn.QueryRow(`SELECT id, name, url, locations, last_job_created_at, icon_image_id, total_job_count, active_job_count, description, featured_post_a_job, slug, github, linkedin, twitter FROM company WHERE slug = $1`, slug)
-	if err := row.Scan(&company.ID, &company.Name, &company.URL, &company.Locations, &company.LastJobCreatedAt, &company.IconImageID, &company.TotalJobCount, &company.ActiveJobCount, &company.Description, &company.Featured, &company.Slug, &company.Github, &company.Linkedin, &company.Twitter); err != nil {
-		return company, err
-	}
-
-	return company, nil
 }
 
 func JobPostBySlug(conn *sql.DB, slug string) (*JobPost, error) {
@@ -1669,77 +1514,6 @@ func JobsByQuery(conn *sql.DB, location, tag string, pageId, salary int, currenc
 	return jobs, fullRowsCount, nil
 }
 
-func CompaniesByQuery(conn *sql.DB, location string, pageID, companiesPerPage int) ([]Company, int, error) {
-	companies := []Company{}
-	var rows *sql.Rows
-	offset := pageID*companiesPerPage - companiesPerPage
-	rows, err := getCompanyQueryForArgs(conn, location, offset, companiesPerPage)
-	if err != nil {
-		return companies, 0, err
-	}
-	defer rows.Close()
-	var fullRowsCount int
-	for rows.Next() {
-		c := Company{}
-		var description, twitter, github, linkedin sql.NullString
-		err = rows.Scan(
-			&fullRowsCount,
-			&c.ID,
-			&c.Name,
-			&c.URL,
-			&c.Locations,
-			&c.IconImageID,
-			&c.LastJobCreatedAt,
-			&c.TotalJobCount,
-			&c.ActiveJobCount,
-			&description,
-			&c.Slug,
-			&twitter,
-			&github,
-			&linkedin,
-		)
-		if description.Valid {
-			c.Description = &description.String
-		}
-		if twitter.Valid {
-			c.Twitter = &twitter.String
-		}
-		if github.Valid {
-			c.Github = &github.String
-		}
-		if linkedin.Valid {
-			c.Linkedin = &linkedin.String
-		}
-		companies = append(companies, c)
-	}
-	err = rows.Err()
-	if err != nil {
-		return companies, fullRowsCount, err
-	}
-	return companies, fullRowsCount, nil
-}
-
-func FeaturedCompaniesPostAJob(conn *sql.DB) ([]Company, error) {
-	companies := []Company{}
-	rows, err := conn.Query(`SELECT name, icon_image_id FROM company WHERE featured_post_a_job IS TRUE LIMIT 15`)
-	if err != nil {
-		return companies, err
-	}
-	defer rows.Close()
-	for rows.Next() {
-		c := Company{}
-		err = rows.Scan(
-			&c.Name,
-			&c.IconImageID,
-		)
-		companies = append(companies, c)
-	}
-	err = rows.Err()
-	if err != nil {
-		return companies, err
-	}
-	return companies, nil
-}
 func TokenByJobID(conn *sql.DB, jobID int) (string, error) {
 	tokenRow := conn.QueryRow(
 		`SELECT token
@@ -1857,51 +1631,6 @@ func getQueryForArgs(conn *sql.DB, location, tag string, salary int, currency st
 	WHERE job_.doc @@ to_tsquery($1)
 	AND location ILIKE '%' || $2 || '%'
 	ORDER BY ts_rank(job_.doc, to_tsquery($1)) DESC, created_at DESC LIMIT $4 OFFSET $3`, tag, location, offset, max, salary, currency)
-}
-
-func getCompanyQueryForArgs(conn *sql.DB, location string, offset, max int) (*sql.Rows, error) {
-	if location == "" {
-		return conn.Query(`
-		SELECT Count(*)
-         OVER() AS full_count,
-       id,
-       NAME,
-       url,
-       locations,
-       icon_image_id,
-       last_job_created_at,
-       total_job_count,
-       active_job_count,
-       description,
-       slug,
-       twitter,
-       github,
-       linkedin
-FROM   company
-ORDER  BY last_job_created_at DESC
-LIMIT $2 OFFSET $1`, offset, max)
-	}
-
-	return conn.Query(`
-		SELECT Count(*)
-         OVER() AS full_count,
-       id,
-       NAME,
-       url,
-       locations,
-       icon_image_id,
-       last_job_created_at,
-       total_job_count,
-       active_job_count,
-       description,
-       slug,
-       twitter,
-       github,
-       linkedin
-FROM   company
-WHERE locations ILIKE '%' || $1 || '%'
-ORDER  BY last_job_created_at DESC
-LIMIT $3 OFFSET $2`, location, offset, max)
 }
 
 func GetValue(conn *sql.DB, key string) (string, error) {

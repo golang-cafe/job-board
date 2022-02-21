@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/0x13a/golang.cafe/internal/company"
 	"github.com/0x13a/golang.cafe/internal/developer"
 	"github.com/0x13a/golang.cafe/internal/user"
 	"github.com/0x13a/golang.cafe/pkg/config"
@@ -40,6 +41,7 @@ func main() {
 
 	devRepo := developer.NewRepository(conn)
 	userRepo := user.NewRepository(conn)
+	companyRepo := company.NewRepository(conn)
 
 	svr := server.NewServer(
 		cfg,
@@ -65,9 +67,9 @@ func main() {
 	svr.RegisterRoute("/terms-of-service", handler.TermsOfServicePageHandler, []string{"GET"})
 
 	svr.RegisterRoute("/", handler.IndexPageHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/Companies-Using-Golang", handler.CompaniesHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/Remote-Companies-Using-Golang", handler.CompaniesForLocationHandler(svr, "Remote"), []string{"GET"})
-	svr.RegisterRoute("/Companies-Using-Golang-In-{location}", handler.CompaniesHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/Companies-Using-Golang", handler.CompaniesHandler(svr, companyRepo), []string{"GET"})
+	svr.RegisterRoute("/Remote-Companies-Using-Golang", handler.CompaniesForLocationHandler(svr, companyRepo, "Remote"), []string{"GET"})
+	svr.RegisterRoute("/Companies-Using-Golang-In-{location}", handler.CompaniesHandler(svr, companyRepo), []string{"GET"})
 
 	// developers pages
 	svr.RegisterRoute("/Golang-Developers", handler.DevelopersHandler(svr, devRepo), []string{"GET"})
@@ -89,7 +91,7 @@ func main() {
 	svr.RegisterRoute("/x/task/ads-manager", handler.TriggerAdsManager(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/twitter-scheduler", handler.TriggerTwitterScheduler(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/telegram-scheduler", handler.TriggerTelegramScheduler(svr), []string{"POST"})
-	svr.RegisterRoute("/x/task/company-update", handler.TriggerCompanyUpdate(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/company-update", handler.TriggerCompanyUpdate(svr, companyRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/sitemap-update", handler.TriggerSitemapUpdate(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/cloudflare-stats-export", handler.TriggerCloudflareStatsExport(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/expired-jobs", handler.TriggerExpiredJobsTask(svr), []string{"POST"})
@@ -170,7 +172,7 @@ func main() {
 	svr.RegisterRoute("/job/{slug}", handler.JobBySlugPageHandler(svr), []string{"GET"})
 
 	// view company by slug
-	svr.RegisterRoute("/company/{slug}", handler.CompanyBySlugPageHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/company/{slug}", handler.CompanyBySlugPageHandler(svr, companyRepo), []string{"GET"})
 
 	//
 	// auth routes
@@ -244,12 +246,12 @@ func main() {
 	svr.RegisterRoute("/Remote-Golang-Developer-Salary", handler.SalaryLandingPageLocationHandler(svr, "Remote"), []string{"GET"})
 
 	// hire golang developers pages
-	svr.RegisterRoute("/Hire-Golang-Developers", handler.PostAJobPageHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/Hire-Golang-Developers", handler.PostAJobPageHandler(svr, companyRepo), []string{"GET"})
 	svr.RegisterRoute("/hire-golang-developers", handler.PermanentRedirectHandler(svr, "Hire-Golang-Developers"), []string{"GET"})
 	svr.RegisterRoute("/post-a-job", handler.PermanentRedirectHandler(svr, "Hire-Golang-Developers"), []string{"GET"})
 	svr.RegisterRoute("/ad", handler.PermanentRedirectHandler(svr, "Hire-Golang-Developers"), []string{"GET"})
-	svr.RegisterRoute("/Hire-Remote-Golang-Developers", handler.PostAJobForLocationPageHandler(svr, "Remote"), []string{"GET"})
-	svr.RegisterRoute("/Hire-Golang-Developers-In-{location}", handler.PostAJobForLocationFromURLPageHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/Hire-Remote-Golang-Developers", handler.PostAJobForLocationPageHandler(svr, companyRepo, "Remote"), []string{"GET"})
+	svr.RegisterRoute("/Hire-Golang-Developers-In-{location}", handler.PostAJobForLocationFromURLPageHandler(svr, companyRepo), []string{"GET"})
 
 	// generic payment intent view
 	svr.RegisterRoute("/x/payment", handler.ShowPaymentPage(svr), []string{"GET"})
