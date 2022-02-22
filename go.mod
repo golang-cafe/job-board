@@ -7,13 +7,13 @@ go 1.13
 // +heroku install ./...
 
 require (
-	cloud.google.com/go/storage v1.13.0 // indirect
 	github.com/ChimeraCoder/anaconda v2.0.0+incompatible
 	github.com/ChimeraCoder/tokenbucket v0.0.0-20131201223612-c5a927568de7 // indirect
 	github.com/PuerkitoBio/goquery v1.6.0
 	github.com/SparkPost/gosparkpost v0.0.0-20170825125937-4c6d2a3be658
 	github.com/aclements/go-moremath v0.0.0-20161014184102-0ff62e0875ff
 	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
+	github.com/allegro/bigcache/v2 v2.2.5 // indirect
 	github.com/allegro/bigcache/v3 v3.0.0
 	github.com/azr/backoff v0.0.0-20160115115103-53511d3c7330 // indirect
 	github.com/bot-api/telegram v0.0.0-20170115211335-b7abf87c449e
@@ -33,8 +33,10 @@ require (
 	github.com/gosimple/slug v1.3.0
 	github.com/kr/pretty v0.2.1 // indirect
 	github.com/lib/pq v1.10.4
+	github.com/m0sth8/httpmock v0.0.0-20160716183344-e00e64b1d782 // indirect
 	github.com/machinebox/graphql v0.2.2
-	github.com/microcosm-cc/bluemonday v1.0.2
+	github.com/matryer/is v1.4.0 // indirect
+	github.com/microcosm-cc/bluemonday v1.0.16
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/oschwald/maxminddb-golang v1.6.0
 	github.com/pkg/errors v0.8.1
@@ -44,7 +46,10 @@ require (
 	github.com/shurcooL/sanitized_anchor_name v0.0.0-20170918181015-86672fcb3f95 // indirect
 	github.com/snabb/diagio v0.0.0-20170305182244-0ef68e3dbf01 // indirect
 	github.com/snabb/sitemap v0.0.0-20171225173334-36baa8b39ef4
+	github.com/stretchr/testify v1.5.1 // indirect
 	github.com/stripe/stripe-go v62.10.0+incompatible
 	golang.org/x/image v0.0.0-20200430140353-33d19683fad8 // indirect
+	gopkg.in/check.v1 v1.0.0-20180628173108-788fd7840127 // indirect
 	gopkg.in/russross/blackfriday.v2 v2.0.0
+	gopkg.in/stretchr/testify.v1 v1.2.2 // indirect
 )

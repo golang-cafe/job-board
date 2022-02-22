@@ -29,12 +29,12 @@ import (
 	"github.com/0x13a/golang.cafe/pkg/middleware"
 	"github.com/0x13a/golang.cafe/pkg/template"
 	"github.com/aclements/go-moremath/stats"
-	humanize "github.com/dustin/go-humanize"
+	"github.com/dustin/go-humanize"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 
 	"github.com/allegro/bigcache/v3"
-	raven "github.com/getsentry/raven-go"
+	"github.com/getsentry/raven-go"
 )
 
 const (
@@ -195,6 +195,12 @@ func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, 
 		s.Log(err, "could not retrieve last job posted at")
 		lastJobPosted = time.Now().AddDate(0, 0, -1)
 	}
+
+	emailSubscribersCount, err := database.CountEmailSubscribers(s.Conn)
+	if err != nil {
+		s.Log(err, "database.CountEmailSubscribers")
+	}
+
 	s.Render(w, http.StatusOK, "salary-explorer.html", map[string]interface{}{
 		"Location":                 strings.ReplaceAll(location, "-", " "),
 		"LocationURLEncoded":       url.PathEscape(strings.ReplaceAll(location, "-", " ")),
@@ -223,6 +229,7 @@ func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, 
 		"LastJobPostedAt":          lastJobPosted.Format(time.RFC3339),
 		"LastJobPostedAtHumanized": humanize.Time(lastJobPosted),
 		"MonthAndYear":             time.Now().UTC().Format("January 2006"),
+		"EmailSubscribersCount":    humanize.Comma(int64(emailSubscribersCount)),
 	})
 }
 
@@ -434,6 +441,12 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		s.Log(err, "could not retrieve last job posted at")
 		lastJobPosted = time.Now().AddDate(0, 0, -1)
 	}
+
+	emailSubscribersCount, err := database.CountEmailSubscribers(s.Conn)
+	if err != nil {
+		s.Log(err, "database.CountEmailSubscribers")
+	}
+
 	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
 		"Jobs":                      jobsForPage,
 		"PinnedJobs":                pinnedJobs,
@@ -470,6 +483,7 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		"MonthAndYear":              time.Now().UTC().Format("January 2006"),
 		"NewJobsLastWeek":           newJobsLastWeek,
 		"NewJobsLastMonth":          newJobsLastMonth,
+		"EmailSubscribersCount":     humanize.Comma(int64(emailSubscribersCount)),
 	})
 }
 
@@ -661,6 +675,18 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 	for _, d := range topDevelopers {
 		topDeveloperNames = append(topDeveloperNames, strings.Split(d.Name, " ")[0])
 	}
+
+	var lastDevCreatedAt, lastDevCreatedAtHumanized string
+	if len(developersForPage) > 0 {
+		lastDevCreatedAt = developersForPage[0].UpdatedAt.Format(time.RFC3339)
+		lastDevCreatedAtHumanized = humanize.Time(developersForPage[0].UpdatedAt)
+	}
+
+	emailSubscribersCount, err := database.CountEmailSubscribers(s.Conn)
+	if err != nil {
+		s.Log(err, "database.CountEmailSubscribers")
+	}
+
 	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
 		"Developers":                developersForPage,
 		"TopDeveloperNames":         textifyGeneric(topDeveloperNames),
@@ -680,8 +706,9 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		"TotalDevelopersCount":      totalDevelopersCount,
 		"ComplementaryRemote":       complementaryRemote,
 		"MonthAndYear":              time.Now().UTC().Format("January 2006"),
-		"LastDevCreatedAt":          developersForPage[0].UpdatedAt.Format(time.RFC3339),
-		"LastDevCreatedAtHumanized": humanize.Time(developersForPage[0].UpdatedAt),
+		"LastDevCreatedAt":          lastDevCreatedAt,
+		"LastDevCreatedAtHumanized": lastDevCreatedAtHumanized,
+		"EmailSubscribersCount":     humanize.Comma(int64(emailSubscribersCount)),
 	})
 
 }
@@ -751,6 +778,18 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, c
 			s.Log(err, "database.TopNJobsByCurrencyAndLocation")
 		}
 	}
+
+	var lastJobPostedAt, lastJobPostedAtHumanized string
+	if len(jobs) > 0 {
+		lastJobPostedAt = time.Unix(jobs[0].CreatedAt, 0).Format(time.RFC3339)
+		lastJobPostedAtHumanized = humanize.Time(time.Unix(jobs[0].CreatedAt, 0))
+	}
+
+	emailSubscribersCount, err := database.CountEmailSubscribers(s.Conn)
+	if err != nil {
+		s.Log(err, "database.CountEmailSubscribers")
+	}
+
 	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
 		"Companies":                companiesForPage,
 		"CompaniesMinusOne":        len(companiesForPage) - 1,
@@ -769,8 +808,9 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, c
 		"Country":                  loc.Country,
 		"Region":                   loc.Region,
 		"Population":               loc.Population,
-		"LastJobPostedAt":          time.Unix(jobPosts[0].CreatedAt, 0).Format(time.RFC3339),
-		"LastJobPostedAtHumanized": humanize.Time(time.Unix(jobPosts[0].CreatedAt, 0)),
+		"LastJobPostedAt":          lastJobPostedAt,
+		"LastJobPostedAtHumanized": lastJobPostedAtHumanized,
+		"EmailSubscribersCount":    humanize.Comma(int64(emailSubscribersCount)),
 	})
 }
 

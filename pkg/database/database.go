@@ -251,6 +251,27 @@ func GetEmailSubscribers(conn *sql.DB) ([]EmailSubscriber, error) {
 	return res, nil
 }
 
+func CountEmailSubscribers(conn *sql.DB) (int, error) {
+	row := conn.QueryRow(`SELECT count(*) FROM email_subscribers WHERE confirmed_at IS NOT NULL`)
+	var count int
+	err := row.Scan(&count)
+	return count, err
+}
+
+const (
+	jobEventPageView = "page_view"
+	jobEventClickout = "clickout"
+
+	companyEventPageView             = "company_page_view"
+	developerProfileEventPageView    = "developer_profile_page_view"
+	developerProfileEventMessageSent = "developer_profile_message_sent"
+
+	SearchTypeJob       = "job"
+	SearchTypeSalary    = "salary"
+	SearchTypeCompany   = "company"
+	SearchTypeDeveloper = "developer"
+)
+
 // GetDbConn tries to establish a connection to postgres and return the connection handler
 func GetDbConn(databaseURL string) (*sql.DB, error) {
 	db, err := sql.Open("postgres", databaseURL)
