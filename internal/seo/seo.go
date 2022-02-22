@@ -7,7 +7,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/0x13a/golang.cafe/pkg/database"
+	"github.com/0x13a/golang.cafe/internal/company"
+	"github.com/0x13a/golang.cafe/internal/developer"
+	"github.com/0x13a/golang.cafe/internal/database"
 )
 
 func StaticPages() []string {
@@ -162,9 +164,9 @@ func GenerateSearchSEOLandingPages(conn *sql.DB) ([]database.SEOLandingPage, err
 	return seoLandingPages, nil
 }
 
-func GenerateDevelopersSkillLandingPages(conn *sql.DB) ([]string, error) {
+func GenerateDevelopersSkillLandingPages(repo *developer.Repository) ([]string, error) {
 	var landingPages []string
-	devSkills, err := database.GetDeveloperSkills(conn)
+	devSkills, err := repo.GetDeveloperSkills()
 	if err != nil {
 		return landingPages, err
 	}
@@ -188,9 +190,9 @@ func GenerateDevelopersLocationPages(conn *sql.DB) ([]string, error) {
 	return landingPages, nil
 }
 
-func GenerateDevelopersProfileLandingPages(conn *sql.DB) ([]string, error) {
+func GenerateDevelopersProfileLandingPages(repo *developer.Repository) ([]string, error) {
 	var landingPages []string
-	profiles, err := database.GetDeveloperSlugs(conn)
+	profiles, err := repo.GetDeveloperSlugs()
 	if err != nil {
 		return landingPages, err
 	}
@@ -201,9 +203,9 @@ func GenerateDevelopersProfileLandingPages(conn *sql.DB) ([]string, error) {
 	return landingPages, nil
 }
 
-func GenerateCompanyProfileLandingPages(conn *sql.DB) ([]string, error) {
+func GenerateCompanyProfileLandingPages(companyRepo *company.Repository) ([]string, error) {
 	var landingPages []string
-	companies, err := database.GetCompanySlugs(conn)
+	companies, err := companyRepo.GetCompanySlugs()
 	if err != nil {
 		return landingPages, err
 	}

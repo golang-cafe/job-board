@@ -19,13 +19,17 @@ import (
 	"strings"
 	"time"
 
-	"github.com/0x13a/golang.cafe/pkg/database"
-	"github.com/0x13a/golang.cafe/pkg/email"
-	"github.com/0x13a/golang.cafe/pkg/imagemeta"
-	"github.com/0x13a/golang.cafe/pkg/middleware"
-	"github.com/0x13a/golang.cafe/pkg/payment"
-	"github.com/0x13a/golang.cafe/pkg/seo"
-	"github.com/0x13a/golang.cafe/pkg/server"
+	"github.com/0x13a/golang.cafe/internal/company"
+	"github.com/0x13a/golang.cafe/internal/database"
+	"github.com/0x13a/golang.cafe/internal/developer"
+	"github.com/0x13a/golang.cafe/internal/email"
+	"github.com/0x13a/golang.cafe/internal/imagemeta"
+	"github.com/0x13a/golang.cafe/internal/job"
+	"github.com/0x13a/golang.cafe/internal/middleware"
+	"github.com/0x13a/golang.cafe/internal/payment"
+	"github.com/0x13a/golang.cafe/internal/seo"
+	"github.com/0x13a/golang.cafe/internal/server"
+	"github.com/0x13a/golang.cafe/internal/user"
 	"github.com/ChimeraCoder/anaconda"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/bot-api/telegram"
@@ -46,6 +50,23 @@ const (
 	AuthStepLoginDeveloperProfile  = "1mEvrSr2G4e4iGeucwolKW6o64d"
 )
 
+type devGetter interface {
+	DeveloperProfileByEmail(email string) (developer.Developer, error)
+}
+
+type devSaver interface {
+	SaveDeveloperProfile(dev developer.Developer) error
+}
+
+type devGetSaver interface {
+	devGetter
+	devSaver
+}
+
+type tokenSaver interface {
+	SaveTokenSignOn(email, token string) error
+}
+
 func GetAuthPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		next := r.URL.Query().Get("next")
@@ -53,32 +74,32 @@ func GetAuthPageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func CompaniesHandler(svr server.Server) http.HandlerFunc {
+func CompaniesHandler(svr server.Server, companyRepo *company.Repository, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		location := vars["location"]
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForCompanies(w, r, location, page, "companies.html")
+		svr.RenderPageForCompanies(w, r, companyRepo, jobRepo, location, page, "companies.html")
 	}
 }
 
-func DevelopersHandler(svr server.Server) http.HandlerFunc {
+func DevelopersHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		location := vars["location"]
 		tag := vars["tag"]
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForDevelopers(w, r, location, tag, page, "developers.html")
+		svr.RenderPageForDevelopers(w, r, devRepo, location, tag, page, "developers.html")
 	}
 }
 
-func SubmitDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func SubmitDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForDeveloperRegistration(w, r, "submit-developer-profile.html")
+		svr.RenderPageForDeveloperRegistration(w, r, devRepo, "submit-developer-profile.html")
 	}
 }
 
-func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRepo tokenSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
 			Fullname        string  `json:"fullname"`
@@ -112,7 +133,7 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "too many skills")
 			return
 		}
-		existingDev, err := database.DeveloperProfileByEmail(svr.Conn, req.Email)
+		existingDev, err := devRepo.DeveloperProfileByEmail(req.Email)
 		if err != nil {
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
@@ -128,7 +149,7 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			return
 		}
 		t := time.Now().UTC()
-		dev := database.Developer{
+		dev := developer.Developer{
 			ID:          k.String(),
 			Name:        req.Fullname,
 			Location:    req.CurrentLocation,
@@ -143,13 +164,13 @@ func SaveDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			ImageID:     req.ProfileImageID,
 			Skills:      req.Tags,
 		}
-		err = database.SaveTokenSignOn(svr.Conn, strings.ToLower(req.Email), k.String())
+		err = userRepo.SaveTokenSignOn(strings.ToLower(req.Email), k.String())
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		err = database.SaveDeveloperProfile(svr.Conn, dev)
+		err = devRepo.SaveDeveloperProfile(dev)
 		if err != nil {
 			svr.Log(err, "unable to save developer profile")
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -241,7 +262,7 @@ func TriggerFXRateUpdate(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
+func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
@@ -267,17 +288,17 @@ func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
 					svr.Log(err, "seo.GenerateCompaniesLandingPages")
 					return
 				}
-				developerSkillsPages, err := seo.GenerateDevelopersSkillLandingPages(svr.Conn)
+				developerSkillsPages, err := seo.GenerateDevelopersSkillLandingPages(devRepo)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersSkillLandingPages")
 					return
 				}
-				developerProfilePages, err := seo.GenerateDevelopersProfileLandingPages(svr.Conn)
+				developerProfilePages, err := seo.GenerateDevelopersProfileLandingPages(devRepo)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
 					return
 				}
-				companyProfilePages, err := seo.GenerateDevelopersProfileLandingPages(svr.Conn)
+				companyProfilePages, err := seo.GenerateDevelopersProfileLandingPages(devRepo)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
 					return
@@ -293,7 +314,7 @@ func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
 					return
 				}
 				pages := seo.StaticPages()
-				jobs, err := database.JobPostByCreatedAt(svr.Conn)
+				jobPosts, err := jobRepo.JobPostByCreatedAt()
 				if err != nil {
 					svr.Log(err, "database.JobPostByCreatedAt")
 					return
@@ -301,7 +322,7 @@ func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
 				n := time.Now().UTC()
 
 				database.CreateTmpSitemapTable(svr.Conn)
-				for _, j := range jobs {
+				for _, j := range jobPosts {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
 						Loc:        fmt.Sprintf(`https://golang.cafe/job/%s`, j.Slug),
 						LastMod:    time.Unix(j.CreatedAt, 0),
@@ -416,12 +437,12 @@ func TriggerSitemapUpdate(svr server.Server) http.HandlerFunc {
 		})
 }
 
-func TriggerExpiredJobsTask(svr server.Server) http.HandlerFunc {
+func TriggerExpiredJobsTask(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
-				jobURLs, err := database.GetJobApplyURLs(svr.Conn)
+				jobURLs, err := jobRepo.GetJobApplyURLs()
 				if err != nil {
 					svr.Log(err, "unable to get job apply URL for cleanup")
 					return
@@ -437,7 +458,7 @@ func TriggerExpiredJobsTask(svr server.Server) http.HandlerFunc {
 					}
 					if res.StatusCode == http.StatusNotFound {
 						fmt.Printf("found expired job %d URL %s returned 404\n", jobURL.ID, jobURL.URL)
-						if err := database.MarkJobAsExpired(svr.Conn, jobURL.ID); err != nil {
+						if err := jobRepo.MarkJobAsExpired(jobURL.ID); err != nil {
 							svr.Log(err, fmt.Sprintf("unable to mark job %d %s as expired", jobURL.ID, jobURL.URL))
 						}
 					}
@@ -620,12 +641,12 @@ func TriggerCloudflareStatsExport(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
+func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
-				lastJobIDStr, err := database.GetValue(svr.Conn, "last_sent_job_id_weekly")
+				lastJobIDStr, err := jobRepo.GetValue("last_sent_job_id_weekly")
 				if err != nil {
 					svr.Log(err, "unable to retrieve last newsletter weekly job id")
 					return
@@ -635,24 +656,24 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 					svr.Log(err, fmt.Sprintf("unable to convert job str %s to id", lastJobIDStr))
 					return
 				}
-				jobs, err := database.GetLastNJobsFromID(svr.Conn, svr.GetConfig().NewsletterJobsToSend, lastJobID)
-				if len(jobs) < 1 {
+				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().NewsletterJobsToSend, lastJobID)
+				if len(jobPosts) < 1 {
 					log.Printf("found 0 new jobs for weekly newsletter. quitting")
 					return
 				}
-				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobs), svr.GetConfig().NewsletterJobsToSend)
+				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobPosts), svr.GetConfig().NewsletterJobsToSend)
 				subscribers, err := database.GetEmailSubscribers(svr.Conn)
 				if err != nil {
 					svr.Log(err, fmt.Sprintf("unable to retrieve subscribers"))
 					return
 				}
 				var jobsHTMLArr []string
-				for _, j := range jobs {
+				for _, j := range jobPosts {
 					jobsHTMLArr = append(jobsHTMLArr, `<p><b>Job Title:</b> `+j.JobTitle+`<br /><b>Company:</b> `+j.Company+`<br /><b>Location:</b> `+j.Location+`<br /><b>Salary:</b> `+j.SalaryRange+`<br /><b>Detail:</b> <a href="https://golang.cafe/job/`+j.Slug+`">https://golang.cafe/job/`+j.Slug+`</a></p>`)
 					lastJobID = j.ID
 				}
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
-				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobs)) + ` Go jobs this week on Golang Cafe</p>
+				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` Go jobs this week on Golang Cafe</p>
 ` + jobsHTML + `
 	<p>Check out more jobs at <a title="Golang Cafe" href="https://golang.cafe">https://golang.cafe</a></p>
 	<p>Diego from Golang Cafe</p>
@@ -665,7 +686,7 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 						"Diego from Golang Cafe <team@golang.cafe>",
 						s.Email,
 						email.GolangCafeEmailAddress,
-						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobs)),
+						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobPosts)),
 						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
 					)
 					if err != nil {
@@ -674,7 +695,7 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 					}
 				}
 				lastJobIDStr = strconv.Itoa(lastJobID)
-				err = database.SetValue(svr.Conn, "last_sent_job_id_weekly", lastJobIDStr)
+				err = jobRepo.SetValue("last_sent_job_id_weekly", lastJobIDStr)
 				if err != nil {
 					svr.Log(err, "unable to save last weekly newsletter job id to db")
 					return
@@ -685,12 +706,12 @@ func TriggerWeeklyNewsletter(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func TriggerTelegramScheduler(svr server.Server) http.HandlerFunc {
+func TriggerTelegramScheduler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
-				lastTelegramJobIDStr, err := database.GetValue(svr.Conn, "last_telegram_job_id")
+				lastTelegramJobIDStr, err := jobRepo.GetValue("last_telegram_job_id")
 				if err != nil {
 					svr.Log(err, "unable to retrieve last telegram job id")
 					return
@@ -700,15 +721,15 @@ func TriggerTelegramScheduler(svr server.Server) http.HandlerFunc {
 					svr.Log(err, "unable to convert job str to id")
 					return
 				}
-				jobs, err := database.GetLastNJobsFromID(svr.Conn, svr.GetConfig().TwitterJobsToPost, lastTelegramJobID)
-				log.Printf("found %d/%d jobs to post on telegram\n", len(jobs), svr.GetConfig().TwitterJobsToPost)
-				if len(jobs) == 0 {
+				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().TwitterJobsToPost, lastTelegramJobID)
+				log.Printf("found %d/%d jobs to post on telegram\n", len(jobPosts), svr.GetConfig().TwitterJobsToPost)
+				if len(jobPosts) == 0 {
 					return
 				}
 				lastJobID := lastTelegramJobID
 				api := telegram.New(svr.GetConfig().TelegramAPIToken)
 				ctx := context.Background()
-				for _, j := range jobs {
+				for _, j := range jobPosts {
 					_, err := api.SendMessage(ctx, telegram.NewMessage(svr.GetConfig().TelegramChannelID, fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://golang.cafe/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug)))
 					if err != nil {
 						svr.Log(err, "unable to post on telegram")
@@ -717,20 +738,20 @@ func TriggerTelegramScheduler(svr server.Server) http.HandlerFunc {
 					lastJobID = j.ID
 				}
 				lastJobIDStr := strconv.Itoa(lastJobID)
-				err = database.SetValue(svr.Conn, "last_telegram_job_id", lastJobIDStr)
+				err = jobRepo.SetValue("last_telegram_job_id", lastJobIDStr)
 				if err != nil {
 					svr.Log(err, fmt.Sprintf("unable to save last telegram job id to db as %s", lastJobIDStr))
 					return
 				}
 				log.Printf("updated last telegram job id to %s\n", lastJobIDStr)
-				log.Printf("posted last %d jobs to telegram", len(jobs))
+				log.Printf("posted last %d jobs to telegram", len(jobPosts))
 			}()
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
 	)
 }
 
-func TriggerMonthlyHighlights(svr server.Server) http.HandlerFunc {
+func TriggerMonthlyHighlights(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
@@ -750,7 +771,7 @@ func TriggerMonthlyHighlights(svr server.Server) http.HandlerFunc {
 					svr.Log(err, "could not retrieve job clickouts for last 30 days")
 					return
 				}
-				_, newJobsLastMonth, err := database.NewJobsLastWeekOrMonth(svr.Conn)
+				_, newJobsLastMonth, err := jobRepo.NewJobsLastWeekOrMonth()
 				if err != nil {
 					svr.Log(err, "unable to retrieve new jobs last week last month")
 					return
@@ -797,12 +818,12 @@ Find your next job on Golang Cafe ⏩ https://golang.cafe
 	)
 }
 
-func TriggerTwitterScheduler(svr server.Server) http.HandlerFunc {
+func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
-				lastTwittedJobIDStr, err := database.GetValue(svr.Conn, "last_twitted_job_id")
+				lastTwittedJobIDStr, err := jobRepo.GetValue("last_twitted_job_id")
 				if err != nil {
 					svr.Log(err, "unable to retrieve last twitter job id")
 					return
@@ -812,14 +833,14 @@ func TriggerTwitterScheduler(svr server.Server) http.HandlerFunc {
 					svr.Log(err, "unable to convert job str to id")
 					return
 				}
-				jobs, err := database.GetLastNJobsFromID(svr.Conn, svr.GetConfig().TwitterJobsToPost, lastTwittedJobID)
-				log.Printf("found %d/%d jobs to post on twitter\n", len(jobs), svr.GetConfig().TwitterJobsToPost)
-				if len(jobs) == 0 {
+				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().TwitterJobsToPost, lastTwittedJobID)
+				log.Printf("found %d/%d jobs to post on twitter\n", len(jobPosts), svr.GetConfig().TwitterJobsToPost)
+				if len(jobPosts) == 0 {
 					return
 				}
 				lastJobID := lastTwittedJobID
 				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
-				for _, j := range jobs {
+				for _, j := range jobPosts {
 					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://golang.cafe/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug), url.Values{})
 					if err != nil {
 						svr.Log(err, "unable to post tweet")
@@ -828,26 +849,26 @@ func TriggerTwitterScheduler(svr server.Server) http.HandlerFunc {
 					lastJobID = j.ID
 				}
 				lastJobIDStr := strconv.Itoa(lastJobID)
-				err = database.SetValue(svr.Conn, "last_twitted_job_id", lastJobIDStr)
+				err = jobRepo.SetValue("last_twitted_job_id", lastJobIDStr)
 				if err != nil {
 					svr.Log(err, fmt.Sprintf("unable to save last twitter job id to db as %s", lastJobIDStr))
 					return
 				}
 				log.Printf("updated last twitted job id to %s\n", lastJobIDStr)
-				log.Printf("posted last %d jobs to twitter", len(jobs))
+				log.Printf("posted last %d jobs to twitter", len(jobPosts))
 			}()
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
 	)
 }
 
-func TriggerCompanyUpdate(svr server.Server) http.HandlerFunc {
+func TriggerCompanyUpdate(svr server.Server, companyRepo *company.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
 				since := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
-				cs, err := database.InferCompaniesFromJobs(svr.Conn, since)
+				cs, err := companyRepo.InferCompaniesFromJobs(since)
 				if err != nil {
 					svr.Log(err, "unable to infer companies from jobs")
 					return
@@ -945,14 +966,14 @@ func TriggerCompanyUpdate(svr server.Server) http.HandlerFunc {
 					c.ID = companyID.String()
 					c.Slug = slug.Make(c.Name)
 					c.IconImageID = newIconID.String()
-					if err := database.SaveCompany(svr.Conn, c); err != nil {
-						svr.Log(err, "database.SaveCompany")
+					if err := companyRepo.SaveCompany(c); err != nil {
+						svr.Log(err, "companyRepo.SaveCompany")
 						continue
 					}
 					log.Println(c.Name)
 				}
-				if err := database.DeleteStaleImages(svr.Conn); err != nil {
-					svr.Log(err, "database.DeleteStaleImages")
+				if err := companyRepo.DeleteStaleImages(); err != nil {
+					svr.Log(err, "companyRepo.DeleteStaleImages")
 					return
 				}
 			}()
@@ -961,19 +982,19 @@ func TriggerCompanyUpdate(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func TriggerAdsManager(svr server.Server) http.HandlerFunc {
+func TriggerAdsManager(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
 				log.Printf("attempting to demote expired sponsored 30days pinned job ads\n")
-				jobs, err := database.GetJobsOlderThan(svr.Conn, time.Now().AddDate(0, 0, -30), database.JobAdSponsoredPinnedFor30Days)
+				jobPosts, err := jobRepo.GetJobsOlderThan(time.Now().AddDate(0, 0, -30), job.JobAdSponsoredPinnedFor30Days)
 				if err != nil {
 					svr.Log(err, "unable to demote expired sponsored 30 days pinned job ads")
 					return
 				}
-				for _, j := range jobs {
-					jobToken, err := database.TokenByJobID(svr.Conn, j.ID)
+				for _, j := range jobPosts {
+					jobToken, err := jobRepo.TokenByJobID(j.ID)
 					if err != nil {
 						svr.Log(err, fmt.Sprintf("unable to retrieve token for job id %d and email %s", j.ID, j.CompanyEmail))
 						continue
@@ -992,18 +1013,18 @@ func TriggerAdsManager(svr server.Server) http.HandlerFunc {
 							continue
 						}
 					}
-					database.UpdateJobAdType(svr.Conn, database.JobAdBasic, j.ID)
+					jobRepo.UpdateJobAdType(job.JobAdBasic, j.ID)
 					log.Printf("demoted job id %d expired sponsored 30days pinned job ads\n", j.ID)
 				}
 
 				log.Printf("attempting to demote expired sponsored 7days pinned job ads\n")
-				jobs2, err := database.GetJobsOlderThan(svr.Conn, time.Now().AddDate(0, 0, -7), database.JobAdSponsoredPinnedFor7Days)
+				jobPosts2, err := jobRepo.GetJobsOlderThan(time.Now().AddDate(0, 0, -7), job.JobAdSponsoredPinnedFor7Days)
 				if err != nil {
 					svr.Log(err, "unable to demote expired sponsored 7 days pinned job ads")
 					return
 				}
-				for _, j := range jobs2 {
-					jobToken, err := database.TokenByJobID(svr.Conn, j.ID)
+				for _, j := range jobPosts2 {
+					jobToken, err := jobRepo.TokenByJobID(j.ID)
 					if err != nil {
 						svr.Log(err, fmt.Sprintf("unable to retrieve toke for job id %d and email %s", j.ID, j.CompanyEmail))
 						continue
@@ -1022,17 +1043,17 @@ func TriggerAdsManager(svr server.Server) http.HandlerFunc {
 							continue
 						}
 					}
-					database.UpdateJobAdType(svr.Conn, database.JobAdBasic, j.ID)
+					jobRepo.UpdateJobAdType(job.JobAdBasic, j.ID)
 					log.Printf("demoted job id %d expired sponsored 7days pinned job ads\n", j.ID)
 				}
 				log.Printf("attempting to demote expired sponsored 60days pinned job ads\n")
-				jobs3, err := database.GetJobsOlderThan(svr.Conn, time.Now().AddDate(0, 0, -60), database.JobAdSponsoredPinnedFor60Days)
+				jobPosts3, err := jobRepo.GetJobsOlderThan(time.Now().AddDate(0, 0, -60), job.JobAdSponsoredPinnedFor60Days)
 				if err != nil {
 					svr.Log(err, "unable to demote expired sponsored 7 days pinned job ads")
 					return
 				}
-				for _, j := range jobs3 {
-					jobToken, err := database.TokenByJobID(svr.Conn, j.ID)
+				for _, j := range jobPosts3 {
+					jobToken, err := jobRepo.TokenByJobID(j.ID)
 					if err != nil {
 						svr.Log(err, fmt.Sprintf("unable to retrieve toke for job id %d and email %s", j.ID, j.CompanyEmail))
 						continue
@@ -1051,7 +1072,7 @@ func TriggerAdsManager(svr server.Server) http.HandlerFunc {
 							continue
 						}
 					}
-					database.UpdateJobAdType(svr.Conn, database.JobAdBasic, j.ID)
+					jobRepo.UpdateJobAdType(job.JobAdBasic, j.ID)
 					log.Printf("demoted job id %d expired sponsored 60days pinned job ads\n", j.ID)
 				}
 			}()
@@ -1060,7 +1081,7 @@ func TriggerAdsManager(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func UpdateDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return middleware.UserAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
@@ -1108,7 +1129,7 @@ func UpdateDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				return
 			}
 			t := time.Now().UTC()
-			dev := database.Developer{
+			dev := developer.Developer{
 				ID:          req.ID,
 				Name:        req.Fullname,
 				Location:    req.CurrentLocation,
@@ -1120,7 +1141,7 @@ func UpdateDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				Skills:      req.Skills,
 				ImageID:     req.ImageID,
 			}
-			err = database.UpdateDeveloperProfile(svr.Conn, dev)
+			err = devRepo.UpdateDeveloperProfile(dev)
 			if err != nil {
 				svr.Log(err, "unable to update developer profile")
 				svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1131,7 +1152,7 @@ func UpdateDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func DeleteDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func DeleteDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository, userRepo *user.Repository) http.HandlerFunc {
 	return middleware.UserAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
@@ -1159,7 +1180,7 @@ func DeleteDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
 			}
-			err = database.DeleteDeveloperProfile(svr.Conn, req.ID, req.Email)
+			err = devRepo.DeleteDeveloperProfile(req.ID, req.Email)
 			if err != nil {
 				svr.Log(err, "unable to delete developer profile")
 				svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1170,7 +1191,7 @@ func DeleteDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusInternalServerError, nil)
 				return
 			}
-			if userErr := database.DeleteUserByEmail(svr.Conn, req.Email); userErr != nil {
+			if userErr := userRepo.DeleteUserByEmail(req.Email); userErr != nil {
 				svr.Log(err, "unable to delete user by email "+req.Email)
 				svr.JSON(w, http.StatusInternalServerError, nil)
 			}
@@ -1244,7 +1265,7 @@ func AddEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func SendMessageDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		profileID := vars["id"]
@@ -1266,7 +1287,7 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "invalid email provided")
 			return
 		}
-		dev, err := database.DeveloperProfileByID(svr.Conn, profileID)
+		dev, err := devRepo.DeveloperProfileByID(profileID)
 		if err != nil {
 			svr.Log(err, "unable to find developer profile by id "+profileID)
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1278,13 +1299,13 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		message := database.DeveloperMessage{
+		message := developer.DeveloperMessage{
 			ID:        k.String(),
 			Email:     req.Email,
 			Content:   req.Content,
 			ProfileID: dev.ID,
 		}
-		err = database.SendMessageDeveloperProfile(svr.Conn, message)
+		err = devRepo.SendMessageDeveloperProfile(message)
 		if err != nil {
 			svr.Log(err, "unable to send message to developer profile")
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1306,7 +1327,7 @@ func SendMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		if err := database.TrackDeveloperProfileMessageSent(svr.Conn, dev); err != nil {
+		if err := devRepo.TrackDeveloperProfileMessageSent(dev); err != nil {
 			svr.Log(err, "unable to track message sent to developer profile")
 		}
 		svr.JSON(w, http.StatusOK, nil)
@@ -1339,11 +1360,11 @@ func AutocompleteSkill(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func DeliverMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func DeliverMessageDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		messageID := vars["id"]
-		message, email, err := database.MessageForDeliveryByID(svr.Conn, messageID)
+		message, email, err := devRepo.MessageForDeliveryByID(messageID)
 		if err != nil {
 			svr.JSON(w, http.StatusBadRequest, "Your link may be invalid or expired")
 			return
@@ -1364,14 +1385,14 @@ func DeliverMessageDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, "There was a problem while sending the email")
 			return
 		}
-		if err := database.MarkDeveloperMessageAsSent(svr.Conn, messageID); err != nil {
+		if err := devRepo.MarkDeveloperMessageAsSent(messageID); err != nil {
 			svr.Log(err, "unable to mark developer message as sent "+messageID)
 		}
 		svr.JSON(w, http.StatusOK, "Message Sent Successfully")
 	}
 }
 
-func EditDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func EditDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return middleware.UserAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
@@ -1384,7 +1405,7 @@ func EditDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusUnauthorized, "unauthorized")
 				return
 			}
-			dev, err := database.DeveloperProfileByID(svr.Conn, profileID)
+			dev, err := devRepo.DeveloperProfileByID(profileID)
 			if err != nil {
 				svr.Log(err, "unable to find developer profile by id "+profileID)
 				svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1401,17 +1422,17 @@ func EditDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func ViewDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
+func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		profileSlug := vars["slug"]
-		dev, err := database.DeveloperProfileBySlug(svr.Conn, profileSlug)
+		dev, err := devRepo.DeveloperProfileBySlug(profileSlug)
 		if err != nil {
 			svr.Log(err, "unable to find developer profile by slug "+profileSlug)
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		if err := database.TrackDeveloperProfileView(svr.Conn, dev); err != nil {
+		if err := devRepo.TrackDeveloperProfileView(dev); err != nil {
 			svr.Log(err, "unable to track developer profile view")
 		}
 		dev.UpdatedAtHumanized = dev.UpdatedAt.UTC().Format("January 2006")
@@ -1423,14 +1444,14 @@ func ViewDeveloperProfileHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func CompaniesForLocationHandler(svr server.Server, loc string) http.HandlerFunc {
+func CompaniesForLocationHandler(svr server.Server, companyRepo *company.Repository, jobRepo *job.Repository, loc string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForCompanies(w, r, loc, page, "companies.html")
+		svr.RenderPageForCompanies(w, r, companyRepo, jobRepo, loc, page, "companies.html")
 	}
 }
 
-func IndexPageHandler(svr server.Server) http.HandlerFunc {
+func IndexPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		location := r.URL.Query().Get("l")
 		tag := r.URL.Query().Get("t")
@@ -1479,7 +1500,7 @@ func IndexPageHandler(svr server.Server) http.HandlerFunc {
 			return
 		}
 
-		svr.RenderPageForLocationAndTag(w, r, "", "", page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, "", "", page, salary, currency, "landing.html")
 	}
 }
 
@@ -1495,9 +1516,9 @@ func PermanentExternalRedirectHandler(svr server.Server, dst string) http.Handle
 	}
 }
 
-func PostAJobPageHandler(svr server.Server) http.HandlerFunc {
+func PostAJobPageHandler(svr server.Server, companyRepo *company.Repository, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPostAJobForLocation(w, r, "")
+		svr.RenderPostAJobForLocation(w, r, companyRepo, jobRepo, "")
 	}
 }
 
@@ -1579,7 +1600,7 @@ func SendFeedbackMessage(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func RequestTokenSignOn(svr server.Server) http.HandlerFunc {
+func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		next := r.URL.Query().Get("next")
 		req := &struct {
@@ -1599,7 +1620,7 @@ func RequestTokenSignOn(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = database.SaveTokenSignOn(svr.Conn, req.Email, k.String())
+		err = userRepo.SaveTokenSignOn(req.Email, k.String())
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -1619,11 +1640,11 @@ func RequestTokenSignOn(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func VerifyTokenSignOn(svr server.Server, adminEmail string) http.HandlerFunc {
+func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *developer.Repository, adminEmail string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		token := vars["token"]
-		user, _, err := database.GetOrCreateUserFromToken(svr.Conn, token)
+		user, _, err := userRepo.GetOrCreateUserFromToken(token)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to validate signon token %s", token))
 			svr.TEXT(w, http.StatusBadRequest, "Invalid or expired token")
@@ -1657,12 +1678,12 @@ func VerifyTokenSignOn(svr server.Server, adminEmail string) http.HandlerFunc {
 		next := r.URL.Query().Get("next")
 		switch {
 		case AuthStepVerifyDeveloperProfile == next:
-			if activateDevProfileErr := database.ActivateDeveloperProfile(svr.Conn, user.Email); activateDevProfileErr != nil {
+			if activateDevProfileErr := devRepo.ActivateDeveloperProfile(user.Email); activateDevProfileErr != nil {
 				svr.Log(err, "unable to activate developer profile")
 				svr.JSON(w, http.StatusInternalServerError, nil)
 				return
 			}
-			dev, err := database.DeveloperProfileByEmail(svr.Conn, user.Email)
+			dev, err := devRepo.DeveloperProfileByEmail(user.Email)
 			if err != nil {
 				svr.Log(err, "unable to find developer profile by email")
 				svr.JSON(w, http.StatusNotFound, "unable to find developer profile by email")
@@ -1671,7 +1692,7 @@ func VerifyTokenSignOn(svr server.Server, adminEmail string) http.HandlerFunc {
 			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("/edit/profile/%s", dev.ID))
 			return
 		case AuthStepLoginDeveloperProfile == next:
-			dev, err := database.DeveloperProfileByEmail(svr.Conn, user.Email)
+			dev, err := devRepo.DeveloperProfileByEmail(user.Email)
 			if err != nil {
 				svr.Log(err, "unable to find developer profile by email")
 				svr.JSON(w, http.StatusNotFound, "unable to find developer profile by email")
@@ -1688,7 +1709,7 @@ func VerifyTokenSignOn(svr server.Server, adminEmail string) http.HandlerFunc {
 	}
 }
 
-func ListJobsAsAdminPageHandler(svr server.Server) http.HandlerFunc {
+func ListJobsAsAdminPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.AdminAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
@@ -1698,18 +1719,18 @@ func ListJobsAsAdminPageHandler(svr server.Server) http.HandlerFunc {
 			page := r.URL.Query().Get("p")
 			salary := ""
 			currency := "USD"
-			svr.RenderPageForLocationAndTagAdmin(w, loc, skill, page, salary, currency, "list-jobs-admin.html")
+			svr.RenderPageForLocationAndTagAdmin(w, jobRepo, loc, skill, page, salary, currency, "list-jobs-admin.html")
 		},
 	)
 }
 
-func PostAJobForLocationPageHandler(svr server.Server, location string) http.HandlerFunc {
+func PostAJobForLocationPageHandler(svr server.Server, companyRepo *company.Repository, jobRepo *job.Repository, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPostAJobForLocation(w, r, location)
+		svr.RenderPostAJobForLocation(w, r, companyRepo, jobRepo, location)
 	}
 }
 
-func PostAJobForLocationFromURLPageHandler(svr server.Server) http.HandlerFunc {
+func PostAJobForLocationFromURLPageHandler(svr server.Server, companyRepo *company.Repository, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		location := vars["location"]
@@ -1719,31 +1740,31 @@ func PostAJobForLocationFromURLPageHandler(svr server.Server) http.HandlerFunc {
 			log.Fatal(err)
 		}
 		location = reg.ReplaceAllString(location, "")
-		svr.RenderPostAJobForLocation(w, r, location)
+		svr.RenderPostAJobForLocation(w, r, companyRepo, jobRepo, location)
 	}
 }
 
-func JobBySlugPageHandler(svr server.Server) http.HandlerFunc {
+func JobBySlugPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		slug := vars["slug"]
 		location := vars["l"]
-		job, err := database.JobPostBySlug(svr.Conn, slug)
-		if err != nil || job == nil {
+		jobPost, err := jobRepo.JobPostBySlug(slug)
+		if err != nil || jobPost == nil {
 			svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job golang.cafe/job/%s not found", slug))
 			return
 		}
-		if err := database.TrackJobView(svr.Conn, job); err != nil {
+		if err := jobRepo.TrackJobView(jobPost); err != nil {
 			svr.Log(err, fmt.Sprintf("unable to track job view for %s: %v", slug, err))
 		}
-		jobLocations := strings.Split(job.Location, "/")
+		jobLocations := strings.Split(jobPost.Location, "/")
 		var isQuickApply bool
-		if svr.IsEmail(job.HowToApply) {
+		if svr.IsEmail(jobPost.HowToApply) {
 			isQuickApply = true
 		}
-		job.SalaryRange = fmt.Sprintf("%s%s to %s%s", job.SalaryCurrency, humanize.Comma(job.SalaryMin), job.SalaryCurrency, humanize.Comma(job.SalaryMax))
+		jobPost.SalaryRange = fmt.Sprintf("%s%s to %s%s", jobPost.SalaryCurrency, humanize.Comma(jobPost.SalaryMin), jobPost.SalaryCurrency, humanize.Comma(jobPost.SalaryMax))
 
-		relevantJobs, err := database.GetRelevantJobs(svr.Conn, job.Location, job.ID, 3)
+		relevantJobs, err := jobRepo.GetRelevantJobs(jobPost.Location, jobPost.ID, 3)
 		if err != nil {
 			svr.Log(err, "unable to get relevant jobs")
 		}
@@ -1758,37 +1779,37 @@ func JobBySlugPageHandler(svr server.Server) http.HandlerFunc {
 			}
 		}
 		svr.Render(w, http.StatusOK, "job.html", map[string]interface{}{
-			"Job":                     job,
-			"JobURIEncoded":           url.QueryEscape(job.Slug),
+			"Job":                     jobPost,
+			"JobURIEncoded":           url.QueryEscape(jobPost.Slug),
 			"IsQuickApply":            isQuickApply,
-			"HTMLJobDescription":      svr.MarkdownToHTML(job.JobDescription),
-			"HTMLJobPerks":            svr.MarkdownToHTML(job.Perks),
-			"HTMLJobInterviewProcess": svr.MarkdownToHTML(job.InterviewProcess),
+			"HTMLJobDescription":      svr.MarkdownToHTML(jobPost.JobDescription),
+			"HTMLJobPerks":            svr.MarkdownToHTML(jobPost.Perks),
+			"HTMLJobInterviewProcess": svr.MarkdownToHTML(jobPost.InterviewProcess),
 			"LocationFilter":          location,
-			"ExternalJobId":           job.ExternalID,
-			"MonthAndYear":            time.Unix(job.CreatedAt, 0).UTC().Format("January 2006"),
-			"GoogleJobCreatedAt":      time.Unix(job.CreatedAt, 0).Format(time.RFC3339),
-			"GoogleJobValidThrough":   time.Unix(job.CreatedAt, 0).AddDate(0, 5, 0),
+			"ExternalJobId":           jobPost.ExternalID,
+			"MonthAndYear":            time.Unix(jobPost.CreatedAt, 0).UTC().Format("January 2006"),
+			"GoogleJobCreatedAt":      time.Unix(jobPost.CreatedAt, 0).Format(time.RFC3339),
+			"GoogleJobValidThrough":   time.Unix(jobPost.CreatedAt, 0).AddDate(0, 5, 0),
 			"GoogleJobLocation":       jobLocations[0],
-			"GoogleJobDescription":    strconv.Quote(strings.ReplaceAll(string(svr.MarkdownToHTML(job.JobDescription)), "\n", "")),
+			"GoogleJobDescription":    strconv.Quote(strings.ReplaceAll(string(svr.MarkdownToHTML(jobPost.JobDescription)), "\n", "")),
 			"RelevantJobs":            relevantJobs,
 		})
 	}
 }
 
-func CompanyBySlugPageHandler(svr server.Server) http.HandlerFunc {
+func CompanyBySlugPageHandler(svr server.Server, companyRepo *company.Repository, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		slug := vars["slug"]
-		company, err := database.CompanyBySlug(svr.Conn, slug)
+		company, err := companyRepo.CompanyBySlug(slug)
 		if err != nil || company == nil {
 			svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Company golang.cafe/job/%s not found", slug))
 			return
 		}
-		if err := database.TrackCompanyView(svr.Conn, company); err != nil {
+		if err := companyRepo.TrackCompanyView(company); err != nil {
 			svr.Log(err, fmt.Sprintf("unable to track company view for %s: %v", slug, err))
 		}
-		companyJobs, err := database.GetCompanyJobs(svr.Conn, company.Name, 3)
+		companyJobs, err := jobRepo.GetCompanyJobs(company.Name, 3)
 		if err != nil {
 			svr.Log(err, "unable to get company jobs")
 		}
@@ -1812,50 +1833,50 @@ func CompanyBySlugPageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func LandingPageForLocationHandler(svr server.Server, location string) http.HandlerFunc {
+func LandingPageForLocationHandler(svr server.Server, jobRepo *job.Repository, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, location, "", page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, location, "", page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForLocationAndSkillPlaceholderHandler(svr server.Server, location string) http.HandlerFunc {
+func LandingPageForLocationAndSkillPlaceholderHandler(svr server.Server, jobRepo *job.Repository, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, location, skill, page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, location, skill, page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForLocationPlaceholderHandler(svr server.Server) http.HandlerFunc {
+func LandingPageForLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		loc := strings.ReplaceAll(vars["location"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, loc, "", page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, loc, "", page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForSkillPlaceholderHandler(svr server.Server) http.HandlerFunc {
+func LandingPageForSkillPlaceholderHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, "", skill, page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, "", skill, page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForSkillAndLocationPlaceholderHandler(svr server.Server) http.HandlerFunc {
+func LandingPageForSkillAndLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
@@ -1863,13 +1884,13 @@ func LandingPageForSkillAndLocationPlaceholderHandler(svr server.Server) http.Ha
 		loc := strings.ReplaceAll(vars["location"], "-", " ")
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, loc, skill, page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, loc, skill, page, salary, currency, "landing.html")
 	}
 }
 
-func ServeRSSFeed(svr server.Server) http.HandlerFunc {
+func ServeRSSFeed(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		jobs, err := database.GetLastNJobs(svr.Conn, 20, r.URL.Query().Get("l"))
+		jobPosts, err := jobRepo.GetLastNJobs(20, r.URL.Query().Get("l"))
 		if err != nil {
 			svr.Log(err, "unable to retrieve jobs for RSS Feed")
 			svr.XML(w, http.StatusInternalServerError, []byte{})
@@ -1884,7 +1905,7 @@ func ServeRSSFeed(svr server.Server) http.HandlerFunc {
 			Created:     now,
 		}
 
-		for _, j := range jobs {
+		for _, j := range jobPosts {
 			if j.CompanyIconID != "" {
 				feed.Items = append(feed.Items, &feeds.Item{
 					Title:       fmt.Sprintf("%s with %s - %s", j.JobTitle, j.Company, j.Location),
@@ -1914,7 +1935,7 @@ func ServeRSSFeed(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func StripePaymentConfirmationWebookHandler(svr server.Server) http.HandlerFunc {
+func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		const MaxBodyBytes = int64(65536)
 		req.Body = http.MaxBytesReader(w, req.Body, MaxBodyBytes)
@@ -1944,7 +1965,7 @@ func StripePaymentConfirmationWebookHandler(svr server.Server) http.HandlerFunc 
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			job, err := database.GetJobByStripeSessionID(svr.Conn, sess.ID)
+			jobPost, err := jobRepo.GetJobByStripeSessionID(sess.ID)
 			if err != nil {
 				svr.Log(errors.New("unable to find job by stripe session id"), fmt.Sprintf("session id %s", sess.ID))
 				svr.JSON(w, http.StatusBadRequest, nil)
@@ -1956,16 +1977,16 @@ func StripePaymentConfirmationWebookHandler(svr server.Server) http.HandlerFunc 
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			jobToken, err := database.TokenByJobID(svr.Conn, job.ID)
+			jobToken, err := jobRepo.TokenByJobID(jobPost.ID)
 			if err != nil {
-				svr.Log(errors.New("unable to find token for job id"), fmt.Sprintf("session id %s job id %d", sess.ID, job.ID))
+				svr.Log(errors.New("unable to find token for job id"), fmt.Sprintf("session id %s job id %d", sess.ID, jobPost.ID))
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			if job.ApprovedAt != nil && job.AdType != database.JobAdSponsoredPinnedFor30Days && job.AdType != database.JobAdSponsoredPinnedFor7Days && (purchaseEvent.AdType == database.JobAdSponsoredPinnedFor7Days || job.AdType != database.JobAdSponsoredPinnedFor30Days) {
-				err := database.UpdateJobAdType(svr.Conn, purchaseEvent.AdType, job.ID)
+			if jobPost.ApprovedAt != nil && jobPost.AdType != job.JobAdSponsoredPinnedFor30Days && jobPost.AdType != job.JobAdSponsoredPinnedFor7Days && (purchaseEvent.AdType == job.JobAdSponsoredPinnedFor7Days || jobPost.AdType != job.JobAdSponsoredPinnedFor30Days) {
+				err := jobRepo.UpdateJobAdType(purchaseEvent.AdType, jobPost.ID)
 				if err != nil {
-					svr.Log(errors.New("unable to update job to new ad type"), fmt.Sprintf("unable to update job id %d to new ad type %d for session id %s", job.ID, purchaseEvent.AdType, sess.ID))
+					svr.Log(errors.New("unable to update job to new ad type"), fmt.Sprintf("unable to update job id %d to new ad type %d for session id %s", jobPost.ID, purchaseEvent.AdType, sess.ID))
 					svr.JSON(w, http.StatusBadRequest, nil)
 					return
 				}
@@ -2078,29 +2099,29 @@ func TermsOfServicePageHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "static/views/terms-of-service.html")
 }
 
-func SalaryLandingPageLocationPlaceholderHandler(svr server.Server) http.HandlerFunc {
+func SalaryLandingPageLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		location := strings.ReplaceAll(vars["location"], "-", " ")
-		svr.RenderSalaryForLocation(w, r, location)
+		svr.RenderSalaryForLocation(w, r, jobRepo, location)
 	}
 }
 
-func SalaryLandingPageLocationHandler(svr server.Server, location string) http.HandlerFunc {
+func SalaryLandingPageLocationHandler(svr server.Server, jobRepo *job.Repository, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderSalaryForLocation(w, r, location)
+		svr.RenderSalaryForLocation(w, r, jobRepo, location)
 	}
 }
 
-func ViewNewsletterPageHandler(svr server.Server) http.HandlerFunc {
+func ViewNewsletterPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, "", "", "", "", "", "newsletter.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, "", "", "", "", "", "newsletter.html")
 	}
 }
 
-func ViewCommunityNewsletterPageHandler(svr server.Server) http.HandlerFunc {
+func ViewCommunityNewsletterPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, "", "", "", "", "", "news.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, "", "", "", "", "", "news.html")
 	}
 }
 
@@ -2115,9 +2136,9 @@ func DisableDirListing(next http.Handler) http.Handler {
 	})
 }
 
-func ViewSupportPageHandler(svr server.Server) http.HandlerFunc {
+func ViewSupportPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, "", "", "", "", "", "support.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, "", "", "", "", "", "support.html")
 	}
 }
 
@@ -2237,7 +2258,7 @@ func PostAJobFailurePageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func ApplyForJobPageHandler(svr server.Server) http.HandlerFunc {
+func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// limits upload form size to 5mb
 		maxPdfSize := 5 * 1024 * 1024
@@ -2268,7 +2289,7 @@ func ApplyForJobPageHandler(svr server.Server) http.HandlerFunc {
 		}
 		externalID := r.FormValue("job-id")
 		emailAddr := r.FormValue("email")
-		job, err := database.JobPostByExternalIDForEdit(svr.Conn, externalID)
+		jobPost, err := jobRepo.JobPostByExternalIDForEdit(externalID)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %d, %v", externalID, err))
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -2292,13 +2313,13 @@ func ApplyForJobPageHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = database.ApplyToJob(svr.Conn, job.ID, fileBytes, emailAddr, randomTokenStr)
+		err = jobRepo.ApplyToJob(jobPost.ID, fileBytes, emailAddr, randomTokenStr)
 		if err != nil {
 			svr.Log(err, "unable to apply for job while saving to db")
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = svr.GetEmail().SendEmail("Diego from Golang Cafe <team@golang.cafe>", emailAddr, email.GolangCafeEmailAddress, fmt.Sprintf("Confirm your job application with %s", job.Company), fmt.Sprintf("Thanks for applying for the position %s with %s - %s (https://golang.cafe/job/%s). You application request, your email and your CV will expire in 72 hours and will be permanently deleted from the system. Please confirm your application now by following this link https://golang.cafe/apply/%s", job.JobTitle, job.Company, job.Location, job.Slug, randomTokenStr))
+		err = svr.GetEmail().SendEmail("Diego from Golang Cafe <team@golang.cafe>", emailAddr, email.GolangCafeEmailAddress, fmt.Sprintf("Confirm your job application with %s", jobPost.Company), fmt.Sprintf("Thanks for applying for the position %s with %s - %s (https://golang.cafe/job/%s). You application request, your email and your CV will expire in 72 hours and will be permanently deleted from the system. Please confirm your application now by following this link https://golang.cafe/apply/%s", jobPost.JobTitle, jobPost.Company, jobPost.Location, jobPost.Slug, randomTokenStr))
 		if err != nil {
 			svr.Log(err, "unable to send email while applying to job")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -2337,11 +2358,11 @@ func ApplyForJobPageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func ApplyToJobConfirmation(svr server.Server) http.HandlerFunc {
+func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		token := vars["token"]
-		job, applicant, err := database.GetJobByApplyToken(svr.Conn, token)
+		jobPost, applicant, err := jobRepo.GetJobByApplyToken(token)
 		if err != nil {
 			svr.Render(w, http.StatusBadRequest, "apply-message.html", map[string]interface{}{
 				"Title":       "Invalid Job Application",
@@ -2349,7 +2370,7 @@ func ApplyToJobConfirmation(svr server.Server) http.HandlerFunc {
 			})
 			return
 		}
-		err = svr.GetEmail().SendEmailWithPDFAttachment("Diego from Golang Cafe <team@golang.cafe>", job.HowToApply, applicant.Email, "New Applicant from Golang Cafe", fmt.Sprintf("Hi, there is a new applicant for your position on Golang Cafe: %s with %s - %s (https://golang.cafe/job/%s). Applicant's Email: %s. Please find applicant's CV attached below", job.JobTitle, job.Company, job.Location, job.Slug, applicant.Email), applicant.Cv, "cv.pdf")
+		err = svr.GetEmail().SendEmailWithPDFAttachment("Diego from Golang Cafe <team@golang.cafe>", jobPost.HowToApply, applicant.Email, "New Applicant from Golang Cafe", fmt.Sprintf("Hi, there is a new applicant for your position on Golang Cafe: %s with %s - %s (https://golang.cafe/job/%s). Applicant's Email: %s. Please find applicant's CV attached below", jobPost.JobTitle, jobPost.Company, jobPost.Location, jobPost.Slug, applicant.Email), applicant.Cv, "cv.pdf")
 		if err != nil {
 			svr.Log(err, "unable to send email while applying to job")
 			svr.Render(w, http.StatusBadRequest, "apply-message.html", map[string]interface{}{
@@ -2358,7 +2379,7 @@ func ApplyToJobConfirmation(svr server.Server) http.HandlerFunc {
 			})
 			return
 		}
-		err = database.ConfirmApplyToJob(svr.Conn, token)
+		err = jobRepo.ConfirmApplyToJob(token)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to update apply_token with successfull application for token %s", token))
 			svr.Render(w, http.StatusBadRequest, "apply-message.html", map[string]interface{}{
@@ -2369,23 +2390,23 @@ func ApplyToJobConfirmation(svr server.Server) http.HandlerFunc {
 		}
 		svr.Render(w, http.StatusOK, "apply-message.html", map[string]interface{}{
 			"Title":       "Job Application Successfull",
-			"Description": svr.StringToHTML(fmt.Sprintf("Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"https://golang.cafe/job/%s\">https://golang.cafe/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. If you have further questions please reach out to <code>%s</code>. Please note, your email and CV have been permanently deleted from our systems.", job.JobTitle, job.Company, job.Location, job.Slug, job.Slug, job.HowToApply)),
+			"Description": svr.StringToHTML(fmt.Sprintf("Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"https://golang.cafe/job/%s\">https://golang.cafe/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. If you have further questions please reach out to <code>%s</code>. Please note, your email and CV have been permanently deleted from our systems.", jobPost.JobTitle, jobPost.Company, jobPost.Location, jobPost.Slug, jobPost.Slug, jobPost.HowToApply)),
 		})
 	}
 }
 
-func SubmitJobPostWithoutPaymentHandler(svr server.Server) http.HandlerFunc {
+func SubmitJobPostWithoutPaymentHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.AdminAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			decoder := json.NewDecoder(r.Body)
-			jobRq := &database.JobRq{}
+			jobRq := &job.JobRq{}
 			if err := decoder.Decode(&jobRq); err != nil {
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			jobID, err := database.SaveDraft(svr.Conn, jobRq)
+			jobID, err := jobRepo.SaveDraft(jobRq)
 			if err != nil {
 				svr.Log(err, fmt.Sprintf("unable to save job request: %#v", jobRq))
 				svr.JSON(w, http.StatusBadRequest, nil)
@@ -2409,7 +2430,7 @@ func SubmitJobPostWithoutPaymentHandler(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			err = database.SaveTokenForJob(svr.Conn, randomTokenStr, jobID)
+			err = jobRepo.SaveTokenForJob(randomTokenStr, jobID)
 			if err != nil {
 				svr.Log(err, "unable to generate token")
 				svr.JSON(w, http.StatusBadRequest, nil)
@@ -2421,10 +2442,10 @@ func SubmitJobPostWithoutPaymentHandler(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func SubmitJobPostPaymentUpsellPageHandler(svr server.Server) http.HandlerFunc {
+func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
-		jobRq := &database.JobRqUpsell{}
+		jobRq := &job.JobRqUpsell{}
 		if err := decoder.Decode(&jobRq); err != nil {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
@@ -2433,12 +2454,12 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server) http.HandlerFunc {
 		if jobRq.CurrencyCode != "USD" && jobRq.CurrencyCode != "EUR" && jobRq.CurrencyCode != "GBP" {
 			jobRq.CurrencyCode = "USD"
 		}
-		jobID, err := database.JobPostIDByToken(svr.Conn, jobRq.Token)
+		jobID, err := jobRepo.JobPostIDByToken(jobRq.Token)
 		if err != nil {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		sess, err := payment.CreateSession(svr.GetConfig().StripeKey, &database.JobRq{AdType: jobRq.AdType, CurrencyCode: jobRq.CurrencyCode, Email: jobRq.Email}, jobRq.Token)
+		sess, err := payment.CreateSession(svr.GetConfig().StripeKey, &job.JobRq{AdType: jobRq.AdType, CurrencyCode: jobRq.CurrencyCode, Email: jobRq.Email}, jobRq.Token)
 		if err != nil {
 			svr.Log(err, "unable to create payment session")
 		}
@@ -2492,10 +2513,10 @@ func GeneratePaymentIntent(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func SubmitJobPostPageHandler(svr server.Server) http.HandlerFunc {
+func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
-		jobRq := &database.JobRq{}
+		jobRq := &job.JobRq{}
 		if err := decoder.Decode(&jobRq); err != nil {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
@@ -2504,7 +2525,7 @@ func SubmitJobPostPageHandler(svr server.Server) http.HandlerFunc {
 		if jobRq.CurrencyCode != "USD" && jobRq.CurrencyCode != "EUR" && jobRq.CurrencyCode != "GBP" {
 			jobRq.CurrencyCode = "USD"
 		}
-		jobID, err := database.SaveDraft(svr.Conn, jobRq)
+		jobID, err := jobRepo.SaveDraft(jobRq)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to save job request: %#v", jobRq))
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -2528,7 +2549,7 @@ func SubmitJobPostPageHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = database.SaveTokenForJob(svr.Conn, randomTokenStr, jobID)
+		err = jobRepo.SaveTokenForJob(randomTokenStr, jobID)
 		if err != nil {
 			svr.Log(err, "unbale to generate token")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -2622,11 +2643,11 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func RetrieveMediaMetaPageHandler(svr server.Server) http.HandlerFunc {
+func RetrieveMediaMetaPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		jobID := vars["id"]
-		job, err := database.GetJobByExternalID(svr.Conn, jobID)
+		job, err := jobRepo.GetJobByExternalID(jobID)
 		if err != nil {
 			svr.Log(err, "unable to retrieve job by external ID")
 			svr.MEDIA(w, http.StatusNotFound, []byte{}, "image/png")
@@ -2842,22 +2863,22 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func UpdateJobPageHandler(svr server.Server) http.HandlerFunc {
+func UpdateJobPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
-		jobRq := &database.JobRqUpdate{}
+		jobRq := &job.JobRqUpdate{}
 		if err := decoder.Decode(&jobRq); err != nil {
 			svr.Log(err, fmt.Sprintf("unable to parse job request for update: %#v", jobRq))
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		jobID, err := database.JobPostIDByToken(svr.Conn, jobRq.Token)
+		jobID, err := jobRepo.JobPostIDByToken(jobRq.Token)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to find job post ID by token: %s", jobRq.Token))
 			svr.JSON(w, http.StatusNotFound, nil)
 			return
 		}
-		err = database.UpdateJob(svr.Conn, jobRq, jobID)
+		err = jobRepo.UpdateJob(jobRq, jobID)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to update job request: %#v", jobRq))
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -2869,25 +2890,25 @@ func UpdateJobPageHandler(svr server.Server) http.HandlerFunc {
 		svr.JSON(w, http.StatusOK, nil)
 	}
 }
-func PermanentlyDeleteJobByToken(svr server.Server) http.HandlerFunc {
+func PermanentlyDeleteJobByToken(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.AdminAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			decoder := json.NewDecoder(r.Body)
-			jobRq := &database.JobRqUpdate{}
+			jobRq := &job.JobRqUpdate{}
 			if err := decoder.Decode(&jobRq); err != nil {
 				svr.Log(err, fmt.Sprintf("unable to parse job request for delete: %#v", jobRq))
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			jobID, err := database.JobPostIDByToken(svr.Conn, jobRq.Token)
+			jobID, err := jobRepo.JobPostIDByToken(jobRq.Token)
 			if err != nil {
 				svr.Log(err, fmt.Sprintf("unable to find job post ID by token: %s", jobRq.Token))
 				svr.JSON(w, http.StatusNotFound, nil)
 				return
 			}
-			err = database.DeleteJobCascade(svr.Conn, jobID)
+			err = jobRepo.DeleteJobCascade(jobID)
 			if err != nil {
 				svr.Log(err, fmt.Sprintf("unable to permanently delete job: %#v", jobRq))
 				svr.JSON(w, http.StatusBadRequest, nil)
@@ -2898,25 +2919,25 @@ func PermanentlyDeleteJobByToken(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func ApproveJobPageHandler(svr server.Server) http.HandlerFunc {
+func ApproveJobPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.AdminAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			decoder := json.NewDecoder(r.Body)
-			jobRq := &database.JobRqUpdate{}
+			jobRq := &job.JobRqUpdate{}
 			if err := decoder.Decode(&jobRq); err != nil {
 				svr.Log(err, fmt.Sprintf("unable to parse job request for update: %#v", jobRq))
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			jobID, err := database.JobPostIDByToken(svr.Conn, jobRq.Token)
+			jobID, err := jobRepo.JobPostIDByToken(jobRq.Token)
 			if err != nil {
 				svr.Log(err, fmt.Sprintf("unable to find job post ID by token: %s", jobRq.Token))
 				svr.JSON(w, http.StatusNotFound, nil)
 				return
 			}
-			err = database.ApproveJob(svr.Conn, jobID)
+			err = jobRepo.ApproveJob(jobID)
 			if err != nil {
 				svr.Log(err, fmt.Sprintf("unable to update job request: %#v", jobRq))
 				svr.JSON(w, http.StatusBadRequest, nil)
@@ -2934,22 +2955,22 @@ func ApproveJobPageHandler(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func DisapproveJobPageHandler(svr server.Server) http.HandlerFunc {
+func DisapproveJobPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
-		jobRq := &database.JobRqUpdate{}
+		jobRq := &job.JobRqUpdate{}
 		if err := decoder.Decode(&jobRq); err != nil {
 			svr.Log(err, fmt.Sprintf("unable to parse job request for update: %#v", jobRq))
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		jobID, err := database.JobPostIDByToken(svr.Conn, jobRq.Token)
+		jobID, err := jobRepo.JobPostIDByToken(jobRq.Token)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to find job post ID by token: %s", jobRq.Token))
 			svr.JSON(w, http.StatusNotFound, nil)
 			return
 		}
-		err = database.DisapproveJob(svr.Conn, jobID)
+		err = jobRepo.DisapproveJob(jobID)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to update job request: %#v", jobRq))
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -2959,7 +2980,7 @@ func DisapproveJobPageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func TrackJobClickoutPageHandler(svr server.Server) http.HandlerFunc {
+func TrackJobClickoutPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		externalID := vars["id"]
@@ -2968,14 +2989,14 @@ func TrackJobClickoutPageHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		job, err := database.GetJobByExternalID(svr.Conn, externalID)
+		jobPost, err := jobRepo.GetJobByExternalID(externalID)
 		if err != nil {
 			svr.Log(err, "unable to get JobID from externalID")
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		if err := database.TrackJobClickout(svr.Conn, job.ID); err != nil {
-			svr.Log(err, fmt.Sprintf("unable to save job clickout for job id %d. %v", job.ID, err))
+		if err := jobRepo.TrackJobClickout(jobPost.ID); err != nil {
+			svr.Log(err, fmt.Sprintf("unable to save job clickout for job id %d. %v", jobPost.ID, err))
 			svr.JSON(w, http.StatusOK, nil)
 			return
 		}
@@ -2983,7 +3004,7 @@ func TrackJobClickoutPageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func TrackJobClickoutAndRedirectToJobPage(svr server.Server) http.HandlerFunc {
+func TrackJobClickoutAndRedirectToJobPage(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		externalID := r.URL.Query().Get("j")
 		if externalID == "" {
@@ -2992,45 +3013,45 @@ func TrackJobClickoutAndRedirectToJobPage(svr server.Server) http.HandlerFunc {
 			return
 		}
 		reg, _ := regexp.Compile("[^a-zA-Z0-9 ]+")
-		job, err := database.GetJobByExternalID(svr.Conn, reg.ReplaceAllString(externalID, ""))
+		jobPost, err := jobRepo.GetJobByExternalID(reg.ReplaceAllString(externalID, ""))
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to get HowToApply from externalID %s", externalID))
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		if err := database.TrackJobClickout(svr.Conn, job.ID); err != nil {
-			svr.Log(err, fmt.Sprintf("unable to save job clickout for job id %d. %v", job.ID, err))
+		if err := jobRepo.TrackJobClickout(jobPost.ID); err != nil {
+			svr.Log(err, fmt.Sprintf("unable to save job clickout for job id %d. %v", jobPost.ID, err))
 			svr.JSON(w, http.StatusOK, nil)
 			return
 		}
-		svr.Redirect(w, r, http.StatusTemporaryRedirect, job.HowToApply)
+		svr.Redirect(w, r, http.StatusTemporaryRedirect, jobPost.HowToApply)
 	}
 }
 
-func EditJobViewPageHandler(svr server.Server) http.HandlerFunc {
+func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		token := vars["token"]
 		isCallback := r.URL.Query().Get("callback")
 		paymentSuccess := r.URL.Query().Get("payment")
 		expiredUpsell := r.URL.Query().Get("expired")
-		jobID, err := database.JobPostIDByToken(svr.Conn, token)
+		jobID, err := jobRepo.JobPostIDByToken(token)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to find job post ID by token: %s", token))
 			svr.JSON(w, http.StatusNotFound, nil)
 			return
 		}
-		job, err := database.JobPostByIDForEdit(svr.Conn, jobID)
-		if err != nil || job == nil {
+		jobPost, err := jobRepo.JobPostByIDForEdit(jobID)
+		if err != nil || jobPost == nil {
 			svr.Log(err, fmt.Sprintf("unable to retrieve job by ID %d", jobID))
 			svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job for golang.cafe/edit/%s not found", token))
 			return
 		}
-		clickoutCount, err := database.GetClickoutCountForJob(svr.Conn, jobID)
+		clickoutCount, err := jobRepo.GetClickoutCountForJob(jobID)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to retrieve job clickout count for job id %d", jobID))
 		}
-		viewCount, err := database.GetViewCountForJob(svr.Conn, jobID)
+		viewCount, err := jobRepo.GetViewCountForJob(jobID)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to retrieve job view count for job id %d", jobID))
 		}
@@ -3042,7 +3063,7 @@ func EditJobViewPageHandler(svr server.Server) http.HandlerFunc {
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to retrieve job payment events for job id %d", jobID))
 		}
-		stats, err := database.GetStatsForJob(svr.Conn, jobID)
+		stats, err := jobRepo.GetStatsForJob(jobID)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to retrieve stats for job id %d", jobID))
 		}
@@ -3055,12 +3076,12 @@ func EditJobViewPageHandler(svr server.Server) http.HandlerFunc {
 			svr.Log(err, "could not find ip address in x-forwarded-for, defaulting currency to USD")
 		}
 		svr.Render(w, http.StatusOK, "edit.html", map[string]interface{}{
-			"Job":                        job,
+			"Job":                        jobPost,
 			"Stats":                      string(statsSet),
 			"Purchases":                  purchaseEvents,
-			"JobPerksEscaped":            svr.JSEscapeString(job.Perks),
-			"JobInterviewProcessEscaped": svr.JSEscapeString(job.InterviewProcess),
-			"JobDescriptionEscaped":      svr.JSEscapeString(job.JobDescription),
+			"JobPerksEscaped":            svr.JSEscapeString(jobPost.Perks),
+			"JobInterviewProcessEscaped": svr.JSEscapeString(jobPost.InterviewProcess),
+			"JobDescriptionEscaped":      svr.JSEscapeString(jobPost.JobDescription),
 			"Token":                      token,
 			"ViewCount":                  viewCount,
 			"ClickoutCount":              clickoutCount,
@@ -3070,24 +3091,24 @@ func EditJobViewPageHandler(svr server.Server) http.HandlerFunc {
 			"IsUpsell":                   len(expiredUpsell) > 0,
 			"Currency":                   currency,
 			"StripePublishableKey":       svr.GetConfig().StripePublishableKey,
-			"IsUnpinned":                 job.AdType < 1,
+			"IsUnpinned":                 jobPost.AdType < 1,
 		})
 	}
 }
 
-func ManageJobBySlugViewPageHandler(svr server.Server) http.HandlerFunc {
+func ManageJobBySlugViewPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.AdminAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			vars := mux.Vars(r)
 			slug := vars["slug"]
-			jobPost, err := database.JobPostBySlugAdmin(svr.Conn, slug)
+			jobPost, err := jobRepo.JobPostBySlugAdmin(slug)
 			if err != nil {
 				svr.JSON(w, http.StatusNotFound, nil)
 				return
 			}
-			jobPostToken, err := database.TokenByJobID(svr.Conn, jobPost.ID)
+			jobPostToken, err := jobRepo.TokenByJobID(jobPost.ID)
 			if err != nil {
 				svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job for golang.cafe/manage/job/%s not found", slug))
 				return
@@ -3097,30 +3118,30 @@ func ManageJobBySlugViewPageHandler(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func ManageJobViewPageHandler(svr server.Server) http.HandlerFunc {
+func ManageJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.AdminAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			vars := mux.Vars(r)
 			token := vars["token"]
-			jobID, err := database.JobPostIDByToken(svr.Conn, token)
+			jobID, err := jobRepo.JobPostIDByToken(token)
 			if err != nil {
 				svr.Log(err, fmt.Sprintf("unable to find job post ID by token: %s", token))
 				svr.JSON(w, http.StatusNotFound, nil)
 				return
 			}
-			job, err := database.JobPostByIDForEdit(svr.Conn, jobID)
-			if err != nil || job == nil {
+			jobPost, err := jobRepo.JobPostByIDForEdit(jobID)
+			if err != nil || jobPost == nil {
 				svr.Log(err, fmt.Sprintf("unable to retrieve job by ID %d", jobID))
 				svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job for golang.cafe/edit/%s not found", token))
 				return
 			}
-			clickoutCount, err := database.GetClickoutCountForJob(svr.Conn, jobID)
+			clickoutCount, err := jobRepo.GetClickoutCountForJob(jobID)
 			if err != nil {
 				svr.Log(err, fmt.Sprintf("unable to retrieve job clickout count for job id %d", jobID))
 			}
-			viewCount, err := database.GetViewCountForJob(svr.Conn, jobID)
+			viewCount, err := jobRepo.GetViewCountForJob(jobID)
 			if err != nil {
 				svr.Log(err, fmt.Sprintf("unable to retrieve job view count for job id %d", jobID))
 			}
@@ -3129,10 +3150,10 @@ func ManageJobViewPageHandler(svr server.Server) http.HandlerFunc {
 				conversionRate = fmt.Sprintf("%.2f", float64(float64(clickoutCount)/float64(viewCount)*100))
 			}
 			svr.Render(w, http.StatusOK, "manage.html", map[string]interface{}{
-				"Job":                        job,
-				"JobPerksEscaped":            svr.JSEscapeString(job.Perks),
-				"JobInterviewProcessEscaped": svr.JSEscapeString(job.InterviewProcess),
-				"JobDescriptionEscaped":      svr.JSEscapeString(job.JobDescription),
+				"Job":                        jobPost,
+				"JobPerksEscaped":            svr.JSEscapeString(jobPost.Perks),
+				"JobInterviewProcessEscaped": svr.JSEscapeString(jobPost.InterviewProcess),
+				"JobDescriptionEscaped":      svr.JSEscapeString(jobPost.JobDescription),
 				"Token":                      token,
 				"ViewCount":                  viewCount,
 				"ClickoutCount":              clickoutCount,

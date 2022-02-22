@@ -8,7 +8,7 @@ import (
 	"io"
 	"path/filepath"
 
-	"github.com/0x13a/golang.cafe/pkg/database"
+	"github.com/0x13a/golang.cafe/internal/job"
 	"github.com/fogleman/gg"
 	"github.com/pkg/errors"
 )
@@ -18,7 +18,7 @@ const (
 	outputFilename          = "output.jpg"
 )
 
-func GenerateImageForJob(job database.JobPost) (io.ReadWriter, error) {
+func GenerateImageForJob(jobPost job.JobPost) (io.ReadWriter, error) {
 	dc := gg.NewContext(1200, 628)
 	backgroundImage, err := gg.LoadImage(backgroundImageFilename)
 	w := bytes.NewBuffer([]byte{})
@@ -28,8 +28,8 @@ func GenerateImageForJob(job database.JobPost) (io.ReadWriter, error) {
 	// draw background image
 	dc.DrawImage(backgroundImage, 0, 0)
 
-	// draw job title and description
-	title := fmt.Sprintf("%s with %s\n\n %s\n\n %s", job.JobTitle, job.Company, job.Location, job.SalaryRange)
+	// draw job post title and description
+	title := fmt.Sprintf("%s with %s\n\n %s\n\n %s", jobPost.JobTitle, jobPost.Company, jobPost.Location, jobPost.SalaryRange)
 	mainTextColor := color.RGBA{
 		R: uint8(0),
 		G: uint8(0),

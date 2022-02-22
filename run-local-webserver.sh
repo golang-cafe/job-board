@@ -32,6 +32,6 @@ export FX_API_KEY=a123
 export SITE_NAME="Golang Cafe"
 export SITE_JOB_CATEGORY="golang"
 
-go build -o ./bin/server main.go
+go build -o golang.cafe cmd/server/main.go
 
-./bin/server
+./golang.cafe

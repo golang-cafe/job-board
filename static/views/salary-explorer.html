@@ -420,9 +420,9 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 
       </article>
           <article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
-		  <div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;" id="email-subscribe-item-text">Get a weekly email with all new Go jobs</div>
+		  <div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:5px auto 20px auto;" id="email-subscribe-item-text">Get a weekly email with all new Go jobs</div>
                 <input type="email" name="job-email-subscription" id="job-email-subscription" style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
-                <input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Subscribe" style="width:50%;display:table;margin:5px auto;"/>
+		<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;"/>
             </article>
     </section>
       <footer>
@@ -488,7 +488,7 @@ var margin = {top: 30, right: 30, bottom: 60, left: 50},
 var svg = d3.select("#salary-distribution")
 .append("div")
 // Container class to make it responsive.
-.classed("svg-container", true) 
+.classed("svg-container", true)
 .append("svg")
 // Responsive SVG needs these 2 attributes and no width and height attr.
 .attr("preserveAspectRatio", "xMinYMin meet")
@@ -508,7 +508,7 @@ var data = {{ .DataSet }};
   svg.append("g")
       .attr("transform", "translate(0," + height + ")")
       .call(d3.axisBottom(x))
-      .selectAll("text")	
+      .selectAll("text")
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
@@ -637,7 +637,7 @@ function addAxes(svg, xAxis, yAxis, margin, chartWidth, chartHeight) {
     .attr('class', 'x axis')
     .attr('transform', 'translate(0,' + chartHeight + ')')
     .call(xAxis)
-    .selectAll("text")	
+    .selectAll("text")
         .style("text-anchor", "end")
         .attr("dx", "-.8em")
         .attr("dy", ".15em")
@@ -675,7 +675,7 @@ function makeChart (data) {
     var svg = d3.select("#salary-trends")
       .append("div")
       // Container class to make it responsive.
-      .classed("svg-container", true) 
+      .classed("svg-container", true)
       .append("svg")
       // Responsive SVG needs these 2 attributes and no width and height attr.
       .attr("preserveAspectRatio", "xMinYMin meet")
@@ -752,7 +752,7 @@ document
 				  document.getElementById('search-location-suggestions').style.display = 'block';
 				}
 			}
-		})	
+		})
           return;
       }
       if (document.getElementById('search-location').value.trim() === '') {
@@ -856,6 +856,6 @@ document
     	});
 
 </script>
-  
+
 </body>
 </html>

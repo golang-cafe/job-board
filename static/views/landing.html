@@ -82,7 +82,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 		<div id="newsletter-banner">
 			Get a weekly email with all new Go jobs
 			<input id="newsletter-banner-input" type="text" placeholder="Your Email" />
-			<input id="newsletter-banner-submit" type="submit" value="Subscribe" />
+			<input id="newsletter-banner-submit" type="submit" value="Join {{ .EmailSubscribersCount }}+ others" />
 			<div id="newsletter-banner-close">x</div>
 		</div>
 		<header>
@@ -807,6 +807,5 @@ header{padding:0 10px;width:780px;margin:auto;}
 							document.getElementById('feedback').style.display = 'block';
 						});
 		</script>
-
 	</body>
 </html>
