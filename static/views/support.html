@@ -1,23 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Golang Cafe Supoport</title>
+	  <title>{{ .SiteName }} Supoport</title>
     <link href="/s/img/favicon.ico" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="title" content="Golang Cafe Supoport" />
+    <meta name="title" content="{{ .SiteName }} Supoport" />
     <meta name="keywords" content="golang, golang jobs, go programming language, golang backend engineer, golang software engineer, remote golang" />
-    <meta name="description" content="Golang Cafe Supoport" />
-    <meta itemprop="name" content="Golang Cafe Supoport">
-    <meta itemprop="description" content="Golang Cafe Supoport">
+    <meta name="description" content="{{ .SiteName }} Supoport" />
+    <meta itemprop="name" content="{{ .SiteName }} Supoport">
+    <meta itemprop="description" content="{{ .SiteName }} Supoport">
     <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta property="og:url" content="https://golang.cafe">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Golang Cafe Supoport">
-    <meta property="og:description" content="Golang Cafe Supoport">
+    <meta property="og:title" content="{{ .SiteName }} Supoport">
+    <meta property="og:description" content="{{ .SiteName }} Supoport">
     <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Golang Cafe Supoport">
-    <meta name="twitter:description" content="Golang Cafe Supoport">
+    <meta name="twitter:title" content="{{ .SiteName }} Supoport">
+    <meta name="twitter:description" content="{{ .SiteName }} Supoport">
     <link rel="canonical" href="https://golang.cafe/newsletter" />
     <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta name="twitter:site" content="@golangcafe"/>
@@ -47,23 +47,23 @@ body{background:#ffffff;}
     </header>
     <section style="margin: 30px auto;">
           <article class="line-item" id="email-subscribe-banner">
-              <h1>Golang Cafe Support</h1>
+		  <h1>{{ .SiteName }} Support</h1>
               <p>
 	      Please send us an email at<img style="height:30px;margin-bottom:-10px;" src="/s/img/email.jpg"><br />We will reply within 24 hours.
               </p>
             </article>
   </section>
   <footer>
-  <h4 style="margin-left: 9px;">Golang Cafe</h4>
+	  <h4 style="margin-left: 9px;">{{ .SiteName }}</h4>
   <nav class="subnav">
       <ul>
 	  <li><a href="/">Jobs</a></li>
-	  <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
-	  <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
-	  <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
-	  <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+	  <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
+	  <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub (Open source)</a></li>
+	  <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+	  <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
 	  <li><a href="/support">Support</a></li>
-	  <li><a href="/about">About Golang Cafe</a></li>
+	  <li><a href="/about">About {{ .SiteName }}</a></li>
 	  <li><a href="/terms-of-service">T&Cs</a></li>
 	  <li><a href="/privacy-policy">Privacy Policy</a></li>
       </ul>

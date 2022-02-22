@@ -126,7 +126,7 @@ body{background:#ffffff;}
         <input type="file" name="apply-cv" id="apply-cv" style="display: none;" onchange="showname()"/>
         <label class="upload-file-label" id="apply-cv-label" style="width:100%;border: 1px solid #595959; border-radius: 3.6px;border-style:dashed;padding: 5.4px 6.3px;" for="apply-cv">Upload Your CV (PDF file only, max 5MB)</label><br />
         <input type="checkbox" id="apply-notify-jobs" name="apply-notify-jobs" checked style="margin: 0 10px 0 0;"><small><label for="apply-notify-jobs">Notify me about new job openings</label></small><br />
-        <small>For any enquiries on this job please contact the job poster <code><span id="apply-email-poster">team@golang.cafe</span></code></small>
+	<small>For any enquiries on this job please contact the job poster <code><span id="apply-email-poster">{{ .SupportEmail }}</span></code></small>
         <br />
         <br />
         <input type="submit" id="apply-submit" value="Apply" onclick="uploadCV();" style="float: right;">
@@ -457,7 +457,7 @@ body{background:#ffffff;}
 			if (status) {
 				alert('Thanks for your message!');
 			} else {
-				alert('There was a problem posting your message. Please try again later or contact team@golang.cafe');
+					    alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
 			}
 			document.getElementById('feedback-email').value = '';
 			document.getElementById('feedback-message').value = '';

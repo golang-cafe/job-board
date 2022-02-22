@@ -22,62 +22,62 @@ body{background:#ffffff;}
     </style>
         <meta charset="utf-8">
     {{ if and .Location $isRemote }}
-        <title>Hire Remote Golang Developers | Golang Cafe</title>
-        <meta name="title" content="Hire Remote Golang Developers | Golang Cafe" />
+    <title>Hire Remote Golang Developers | {{ .SiteName }}</title>
+    <meta name="title" content="Hire Remote Golang Developers | {{ .SiteName }}" />
         <meta name="keywords" content="golang, golang jobs, go programming language, hire golang developers, hire go developers, hire remote golang developers, hire remote go developers, hire remote go engineers" />
-        <meta name="description" content="Hire Remote Golang Developers on Golang Cafe" />
+	<meta name="description" content="Hire Remote Golang Developers on {{ .SiteName }}" />
         <meta itemprop="name" content="Hire Remote Golang Developers">
-        <meta itemprop="description" content="Hire Remote Golang Developers on Golang Cafe">
+	<meta itemprop="description" content="Hire Remote Golang Developers on {{ .SiteName }}">
         <meta itemprop="image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         <meta property="og:url" content="https://golang.cafe">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="Hire Remote Golang Developers | Golang Cafe">
-        <meta property="og:description" content="Hire Remote Golang Developers on Golang Cafes">
+	<meta property="og:title" content="Hire Remote Golang Developers | {{ .SiteName }}">
+	<meta property="og:description" content="Hire Remote Golang Developers on {{ .SiteName }}s">
         <meta property="og:image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Hire Remote Golang Developers | Golang Cafe">
-        <meta name="twitter:description" content="Hire Remote Golang Developers on Golang Cafe">
+	<meta name="twitter:title" content="Hire Remote Golang Developers | {{ .SiteName }}">
+	<meta name="twitter:description" content="Hire Remote Golang Developers on {{ .SiteName }}">
         <meta name="twitter:image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         
         <meta name="twitter:site" content="@golangcafe"/>
         <link rel="canonical" href="https://golang.cafe/Hire-Remote-Golang-Developers" />
     {{ else }}
         {{ if .Location }}
-        <title>Hire Golang Developers In {{ .Location }} | Golang Cafe</title>
-        <meta name="title" content="Hire Golang Developers In {{ .Location }} | Golang Cafe" />
+	<title>Hire Golang Developers In {{ .Location }} | {{ .SiteName }}</title>
+	<meta name="title" content="Hire Golang Developers In {{ .Location }} | {{ .SiteName }}" />
         <meta name="keywords" content="golang, golang jobs, go programming language, hire golang developers, hire go developers in {{ .Location }}, hire golang developers in {{ .Location }}, hire go developers, hire go engineers in {{ .Location }}" />
-        <meta name="description" content="Hire Golang Developers In {{ .Location }} on Golang Cafe" />
+	<meta name="description" content="Hire Golang Developers In {{ .Location }} on {{ .SiteName }}" />
         <meta itemprop="name" content="Hire Golang Developers In {{ .Location }}">
-        <meta itemprop="description" content="Hire Golang Developers In {{ .Location }} on Golang Cafe">
+	<meta itemprop="description" content="Hire Golang Developers In {{ .Location }} on {{ .SiteName }}">
         <meta itemprop="image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         <meta property="og:url" content="https://golang.cafe">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="Hire Golang Developers In {{ .Location }} | Golang Cafe">
-        <meta property="og:description" content="Hire Golang Developers In {{ .Location }} on Golang Cafes">
+	<meta property="og:title" content="Hire Golang Developers In {{ .Location }} | {{ .SiteName }}">
+	<meta property="og:description" content="Hire Golang Developers In {{ .Location }} on {{ .SiteName }}s">
         <meta property="og:image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         <meta name="twitter:card" content="summary_large_image">
         <meta name="twitter:title" content="Hire Golang Developers In {{ .Location }}">
-        <meta name="twitter:description" content="Hire Golang Developers In {{ .Location }} on Golang Cafe">
+	<meta name="twitter:description" content="Hire Golang Developers In {{ .Location }} on {{ .SiteName }}">
         <meta name="twitter:image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         
         <meta name="twitter:site" content="@golangcafe"/>
         <link rel="canonical" href="https://golang.cafe/Hire-Golang-Developers-In-{{ .Location }}" />
         {{ else }}
-        <title>Hire Golang Developers | Golang Cafe</title> 
-        <meta name="title" content="Hire Golang Developers | Golang Cafe" />
+	<title>Hire Golang Developers | {{ .SiteName }}</title> 
+	<meta name="title" content="Hire Golang Developers | {{ .SiteName }}" />
         <meta name="keywords" content="golang, golang jobs, go programming language, hire golang developers, hire go developers, hire go engineers" />
-        <meta name="description" content="Hire Golang Developers on Golang Cafe" />
+	<meta name="description" content="Hire Golang Developers on {{ .SiteName }}" />
         <meta itemprop="name" content="Hire Golang Developers">
-        <meta itemprop="description" content="Hire Golang Developers on Golang Cafe">
+	<meta itemprop="description" content="Hire Golang Developers on {{ .SiteName }}">
         <meta itemprop="image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         <meta property="og:url" content="https://golang.cafe">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="Hire Golang Developers | Golang Cafe">
-        <meta property="og:description" content="Hire Golang Developers on Golang Cafes">
+	<meta property="og:title" content="Hire Golang Developers | {{ .SiteName }}">
+	<meta property="og:description" content="Hire Golang Developers on {{ .SiteName }}s">
         <meta property="og:image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Hire Golang Developers | Golang Cafe">
-        <meta name="twitter:description" content="Hire Golang Developers on Golang Cafe">
+	<meta name="twitter:title" content="Hire Golang Developers | {{ .SiteName }}">
+	<meta name="twitter:description" content="Hire Golang Developers on {{ .SiteName }}">
         <meta name="twitter:image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         
         <meta name="twitter:site" content="@golangcafe"/>   
@@ -104,19 +104,19 @@ body{background:#ffffff;}
       <article style="margin-top:20px;">
                 {{ if and .Location $isRemote }}
                     <h1 style="margin-top:20px;">Hire Remote Golang Developers</h1>
-		    <p style="font-size: 18px;"><b>Golang Cafe is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Remote Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
+		    <p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Remote Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                 {{ else }}
                     {{ if .Location }}
                         <h1 style="margin-top: 20px;">Hire Golang Developers In {{ .Location }}</h1>
-			<p style="font-size: 18px;"><b>Golang Cafe is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers in {{ .Location }} today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
+			<p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers in {{ .Location }} today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                     {{ else }}
                         <h1 style="margin-top: 20px;">Hire Golang Developers</h1>
-		    <p style="font-size: 18px;"><b>Golang Cafe is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new last week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
+			<p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new last week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                     {{ end }}
                 {{ end }}
 		{{ if .FeaturedCompanies }}
                 <h3>Trusted By</h3>
-		<p>Golang Cafe is trusted by hundred of companies such as {{ .FeaturedCompaniesNames }}</p>
+		<p>{{ .SiteName }} is trusted by hundred of companies such as {{ .FeaturedCompaniesNames }}</p>
 		<div style="text-align:center;">
 		{{ range $i, $j := .FeaturedCompanies }}
 			<img style="vertical-align:middle;border-radius:50px;" src="/x/s/m/{{ .IconImageID }}?w=100&h=100" width="100" title="{{ .Name }}" />
@@ -125,7 +125,7 @@ body{background:#ffffff;}
 		<br />
 		{{ end }}
 
-                <h3>Supercharge Your Hiring On Golang Cafe</h3>
+		<h3>Supercharge Your Hiring On {{ .SiteName }}</h3>
                 <ul>
 		    <li><b>{{ .PageviewsLastMonth }}</b> website pageviews last month</li>
                     <li>Thriving &amp; Exclusive Community of <b>Golang Developers</b></li>
@@ -555,7 +555,7 @@ body{background:#ffffff;}
 			if (status) {
 				alert('Thanks for your message!');
 			} else {
-				alert('There was a problem posting your message. Please try again later or contact team@golang.cafe');
+					    alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
 			}
 			document.getElementById('feedback-email').value = '';
 			document.getElementById('feedback-message').value = '';

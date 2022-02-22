@@ -838,7 +838,7 @@ document
 			if (status) {
 				alert('Thanks for your message!');
 			} else {
-				alert('There was a problem posting your message. Please try again later or contact team@golang.cafe');
+					    alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
 			}
 			document.getElementById('feedback-email').value = '';
 			document.getElementById('feedback-message').value = '';
