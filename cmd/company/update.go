@@ -7,8 +7,8 @@ import (
 	"time"
 
 	"github.com/0x13a/golang.cafe/internal/company"
-	"github.com/0x13a/golang.cafe/pkg/config"
-	"github.com/0x13a/golang.cafe/pkg/database"
+	"github.com/0x13a/golang.cafe/internal/config"
+	"github.com/0x13a/golang.cafe/internal/database"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gosimple/slug"
