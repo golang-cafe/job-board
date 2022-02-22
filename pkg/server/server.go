@@ -780,9 +780,9 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, c
 	}
 
 	var lastJobPostedAt, lastJobPostedAtHumanized string
-	if len(jobs) > 0 {
-		lastJobPostedAt = time.Unix(jobs[0].CreatedAt, 0).Format(time.RFC3339)
-		lastJobPostedAtHumanized = humanize.Time(time.Unix(jobs[0].CreatedAt, 0))
+	if len(jobPosts) > 0 {
+		lastJobPostedAt = time.Unix(jobPosts[0].CreatedAt, 0).Format(time.RFC3339)
+		lastJobPostedAtHumanized = humanize.Time(time.Unix(jobPosts[0].CreatedAt, 0))
 	}
 
 	emailSubscribersCount, err := database.CountEmailSubscribers(s.Conn)
