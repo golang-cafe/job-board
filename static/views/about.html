@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>About | Golang Cafe</title>
+	  <title>About | {{ .SiteName }}</title>
     <link href="/s/img/favicon.ico" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
@@ -14,20 +14,20 @@ body{background:#ffffff;}
     footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
     </style>
     <meta charset="utf-8">
-    <meta name="title" content="About - Golang Cafe" />
+    <meta name="title" content="About - {{ .SiteName }}" />
     <meta name="keywords" content="golang, golang jobs, go programming language, golang job board, find golang job, go job board" />
-    <meta name="description" content="Golang Cafe is the first Go job board with no recruiters and clear salary ranges" />
-    <meta itemprop="name" content="About - Golang Cafe">
-    <meta itemprop="description" content="Golang Cafe is the first Go job board with no recruiters and clear salary ranges">
+    <meta name="description" content="{{ .SiteName }} is the first Go job board with no recruiters and clear salary ranges" />
+    <meta itemprop="name" content="About - {{ .SiteName }}">
+    <meta itemprop="description" content="{{ .SiteName }} is the first Go job board with no recruiters and clear salary ranges">
     <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta property="og:url" content="https://golang.cafe">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="About - Golang Cafe">
-    <meta property="og:description" content="Golang Cafe is the first Go job board with no recruiters and clear salary ranges">
+    <meta property="og:title" content="About - {{ .SiteName }}">
+    <meta property="og:description" content="{{ .SiteName }} is the first Go job board with no recruiters and clear salary ranges">
     <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="About - Golang Cafe">
-    <meta name="twitter:description" content="Golang Cafe is the first Go job board with no recruiters and clear salary ranges">
+    <meta name="twitter:title" content="About - {{ .SiteName }}">
+    <meta name="twitter:description" content="{{ .SiteName }} is the first Go job board with no recruiters and clear salary ranges">
     <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta name="twitter:site" content="@golangcafe"/>
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
@@ -56,31 +56,31 @@ body{background:#ffffff;}
     <section style="margin: 30px auto;">
       <article>
             <p>
-                <h1>Golang Cafe</h1><br />
-               	Golang Cafe is the first Go job board with no recruiters and clear salary ranges. You can apply directly to companies.
+	    <h1>{{ .SiteName }}</h1><br />
+	    {{ .SiteName }} is the first Go job board with no recruiters and clear salary ranges. You can apply directly to companies.
 
                 <h3>Salary Range information in each Job Ad</h3>
-                Golang Cafe will always have salary range information in each job ad. You should not waste your and the company's time if your expectations don't match with the salary range.
+		{{ .SiteName }} will always have salary range information in each job ad. You should not waste your and the company's time if your expectations don't match with the salary range.
                 
                 <h3>No Recruitment Agencies</h3>
-                Job Ads from third party recruitment agencies are not allowed on Golang Cafe.
+		Job Ads from third party recruitment agencies are not allowed on {{ .SiteName }}.
                 Candidates speak directly to companies
 
                 <h3>Go only Job Ads</h3>
-                Golang Cafe will be only for jobs where the main programming language is Go.
+		{{ .SiteName }} will be only for jobs where the main programming language is Go.
 
                 <h3>High-Quality Hand-Picked Jobs</h3>
                 All submitted jobs are manually reviewed and updated. All jobs that don't follow the standards above are not allowed on the platform.
 
                 <h3>Open Source</h3>
-                Golang Cafe is <a href="https://github.com/golang-cafe/golang.cafe" target="_blank" rel="noopener noreferrer">open source</a> and licensed under BSD 3-Clause. It's written entirely in <b><a href="https://golang.org" target="_blank" rel="noreferrer nofollow">Go</a>/HTML/CSS/JavaScript</b>.
+		{{ .SiteName }} is <a href="https://github.com/golang-cafe/golang.cafe" target="_blank" rel="noopener noreferrer">open source</a> and licensed under BSD 3-Clause. It's written entirely in <b><a href="https://golang.org" target="_blank" rel="noreferrer nofollow">Go</a>/HTML/CSS/JavaScript</b>.
                 As of today the app is using <a href="https://www.postgresql.org" target="_blank" rel="noreferrer nofollow">PostgreSQL</a> as primary data store and it's being hosted on <a href="https://m.do.co/c/1a2d92c7bce8" target="_blank" rel="noreferrer nofollow">DigitalOcean</a>.
                 No frameworks have been used, apart from Go's <a href="https://github.com/gorilla/mux" target="_blank" rel="noreferrer nofollow">gorilla mux</a> for routing.
 
                 <h3>No abusive JavaScript Tracking or Ads</h3>
                 We do not use any tracking tool (Google Analytics, et al) and there is minimal anonymous reporting for job statistics.
 
-                <h3>Golang Cafe Elsewhere</h3>
+		<h3>{{ .SiteName }} Elsewhere</h3>
                 <ul>
                   <li><a href="https://github.com/golang-cafe/golang.cafe" target="_blank" rel="noopener noreferrer">GitHub</a></li>
                   <li><a href="https://twitter.com/golangcafe" target="_blank" rel="noopener noreferrer">Twitter</a></li>
@@ -91,21 +91,21 @@ body{background:#ffffff;}
                 </ul>
 
 		<h3>Contact</h3>
-		If you have any questions, feedback or support request please feel free to reach us out <a href="/support">Golang Cafe Support</a>
+		If you have any questions, feedback or support request please feel free to reach us out <a href="/support">{{ .SiteName }} Support</a>
             </p>
       </article>
   </section>
   <footer>
-    <h4 style="margin-left: 9px;">Golang Cafe</h4>
+	  <h4 style="margin-left: 9px;">{{ .SiteName }}</h4>
     <nav class="subnav">
         <ul>
             <li><a href="/">Jobs</a></li>
-            <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
-            <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
-            <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
-            <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+	    <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
+	    <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub (Open source)</a></li>
+	    <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+	    <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
             <li><a href="/support">Support</a></li>
-            <li><a href="/about">About Golang Cafe</a></li>
+	    <li><a href="/about">About {{ .SiteName }}</a></li>
             <li><a href="/terms-of-service">T&Cs</a></li>
             <li><a href="/privacy-policy">Privacy Policy</a></li>
         </ul>
@@ -147,7 +147,7 @@ body{background:#ffffff;}
 			if (status) {
 				alert('Thanks for your message!');
 			} else {
-				alert('There was a problem posting your message. Please try again later or contact team@golang.cafe');
+				alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
 			}
 			document.getElementById('feedback-email').value = '';
 			document.getElementById('feedback-message').value = '';

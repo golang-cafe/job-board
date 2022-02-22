@@ -20,20 +20,20 @@ input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18
 footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
 		</style>
 		<meta charset="utf-8">
-		<title>Join the Golang Developers Community | Golang Cafe</title> 
-		<meta name="title" content="Join the Golang Developers Community | Golang Cafe" />
+		<title>Join the Golang Developers Community | {{ .SiteName }}</title> 
+		<meta name="title" content="Join the Golang Developers Community | {{ .SiteName }}" />
 		<meta name="keywords" content="golang, golang jobs, go programming language, hire golang developers, hire go developers, hire go engineers" />
-		<meta name="description" content="Join the Golang Developers Community on Golang Cafe" />
+		<meta name="description" content="Join the Golang Developers Community on {{ .SiteName }}" />
 		<meta itemprop="name" content="Joim the Golang Developers Community">
-		<meta itemprop="description" content="Join the Golang Developers Community on Golang Cafe">
+		<meta itemprop="description" content="Join the Golang Developers Community on {{ .SiteName }}">
 		<meta property="og:url" content="https://golang.cafe">
 		<meta property="og:type" content="website">
-		<meta property="og:title" content="Join the Golang Developers Community | Golang Cafe">
-		<meta property="og:description" content="Join the Golang Developers Community on Golang Cafes">
+		<meta property="og:title" content="Join the Golang Developers Community | {{ .SiteName }}">
+		<meta property="og:description" content="Join the Golang Developers Community on {{ .SiteName }}s">
 		<meta property="og:image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
 		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:title" content="Join the Golang Developers Community | Golang Cafe">
-		<meta name="twitter:description" content="Join the Golang Developers Community on Golang Cafe">
+		<meta name="twitter:title" content="Join the Golang Developers Community | {{ .SiteName }}">
+		<meta name="twitter:description" content="Join the Golang Developers Community on {{ .SiteName }}">
 
 		<meta name="twitter:site" content="@golangcafe"/>   
 		<link rel="canonical" href="https://golang.cafe/Hire-Golang-Developers" />
@@ -56,9 +56,9 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 		<section>
 			<article>
 				<p>
-				<h1>Join the Golang Developers Community on Golang Cafe</h1>
+				<h1>Join the Golang Developers Community on {{ .SiteName }}</h1>
 				<p style="font-size: 18px;">
-				Register your free developer profile on Golang Cafe. Get matched with <a href="/Companies-Using-Golang" target="_blank">hundreds of companies</a> looking for Go engineers all over the world.<br /><br /> Join developers like <b>{{ .TopDeveloperNames }}</b> experienced in <b>{{ .TopDeveloperSkills }}</b>. 
+				Register your free developer profile on {{ .SiteName }}. Get matched with <a href="/Companies-Using-Golang" target="_blank">hundreds of companies</a> looking for Go engineers all over the world.<br /><br /> Join developers like <b>{{ .TopDeveloperNames }}</b> experienced in <b>{{ .TopDeveloperSkills }}</b>. 
 				</p>
 				<div style="margin-bottom: 20px; text-align: center;">
 				{{ range $i, $j := .TopDevelopers }}
@@ -67,10 +67,10 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				</div>
 				<ul>
 					{{ if .DeveloperMessagesSentLastMonth }}
-					<li><b>{{ .DeveloperMessagesSentLastMonth }}</b> direct messages sent by companies to developers on Golang Cafe in the last 30 days</li>
+					<li><b>{{ .DeveloperMessagesSentLastMonth }}</b> direct messages sent by companies to developers on {{ .SiteName }} in the last 30 days</li>
 					{{ end }}
 					{{ if .DevelopersRegisteredLastMonth }}
-					<li><b>{{ .DevelopersRegisteredLastMonth }}</b> developers joined Golang Cafe in the last 30 days</li>
+					<li><b>{{ .DevelopersRegisteredLastMonth }}</b> developers joined {{ .SiteName }} in the last 30 days</li>
 					{{ end }}
 					{{ if .DeveloperProfilePageViewsLastMonth }}
 					<li><b>{{ humannumber .DeveloperProfilePageViewsLastMonth }}</b> developer profiles page views in the last 30 days</li>
@@ -104,16 +104,16 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			</article>
 		</section>
 		<footer>
-			<h4 style="margin-left: 9px;">Golang Cafe</h4>
+			<h4 style="margin-left: 9px;">{{ .SiteName }}</h4>
 			<nav class="subnav">
 				<ul>
 					<li><a href="/">Jobs</a></li>
-					<li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
-					<li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
-					<li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
-					<li><a href="/rss">Golang Cafe RSS Feed</a></li>
+					<li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
+					<li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub (Open source)</a></li>
+					<li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+					<li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
 					<li><a href="/support">Support</a></li>
-					<li><a href="/about">About Golang Cafe</a></li>
+					<li><a href="/about">About {{ .SiteName }}</a></li>
 					<li><a href="/terms-of-service">T&Cs</a></li>
 					<li><a href="/privacy-policy">Privacy Policy</a></li>
 				</ul>
@@ -300,7 +300,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			if (status) {
 				alert('Thanks for your message!');
 			} else {
-				alert('There was a problem posting your message. Please try again later or contact team@golang.cafe');
+							alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
 			}
 			document.getElementById('feedback-email').value = '';
 			document.getElementById('feedback-message').value = '';

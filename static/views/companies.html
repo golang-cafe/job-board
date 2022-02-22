@@ -4,43 +4,43 @@
     {{ $isRemote := eq .LocationFilter "Remote" }}
         {{ if and .LocationFilter $isRemote }}
 	<meta name="yandex-verification" content="96b3163b8551fd06" />
-	<title>Remote Companies using Golang in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe</title>
+	<title>Remote Companies using Golang in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
         <link href="/s/img/favicon.ico" rel="shortcut icon">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="title" content="Remote Companies using Golang in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe" />
+	<meta name="title" content="Remote Companies using Golang in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
         <meta name="keywords" content="golang, golang {{ .LocationFilter }} companies, companies using go, golang companies, go companies, remote companies" />
-	<meta name="description" content="Remote Companies Using Go (Golang) in production and hiring Go engineers in {{ .MonthAndYear }}{{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe" />
-	<meta itemprop="name" content="Remote Companies using Golang in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe" />
-        <meta itemprop="description" content="Remote Companies Using Go (Golang) in production and hiring Go engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+	<meta name="description" content="Remote Companies Using Go (Golang) in production and hiring Go engineers in {{ .MonthAndYear }}{{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+	<meta itemprop="name" content="Remote Companies using Golang in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+	<meta itemprop="description" content="Remote Companies Using Go (Golang) in production and hiring Go engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
         <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
         <meta property="og:url" content="https://golang.cafe">
         <meta property="og:type" content="website">
-	<meta name="og:title" content="Remote Companies Using Golang in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe" />
-        <meta property="og:description" content="Remote Companies Using Go (Golang) in production and hiring Go engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+	<meta name="og:title" content="Remote Companies Using Golang in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+	<meta property="og:description" content="Remote Companies Using Go (Golang) in production and hiring Go engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
         <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
         <meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="Remote Companies Using Golang in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe" />
-        <meta name="twitter:description" content="Remote Companies Using Go (Golang) in production and hiring Go engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+	<meta name="twitter:title" content="Remote Companies Using Golang in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+	<meta name="twitter:description" content="Remote Companies Using Go (Golang) in production and hiring Go engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
         <link rel="canonical" href="https://golang.cafe/Remote-Companies-Using-Golang" />
 	{{ else }}
 	<meta name="yandex-verification" content="96b3163b8551fd06" />
-	<title>Companies using Golang{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe</title>
+	<title>Companies using Golang{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
         <link href="/s/img/favicon.ico" rel="shortcut icon">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="title" content="Companies using Golang{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe" />
+	<meta name="title" content="Companies using Golang{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
 	<meta name="keywords" content="golang{{ if .LocationFilter }}, golang companies in {{ .LocationFilter}} {{ end }}, companies using go, companies using golang, golang companies" />
 	<meta name="description" content="Golang Companies using golang in production and hiring Go engineers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }}" />
-	<meta itemprop="name" content="Companies using Golang{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe" />
-	<meta itemprop="description" content="Companies Using Golang in production and hiring Go engineers{{ if .LocationFilter }} in {{.LocationFilter}}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+	<meta itemprop="name" content="Companies using Golang{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+	<meta itemprop="description" content="Companies Using Golang in production and hiring Go engineers{{ if .LocationFilter }} in {{.LocationFilter}}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
         <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
         <meta property="og:url" content="https://golang.cafe">
         <meta property="og:type" content="website">
-	<meta name="og:title" content="Companies using Golang{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe" />
-	<meta property="og:description" content="Companies Using Golang in production and hiring Go engineers{{ if .LocationFilter }} in {{.LocationFilter}}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+	<meta name="og:title" content="Companies using Golang{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+	<meta property="og:description" content="Companies Using Golang in production and hiring Go engineers{{ if .LocationFilter }} in {{.LocationFilter}}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
         <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
         <meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="Companies using Golang{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe" />
-        <meta name="twitter:description" content="Companies Using Golang in production and hiring Go engineers{{ if .LocationFilter }}{{.LocationFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+	<meta name="twitter:title" content="Companies using Golang{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+	<meta name="twitter:description" content="Companies Using Golang in production and hiring Go engineers{{ if .LocationFilter }}{{.LocationFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
         <link rel="canonical" href="https://golang.cafe/Companies-Using-Golang{{ if .LocationFilter }}-In-{{.LocationFilter}}{{ end }}" />
 	{{ end }}
     <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
@@ -126,7 +126,7 @@ body{background:#ffffff;}
         <input type="file" name="apply-cv" id="apply-cv" style="display: none;" onchange="showname()"/>
         <label class="upload-file-label" id="apply-cv-label" style="width:100%;border: 1px solid #595959; border-radius: 3.6px;border-style:dashed;padding: 5.4px 6.3px;" for="apply-cv">Upload Your CV (PDF file only, max 5MB)</label><br />
         <input type="checkbox" id="apply-notify-jobs" name="apply-notify-jobs" checked style="margin: 0 10px 0 0;"><small><label for="apply-notify-jobs">Notify me about new job openings</label></small><br />
-        <small>For any enquiries on this job please contact the job poster <code><span id="apply-email-poster">team@golang.cafe</span></code></small>
+	<small>For any enquiries on this job please contact the job poster <code><span id="apply-email-poster">{{ .SupportEmail }}</span></code></small>
         <br />
         <br />
         <input type="submit" id="apply-submit" value="Apply" onclick="uploadCV();" style="float: right;">
@@ -197,7 +197,7 @@ body{background:#ffffff;}
 	  <h4 style="margin-left: 9px;">Companies Using Golang{{ if .LocationFilter }} In {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country}}, {{ .Country }}{{ end }}{{ end }}</h4>
     <nav class="subnav" style="width:100%;">
 	    <p style="padding: 10px;">
-	    Go (Golang) is one of the most popular and fastest growing programming languages for general puprose Backend, Server and Infrastructure development. New companies like <b>{{ .TextCompanies }}</b> have started adopting Go each year and the demand for Go engineers has never been so strong. The Go (Golang) job market is thriving with hundreds and thousands of companies hiring Go engineers. From small startups to big Fortune 500 companies, are many showcasing the power of Go for reliability, resiliency, productivity and ease of use of the Go programming language. Here you can see most of the companies that have hired or are hiring Go engineers on Golang Cafe as of {{ .MonthAndYear }}. The last company has posted on Golang Cafe <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time>
+	    Go (Golang) is one of the most popular and fastest growing programming languages for general puprose Backend, Server and Infrastructure development. New companies like <b>{{ .TextCompanies }}</b> have started adopting Go each year and the demand for Go engineers has never been so strong. The Go (Golang) job market is thriving with hundreds and thousands of companies hiring Go engineers. From small startups to big Fortune 500 companies, are many showcasing the power of Go for reliability, resiliency, productivity and ease of use of the Go programming language. Here you can see most of the companies that have hired or are hiring Go engineers on {{ .SiteName }} as of {{ .MonthAndYear }}. The last company has posted on {{ .SiteName }} <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time>
 	    </p>
     </nav>
     <h4 style="margin-left: 9px;">Get Hired{{ if .LocationFilter }} In {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }}</h4>
@@ -258,16 +258,16 @@ body{background:#ffffff;}
             <li><a href="/Golang-Developer-Salary-Paris">Golang Developer Salary Paris</a></li>
         </ul>
     </nav>
-    <h4 style="margin-left: 9px;">Golang Cafe</h4>
+    <h4 style="margin-left: 9px;">{{ .SiteName }}</h4>
     <nav class="subnav">
         <ul>
             <li><a href="/">Jobs</a></li>
-            <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
-            <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
-            <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
-            <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+	    <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
+	    <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub (Open source)</a></li>
+	    <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+	    <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
             <li><a href="/support">Support</a></li>
-            <li><a href="/about">About Golang Cafe</a></li>
+	    <li><a href="/about">About {{ .SiteName }}</a></li>
             <li><a href="/terms-of-service">T&Cs</a></li>
             <li><a href="/privacy-policy">Privacy Policy</a></li>
         </ul>
@@ -457,7 +457,7 @@ body{background:#ffffff;}
 			if (status) {
 				alert('Thanks for your message!');
 			} else {
-				alert('There was a problem posting your message. Please try again later or contact team@golang.cafe');
+					    alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
 			}
 			document.getElementById('feedback-email').value = '';
 			document.getElementById('feedback-message').value = '';

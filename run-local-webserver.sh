@@ -16,6 +16,7 @@ export IP_GEOLOCATION_CURRENCY_MAPPING_FILE=static/country2currency.csv
 export IP_GEOLOCATION_GEOLITE_DB_FILE=static/geolite2.mmdb
 export SESSION_KEY=a123
 export ADMIN_EMAIL=x@example.com
+export SUPPORT_EMAIL=support@example.com
 export MAILERLITE_API_KEY=a123
 export SENTRY_DSN=https://localhost:123
 export ENV=dev
@@ -28,7 +29,9 @@ export MACHINE_TOKEN=a123
 export TELEGRAM_API_TOKEN=a123
 export TELEGRAM_CHANNEL_ID=1233123123
 export FX_API_KEY=a123
+export SITE_NAME="Golang Cafe"
+export SITE_JOB_CATEGORY="golang"
 
-go build -o golang.cafe cmd/server/main.go
+go build -o bin/server cmd/server/main.go
 
-./golang.cafe
+./bin/server

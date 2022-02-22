@@ -18,21 +18,21 @@ body{background:#ffffff;}
     footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
     </style>
         <meta charset="utf-8">
-        <title>Complete Your Payment | Golang Cafe</title>
-        <meta name="title" content="Complete Your Payment | Golang Cafe" />
+	<title>Complete Your Payment | {{ .SiteName }}</title>
+	<meta name="title" content="Complete Your Payment | {{ .SiteName }}" />
         <meta name="keywords" content="golang, golang jobs, go programming language, hire golang developers, hire go developers, hire remote golang developers, hire remote go developers, hire remote go engineers" />
-        <meta name="description" content="Complete Your Payment on Golang Cafe" />
+	<meta name="description" content="Complete Your Payment on {{ .SiteName }}" />
         <meta itemprop="name" content="Complete Your Payment">
-        <meta itemprop="description" content="Complete Your Payment on Golang Cafe">
+	<meta itemprop="description" content="Complete Your Payment on {{ .SiteName }}">
         <meta itemprop="image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         <meta property="og:url" content="https://golang.cafe">
         <meta property="og:type" content="website">
-        <meta property="og:title" content="Complete Your Payment | Golang Cafe">
-        <meta property="og:description" content="Complete Your Payment on Golang Cafes">
+	<meta property="og:title" content="Complete Your Payment | {{ .SiteName }}">
+	<meta property="og:description" content="Complete Your Payment on {{ .SiteName }}s">
         <meta property="og:image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Complete Your Payment | Golang Cafe">
-        <meta name="twitter:description" content="Complete Your Payment on Golang Cafe">
+	<meta name="twitter:title" content="Complete Your Payment | {{ .SiteName }}">
+	<meta name="twitter:description" content="Complete Your Payment on {{ .SiteName }}">
         <meta name="twitter:image" content="https://golang.cafe/s/img/hire-go-engineers.jpg">
         
         <meta name="twitter:site" content="@golangcafe"/>
@@ -66,16 +66,16 @@ body{background:#ffffff;}
       </article>
   </section>
   <footer>
-    <h4 style="margin-left: 9px;">Golang Cafe</h4>
+	  <h4 style="margin-left: 9px;">{{ .SiteName }}</h4>
     <nav class="subnav">
         <ul>
             <li><a href="/">Jobs</a></li>
-            <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
-            <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
-            <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
-            <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+	    <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
+	    <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub (Open source)</a></li>
+	    <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+	    <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
             <li><a href="/support">Support</a></li>
-            <li><a href="/about">About Golang Cafe</a></li>
+	    <li><a href="/about">About {{ .SiteName }}</a></li>
             <li><a href="/terms-of-service">T&Cs</a></li>
             <li><a href="/privacy-policy">Privacy Policy</a></li>
         </ul>
@@ -171,7 +171,7 @@ body{background:#ffffff;}
 			if (status) {
 				alert('Thanks for your message!');
 			} else {
-				alert('There was a problem posting your message. Please try again later or contact team@golang.cafe');
+					    alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
 			}
 			document.getElementById('feedback-email').value = '';
 			document.getElementById('feedback-message').value = '';

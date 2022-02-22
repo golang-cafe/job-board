@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Edit Your Developer Profile | Golang Cafe</title>
+	  <title>Edit Your Developer Profile | {{ .SiteName }}</title>
     <link href="/s/img/favicon.ico" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css">
@@ -60,7 +60,7 @@ body{background:#ffffff;}
     </p>
     <article>
         <p>
-            <h3>Your Profile is Live on Golang Cafe</h3>
+	<h3>Your Profile is Live on {{ .SiteName }}</h3>
             <small>
                 <b>Created:</b> {{ .DeveloperProfile.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br />
                 <b>Last Updated:</b> {{ .DeveloperProfile.UpdatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br />

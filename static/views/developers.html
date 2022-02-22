@@ -2,22 +2,22 @@
 <html lang="en">
   <head>
 	<meta name="yandex-verification" content="96b3163b8551fd06" />
-	<title>Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - Golang Cafe</title>
+	<title>Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}</title>
         <link href="/s/img/favicon.ico" rel="shortcut icon">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - Golang Cafe" />
+	<meta name="title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}" />
 	<meta name="keywords" content="golang developers, golang developers for hire{{ if .TagFilter }}, golang {{ .TagFilter }} developers{{ end }}{{ if .LocationFilter }}, golang developers in {{ .LocationFilter }}{{ end }}" />
-        <meta name="description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - Golang Cafe" />
-        <meta itemprop="name" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - Golang Cafe">
-        <meta itemprop="description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - Golang Cafe">
+	<meta name="description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}" />
+	<meta itemprop="name" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
+	<meta itemprop="description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
         <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
         <meta property="og:url" content="https://golang.cafe">
         <meta property="og:type" content="website">
-	<meta property="og:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - Golang Cafe">
-	<meta property="og:description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - Golang Cafe">
+	<meta property="og:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
+	<meta property="og:description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
         <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - Golang Cafe">
+	<meta name="twitter:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
         <meta name="twitter:description" content="">
 	<link rel="canonical" href="https://golang.cafe/Golang-{{ if .TagFilter }}{{ .TagFilterURLEncoded }}-{{ end }}Developers{{ if .LocationFilter }}-In-{{ .LocationURLEncoded }}{{ end }}" />
     <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
@@ -77,7 +77,7 @@ body{background:#ffffff;}
     <p>
         <input type="submit" value="Join the Community" id="post-btn" onclick="window.location.href='/Join-Golang-Community';">
             <h1 class="main-title">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }} </h1><br/>
-	    <h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse, view and reach <b>{{ .TextJobCount }} Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} developers</b> for hire {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }}. Search developers experienced in <b>{{ .TopDeveloperSkills }}</b>. Golang developers like <b>{{ .TopDeveloperNames }}</b> and many more are available for hire on Golang Cafe. Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></h2>
+	    <h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse, view and reach <b>{{ .TextJobCount }} Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} developers</b> for hire {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }}. Search developers experienced in <b>{{ .TopDeveloperSkills }}</b>. Golang developers like <b>{{ .TopDeveloperNames }}</b> and many more are available for hire on {{ .SiteName }}. Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></h2>
     </p>
     <div style="margin-bottom: 10px;">
 	<div id="search-tag-container">
@@ -221,16 +221,16 @@ body{background:#ffffff;}
             <li><a href="/Golang-Developer-Salary-Vancouver">Golang Developer Salary Vancouver</a></li>
         </ul>
     </nav>
-    <h4 style="margin-left: 9px;">Golang Cafe</h4>
+    <h4 style="margin-left: 9px;">{{ .SiteName }}</h4>
     <nav class="subnav">
         <ul>
             <li><a href="/">Jobs</a></li>
-            <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
-            <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
-            <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
-            <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+	    <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
+	    <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub (Open source)</a></li>
+	    <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+	    <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
             <li><a href="/support">Support</a></li>
-            <li><a href="/about">About Golang Cafe</a></li>
+	    <li><a href="/about">About {{ .SiteName }}</a></li>
             <li><a href="/terms-of-service">T&Cs</a></li>
             <li><a href="/privacy-policy">Privacy Policy</a></li>
         </ul>
@@ -470,7 +470,7 @@ body{background:#ffffff;}
 			if (status) {
 				alert('Thanks for your message!');
 			} else {
-				alert('There was a problem posting your message. Please try again later or contact team@golang.cafe');
+					    alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
 			}
 			document.getElementById('feedback-email').value = '';
 			document.getElementById('feedback-message').value = '';

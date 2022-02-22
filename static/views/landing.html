@@ -6,43 +6,43 @@
 		{{ $locationNotSet := not .LocationFilter }}
 		{{ $tagFilterNotSet := not .TagFilter }}
 		{{ if and .LocationFilter $isRemote }}
-		<title>Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter}} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe</title>
+		<title>Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter}} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
 		<link href="/s/img/favicon.ico" rel="shortcut icon">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="title" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe" />
+		<meta name="title" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}" />
 		<meta name="keywords" content="golang, golang {{ .LocationFilter }} jobs, go programming language, golang backend engineer, golang software engineer, remote golang {{ if .TagFilter }}{{ .TagFilter }}{{ end }}" />
-		<meta name="description" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
-		<meta itemprop="name" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
-		<meta itemprop="description" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+		<meta name="description" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
+		<meta itemprop="name" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
+		<meta itemprop="description" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
 		<meta property="og:url" content="https://golang.cafe">
 		<meta property="og:type" content="website">
-		<meta property="og:title" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe">
-		<meta property="og:description" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+		<meta property="og:title" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
+		<meta property="og:description" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
 		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:title" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe">
-		<meta name="twitter:description" content="Remote Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
+		<meta name="twitter:title" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
+		<meta name="twitter:description" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
 		<link rel="canonical" href="https://golang.cafe/Remote-{{ if .TagFilter }}{{.TagFilter}}-{{ end }}Jobs" />
 		{{ else }}
-		<title>Golang {{ if .TagFilter }}{{.TagFilter}}{{ end }} Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe</title>
+		<title>{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}}{{ end }} Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
 		<link href="/s/img/favicon.ico" rel="shortcut icon">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter }}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe" />
+		<meta name="title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter }}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}" />
 		<meta name="keywords" content="golang, golang {{ .LocationFilter }} jobs, go programming language, golang backend engineer, golang software engineer, golang {{ if .TagFilter }}{{.TagFilter}}{{ end }}" />
-		<meta name="description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
-		<meta itemprop="name" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs | Golang cafe">
-		<meta itemprop="description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+		<meta name="description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
+		<meta itemprop="name" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs | {{ .SiteName }}">
+		<meta itemprop="description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
-		<meta property="og:url" content="https://golang.cafe/Golang-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}">
+		<meta property="og:url" content="https://golang.cafe/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}">
 		<meta property="og:type" content="website">
-		<meta property="og:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe">
-		<meta property="og:description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe">
+		<meta property="og:title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
+		<meta property="og:description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
 		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | Golang Cafe">
-		<meta name="twitter:description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | Golang Cafe{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
-		<link rel="canonical" href="https://golang.cafe/Golang-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}" />
+		<meta name="twitter:title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
+		<meta name="twitter:description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
+		<link rel="canonical" href="https://golang.cafe/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}" />
 		{{ end }}
 		<meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
 		<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss">
@@ -89,24 +89,24 @@ header{padding:0 10px;width:780px;margin:auto;}
 			<nav class="menu-header">
 				<small>
 					<a style="text-decoration: underline;" href="/">Jobs</a>&bull;
-					<a href="/Golang-Developer-Salary-Remote">Salaries</a>&bull;
-					<a href="/Companies-Using-Golang">Companies</a>&bull;
-					<a href="/Golang-Developers">Developers</a>
+					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
+					<a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
+					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
 					<br>
 				</small>
 			</nav>
 		</header>
 		<section style="padding: 0 10px;">
 			<p>
-			<input type="submit" value="Post a Job" id="post-btn" onclick="window.location.href='/Hire-Golang-Developers';">
+			<input type="submit" value="Post a Job" id="post-btn" onclick="window.location.href='/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers';">
 			{{ if $isRemote }}
-			<h1 class="main-title">Remote {{ if .TagFilter }}{{ .TagFilter }} {{ else }}Golang {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }}</h1><br/>
+			<h1 class="main-title">Remote {{ if .TagFilter }}{{ .TagFilter }} {{ else }}{{ .SiteJobCategory }} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }}</h1><br/>
 			<b style="font-size:12pt;">Hand-Picked Go Jobs &bull; Apply directly to companies &bull; Clear salary ranges</b>
-			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} 🌎 Remote Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b> in {{ .MonthAndYear }} {{ if .TextCompanies }}at companies like <b>{{ .TextCompanies }}</b>{{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year{{ else }}{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }}{{ end }} working as a <b>{{ .TextJobTitles }}</b>.{{ end }} Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
+			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} 🌎 Remote {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b> in {{ .MonthAndYear }} {{ if .TextCompanies }}at companies like <b>{{ .TextCompanies }}</b>{{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year{{ else }}{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }}{{ end }} working as a <b>{{ .TextJobTitles }}</b>.{{ end }} Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
 			{{ else }}
-			<h1 class="main-title">Golang {{ if .TagFilter }}{{ .TagFilter }}{{ end }} Jobs {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }}{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year{{ end }}</h1><br/>
+			<h1 class="main-title">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }}{{ end }} Jobs {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }}{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year{{ end }}</h1><br/>
 			<b style="font-size:12pt;">Hand-Picked Go Jobs &bull; Apply directly to companies &bull; Clear salary ranges</b>
-			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b>{{ if not .ComplementaryRemote }}{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}{{ end }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }} in {{ .MonthAndYear }} {{ if .TextCompanies }}at companies like <b>{{ .TextCompanies }}</b>{{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year{{ else }}{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }}{{ end }} working as a <b>{{ .TextJobTitles }}</b>.{{ end }} Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
+			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b>{{ if not .ComplementaryRemote }}{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}{{ end }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }} in {{ .MonthAndYear }} {{ if .TextCompanies }}at companies like <b>{{ .TextCompanies }}</b>{{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year{{ else }}{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }}{{ end }} working as a <b>{{ .TextJobTitles }}</b>.{{ end }} Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
 			{{ end }}
 			</p>
 			<div style="display: flex;align-items: stretch;margin-bottom: 10px;" id="search-outer-container">
@@ -194,16 +194,16 @@ header{padding:0 10px;width:780px;margin:auto;}
 				<div class="clearfix"></div>
 			</article>
 			{{ end }}
-	  		{{ $jobsFound := len .Jobs }}
+			{{ $jobsFound := len .Jobs }}
 			{{ if gt $jobsFound 0 }}
 			{{ if .ComplementaryRemote }}
-				<small><b>No {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}Golang {{ end }}Jobs {{ if .LocationFilter }}in <b>{{ .LocationFilter }}</b>{{ end }}</b> {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }}</small><br /><br />
-				<small>Showing {{ len .Jobs }} of {{ .TotalJobCount }} <b>Remote</b>🌎 {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}Golang {{ end }}Jobs {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} available instead</small><br />
+			<small><b>No {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Jobs {{ if .LocationFilter }}in <b>{{ .LocationFilter }}</b>{{ end }}</b> {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }}</small><br /><br />
+			<small>Showing {{ len .Jobs }} of {{ .TotalJobCount }} <b>Remote</b>🌎 {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Jobs {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} available instead</small><br />
 			{{ else }}
-			<small>{{ len .Jobs }} of {{ .TotalJobCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}Golang {{ end }}Jobs {{ if .LocationFilter }}in <b>{{ .LocationFilterWithCountry }}</b>{{ end }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }} {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} &bull; Sort by <b>Date</b></small><br />
+			<small>{{ len .Jobs }} of {{ .TotalJobCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Jobs {{ if .LocationFilter }}in <b>{{ .LocationFilterWithCountry }}</b>{{ end }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }} {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} &bull; Sort by <b>Date</b></small><br />
 			{{ end }}
 			{{ else }}
-	    			No {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}Golang {{ end }}jobs {{ if .LocationFilter }}in <b>{{ .LocationFilterWithCountry }}</b>{{ end }} {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} found. <b>Try removing some filters and expanding your search</b><br />
+			No {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}jobs {{ if .LocationFilter }}in <b>{{ .LocationFilterWithCountry }}</b>{{ end }} {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} found. <b>Try removing some filters and expanding your search</b><br />
 			{{ end }}
 			{{ range $i, $j := .Jobs }}
 			{{ if eq .AdType 1 }}
@@ -226,587 +226,586 @@ header{padding:0 10px;width:780px;margin:auto;}
 					{{ if .Expired }}
 					<code style="width: 100%;text-align: center;font-size: 14pt;padding: 10px;color: black;background: #e9e9e9;line-height: 1.5rem;">This job posting is no longer available</code>
 					{{ end }}
-                      <h3>Job Description</h3>
-                      {{ .JobDescription }}
-                      <br />
-                      {{ if .Perks }}
-                      <h3>Perks & Benefits</h3>
-                      {{ .Perks }}
-                      {{ end }}
-                      {{ if .InterviewProcess }}
-                      <h3>Interview Process</h3>
-                      {{ .InterviewProcess }}
-                      {{ end }}
-		      {{ if not .Expired }}
-                      {{ if .IsQuickApply }}
-                        <input type="submit" style="float:right;" class="apply-btn" value="Quick Apply" onclick="apply('{{ .HowToApply }}', '{{ .ExternalID }}');">
-                      {{ else }}
-                        <a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow" class="apply-link">Apply</a>
-                      {{ end }}
-		      {{ else }}
-		      	<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
-		      {{ end }}
-                      <a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
-                      <a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>
-                </div>
-                <div class="clearfix"></div>
-              </article>
-          {{ else }}
-              <article class="line-item">
-                  {{ if .CompanyIconID }}
-                    <img loading="lazy" width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
-                  {{ end }}
-                  <div style="float: left;">
-			  <a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a>{{ if or (eq .AdType 2) (eq .AdType 3) (eq .AdType 5) }} &bull; <small>Sponsored</small>{{ end }}<br />
-				  <a style="font-size:12pt;" href="/Golang-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
-		  <b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
-                  <br />
-                  <small>{{ .TimeAgo }}</small>
-		{{ if gt .LastWeekClickouts 0 }}
-                	<br />
-                	<small>{{ .LastWeekClickouts }} Applicants This Week</small>
-		{{ end }}
-                  </div>
-                  <div class="job-desc" id="{{ .Slug }}" data-toggle="off">
-		      {{ if .Expired }}
-	    <code style="width: 100%;text-align: center;font-size: 14pt;padding: 10px;color: black;background: #e9e9e9;line-height: 1.5rem;">This job posting is no longer available</code>
-		      {{ end }}
-                      <h3>Job Description</h3>
-                      {{ .JobDescription }}
-                      <br />
-                      {{ if .Perks }}
-                      <h3>Perks & Benefits</h3>
-                      {{ .Perks }}
-                      {{ end }}
-                      {{ if .InterviewProcess }}
-                      <h3>Interview Process</h3>
-                      {{ .InterviewProcess }}
-                      {{ end }}
-		      {{ if not .Expired }}
-                      {{ if .IsQuickApply }}
-                        <input type="submit" style="float:right;" class="apply-btn" value="Quick Apply" onclick="apply('{{ .HowToApply }}', '{{ .ExternalID }}');">
-                      {{ else }}
-                        <a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow" class="apply-link">Apply</a>
-                      {{ end }}
-		      {{ else }}
-		      	<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
-		      {{ end }}
-                      <a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
-                      <a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>
-                  </div>
-                  <div class="clearfix"></div>
-              </article>
-          {{ end }}
-          {{ end }}
-          <article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
-		  <div style="width: 50%;font-size:15pt;font-weight: bold;text-align:center;display:table;margin:5px auto 20px auto;" id="email-subscribe-item-text">Get a weekly email with all new Go jobs</div>
-                <input type="email" name="job-email-subscription" id="job-email-subscription" style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
-		<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;"/>
-            </article>
-	  {{ if gt $jobsFound 0 }}
-          {{ if .LocationFilter }}
-                {{ if not .ComplementaryRemote }}
-		<small>{{ len .Jobs }} of {{ .TotalJobCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}Golang {{ end }}jobs {{ if .LocationFilter }}in <b>{{ .LocationFilterWithCountry }}</b>{{ end }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }} {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }}</small><br />
-                {{ end }}
-            {{ else }}
-                <small>{{ len .Jobs }} of {{ .TotalJobCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}Golang {{ end }}jobs {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} found</small><br />
-            {{ end }}
-	    {{ end }}
-            <br />
-            <nav>
-              <ul>
-                  {{ $cur := .CurrentPage }}
-                  {{ $numPages := len .PageIndexes }}
-                  {{ $moreThanOnePage := gt $numPages 1 }}
-                  {{ $thisIsNotFirstPage := ne $cur 1 }}
-                  {{ $prevPage := sub $cur 1 }}
-                  {{ if and $thisIsNotFirstPage $moreThanOnePage }}
-                        <li><a href="?p={{ $prevPage }}"><b>Prev</b></a></li>
-                  {{ end }}
-                  {{ range $p := .PageIndexes }}
-                    {{ if eq $cur $p }}
-                        <li><b>{{ $p }}</b></li>
-                    {{ else }}
-                        <li><a href="?p={{ $p }}"><b>{{ $p }}</b></a></li>
-                    {{ end }}
-                  {{ end }}
-                  {{ $lastPage := last .PageIndexes }}
-                  {{ $thisIsNotLastPage := ne $cur $lastPage }}
-                  {{ $nextPage := add $cur 1 }}
-                  {{ if and $thisIsNotLastPage $moreThanOnePage }}
-                        <li><a href="?p={{ $nextPage }}"><b>Next</b></a></li>
-                  {{ end }}
-                  {{ if eq $numPages 0 }}
-                    <li><a href="?p=1"><b>1</b></a></li>
-                  {{ end }}
-              </ul>
-            </nav>
-  </section>
-  <footer>
-	  {{ if $isRemote }}
-	  <h4 style="margin-left: 9px;">Get Hired Remotely 🌎</h4>
-	  {{ else }}
-	  <h4 style="margin-left: 9px;">Get Hired{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }}{{ end }}</h4>
-	  {{ end }}
-    <nav class="subnav" style="width:100%;">
-        <ul>
-            <li><a href="/Join-Golang-Community">Join the Golang Developers Community</a></li>
-        </ul>
-    </nav>
-    {{ if $isRemote }}
-    <h4 style="margin-left: 9px;">Related To 🌎 Remote Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs</h4>
-    {{ else }}
-    <h4 style="margin-left: 9px;">Related To Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }}{{ end }}</h4>
-    {{ end }}
-    <nav class="subnav">
-        <ul>
-		<li><a href="/Companies-Using-Golang{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">Companies Hiring Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Engineers{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
-		<li><a href="/Golang{{ if .TagFilter }}-{{ .TagFilterURLEnc }}{{ end }}-Developers{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Developers{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
-		<li><a href="/Golang-Developer-Salary-{{ if .LocationFilter }}{{ .LocationFilterURLEnc }}{{ else }}Remote{{ end }}">Average Salary For Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Developers{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
-        </ul>
-    </nav>
-    {{ if $isRemote }}
-    <h4 style="margin-left: 9px;">🌎 Remote Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs Related Searches</h4>
-    <nav class="subnav">
-        <ul>
-		<li><a href="/Remote-Golang-DevOps-Jobs">Remote Golang DevOps Jobs</a></li>
-		<li><a href="/Remote-Golang-Fintech-Jobs">Remote Golang Fintech Jobs</a></li>
-		<li><a href="/Remote-Golang-Blockchain-Jobs">Remote Golang Blockchain Jobs</a></li>
-		<li><a href="/Remote-Golang-SRE-Jobs">Remote Golang SRE Jobs</a></li>
-		<li><a href="/Remote-Golang-Distributed-Systems-Jobs">Remote Golang Distributed Systems Jobs</a></li>
-		<li><a href="/Remote-Golang-Senior-Jobs">Remote Golang Senior Jobs</a></li>
-        </ul>
-    </nav>
-    {{ else }}
-    <h4 style="margin-left: 9px;">Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }}{{ end }} Related Searches</h4>
-    <nav class="subnav">
-        <ul>
-		<li><a href="/Golang-DevOps-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">Golang DevOps Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
-		<li><a href="/Golang-Fintech-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">Golang Fintech Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
-            <li><a href="/Golang-Blockchain-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">Golang Blockchain Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
-            <li><a href="/Golang-Site-Reliability-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">Golang Site Reliability Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
-            <li><a href="/Golang-Distributed-Systems-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">Golang Distributed Systems Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
-            <li><a href="/Golang-Senior-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">Golang Senior Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
-            <li><a href="/Remote-Golang-Jobs">Remote Golang Jobs</a></li>
-        </ul>
-    </nav>
-    {{ end }}
-    {{ if $isRemote }}
-    <h4 style="margin-left: 9px;">🌎 Remote Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs By Salary Range</h4>
-    {{ else }}
-    <h4 style="margin-left: 9px;">Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }}{{ end }} By Salary Range</h4>
-    {{ end }}
-    <nav class="subnav">
-        <ul>
-		<li><a href="/Golang-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}-Paying-50000-USD-year">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }} Paying At Least 50,000 USD per year</a></li>
-		<li><a href="/Golang-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}-Paying-100000-USD-year">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }} Paying At Least 100,000 USD per year</a></li>
-		<li><a href="/Golang-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}-Paying-150000-USD-year">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }} Paying At Least 150,000 USD per year</a></li>
-		<li><a href="/Golang-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}-Paying-200000-USD-year">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }} Paying At Least 200,000 USD per year</a></li>
-        </ul>
-    </nav>
-    {{ if .RelatedLocations }}
-    <h4 style="margin-left: 9px;">Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs within {{ .CountryFromDB }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }}</h4>
-    <nav class="subnav">
-        <ul>
-	    {{ range $i, $j := .RelatedLocations }}
-	    <li><a href="/Golang-Jobs-In-{{ $j }}">Golang Jobs in {{ $j }}</a></li>
-	    {{ end }}
-        </ul>
-    </nav>
-    {{ end }}
-    <h4 style="margin-left: 9px;">Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs Worldwide</h4>
-    <nav class="subnav">
-        <ul>
-		<li><a href="/Golang-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs-In-USA">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in USA</a></li>
-            <li><a href="/Golang-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs-In-United-Kingdom">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in United Kingdom</a></li>
-            <li><a href="/Golang-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs-In-Germany">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in Germany</a></li>
-            <li><a href="/Golang{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}-Jobs-In-Netherlands">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in Netherlands</a></li>
-            <li><a href="/Golang{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}-Jobs-In-Canada">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in Canada</a></li>
-            <li><a href="/Golang{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}-Jobs-In-Australia">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in Australia</a></li>
-            <li><a href="/Golang{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}-Jobs-In-Switzerland">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in Switzerland</a></li>
-        </ul>
-    </nav>
-        <h4 style="margin-left: 9px;">Golang Developer Salaries Related Searches</h4>
-        <nav class="subnav">
-            <ul>
-              <li><a href="/Golang-Developer-Salary-United%20Kingdom">Golang Developer Salary United Kingdom</a></li>
-              <li><a href="/Golang-Developer-Salary-USA">Golang Developer Salary USA</a></li>
-              <li><a href="/Golang-Developer-Salary-Australia">Golang Developer Salary Australia</a></li>
-              <li><a href="/Golang-Developer-Salary-Canada">Golang Developer Salary Canada</a></li>
-              <li><a href="/Golang-Developer-Salary-Germany">Golang Developer Salary Germany</a></li>
-              <li><a href="/Golang-Developer-Salary-Netherlands">Golang Developer Salary Netherlands</a></li>
-            </ul>
-        </nav>
-    <h4 style="margin-left: 9px;">Golang Cafe</h4>
-    <nav class="subnav">
-        <ul>
-            <li><a href="/">Jobs</a></li>
-            <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
-            <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
-            <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
-            <li><a href="/rss">Golang Cafe RSS Feed</a></li>
-            <li><a href="/support">Support</a></li>
-            <li><a href="/about">About Golang Cafe</a></li>
-            <li><a href="/terms-of-service">T&Cs</a></li>
-            <li><a href="/privacy-policy">Privacy Policy</a></li>
-        </ul>
-	</nav>
-  </footer>
-    <script>
-        function copyTextToClipboard(text) {
-            var textArea = document.createElement("textarea");
+					<h3>Job Description</h3>
+					{{ .JobDescription }}
+					<br />
+					{{ if .Perks }}
+					<h3>Perks & Benefits</h3>
+					{{ .Perks }}
+					{{ end }}
+					{{ if .InterviewProcess }}
+					<h3>Interview Process</h3>
+					{{ .InterviewProcess }}
+					{{ end }}
+					{{ if not .Expired }}
+					{{ if .IsQuickApply }}
+					<input type="submit" style="float:right;" class="apply-btn" value="Quick Apply" onclick="apply('{{ .HowToApply }}', '{{ .ExternalID }}');">
+					{{ else }}
+					<a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow" class="apply-link">Apply</a>
+					{{ end }}
+					{{ else }}
+					<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
+					{{ end }}
+					<a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
+					<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>  
+				</div>
+				<div class="clearfix"></div>
+			</article>
+			{{ else }}
+			<article class="line-item">
+				{{ if .CompanyIconID }}
+				<img loading="lazy" width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+				{{ end }}
+				<div style="float: left;">
+					<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a>{{ if or (eq .AdType 2) (eq .AdType 3) (eq .AdType 5) }} &bull; <small>Sponsored</small>{{ end }}<br />
+					<a style="font-size:12pt;" href="/Golang-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
+					<b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
+					<br />
+					<small>{{ .TimeAgo }}</small>
+					{{ if gt .LastWeekClickouts 0 }}
+					<br />
+					<small>{{ .LastWeekClickouts }} Applicants This Week</small>
+					{{ end }}
+				</div>
+				<div class="job-desc" id="{{ .Slug }}" data-toggle="off">
+					{{ if .Expired }}
+					<code style="width: 100%;text-align: center;font-size: 14pt;padding: 10px;color: black;background: #e9e9e9;line-height: 1.5rem;">This job posting is no longer available</code>
+					{{ end }}
+					<h3>Job Description</h3>
+					{{ .JobDescription }}
+					<br />
+					{{ if .Perks }}
+					<h3>Perks & Benefits</h3>
+					{{ .Perks }}
+					{{ end }}
+					{{ if .InterviewProcess }}
+					<h3>Interview Process</h3>
+					{{ .InterviewProcess }}
+					{{ end }}
+					{{ if not .Expired }}
+					{{ if .IsQuickApply }}
+					<input type="submit" style="float:right;" class="apply-btn" value="Quick Apply" onclick="apply('{{ .HowToApply }}', '{{ .ExternalID }}');">
+					{{ else }}
+					<a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow" class="apply-link">Apply</a>
+					{{ end }}
+					{{ else }}
+					<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
+					{{ end }}
+					<a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
+					<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>
+				</div>
+				<div class="clearfix"></div>
+			</article>
+			{{ end }}
+			{{ end }}
+			<article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
+				<div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;" id="email-subscribe-item-text">Get a weekly email with all new Go jobs</div>
+				<input type="email" name="job-email-subscription" id="job-email-subscription" style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
+				<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Subscribe" style="width:50%;display:table;margin:5px auto;"/>
+			</article>
+			{{ if gt $jobsFound 0 }}
+			{{ if .LocationFilter }}
+			{{ if not .ComplementaryRemote }}
+			<small>{{ len .Jobs }} of {{ .TotalJobCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}jobs {{ if .LocationFilter }}in <b>{{ .LocationFilterWithCountry }}</b>{{ end }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }} {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }}</small><br />
+			{{ end }}
+			{{ else }}
+			<small>{{ len .Jobs }} of {{ .TotalJobCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}jobs {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} found</small><br />
+			{{ end }}
+			{{ end }}
+			<br />
+			<nav>
+				<ul>
+					{{ $cur := .CurrentPage }}
+					{{ $numPages := len .PageIndexes }}
+					{{ $moreThanOnePage := gt $numPages 1 }}
+					{{ $thisIsNotFirstPage := ne $cur 1 }}
+					{{ $prevPage := sub $cur 1 }}
+					{{ if and $thisIsNotFirstPage $moreThanOnePage }}
+					<li><a href="?p={{ $prevPage }}"><b>Prev</b></a></li>
+					{{ end }}
+					{{ range $p := .PageIndexes }}
+					{{ if eq $cur $p }}
+					<li><b>{{ $p }}</b></li>
+					{{ else }}
+					<li><a href="?p={{ $p }}"><b>{{ $p }}</b></a></li>
+					{{ end }}
+					{{ end }}
+					{{ $lastPage := last .PageIndexes }}
+					{{ $thisIsNotLastPage := ne $cur $lastPage }}
+					{{ $nextPage := add $cur 1 }}
+					{{ if and $thisIsNotLastPage $moreThanOnePage }}
+					<li><a href="?p={{ $nextPage }}"><b>Next</b></a></li>
+					{{ end }}
+					{{ if eq $numPages 0 }}
+					<li><a href="?p=1"><b>1</b></a></li>
+					{{ end }}
+				</ul>
+			</nav>
+		</section>
+		<footer>
+			{{ if $isRemote }}
+			<h4 style="margin-left: 9px;">Get Hired Remotely 🌎</h4>
+			{{ else }}
+			<h4 style="margin-left: 9px;">Get Hired{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }}{{ end }}</h4>
+			{{ end }}
+			<nav class="subnav" style="width:100%;">
+				<ul>
+					<li><a href="/Join-{{ .SiteJobCategoryURLEncoded }}-Community">Join the {{ .SiteJobCategory }} Developers Community</a></li>
+				</ul>
+			</nav>
+			{{ if $isRemote }}
+			<h4 style="margin-left: 9px;">Related To 🌎 Remote {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs</h4>
+			{{ else }}
+			<h4 style="margin-left: 9px;">Related To {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }}{{ end }}</h4>
+			{{ end }}
+			<nav class="subnav">
+				<ul>
+					<li><a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">Companies Hiring {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Engineers{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}{{ if .TagFilter }}-{{ .TagFilterURLEnc }}{{ end }}-Developers{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">{{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Developers{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-{{ if .LocationFilter }}{{ .LocationFilterURLEnc }}{{ else }}Remote{{ end }}">Average Salary For {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Developers{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
+				</ul>
+			</nav>
+			{{ if $isRemote }}
+			<h4 style="margin-left: 9px;">🌎 Remote {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs Related Searches</h4>
+			<nav class="subnav">
+				<ul>
+					<li><a href="/Remote-{{ .SiteJobCategoryURLEncoded }}-DevOps-Jobs">Remote {{ .SiteJobCategory }} DevOps Jobs</a></li>
+					<li><a href="/Remote-{{ .SiteJobCategoryURLEncoded }}-Fintech-Jobs">Remote {{ .SiteJobCategory }} Fintech Jobs</a></li>
+					<li><a href="/Remote-{{ .SiteJobCategoryURLEncoded }}-Blockchain-Jobs">Remote {{ .SiteJobCategory }} Blockchain Jobs</a></li>
+					<li><a href="/Remote-{{ .SiteJobCategoryURLEncoded }}-SRE-Jobs">Remote {{ .SiteJobCategory }} SRE Jobs</a></li>
+					<li><a href="/Remote-{{ .SiteJobCategoryURLEncoded }}-Distributed-Systems-Jobs">Remote {{ .SiteJobCategory }} Distributed Systems Jobs</a></li>
+					<li><a href="/Remote-{{ .SiteJobCategoryURLEncoded }}-Senior-Jobs">Remote {{ .SiteJobCategory }} Senior Jobs</a></li>
+				</ul>
+			</nav>
+			{{ else }}
+			<h4 style="margin-left: 9px;">{{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }}{{ end }} Related Searches</h4>
+			<nav class="subnav">
+				<ul>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-DevOps-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">{{ .SiteJobCategory }} DevOps Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Fintech-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">{{ .SiteJobCategory }} Fintech Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Blockchain-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">{{ .SiteJobCategory }} Blockchain Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Site-Reliability-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">{{ .SiteJobCategory }} Site Reliability Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Distributed-Systems-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">{{ .SiteJobCategory }} Distributed Systems Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Senior-Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}">{{ .SiteJobCategory }} Senior Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}</a></li>
+					<li><a href="/Remote-{{ .SiteJobCategoryURLEncoded }}-Jobs">Remote {{ .SiteJobCategory }} Jobs</a></li>
+				</ul>
+			</nav>
+			{{ end }}
+			{{ if $isRemote }}
+			<h4 style="margin-left: 9px;">🌎 Remote {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs By Salary Range</h4>
+			{{ else }}
+			<h4 style="margin-left: 9px;">{{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }}{{ end }} By Salary Range</h4>
+			{{ end }}
+			<nav class="subnav">
+				<ul>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}-Paying-50000-USD-year">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }} Paying At Least 50,000 USD per year</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}-Paying-100000-USD-year">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }} Paying At Least 100,000 USD per year</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}-Paying-150000-USD-year">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }} Paying At Least 150,000 USD per year</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter }}-In-{{ .LocationFilterURLEnc }}{{ end }}-Paying-200000-USD-year">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }} Paying At Least 200,000 USD per year</a></li>
+				</ul>
+			</nav>
+			{{ if .RelatedLocations }}
+			<h4 style="margin-left: 9px;">{{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs within {{ .CountryFromDB }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }}</h4>
+			<nav class="subnav">
+				<ul>
+					{{ range $i, $j := .RelatedLocations }}
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-{{ $j }}">{{ .SiteJobCategory }} Jobs in {{ $j }}</a></li>
+					{{ end }}
+				</ul>
+			</nav>
+			{{ end }}
+			<h4 style="margin-left: 9px;">{{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs Worldwide</h4>
+			<nav class="subnav">
+				<ul>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs-In-USA">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in USA</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs-In-United-Kingdom">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in United Kingdom</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}Jobs-In-Germany">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in Germany</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}-Jobs-In-Netherlands">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in Netherlands</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}-Jobs-In-Canada">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in Canada</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}-Jobs-In-Australia">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in Australia</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}{{ if .TagFilter }}{{ .TagFilterURLEnc }}-{{ end }}-Jobs-In-Switzerland">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Jobs in Switzerland</a></li>
+				</ul>
+			</nav>
+			<h4 style="margin-left: 9px;">{{ .SiteJobCategory }} Developer Salaries Related Searches</h4>
+			<nav class="subnav">
+				<ul>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-United%20Kingdom">{{ .SiteJobCategory }} Developer Salary United Kingdom</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-USA">{{ .SiteJobCategory }} Developer Salary USA</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Australia">{{ .SiteJobCategory }} Developer Salary Australia</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Canada">{{ .SiteJobCategory }} Developer Salary Canada</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Germany">{{ .SiteJobCategory }} Developer Salary Germany</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Netherlands">{{ .SiteJobCategory }} Developer Salary Netherlands</a></li>
+				</ul>
+			</nav>
+			<h4 style="margin-left: 9px;">{{ .SiteName }}</h4>
+			<nav class="subnav">
+				<ul>
+					<li><a href="/">Jobs</a></li>
+					<li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
+					<li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub (Open source)</a></li>
+					<li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+					<li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
+					<li><a href="/support">Support</a></li>
+					<li><a href="/about">About {{ .SiteName }}</a></li>
+					<li><a href="/terms-of-service">T&Cs</a></li>
+					<li><a href="/privacy-policy">Privacy Policy</a></li>
+				</ul>
+			</nav>
+		</footer>
+		<script>
+			function copyTextToClipboard(text) {
+							var textArea = document.createElement("textarea");
 
-            // Place in top-left corner of screen regardless of scroll position.
-            textArea.style.position = 'fixed';
-            textArea.style.top = 0;
-            textArea.style.left = 0;
+							// Place in top-left corner of screen regardless of scroll position.
+							textArea.style.position = 'fixed';
+							textArea.style.top = 0;
+							textArea.style.left = 0;
 
-            // Ensure it has a small width and height. Setting to 1px / 1em
-            // doesn't work as this gives a negative w/h on some browsers.
-            textArea.style.width = '2em';
-            textArea.style.height = '2em';
+							// Ensure it has a small width and height. Setting to 1px / 1em
+							// doesn't work as this gives a negative w/h on some browsers.
+							textArea.style.width = '2em';
+							textArea.style.height = '2em';
 
-            // We don't need padding, reducing the size if it does flash render.
-            textArea.style.padding = 0;
+							// We don't need padding, reducing the size if it does flash render.
+							textArea.style.padding = 0;
 
-            // Clean up any borders.
-            textArea.style.border = 'none';
-            textArea.style.outline = 'none';
-            textArea.style.boxShadow = 'none';
+							// Clean up any borders.
+							textArea.style.border = 'none';
+							textArea.style.outline = 'none';
+							textArea.style.boxShadow = 'none';
 
-            // Avoid flash of white box if rendered for any reason.
-            textArea.style.background = 'transparent';
+							// Avoid flash of white box if rendered for any reason.
+							textArea.style.background = 'transparent';
 
 
-            textArea.value = text;
+							textArea.value = text;
 
-            document.body.appendChild(textArea);
-            textArea.focus();
-            textArea.select();
+							document.body.appendChild(textArea);
+							textArea.focus();
+							textArea.select();
 
-            try {
-                var successful = document.execCommand('copy');
-                var msg = successful ? 'successful' : 'unsuccessful';
-            } catch (err) {
-                alert('Oops, unable to copy');
-            }
+							try {
+											var successful = document.execCommand('copy');
+											var msg = successful ? 'successful' : 'unsuccessful';
+										} catch (err) {
+														alert('Oops, unable to copy');
+													}
 
-            document.body.removeChild(textArea);
-        }
-        var els = document.getElementsByClassName('copy-to-clipboard');
-        for (var i = 0; i < els.length; i++) {
-            els[i].addEventListener('click', function (e) {
-                e.preventDefault();
-                copyTextToClipboard(this.getAttribute('data-link'));
-                var oldHTML = this.innerHTML;
-                this.innerHTML = "Copied";
-                var self = this;
-                setTimeout(function(){ self.innerHTML = oldHTML;}, 5000);
-            },false);
-        }
-        function isEmail(email) {
-            var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-            return re.test(email);
-        }
-        var get = function(uri, cb) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', uri, true);
-            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-            xhr.send();
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    cb(xhr.status === 200);
-                }
-            }
-        };
-        var getJSON = function(uri, cb) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', uri, true);
-            xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
-            xhr.send();
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    cb(xhr.status, JSON.parse(xhr.responseText));
-                }
-            }
-        };
-        var post = function(uri, formData, cb) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', uri, true);
-            xhr.send(formData);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    cb(xhr.status);
-                }
-            }
-        }
-        function apply(howToApply, jobID) {
-          get('/x/j/c/'+jobID, function() {
-            document.getElementById('apply-job-id').value = jobID;
-            document.getElementById('apply-box-0').style.display = 'block';
-            document.getElementById('overlay-0').style.display = 'block';
-          })
-        }
-        function displayJob(jobSlugID) {
-            var jobNode = document.getElementById(jobSlugID);
-            var toggleStatus = jobNode.getAttribute('data-toggle');
-            if (toggleStatus == "off") {
-                jobNode.style.display = 'block';
-                jobNode.setAttribute('data-toggle', 'on');
-            } else {
-                jobNode.style.display = 'none';
-                jobNode.setAttribute('data-toggle', 'off');
-            }
-        }
-        function showname () {
-            var name = document.getElementById('apply-cv');
-            if (name.files && name.files.length > 0) {
-              document.getElementById('apply-cv-label').innerHTML = name.files.item(0).name.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
-                return '&#' + i.charCodeAt(0) + ';';
-              });
-            }
-        };
-        function uploadCV() {
-            var cvFile = document.getElementById('apply-cv').files[0];
-            var jobId = document.getElementById('apply-job-id').value;
-            var email = document.getElementById('apply-email').value;
-            if (!isEmail(email)) {
-                alert('Please provide a valid email address');
-                return;
-            }
-            if (document.getElementById('apply-cv').files.length == 0) {
-                alert('Please provide a valid PDF file (max 5MB)');
-                return;
-            }
-            var notifyJobs = document.getElementById('apply-notify-jobs').checked;
-            var formData = new FormData();
-            formData.append('cv', cvFile);
-            formData.append('job-id', jobId);
-            formData.append('email', email);
-            formData.append('notify-jobs', notifyJobs);
-            post('/x/a/e', formData, function(status) {
-                closeApplyPopup();
-                if (status == 200) {
-                    alert('Application submitted. Please Check your inbox to confirm your application');
-                    return;
-                }
-                if (status == 413){
-                    alert('PDF max size is 5MB. Please try again with a smaller file');
-                    return;
-                }
-                if (status == 415) {
-                    alert('Only file type allowed is PDF. Please try again with a valid file');
-                    return;
-                }
-                alert('There was an error while saving your application. Please try again later');
-            });
-        }
-        function closeApplyPopup() {
-            document.getElementById('apply-box-0').style.display = 'none';
-            document.getElementById('overlay-0').style.display = 'none';
-        }
-    document
-        .getElementById('search-location')
-        .addEventListener('keyup', function(event) {
-            event.preventDefault();
-            if (event.keyCode !== 13) {
-		document.getElementById('search-location-suggestions').style.display = 'none';
-		getJSON('/x/loc/autocomplete?k='+document.getElementById('search-location').value.trim(), function(status, res) {
-			if (status == 200 && typeof res != 'undefined') {
-				var suggestions = '';
-				for (var item of res) {
-					var display = item.name;
-					if (item.country) {
-						display+=', '+item.country;
-					}
-					display+=' '+item.emoji;
-					suggestions += '<div class="search-option" id="loc-option-'+item.name+'" data-val="'+item.name+'">'+display+'</div>';
-				}
-				if (suggestions != '') {
-				  document.getElementById('search-location-suggestions').innerHTML = suggestions;
-				  for (var item of res) {
-					document.getElementById('loc-option-'+item.name).addEventListener('click', function(e) {
-						document.getElementById('search-location').value = e.target.getAttribute('data-val');
-						document.getElementById('search-location-suggestions').style.display = 'none';
-					});
-				  }
-				  document.getElementById('search-location-suggestions').style.display = 'block';
-				}
-			}
-		})
-                return;
-            }
-            if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/';
-            } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/Golang-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
-            } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs';
-            } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
-            } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
-                window.location.href = '/Golang-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
-                window.location.href = '/Golang-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value !== '0') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            } else {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            }
-        });
-    document
-        .getElementById('search-tag')
-        .addEventListener('keyup', function(event) {
-            event.preventDefault();
-            if (event.keyCode != 13) {
-		document.getElementById('search-tag-suggestions').style.display = 'none';
-		getJSON('/x/skill/autocomplete?k='+document.getElementById('search-tag').value.trim(), function(status, res) {
-			if (status == 200 && typeof res != 'undefined') {
-				var suggestions = '';
-				for (var item of res) {
-					suggestions += '<div class="search-option" id="tag-option-'+item.name+'" data-val="'+item.name+'">'+item.name+'</div>';
-				}
-				if (suggestions != '') {
-				  document.getElementById('search-tag-suggestions').innerHTML = suggestions;
-				  for (var item of res) {
-					document.getElementById('tag-option-'+item.name).addEventListener('click', function(e) {
-						document.getElementById('search-tag').value = e.target.textContent;
-						document.getElementById('search-tag-suggestions').style.display = 'none';
-					});
-				  }
-				  document.getElementById('search-tag-suggestions').style.display = 'block';
-				}
-			}
-		})
-                return;
-            }
-            if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/';
-            } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/Golang-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
-            } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs';
-            } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
-            } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
-                window.location.href = '/Golang-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
-                window.location.href = '/Golang-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value !== '0') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            } else {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            }
-        });
-    document
-        .getElementById('search-btn')
-        .addEventListener('click', function() {
-            if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/';
-            } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/Golang-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
-            } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs';
-            } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
-            } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
-                window.location.href = '/Golang-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
-                window.location.href = '/Golang-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value !== '0') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            } else {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
-            }
-        });
-    function hideEmailBanner() {
-	 document.getElementById('newsletter-banner').style.display = 'none';
-    }
-    function subscribe() {
-        var email = document.getElementById('job-email-subscription').value;
-        if (!isEmail(email)) {
-            alert('Please enter a valid email address!');
-            return;
-        }
-        get('/x/email/subscribe?email='+encodeURIComponent(email), function(success) {
-            if (success) {
-		hideEmailBanner();
-                alert('Thanks for subscribing!');
-                document.getElementById('job-email-subscription').value = '';
-            } else {
-                alert('Oops, there was an error with your subscription!');
-            }
-        });
-    }
-	document.getElementById('newsletter-banner-close').addEventListener('click', function(){
-		document.getElementById('newsletter-banner').style.display = 'none';
-	});
-	document.getElementById('newsletter-banner-submit').addEventListener('click', function() {
-		var email = document.getElementById('newsletter-banner-input').value;
-		if (!isEmail(email)) {
-			alert('Please enter a valid email address!');
-			return;
-		}
-        	get('/x/email/subscribe?email='+encodeURIComponent(email), function(success) {
-            		if (success) {
-				hideEmailBanner();
-                		alert('Thanks for subscribing!');
-                		document.getElementById('newsletter-banner-input').value = '';
-            		} else {
-                		alert('Oops, there was an error with your subscription!');
-            		}
-        	});
-	});
-        function empty() {
-            var isThere = true;
-            for (var i = 0; i < arguments.length; i++) {
-                isThere &= typeof arguments[i] === "undefined" ? false : arguments[i].trim() !== "";
-            }
-            return !isThere;
-        };
-        var postMessage = function(body, cb) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/x/s/message', true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify(body));
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    cb(xhr.status === 200);
-                }
-            }
-        };
-        document.getElementById('feedback-submit').addEventListener('click', function(event) {
-		var email = document.getElementById('feedback-email').value;
-		var message = document.getElementById('feedback-message').value;
-		if (empty(email, message)) {
-			alert('Email and message cannot be blank');
-			return;
-		}
-		if (!isEmail(email)) {
-			alert('Please enter a valid email address');
-			return;
-		}
-		postMessage({email: email, message: message}, function(status) {
-			if (status) {
-				alert('Thanks for your message!');
-			} else {
-				alert('There was a problem posting your message. Please try again later or contact team@golang.cafe');
-			}
-			document.getElementById('feedback-email').value = '';
-			document.getElementById('feedback-message').value = '';
-			document.getElementById('feedback-box').style.display = 'none';
-			document.getElementById('feedback').style.display = 'block';
-		})
-	});
-    	document.getElementById('feedback').addEventListener('click', function(event) {
-		document.getElementById('feedback').style.display = 'none';
-		document.getElementById('feedback-box').style.display = 'block';
-    	});
-    	document.getElementById('feedback-title').addEventListener('click', function(event) {
-		document.getElementById('feedback-box').style.display = 'none';
-		document.getElementById('feedback').style.display = 'block';
-    	});
-    </script>
-
-</body>
+							document.body.removeChild(textArea);
+						}
+			var els = document.getElementsByClassName('copy-to-clipboard');
+			for (var i = 0; i < els.length; i++) {
+							els[i].addEventListener('click', function (e) {
+											e.preventDefault();
+											copyTextToClipboard(this.getAttribute('data-link'));
+											var oldHTML = this.innerHTML;
+											this.innerHTML = "Copied";
+											var self = this;
+											setTimeout(function(){ self.innerHTML = oldHTML;}, 5000);
+										},false);
+						}
+			function isEmail(email) {
+							var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+							return re.test(email);
+						}
+			var get = function(uri, cb) {
+							var xhr = new XMLHttpRequest();
+							xhr.open('GET', uri, true);
+							xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+							xhr.send();
+							xhr.onreadystatechange = function() {
+											if (xhr.readyState === 4) {
+															cb(xhr.status === 200);
+														}
+										}
+						};
+			var getJSON = function(uri, cb) {
+							var xhr = new XMLHttpRequest();
+							xhr.open('GET', uri, true);
+							xhr.setRequestHeader('Content-Type', 'application/json;charset=UTF-8');
+							xhr.send();
+							xhr.onreadystatechange = function() {
+											if (xhr.readyState === 4) {
+															cb(xhr.status, JSON.parse(xhr.responseText));
+														}
+										}
+						};
+			var post = function(uri, formData, cb) {
+							var xhr = new XMLHttpRequest();
+							xhr.open('POST', uri, true);
+							xhr.send(formData);
+							xhr.onreadystatechange = function() {
+											if (xhr.readyState === 4) {
+															cb(xhr.status);
+														}
+										}
+						}
+			function apply(howToApply, jobID) {
+							get('/x/j/c/'+jobID, function() {
+											document.getElementById('apply-job-id').value = jobID;
+											document.getElementById('apply-box-0').style.display = 'block';
+											document.getElementById('overlay-0').style.display = 'block';
+										})
+						}
+			function displayJob(jobSlugID) {
+							var jobNode = document.getElementById(jobSlugID);
+							var toggleStatus = jobNode.getAttribute('data-toggle');
+							if (toggleStatus == "off") {
+											jobNode.style.display = 'block';
+											jobNode.setAttribute('data-toggle', 'on');
+										} else {
+														jobNode.style.display = 'none';
+														jobNode.setAttribute('data-toggle', 'off');
+													}
+						}
+			function showname () {
+							var name = document.getElementById('apply-cv');
+							if (name.files && name.files.length > 0) {
+											document.getElementById('apply-cv-label').innerHTML = name.files.item(0).name.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+															return '&#' + i.charCodeAt(0) + ';';
+														});
+										}
+						};
+			function uploadCV() {
+							var cvFile = document.getElementById('apply-cv').files[0];
+							var jobId = document.getElementById('apply-job-id').value;
+							var email = document.getElementById('apply-email').value;
+							if (!isEmail(email)) {
+											alert('Please provide a valid email address');
+											return;
+										}
+							if (document.getElementById('apply-cv').files.length == 0) {
+											alert('Please provide a valid PDF file (max 5MB)');
+											return;
+										}
+							var notifyJobs = document.getElementById('apply-notify-jobs').checked;
+							var formData = new FormData();
+							formData.append('cv', cvFile);
+							formData.append('job-id', jobId);
+							formData.append('email', email);
+							formData.append('notify-jobs', notifyJobs);
+							post('/x/a/e', formData, function(status) {
+											closeApplyPopup();
+											if (status == 200) {
+															alert('Application submitted. Please Check your inbox to confirm your application');
+															return;
+														}
+											if (status == 413){
+															alert('PDF max size is 5MB. Please try again with a smaller file');
+															return;
+														}
+											if (status == 415) {
+															alert('Only file type allowed is PDF. Please try again with a valid file');
+															return;
+														}
+											alert('There was an error while saving your application. Please try again later');
+										});
+						}
+			function closeApplyPopup() {
+							document.getElementById('apply-box-0').style.display = 'none';
+							document.getElementById('overlay-0').style.display = 'none';
+						}
+			document
+				.getElementById('search-location')
+				.addEventListener('keyup', function(event) {
+								event.preventDefault();
+								if (event.keyCode !== 13) {
+												document.getElementById('search-location-suggestions').style.display = 'none';
+												getJSON('/x/loc/autocomplete?k='+document.getElementById('search-location').value.trim(), function(status, res) {
+																if (status == 200 && typeof res != 'undefined') {
+																				var suggestions = '';
+																				for (var item of res) {
+																								var display = item.name;
+																								if (item.country) {
+																												display+=', '+item.country;
+																											}
+																								display+=' '+item.emoji;
+																								suggestions += '<div class="search-option" id="loc-option-'+item.name+'" data-val="'+item.name+'">'+display+'</div>';
+																							}
+																				if (suggestions != '') {
+																								document.getElementById('search-location-suggestions').innerHTML = suggestions;
+																								for (var item of res) {
+																												document.getElementById('loc-option-'+item.name).addEventListener('click', function(e) {
+																																document.getElementById('search-location').value = e.target.getAttribute('data-val');
+																																document.getElementById('search-location-suggestions').style.display = 'none';
+																															});
+																											}
+																								document.getElementById('search-location-suggestions').style.display = 'block';
+																							}
+																			}
+															})	
+												return;
+											}
+								if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
+												window.location.href = '/';
+											} else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
+															window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
+														} else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
+																		window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs';
+																	} else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
+																					window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
+																				} else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
+																								window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																							} else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
+																											window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																										} else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value !== '0') {
+																														window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																													} else {
+																																	window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																																}
+							});
+			document
+				.getElementById('search-tag')
+				.addEventListener('keyup', function(event) {
+								event.preventDefault();
+								if (event.keyCode != 13) {
+												document.getElementById('search-tag-suggestions').style.display = 'none';
+												getJSON('/x/skill/autocomplete?k='+document.getElementById('search-tag').value.trim(), function(status, res) {
+																if (status == 200 && typeof res != 'undefined') {
+																				var suggestions = '';
+																				for (var item of res) {
+																								suggestions += '<div class="search-option" id="tag-option-'+item.name+'" data-val="'+item.name+'">'+item.name+'</div>';
+																							}
+																				if (suggestions != '') {
+																								document.getElementById('search-tag-suggestions').innerHTML = suggestions;
+																								for (var item of res) {
+																												document.getElementById('tag-option-'+item.name).addEventListener('click', function(e) {
+																																document.getElementById('search-tag').value = e.target.textContent;
+																																document.getElementById('search-tag-suggestions').style.display = 'none';
+																															});
+																											}
+																								document.getElementById('search-tag-suggestions').style.display = 'block';
+																							}
+																			}
+															})	
+												return;
+											}
+								if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
+												window.location.href = '/';
+											} else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
+															window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
+														} else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
+																		window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs';
+																	} else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
+																					window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
+																				} else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
+																								window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																							} else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
+																											window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																										} else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value !== '0') {
+																														window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																													} else {
+																																	window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																																}
+							});
+			document
+				.getElementById('search-btn')
+				.addEventListener('click', function() {
+								if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
+												window.location.href = '/';
+											} else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value === '0') {
+															window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
+														} else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
+																		window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs';
+																	} else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value === '0') {
+																					window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value);
+																				} else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
+																								window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																							} else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '' && document.getElementById('search-salary').value !== '0') {
+																											window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																										} else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '' && document.getElementById('search-salary').value !== '0') {
+																														window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																													} else {
+																																	window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Jobs-In-'+encodeURIComponent(document.getElementById('search-location').value)+'-Paying-'+encodeURIComponent(document.getElementById('search-salary').value)+'-year';
+																																}
+							});
+			function hideEmailBanner() {
+							document.getElementById('newsletter-banner').style.display = 'none';
+						}
+			function subscribe() {
+							var email = document.getElementById('job-email-subscription').value;
+							if (!isEmail(email)) {
+											alert('Please enter a valid email address!');
+											return;
+										}
+							get('/x/email/subscribe?email='+encodeURIComponent(email), function(success) {
+											if (success) {
+															hideEmailBanner();
+															alert('Thanks for subscribing!');
+															document.getElementById('job-email-subscription').value = '';
+														} else {
+																		alert('Oops, there was an error with your subscription!');
+																	}
+										});
+						}
+			document.getElementById('newsletter-banner-close').addEventListener('click', function(){
+							document.getElementById('newsletter-banner').style.display = 'none';
+						});
+			document.getElementById('newsletter-banner-submit').addEventListener('click', function() {
+							var email = document.getElementById('newsletter-banner-input').value;
+							if (!isEmail(email)) {
+											alert('Please enter a valid email address!');
+											return;
+										}
+							get('/x/email/subscribe?email='+encodeURIComponent(email), function(success) {
+											if (success) {
+															hideEmailBanner();
+															alert('Thanks for subscribing!');
+															document.getElementById('newsletter-banner-input').value = '';
+														} else {
+																		alert('Oops, there was an error with your subscription!');
+																	}
+										});
+						});
+			function empty() {
+							var isThere = true;
+							for (var i = 0; i < arguments.length; i++) {
+											isThere &= typeof arguments[i] === "undefined" ? false : arguments[i].trim() !== "";
+										}
+							return !isThere;
+						};
+			var postMessage = function(body, cb) {
+							var xhr = new XMLHttpRequest();
+							xhr.open('POST', '/x/s/message', true);
+											xhr.setRequestHeader('Content-Type', 'application/json');
+											xhr.send(JSON.stringify(body));
+											xhr.onreadystatechange = function() {
+															if (xhr.readyState === 4) {
+																			cb(xhr.status === 200);
+																		}
+														}
+						};
+			document.getElementById('feedback-submit').addEventListener('click', function(event) {
+							var email = document.getElementById('feedback-email').value;
+							var message = document.getElementById('feedback-message').value;
+							if (empty(email, message)) {
+											alert('Email and message cannot be blank');
+											return;
+										}
+							if (!isEmail(email)) {
+											alert('Please enter a valid email address');
+											return;
+										}
+							postMessage({email: email, message: message}, function(status) {
+											if (status) {
+															alert('Thanks for your message!');
+														} else {
+																		alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
+																	}
+											document.getElementById('feedback-email').value = '';
+											document.getElementById('feedback-message').value = '';
+											document.getElementById('feedback-box').style.display = 'none';
+											document.getElementById('feedback').style.display = 'block';
+										})
+						});
+			document.getElementById('feedback').addEventListener('click', function(event) {
+							document.getElementById('feedback').style.display = 'none';
+							document.getElementById('feedback-box').style.display = 'block';
+						});
+			document.getElementById('feedback-title').addEventListener('click', function(event) {
+							document.getElementById('feedback-box').style.display = 'none';
+							document.getElementById('feedback').style.display = 'block';
+						});
+		</script>
+	</body>
 </html>

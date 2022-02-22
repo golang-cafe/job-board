@@ -19,21 +19,21 @@ body{background:#ffffff;}
     footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
     </style>
     <meta charset="utf-8">
-    <title>Hire Golang Developers | Golang Cafe</title> 
-    <meta name="title" content="Hire Golang Developers | Golang Cafe" />
+    <title>Hire Golang Developers | {{ .SiteName }}</title> 
+    <meta name="title" content="Hire Golang Developers | {{ .SiteName }}" />
     <meta name="keywords" content="golang, golang jobs, go programming language, hire golang developers, hire go developers, hire go engineers" />
-    <meta name="description" content="Hire Golang Developers on Golang Cafe" />
+    <meta name="description" content="Hire Golang Developers on {{ .SiteName }}" />
     <meta itemprop="name" content="Hire Golang Developers">
-    <meta itemprop="description" content="Hire Golang Developers on Golang Cafe">
+    <meta itemprop="description" content="Hire Golang Developers on {{ .SiteName }}">
     <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta property="og:url" content="https://golang.cafe">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Hire Golang Developers | Golang Cafe">
-    <meta property="og:description" content="Hire Golang Developers on Golang Cafes">
+    <meta property="og:title" content="Hire Golang Developers | {{ .SiteName }}">
+    <meta property="og:description" content="Hire Golang Developers on {{ .SiteName }}s">
     <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Hire Golang Developers | Golang Cafe">
-    <meta name="twitter:description" content="Hire Golang Developers on Golang Cafe">
+    <meta name="twitter:title" content="Hire Golang Developers | {{ .SiteName }}">
+    <meta name="twitter:description" content="Hire Golang Developers on {{ .SiteName }}">
     <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
     
     <meta name="twitter:site" content="@golangcafe"/>   
@@ -88,7 +88,7 @@ body{background:#ffffff;}
 			<label style="display: inline-block;white-space: nowrap;padding-right: 10px;"><input type="checkbox" id="visa-sponsorship" name="visa-sponsorship" style="margin-right:0;vertical-align:middle;"> <span style="vertical-align: middle;">VISA Sponsorship</span></label>
 		</div>
                 <input type="text" name="how-to-apply" id="how-to-apply" placeholder="How To Apply (Email or URL)" style="width: 100%;"/><br />
-                <input type="email" name="company-email" id="company-email" placeholder="Your Email" value="team@golang.cafe" style="width: 100%;"/><br />
+		<input type="email" name="company-email" id="company-email" placeholder="Your Email" value="{{ .SupportEmail }}" style="width: 100%;"/><br />
                 <input type="submit" id="submit" value="Submit" onclick="post();" style="float: right;">
             </p>
       </article>

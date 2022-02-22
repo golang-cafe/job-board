@@ -13,20 +13,21 @@ import (
 type Config struct {
 	Port                         string
 	DatabaseURL                  string
-	StripeKey                    string
-	StripeEndpointSecret         string
-	StripePublishableKey         string
-	EmailAPIKey                  string
-	AdminEmail                   string
+	StripeKey                    string // stripe secret API Key
+	StripeEndpointSecret         string // stripe endpoint webhook secret token
+	StripePublishableKey         string // stripe publishable API key
+	EmailAPIKey                  string // sparkpost email API Key
+	AdminEmail                   string // used to log on to the management dashboard
+	SupportEmail                 string // displayed on the site for support queries
 	SessionKey                   []byte
 	JwtSigningKey                []byte
-	Env                          string
+	Env                          string // either prod or dev, will disable https and few other bits
 	IPGeoLocationGeoliteFile     string
 	IPGeoLocationCurrencyMapFile string
 	SentryDSN                    string
-	JobsPerPage                  int
-	DevelopersPerPage            int
-	CompaniesPerPage             int
+	JobsPerPage                  int // configures how many jobs are shown per page result
+	DevelopersPerPage            int // configures how many dev profiles are shown per page result
+	CompaniesPerPage             int // configures how many companies are shown per page result
 	TwitterJobsToPost            int
 	TwitterAccessToken           string
 	TwitterAccessTokenSecret     string
@@ -37,13 +38,14 @@ type Config struct {
 	CloudflareZoneTag            string
 	CloudflareAPIEndpoint        string
 	MachineToken                 string
-	WhatsappLink                 string
 	PhoneNumber                  string
 	TelegramAPIToken             string
 	TelegramChannelID            int64
 	FXAPIKey                     string
 	AvailableCurrencies          []string
 	AvailableSalaryBands         []int
+	SiteName                     string
+	SiteJobCategory              string
 }
 
 func LoadConfig() (Config, error) {
@@ -103,6 +105,10 @@ func LoadConfig() (Config, error) {
 	if adminEmail == "" {
 		return Config{}, fmt.Errorf("ADMIN_EMAIL cannot be empty")
 	}
+	supportEmail := os.Getenv("SUPPORT_EMAIL")
+	if supportEmail == "" {
+		return Config{}, fmt.Errorf("SUPPORT_EMAIL cannot be empty")
+	}
 	sentryDSN := os.Getenv("SENTRY_DSN")
 	if sentryDSN == "" {
 		return Config{}, fmt.Errorf("SENTRY_DSN cannot be empty")
@@ -155,10 +161,6 @@ func LoadConfig() (Config, error) {
 	if machineToken == "" {
 		return Config{}, fmt.Errorf("MACHINE_TOKEN cannot be empty")
 	}
-	whatsappLink := os.Getenv("WHATSAPP_LINK")
-	if machineToken == "" {
-		return Config{}, fmt.Errorf("WHATSAPP_LINK cannot be empty")
-	}
 	phoneNumber := os.Getenv("PHONE_NUMBER")
 	if machineToken == "" {
 		return Config{}, fmt.Errorf("PHONE_NUMBER cannot be empty")
@@ -179,6 +181,14 @@ func LoadConfig() (Config, error) {
 	if fxAPIKey == "" {
 		return Config{}, fmt.Errorf("FX_API_KEY cannot be empty")
 	}
+	siteName := os.Getenv("SITE_NAME")
+	if siteName == "" {
+		return Config{}, fmt.Errorf("SITE_NAME cannot be empty")
+	}
+	siteJobCategory := os.Getenv("SITE_JOB_CATEGORY")
+	if siteJobCategory == "" {
+		return Config{}, fmt.Errorf("SITE_JOB_CATEGORU cannot be empty")
+	}
 
 	return Config{
 		Port:                         port,
@@ -188,6 +198,7 @@ func LoadConfig() (Config, error) {
 		StripePublishableKey:         stripePublishableKey,
 		EmailAPIKey:                  emailAPIKey,
 		AdminEmail:                   adminEmail,
+		SupportEmail:                 supportEmail,
 		SessionKey:                   sessionKeyBytes,
 		JwtSigningKey:                jwtSigningKeyBytes,
 		Env:                          env,
@@ -207,11 +218,12 @@ func LoadConfig() (Config, error) {
 		CloudflareZoneTag:            cloudflareZoneTag,
 		CloudflareAPIEndpoint:        cloudflareAPIEndpoint,
 		MachineToken:                 machineToken,
-		WhatsappLink:                 whatsappLink,
 		PhoneNumber:                  phoneNumber,
 		TelegramAPIToken:             telegramAPIToken,
 		TelegramChannelID:            int64(telegramChannelID),
 		FXAPIKey:                     fxAPIKey,
+		SiteName:                     siteName,
+		SiteJobCategory:              siteJobCategory,
 		AvailableCurrencies:          []string{"USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN", "INR", "RUB", "ZAR", "TRY", "BRL"},
 		AvailableSalaryBands:         []int{10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000, 240000, 250000},
 	}, nil
