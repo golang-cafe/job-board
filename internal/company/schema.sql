@@ -1,0 +1,29 @@
+CREATE TABLE IF NOT EXISTS company (
+  id CHAR(27) NOT NULL UNIQUE,
+  name VARCHAR(255) NOT NULL,
+  url VARCHAR(255) NOT NULL,
+  locations VARCHAR(255) NOT NULL,
+  last_job_created_at TIMESTAMP NOT NULL,
+  icon_image_id CHAR(27) NOT NULL,
+  total_job_count INT NOT NULL,
+  active_job_count INT NOT NULL,
+  PRIMARY KEY(id)
+);
+
+ ALTER TABLE company ADD COLUMN featured_post_a_job BOOLEAN DEFAULT FALSE;
+ ALTER TABLE company ADD COLUMN slug VARCHAR(255) DEFAULT NULL;
+ CREATE UNIQUE INDEX company_name_idx ON company (name);
+ ALTER TABLE company ADD COLUMN description VARCHAR(255) NOT NULL DEFAULT '';
+ ALTER TABLE company ALTER COLUMN slug SET NOT NULL;
+ ALTER TABLE company ADD COLUMN twitter VARCHAR(255) DEFAULT NULL;
+ ALTER TABLE company ADD COLUMN github VARCHAR(255) DEFAULT NULL;
+ ALTER TABLE company ADD COLUMN linkedin VARCHAR(255) DEFAULT NULL;
+ ALTER TABLE company ALTER COLUMN description TYPE TEXT;
+ ALTER TABLE company ALTER COLUMN description SET DEFAULT NULL;
+ CREATE UNIQUE INDEX company_slug_idx ON company (slug);
+
+CREATE TABLE IF NOT EXISTS company_event (
+	event_type VARCHAR(128) NOT NULL,
+	company_id CHAR(27) NOT NULL REFERENCES company(id),
+	created_at TIMESTAMP NOT NULL
+);
