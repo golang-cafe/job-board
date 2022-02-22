@@ -5,16 +5,16 @@ import (
 	"net/http"
 
 	"github.com/0x13a/golang.cafe/internal/company"
-	"github.com/0x13a/golang.cafe/internal/developer"
-	"github.com/0x13a/golang.cafe/internal/job"
-	"github.com/0x13a/golang.cafe/internal/user"
 	"github.com/0x13a/golang.cafe/internal/config"
 	"github.com/0x13a/golang.cafe/internal/database"
+	"github.com/0x13a/golang.cafe/internal/developer"
 	"github.com/0x13a/golang.cafe/internal/email"
 	"github.com/0x13a/golang.cafe/internal/handler"
 	"github.com/0x13a/golang.cafe/internal/ipgeolocation"
+	"github.com/0x13a/golang.cafe/internal/job"
 	"github.com/0x13a/golang.cafe/internal/server"
 	"github.com/0x13a/golang.cafe/internal/template"
+	"github.com/0x13a/golang.cafe/internal/user"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -107,12 +107,11 @@ func main() {
 	// view support
 	svr.RegisterRoute("/support", handler.ViewSupportPageHandler(svr, jobRepo), []string{"GET"})
 
+	// Utility tools/pages
 	// generate ksuid
 	svr.RegisterRoute("/ksuid", handler.GenerateKsuIDPageHandler(svr), []string{"GET"})
-
 	// IP address Lookup
 	svr.RegisterRoute("/whats-my-ip", handler.IPAddressLookup(svr), []string{"GET"})
-
 	// DNS Checker
 	svr.RegisterRoute("/dns-checker", handler.DNSCheckerPageHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/x/dns", handler.DNSChecker(svr), []string{"GET"})
