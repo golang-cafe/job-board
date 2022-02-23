@@ -46,6 +46,8 @@ type Config struct {
 	SiteName                     string   // Job site name, in this case is "Golang Cafe"
 	SiteJobCategory              string   // Job site category, in this case is "golang"
 	SiteHost                     string   // Job site hostname, just the domain name where the site is deployed ie. "golang.cafe"
+	SiteGithub                   string   // job site github account username
+	SiteTwitter                  string   // job site twitter account username
 }
 
 func LoadConfig() (Config, error) {
@@ -189,6 +191,14 @@ func LoadConfig() (Config, error) {
 	if siteHost == "" {
 		return Config{}, fmt.Errorf("SITE_HOST cannot be empty")
 	}
+	siteTwitter := os.Getenv("SITE_TWITTER")
+	if siteTwitter == "" {
+		return Config{}, fmt.Errorf("SITE_TWITTEr cannot be empty")
+	}
+	siteGithub := os.Getenv("SITE_GITHUB")
+	if siteGithub == "" {
+		return Config{}, fmt.Errorf("SITE_GITHUB cannot be empty")
+	}
 
 	return Config{
 		Port:                         port,
@@ -224,6 +234,8 @@ func LoadConfig() (Config, error) {
 		SiteName:                     siteName,
 		SiteJobCategory:              siteJobCategory,
 		SiteHost:                     siteHost,
+		SiteGithub:                   siteGithub,
+		SiteTwitter:                  siteTwitter,
 		AvailableCurrencies:          []string{"USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN", "INR", "RUB", "ZAR", "TRY", "BRL"},
 		AvailableSalaryBands:         []int{10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000, 240000, 250000},
 	}, nil

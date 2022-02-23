@@ -989,6 +989,8 @@ func (s Server) Render(w http.ResponseWriter, status int, htmlView string, data 
 	dataMap["SiteJobCategoryURLEncoded"] = strings.ReplaceAll(strings.Title(strings.ToLower(s.GetConfig().SiteJobCategory)), " ", "-")
 	dataMap["SupportEmail"] = s.GetConfig().SupportEmail
 	dataMap["SiteHost"] = s.GetConfig().SiteHost
+	dataMap["SiteTwitter"] = s.GetConfig().SiteTwitter
+	dataMap["SiteGithub"] = s.GetConfig().SiteGithub
 
 	return s.tmpl.Render(w, status, htmlView, dataMap)
 }
