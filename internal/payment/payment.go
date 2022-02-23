@@ -63,7 +63,9 @@ func ProcessPaymentIfApplicable(stripeKey string, jobRq *job.JobRq) error {
 		Description:  stripe.String("Golang Cafe Sponsored Ad"),
 		ReceiptEmail: &jobRq.Email,
 	}
-	chargeParams.SetSource(jobRq.StripeToken)
+	if err := chargeParams.SetSource(jobRq.StripeToken); err != nil {
+		return err
+	}
 	_, err := charge.New(chargeParams)
 	return err
 }
