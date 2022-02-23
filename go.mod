@@ -2,10 +2,6 @@ module github.com/0x13a/golang.cafe
 
 go 1.13
 
-// +heroku goVersion go1.13.9
-// +heroku go mod download
-// +heroku install ./...
-
 require (
 	github.com/ChimeraCoder/anaconda v2.0.0+incompatible
 	github.com/ChimeraCoder/tokenbucket v0.0.0-20131201223612-c5a927568de7 // indirect
