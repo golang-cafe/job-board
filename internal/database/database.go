@@ -258,20 +258,6 @@ func CountEmailSubscribers(conn *sql.DB) (int, error) {
 	return count, err
 }
 
-const (
-	jobEventPageView = "page_view"
-	jobEventClickout = "clickout"
-
-	companyEventPageView             = "company_page_view"
-	developerProfileEventPageView    = "developer_profile_page_view"
-	developerProfileEventMessageSent = "developer_profile_message_sent"
-
-	SearchTypeJob       = "job"
-	SearchTypeSalary    = "salary"
-	SearchTypeCompany   = "company"
-	SearchTypeDeveloper = "developer"
-)
-
 // GetDbConn tries to establish a connection to postgres and return the connection handler
 func GetDbConn(databaseURL string) (*sql.DB, error) {
 	db, err := sql.Open("postgres", databaseURL)
