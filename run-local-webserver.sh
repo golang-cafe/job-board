@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 
 export NEWSLETTER_JOBS_TO_SEND=5
 export TWITTER_ACCESS_TOKEN=a123
