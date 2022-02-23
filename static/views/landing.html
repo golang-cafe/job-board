@@ -14,16 +14,16 @@
 		<meta name="description" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
 		<meta itemprop="name" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta itemprop="description" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
-		<meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
-		<meta property="og:url" content="https://golang.cafe">
+		<meta itemprop="image" content="https://{{ .SiteHost }}/s/img/cafe.jpg">
+		<meta property="og:url" content="https://{{ .SiteHost }}">
 		<meta property="og:type" content="website">
 		<meta property="og:title" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
 		<meta property="og:description" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
-		<meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
+		<meta property="og:image" content="https://{{ .SiteHost }}/s/img/cafe.jpg">
 		<meta name="twitter:card" content="summary_large_image">
 		<meta name="twitter:title" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
 		<meta name="twitter:description" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
-		<link rel="canonical" href="https://golang.cafe/Remote-{{ if .TagFilter }}{{.TagFilter}}-{{ end }}Jobs" />
+		<link rel="canonical" href="https://{{ .SiteHost }}/Remote-{{ if .TagFilter }}{{.TagFilter}}-{{ end }}Jobs" />
 		{{ else }}
 		<title>{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}}{{ end }} Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
 		<link href="/s/img/favicon.ico" rel="shortcut icon">
@@ -33,20 +33,20 @@
 		<meta name="description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
 		<meta itemprop="name" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs | {{ .SiteName }}">
 		<meta itemprop="description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
-		<meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
-		<meta property="og:url" content="https://golang.cafe/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}">
+		<meta itemprop="image" content="https://{{ .SiteHost }}/s/img/cafe.jpg">
+		<meta property="og:url" content="https://{{ .SiteHost }}/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}">
 		<meta property="og:type" content="website">
 		<meta property="og:title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
 		<meta property="og:description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
-		<meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
+		<meta property="og:image" content="https://{{ .SiteHost }}/s/img/cafe.jpg">
 		<meta name="twitter:card" content="summary_large_image">
 		<meta name="twitter:title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
 		<meta name="twitter:description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
-		<link rel="canonical" href="https://golang.cafe/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}" />
+		<link rel="canonical" href="https://{{ .SiteHost }}/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}" />
 		{{ end }}
-		<meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
+		<meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/cafe.jpg">
 		<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss">
-		<meta name="twitter:site" content="@golangcafe"/>
+		<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
 		<meta name="google-site-verification" content="CsoJdYDgMeIeUO0ylZtiDUb4-VZvb2tCpLTkq3GglVo" />
 		<meta name="msvalidate.01" content="E75D7CB7D078DD8E9C2FBA8C285CD656" />
 		<style type="text/css">
@@ -155,6 +155,8 @@ header{padding:0 10px;width:780px;margin:auto;}
 			{{ end }}
 			{{ $locationFilter := .LocationFilter }}
 			{{ $tagFilter := .TagFilter }}
+			{{ $siteJobCatURLEnc := .SiteJobCategoryURLEncoded }}
+			{{ $siteHost := .SiteHost }}
 			{{ range $i, $j := .PinnedJobs }}
 			<article class="line-item line-item-sponsored-1">
 				{{ if .CompanyIconID }}
@@ -162,7 +164,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 				{{ end }}
 				<div style="float: left;">
 					<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a> &bull; <small>Sponsored</small><br />
-					<a style="font-size:12pt;" href="/Golang-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
+					<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
 					<b>{{ .Location }}</b><br/>{{ .SalaryRange }} a {{ .SalaryPeriod }}
 					<br />
 					<small>{{ .TimeAgo }}</small>
@@ -188,7 +190,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 					{{ else }}
 					<a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow" class="apply-link">Apply</a>
 					{{ end }}
-					<a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
+					<a class="copy-to-clipboard" data-link="https://{{ $siteHost }}/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
 					<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>
 				</div>
 				<div class="clearfix"></div>
@@ -213,7 +215,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 				{{ end }}
 				<div style="float: left;">
 					<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a> &bull; <small>Sponsored</small><br />
-					<a style="font-size:12pt;" href="/Golang-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
+					<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
 					<b>{{ .Location }}</b><br/>{{ .SalaryRange }} a {{ .SalaryPeriod }}
 					<br />
 					<small>{{ .TimeAgo }}</small>
@@ -246,7 +248,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 					{{ else }}
 					<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
 					{{ end }}
-					<a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
+					<a class="copy-to-clipboard" data-link="https://{{ $siteHost }}/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
 					<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>  
 				</div>
 				<div class="clearfix"></div>
@@ -258,7 +260,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 				{{ end }}
 				<div style="float: left;">
 					<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a>{{ if or (eq .AdType 2) (eq .AdType 3) (eq .AdType 5) }} &bull; <small>Sponsored</small>{{ end }}<br />
-					<a style="font-size:12pt;" href="/Golang-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
+					<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
 					<b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
 					<br />
 					<small>{{ .TimeAgo }}</small>
@@ -291,7 +293,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 					{{ else }}
 					<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
 					{{ end }}
-					<a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
+					<a class="copy-to-clipboard" data-link="https://{{ $siteHost }}/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
 					<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>
 				</div>
 				<div class="clearfix"></div>
@@ -441,8 +443,8 @@ header{padding:0 10px;width:780px;margin:auto;}
 			<nav class="subnav">
 				<ul>
 					<li><a href="/">Jobs</a></li>
-					<li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
-					<li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub (Open source)</a></li>
+					<li><a target="_blank" href="https://twitter.com/{{ .SiteTwitter }}">{{ .SiteName }} on Twitter</a></li>
+					<li><a target="_blank" href="https://github.com/{{ .SiteGithub }}">{{ .SiteName }} on GitHub (Open source)</a></li>
 					<li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
 					<li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
 					<li><a href="/support">Support</a></li>

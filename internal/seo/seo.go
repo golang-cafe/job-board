@@ -8,8 +8,8 @@ import (
 	"strings"
 
 	"github.com/0x13a/golang.cafe/internal/company"
-	"github.com/0x13a/golang.cafe/internal/developer"
 	"github.com/0x13a/golang.cafe/internal/database"
+	"github.com/0x13a/golang.cafe/internal/developer"
 )
 
 func StaticPages() []string {

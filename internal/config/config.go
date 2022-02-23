@@ -28,7 +28,7 @@ type Config struct {
 	JobsPerPage                  int // configures how many jobs are shown per page result
 	DevelopersPerPage            int // configures how many dev profiles are shown per page result
 	CompaniesPerPage             int // configures how many companies are shown per page result
-	TwitterJobsToPost            int
+	TwitterJobsToPost            int // max number of jobs to post each day
 	TwitterAccessToken           string
 	TwitterAccessTokenSecret     string
 	TwitterClientKey             string
@@ -38,14 +38,16 @@ type Config struct {
 	CloudflareZoneTag            string
 	CloudflareAPIEndpoint        string
 	MachineToken                 string
-	PhoneNumber                  string
-	TelegramAPIToken             string
-	TelegramChannelID            int64
-	FXAPIKey                     string
-	AvailableCurrencies          []string
-	AvailableSalaryBands         []int
-	SiteName                     string
-	SiteJobCategory              string
+	TelegramAPIToken             string   // Telegram API Token used to integrate with site's Telegram channel
+	TelegramChannelID            int64    // Telegram Channel ID used to integrate with site's Telegram channel
+	FXAPIKey                     string   // FX rate api API Key to access recent FX data
+	AvailableCurrencies          []string // currencies used throughout the site for salary compensation (post a job, salary filter FX, etc)
+	AvailableSalaryBands         []int    // salary upper limits used in search to filter job by minimum salary
+	SiteName                     string   // Job site name, in this case is "Golang Cafe"
+	SiteJobCategory              string   // Job site category, in this case is "golang"
+	SiteHost                     string   // Job site hostname, just the domain name where the site is deployed ie. "golang.cafe"
+	SiteGithub                   string   // job site github account username
+	SiteTwitter                  string   // job site twitter account username
 }
 
 func LoadConfig() (Config, error) {
@@ -161,10 +163,6 @@ func LoadConfig() (Config, error) {
 	if machineToken == "" {
 		return Config{}, fmt.Errorf("MACHINE_TOKEN cannot be empty")
 	}
-	phoneNumber := os.Getenv("PHONE_NUMBER")
-	if machineToken == "" {
-		return Config{}, fmt.Errorf("PHONE_NUMBER cannot be empty")
-	}
 	telegramAPIToken := os.Getenv("TELEGRAM_API_TOKEN")
 	if telegramAPIToken == "" {
 		return Config{}, fmt.Errorf("TELEGRAM_API_TOKEN cannot be empty")
@@ -188,6 +186,18 @@ func LoadConfig() (Config, error) {
 	siteJobCategory := os.Getenv("SITE_JOB_CATEGORY")
 	if siteJobCategory == "" {
 		return Config{}, fmt.Errorf("SITE_JOB_CATEGORU cannot be empty")
+	}
+	siteHost := os.Getenv("SITE_HOST")
+	if siteHost == "" {
+		return Config{}, fmt.Errorf("SITE_HOST cannot be empty")
+	}
+	siteTwitter := os.Getenv("SITE_TWITTER")
+	if siteTwitter == "" {
+		return Config{}, fmt.Errorf("SITE_TWITTEr cannot be empty")
+	}
+	siteGithub := os.Getenv("SITE_GITHUB")
+	if siteGithub == "" {
+		return Config{}, fmt.Errorf("SITE_GITHUB cannot be empty")
 	}
 
 	return Config{
@@ -218,12 +228,14 @@ func LoadConfig() (Config, error) {
 		CloudflareZoneTag:            cloudflareZoneTag,
 		CloudflareAPIEndpoint:        cloudflareAPIEndpoint,
 		MachineToken:                 machineToken,
-		PhoneNumber:                  phoneNumber,
 		TelegramAPIToken:             telegramAPIToken,
 		TelegramChannelID:            int64(telegramChannelID),
 		FXAPIKey:                     fxAPIKey,
 		SiteName:                     siteName,
 		SiteJobCategory:              siteJobCategory,
+		SiteHost:                     siteHost,
+		SiteGithub:                   siteGithub,
+		SiteTwitter:                  siteTwitter,
 		AvailableCurrencies:          []string{"USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN", "INR", "RUB", "ZAR", "TRY", "BRL"},
 		AvailableSalaryBands:         []int{10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000, 240000, 250000},
 	}, nil

@@ -63,7 +63,9 @@ func ProcessPaymentIfApplicable(stripeKey string, jobRq *job.JobRq) error {
 		Description:  stripe.String("Golang Cafe Sponsored Ad"),
 		ReceiptEmail: &jobRq.Email,
 	}
-	chargeParams.SetSource(jobRq.StripeToken)
+	if err := chargeParams.SetSource(jobRq.StripeToken); err != nil {
+		return err
+	}
 	_, err := charge.New(chargeParams)
 	return err
 }
@@ -80,7 +82,7 @@ func CreateGenericSession(stripeKey, email, currency string, amount int) (*strip
 			"card",
 		}),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
-			&stripe.CheckoutSessionLineItemParams{
+			{
 				Name:     stripe.String("Golang Cafe Sponsored Ad"),
 				Amount:   stripe.Int64(int64(amount)),
 				Currency: stripe.String(currency),
@@ -110,7 +112,7 @@ func CreateSession(stripeKey string, jobRq *job.JobRq, jobToken string) (*stripe
 			"card",
 		}),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
-			&stripe.CheckoutSessionLineItemParams{
+			{
 				Name:     stripe.String("Golang Cafe Sponsored Ad"),
 				Amount:   stripe.Int64(AdTypeToAmount(jobRq.AdType)),
 				Currency: stripe.String(strings.ToLower(jobRq.CurrencyCode)),
