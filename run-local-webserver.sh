@@ -31,6 +31,7 @@ export TELEGRAM_CHANNEL_ID=1233123123
 export FX_API_KEY=a123
 export SITE_NAME="Golang Cafe"
 export SITE_JOB_CATEGORY="golang"
+export SITE_HOST="golang.cafe"
 
 go build -o bin/server cmd/server/main.go
 
