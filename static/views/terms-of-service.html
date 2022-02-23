@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Golang Cafe Website Terms of Service | Golang Cafe</title>
+	  <title>{{ .SiteName }} Website Terms of Service | {{ .SiteName }}</title>
     <link href="/s/img/favicon.ico" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css">
@@ -12,58 +12,58 @@ body{background:#ffffff;}
     footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
     </style>
     <meta charset="utf-8">
-    <meta name="title" content="Golang Cafe Website Terms of Service | Golang Cafe" />
+    <meta name="title" content="{{ .SiteName }} Website Terms of Service | {{ .SiteName }}" />
     <meta name="keywords" content="golang, golang jobs, Terms of Service" />
-    <meta name="description" content="Golang Developer Jobs | Golang Cafe Terms of Service" />
-    <meta itemprop="name" content="Golang Cafe Website Terms of Service | Golang Cafe">
-    <meta itemprop="description" content="Golang Developer Jobs | Golang Cafe Terms of Service">
-    <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
-    <meta property="og:url" content="https://golang.cafe">
+    <meta name="description" content="Golang Developer Jobs | {{ .SiteName }} Terms of Service" />
+    <meta itemprop="name" content="{{ .SiteName }} Website Terms of Service | {{ .SiteName }}">
+    <meta itemprop="description" content="Golang Developer Jobs | {{ .SiteName }} Terms of Service">
+    <meta itemprop="image" content="https://{{ .SiteHost }}/s/img/cafe.jpg">
+    <meta property="og:url" content="https://{{ .SiteHost }}">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Golang Cafe Website Terms of Service | Golang Cafe">
-    <meta property="og:description" content="Golang Developer Jobs | Golang Cafe Terms of Service">
-    <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
+    <meta property="og:title" content="{{ .SiteName }} Website Terms of Service | {{ .SiteName }}">
+    <meta property="og:description" content="Golang Developer Jobs | {{ .SiteName }} Terms of Service">
+    <meta property="og:image" content="https://{{ .SiteHost }}/s/img/cafe.jpg">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Golang Cafe Website Terms of Service | Golang Cafe">
-    <meta name="twitter:description" content="Golang Developer Jobs | Golang Cafe Terms of Service">
-    <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
+    <meta name="twitter:title" content="{{ .SiteName }} Website Terms of Service | {{ .SiteName }}">
+    <meta name="twitter:description" content="Golang Developer Jobs | {{ .SiteName }} Terms of Service">
+    <meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/cafe.jpg">
     
     <meta name="twitter:site" content="@golangcafe"/>
   </head>
   <body>
   <section>
       <article>
-        <h1>Golang Cafe Terms of Service</h1>
+	      <h1>{{ .SiteName }} Terms of Service</h1>
         <h3>1. Terms</h3>
-        <p>Pizza Digital Limited ("Us" or "We") provides Golang Cafe (https://golang.cafe) website and other related services (collectively, "Golang Cafe"). By accessing the website at <a href="http://golang.cafe">http://golang.cafe</a>, you are agreeing to be bound by these terms of service, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws. If you do not agree with any of these terms, you are prohibited from using or accessing this site. The materials contained in this website are protected by applicable copyright and trademark law.</p>
+	<p>Pizza Digital Limited ("Us" or "We") provides {{ .SiteName }} (https://{{ .SiteHost }}) website and other related services (collectively, "{{ .SiteName }}"). By accessing the website at <a href="http://{{ .SiteHost }}">http://{{ .SiteHost }}</a>, you are agreeing to be bound by these terms of service, all applicable laws and regulations, and agree that you are responsible for compliance with any applicable local laws. If you do not agree with any of these terms, you are prohibited from using or accessing this site. The materials contained in this website are protected by applicable copyright and trademark law.</p>
         <h3>2. Privacy Policy</h3>
-        <p>By accessing the website at <a href="http://golang.cafe">http://golang.cafe</a>, you are agreeing to our privacy policy. You can view Golang Cafe's privacy policy by following this link <a href="/privacy-policy">https://golang.cafe/privacy-policy</a></p>
+	<p>By accessing the website at <a href="http://{{ .SiteHost }}">http://{{ .SiteHost }}</a>, you are agreeing to our privacy policy. You can view {{ .SiteName }}'s privacy policy by following this link <a href="/privacy-policy">https://{{ .SiteHost }}/privacy-policy</a></p>
         <h3>3. Use License</h3>
         <ol type="a">
-           <li>Permission is granted to temporarily download one copy of the materials (information or software) on Golang Cafe's website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
+		<li>Permission is granted to temporarily download one copy of the materials (information or software) on {{ .SiteName }}'s website for personal, non-commercial transitory viewing only. This is the grant of a license, not a transfer of title, and under this license you may not:
            <ol type="i">
                <li>modify or copy the materials;</li>
                <li>use the materials for any commercial purpose, or for any public display (commercial or non-commercial);</li>
-               <li>attempt to decompile or reverse engineer any software contained on Golang Cafe's website;</li>
+	       <li>attempt to decompile or reverse engineer any software contained on {{ .SiteName }}'s website;</li>
                <li>remove any copyright or other proprietary notations from the materials; or</li>
                <li>transfer the materials to another person or "mirror" the materials on any other server.</li>
            </ol>
             </li>
-           <li>This license shall automatically terminate if you violate any of these restrictions and may be terminated by Golang Cafe at any time. Upon terminating your viewing of these materials or upon the termination of this license, you must destroy any downloaded materials in your possession whether in electronic or printed format.</li>
+	    <li>This license shall automatically terminate if you violate any of these restrictions and may be terminated by {{ .SiteName }} at any time. Upon terminating your viewing of these materials or upon the termination of this license, you must destroy any downloaded materials in your possession whether in electronic or printed format.</li>
         </ol>
         <h3>4. Disclaimer</h3>
         <ol type="a">
-           <li>The materials on Golang Cafe's website are provided on an 'as is' basis. Golang Cafe makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</li>
-           <li>Further, Golang Cafe does not warrant or make any representations concerning the accuracy, likely results, or reliability of the use of the materials on its website or otherwise relating to such materials or on any sites linked to this site.</li>
+		<li>The materials on {{ .SiteName }}'s website are provided on an 'as is' basis. {{ .SiteName }} makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.</li>
+		<li>Further, {{ .SiteName }} does not warrant or make any representations concerning the accuracy, likely results, or reliability of the use of the materials on its website or otherwise relating to such materials or on any sites linked to this site.</li>
         </ol>
         <h3>5. Limitations</h3>
-        <p>In no event shall Golang Cafe or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on Golang Cafe's website, even if Golang Cafe or a Golang Cafe authorized representative has been notified orally or in writing of the possibility of such damage. Because some jurisdictions do not allow limitations on implied warranties, or limitations of liability for consequential or incidental damages, these limitations may not apply to you.</p>
+	<p>In no event shall {{ .SiteName }} or its suppliers be liable for any damages (including, without limitation, damages for loss of data or profit, or due to business interruption) arising out of the use or inability to use the materials on {{ .SiteName }}'s website, even if {{ .SiteName }} or a {{ .SiteName }} authorized representative has been notified orally or in writing of the possibility of such damage. Because some jurisdictions do not allow limitations on implied warranties, or limitations of liability for consequential or incidental damages, these limitations may not apply to you.</p>
         <h3>6. Accuracy of materials</h3>
-        <p>The materials appearing on Golang Cafe's website could include technical, typographical, or photographic errors. Golang Cafe does not warrant that any of the materials on its website are accurate, complete or current. Golang Cafe may make changes to the materials contained on its website at any time without notice. However Golang Cafe does not make any commitment to update the materials.</p>
+	<p>The materials appearing on {{ .SiteName }}'s website could include technical, typographical, or photographic errors. {{ .SiteName }} does not warrant that any of the materials on its website are accurate, complete or current. {{ .SiteName }} may make changes to the materials contained on its website at any time without notice. However {{ .SiteName }} does not make any commitment to update the materials.</p>
         <h3>7. Links</h3>
-        <p>Golang Cafe has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by Golang Cafe of the site. Use of any such linked website is at the user's own risk.</p>
+	<p>{{ .SiteName }} has not reviewed all of the sites linked to its website and is not responsible for the contents of any such linked site. The inclusion of any link does not imply endorsement by {{ .SiteName }} of the site. Use of any such linked website is at the user's own risk.</p>
         <h3>8. Modifications</h3>
-        <p>Golang Cafe may revise these terms of service for its website at any time without notice. By using this website you are agreeing to be bound by the then current version of these terms of service.</p>
+	<p>{{ .SiteName }} may revise these terms of service for its website at any time without notice. By using this website you are agreeing to be bound by the then current version of these terms of service.</p>
         <h3>9. Governing Law</h3>
         <p>These terms and conditions are governed by and construed in accordance with the laws of London, England, UK and you irrevocably submit to the exclusive jurisdiction of the courts in that State or location.</p>        
         <h3>10. Refund Policy</h3>
@@ -81,16 +81,16 @@ body{background:#ffffff;}
       </article>
   </section>
   <footer>
-  <h4 style="margin-left: 9px;">Golang Cafe</h4>
+	  <h4 style="margin-left: 9px;">{{ .SiteName }}</h4>
   <nav class="subnav">
       <ul>
 	  <li><a href="/">Jobs</a></li>
-	  <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
-	  <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
-	  <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
-	  <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+	  <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
+	  <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub (Open source)</a></li>
+	  <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+	  <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
 	  <li><a href="/support">Support</a></li>
-	  <li><a href="/about">About Golang Cafe</a></li>
+	  <li><a href="/about">About {{ .SiteName }}</a></li>
 	  <li><a href="/terms-of-service">T&Cs</a></li>
 	  <li><a href="/privacy-policy">Privacy Policy</a></li>
       </ul>

@@ -52,7 +52,7 @@ body{background:#ffffff;}
   <section>
     <p>
         <small>
-          <a href="/">Golang Cafe</a> |
+		<a href="/">{{ .SiteName }}</a> |
           <a href="/support">Contact Support</a> |
           <a href="/Hire-Golang-Developers">Post a Job</a> 
         </small>
@@ -142,7 +142,7 @@ body{background:#ffffff;}
         <p>
             <h3>Thank you</h3>
             {{ if .PaymentSuccess }}
-                Thanks for submitting your job on Golang Cafe. The Job is currently being reviewed and will be approved within the next few hours. Any questions please don't hesitate to contact us <code>team@golang.cafe</code>
+	    Thanks for submitting your job on {{ .SiteName }}. The Job is currently being reviewed and will be approved within the next few hours. Any questions please don't hesitate to contact us <code>{{ .SupportEmail }}</code>
             {{ else }}
                 Oops, there was a problem with your payment. Don't worry your job ad has been saved
             {{ end }}

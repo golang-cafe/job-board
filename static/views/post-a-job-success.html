@@ -13,19 +13,19 @@ body{background:#ffffff;}
     <meta charset="utf-8">
     <meta name="title" content="Post a Golang Job now and reach thousands of candidates" />
     <meta name="keywords" content="golang, golang jobs, go programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}" />
-    <meta name="description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | Golang Cafe" />
+    <meta name="description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | {{ .SiteName }}" />
 
     <meta itemprop="name" content="Post a Golang Job now and reach thousands of candidates">
-    <meta itemprop="description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | Golang Cafe">
+    <meta itemprop="description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | {{ .SiteName }}">
     <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta property="og:url" content="https://golang.cafe">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Post a Golang Job now and reach thousands of candidates">
-    <meta property="og:description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidate | Golang Cafes">
+    <meta property="og:description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidate | {{ .SiteName }}s">
     <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Post a Golang Job now and reach thousands of candidates">
-    <meta name="twitter:description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | Golang Cafe">
+    <meta name="twitter:description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | {{ .SiteName }}">
     <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
     
     <meta name="twitter:site" content="@golangcafe"/>
@@ -35,7 +35,7 @@ body{background:#ffffff;}
   <section>
       <article>
             <p>
-                <h3>Thanks for advertising on Golang Cafe</h3>
+	    <h3>Thanks for advertising on {{ .SiteName }}</h3>
                 Your job ad was submitted successfully.<br />
 		<h3>What happens next</h3>
                 A member of staff is reviewing the job ad and will notify you as soon as it is approved.<br/>

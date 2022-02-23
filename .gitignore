@@ -2,6 +2,6 @@
 .vscode/
 *.sh
 *.swp
-golang.cafe
 !setup-database.sh
 !run-local-webserver.sh
+bin

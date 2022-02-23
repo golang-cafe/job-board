@@ -13,19 +13,19 @@ body{background:#ffffff;}
     <meta charset="utf-8">
     <meta name="title" content="Post a Golang Job now and reach thousands of candidates" />
     <meta name="keywords" content="golang, golang jobs, go programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}" />
-    <meta name="description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | Golang Cafe" />
+    <meta name="description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | {{ .SiteName }}" />
 
     <meta itemprop="name" content="Post a Golang Job now and reach thousands of candidates">
-    <meta itemprop="description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | Golang Cafe">
+    <meta itemprop="description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | {{ .SiteName }}">
     <meta itemprop="image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta property="og:url" content="https://golang.cafe">
     <meta property="og:type" content="website">
     <meta property="og:title" content="Post a Golang Job now and reach thousands of candidates">
-    <meta property="og:description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidate | Golang Cafes">
+    <meta property="og:description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidate | {{ .SiteName }}s">
     <meta property="og:image" content="https://golang.cafe/s/img/cafe.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Post a Golang Job now and reach thousands of candidates">
-    <meta name="twitter:description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | Golang Cafe">
+    <meta name="twitter:description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | {{ .SiteName }}">
     <meta name="twitter:image" content="https://golang.cafe/s/img/cafe.jpg">
     
     <meta name="twitter:site" content="@golangcafe"/>
@@ -37,7 +37,7 @@ body{background:#ffffff;}
             <p>
                 <h3>Oops we are sorry :(</h3>
                 Oops, something went wrong - most likely we have catched the error and we are working on the fix. Please try again later.<br />
-                Please reach us out <a href="mailto:&#116;&#101;&#97;&#109;&#64;&#103;&#111;&#108;&#97;&#110;&#103;&#46;&#99;&#97;&#102;&#101;">team@golang.cafe</a> if you need to Hire Go Developers now
+		Please reach us out <a href="mailto:&#116;&#101;&#97;&#109;&#64;&#103;&#111;&#108;&#97;&#110;&#103;&#46;&#99;&#97;&#102;&#101;">{{ .SupportEmail }}</a> if you need to Hire Go Developers now
             </p>
       </article>
   </section>

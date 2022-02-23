@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/0x13a/golang.cafe/pkg/database"
+	"github.com/0x13a/golang.cafe/internal/job"
 
 	stripe "github.com/stripe/stripe-go"
 	charge "github.com/stripe/stripe-go/charge"
@@ -16,17 +16,17 @@ import (
 
 func AdTypeToAmount(adType int64) int64 {
 	switch adType {
-	case database.JobAdBasic:
+	case job.JobAdBasic:
 		return 3900
-	case database.JobAdSponsoredBackground:
+	case job.JobAdSponsoredBackground:
 		return 3900
-	case database.JobAdSponsoredPinnedFor30Days:
+	case job.JobAdSponsoredPinnedFor30Days:
 		return 12900
-	case database.JobAdSponsoredPinnedFor7Days:
+	case job.JobAdSponsoredPinnedFor7Days:
 		return 5900
-	case database.JobAdWithCompanyLogo:
+	case job.JobAdWithCompanyLogo:
 		return 4900
-	case database.JobAdSponsoredPinnedFor60Days:
+	case job.JobAdSponsoredPinnedFor60Days:
 		return 19900
 	}
 
@@ -35,24 +35,24 @@ func AdTypeToAmount(adType int64) int64 {
 
 func AdTypeToDescription(adType int64) string {
 	switch adType {
-	case database.JobAdBasic:
+	case job.JobAdBasic:
 		return "Standard Ad"
-	case database.JobAdSponsoredBackground:
+	case job.JobAdSponsoredBackground:
 		return "Sponsored Ad Highlighted Background"
-	case database.JobAdSponsoredPinnedFor30Days:
+	case job.JobAdSponsoredPinnedFor30Days:
 		return "Sponsored Ad Pinned For 30 Days"
-	case database.JobAdSponsoredPinnedFor7Days:
+	case job.JobAdSponsoredPinnedFor7Days:
 		return "Sponsored Ad Pinned For 7 Days"
-	case database.JobAdWithCompanyLogo:
+	case job.JobAdWithCompanyLogo:
 		return "Standard Ad With Company Logo"
-	case database.JobAdSponsoredPinnedFor60Days:
+	case job.JobAdSponsoredPinnedFor60Days:
 		return "Sponsored Ad Pinned For 60 Days"
 	}
 
 	return ""
 }
 
-func ProcessPaymentIfApplicable(stripeKey string, jobRq *database.JobRq) error {
+func ProcessPaymentIfApplicable(stripeKey string, jobRq *job.JobRq) error {
 	if !isApplicable(jobRq) {
 		return nil
 	}
@@ -63,12 +63,14 @@ func ProcessPaymentIfApplicable(stripeKey string, jobRq *database.JobRq) error {
 		Description:  stripe.String("Golang Cafe Sponsored Ad"),
 		ReceiptEmail: &jobRq.Email,
 	}
-	chargeParams.SetSource(jobRq.StripeToken)
+	if err := chargeParams.SetSource(jobRq.StripeToken); err != nil {
+		return err
+	}
 	_, err := charge.New(chargeParams)
 	return err
 }
 
-func isApplicable(jobRq *database.JobRq) bool {
+func isApplicable(jobRq *job.JobRq) bool {
 	return jobRq.AdType >= 0 && jobRq.AdType <= 5
 }
 
@@ -80,7 +82,7 @@ func CreateGenericSession(stripeKey, email, currency string, amount int) (*strip
 			"card",
 		}),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
-			&stripe.CheckoutSessionLineItemParams{
+			{
 				Name:     stripe.String("Golang Cafe Sponsored Ad"),
 				Amount:   stripe.Int64(int64(amount)),
 				Currency: stripe.String(currency),
@@ -99,7 +101,7 @@ func CreateGenericSession(stripeKey, email, currency string, amount int) (*strip
 
 	return session, nil
 }
-func CreateSession(stripeKey string, jobRq *database.JobRq, jobToken string) (*stripe.CheckoutSession, error) {
+func CreateSession(stripeKey string, jobRq *job.JobRq, jobToken string) (*stripe.CheckoutSession, error) {
 	if !isApplicable(jobRq) {
 		return nil, nil
 	}
@@ -110,7 +112,7 @@ func CreateSession(stripeKey string, jobRq *database.JobRq, jobToken string) (*s
 			"card",
 		}),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
-			&stripe.CheckoutSessionLineItemParams{
+			{
 				Name:     stripe.String("Golang Cafe Sponsored Ad"),
 				Amount:   stripe.Int64(AdTypeToAmount(jobRq.AdType)),
 				Currency: stripe.String(strings.ToLower(jobRq.CurrencyCode)),

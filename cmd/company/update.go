@@ -6,8 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/0x13a/golang.cafe/pkg/config"
-	"github.com/0x13a/golang.cafe/pkg/database"
+	"github.com/0x13a/golang.cafe/internal/company"
+	"github.com/0x13a/golang.cafe/internal/config"
+	"github.com/0x13a/golang.cafe/internal/database"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gosimple/slug"
@@ -26,8 +27,10 @@ func main() {
 	}
 	defer database.CloseDbConn(conn)
 
+	companyRepo := company.NewRepository(conn)
+
 	since := time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
-	cs, err := database.InferCompaniesFromJobs(conn, since)
+	cs, err := companyRepo.InferCompaniesFromJobs(since)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -124,13 +127,13 @@ func main() {
 		c.ID = companyID.String()
 		c.Slug = slug.Make(c.Name)
 		c.IconImageID = newIconID.String()
-		if err := database.SaveCompany(conn, c); err != nil {
+		if err := companyRepo.SaveCompany(c); err != nil {
 			log.Println(err)
 			continue
 		}
 		log.Println(c.Name)
 	}
-	if err := database.DeleteStaleImages(conn); err != nil {
+	if err := companyRepo.DeleteStaleImages(); err != nil {
 		log.Fatal(err)
 	}
 }

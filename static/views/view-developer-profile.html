@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-	  <title>{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | Golang Cafe</title>
+	  <title>{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}</title>
     <link href="/s/img/favicon.ico" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css">
@@ -234,20 +234,20 @@ background-color: #FF6600
   .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
     </style>
     <meta charset="utf-8">
-    <meta name="title" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | Golang Cafe" />
+    <meta name="title" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}" />
     <meta name="keywords" content="golang, golang developer, golang developer for hire, {{ .DeveloperProfile.Name }}" />
-    <meta name="description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | Golang Cafe" />
+    <meta name="description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}" />
     <meta itemprop="name" content="{{ .DeveloperProfile.Name }}">
-    <meta itemprop="description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | Golang Cafe">
+    <meta itemprop="description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
     <meta itemprop="image" content="https://golang.cafe/s/img/logo.png">
     <meta property="og:url" content="https://golang.cafe/developer/{{ .DeveloperProfile.Slug }}">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | Golang Cafe">
-    <meta property="og:description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | Golang Cafe">
+    <meta property="og:title" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
+    <meta property="og:description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
     <meta property="og:image" content="https://golang.cafe/s/img/logo.png">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | Golang Cafe">
-    <meta name="twitter:description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | Golang Cafe">
+    <meta name="twitter:title" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
+    <meta name="twitter:description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
     <meta name="twitter:image" content="https://golang.cafe/s/img/logo.png">
     <meta name="twitter:site" content="@golangcafe"/>
     <link rel="canonical" href="https://golang.cafe/developer/{{ .DeveloperProfile.Slug }}" />
@@ -344,16 +344,16 @@ background-color: #FF6600
             <li><a target="_blank" href="/Golang-Developer-Salary-Paris">Golang Developer Salary Paris</a></li>
         </ul>
     </nav>
-  <h4 style="margin-left: 9px;">Golang Cafe</h4>
+    <h4 style="margin-left: 9px;">{{ .SiteName }}</h4>
   <nav class="subnav">
       <ul>
 	  <li><a href="/">Jobs</a></li>
-	  <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
-	  <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
-	  <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
-	  <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+	  <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
+	  <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub (Open source)</a></li>
+	  <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+	  <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
 	  <li><a href="/support">Support</a></li>
-	  <li><a href="/about">About Golang Cafe</a></li>
+	  <li><a href="/about">About {{ .SiteName }}</a></li>
 	  <li><a href="/terms-of-service">T&Cs</a></li>
 	  <li><a href="/privacy-policy">Privacy Policy</a></li>
       </ul>
