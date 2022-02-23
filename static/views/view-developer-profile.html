@@ -232,7 +232,25 @@ background-color: #FF6600
 .resp-sharing-button--telegram:hover {
   background-color: #4B97D1;}
   .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
+
+	.skill {
+		display: inline-block;
+		margin-top:10px;
+		background: #dbdbdb;
+		font-size: medium;
+		padding: 4px 10px;
+		border-radius: 5px;
+	}
+
+	@media (prefers-color-scheme: dark) {
+		.skill {
+			color: #fff;
+			background: gray;
+		}
+	}
+
     </style>
+	{{ template "dark-mode-css" }}
     <meta charset="utf-8">
     <meta name="title" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}" />
     <meta name="keywords" content="golang, golang developer, golang developer for hire, {{ .DeveloperProfile.Name }}" />
@@ -286,7 +304,7 @@ background-color: #FF6600
 		Last Updated <b>{{ .DeveloperProfile.UpdatedAtHumanized }}</b><br />
 		<p id="skills-{{ .DeveloperProfile.ID }}">
 		  {{ range $x, $y := .DeveloperProfile.SkillsArray }}
-		  	<span style="display: inline-block;margin-top:10px;background: #dbdbdb;font-size:medium;padding: 4px 10px;border-radius:5px;">{{ $y }}</span>
+				<span class="skill">{{ $y }}</span>
 		  {{ end }}
 	    </p><br />
 		<p>{{ .DeveloperProfile.Bio }}</p>
