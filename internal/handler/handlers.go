@@ -2087,16 +2087,22 @@ func WellKnownSecurityHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, "static/security.txt")
 }
 
-func AboutPageHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "static/views/about.html")
+func AboutPageHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		svr.Render(w, http.StatusOK, "about.html", nil)
+	}
 }
 
-func PrivacyPolicyPageHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "static/views/privacy-policy.html")
+func PrivacyPolicyPageHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		svr.Render(w, http.StatusOK, "privacy-policy.html", nil)
+	}
 }
 
-func TermsOfServicePageHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "static/views/terms-of-service.html")
+func TermsOfServicePageHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		svr.Render(w, http.StatusOK, "terms-of-service.html", nil)
+	}
 }
 
 func SalaryLandingPageLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
