@@ -1039,7 +1039,7 @@ func (s Server) Run() error {
 	addr := fmt.Sprintf(":%s", s.cfg.Port)
 	if s.cfg.Env == "dev" {
 		log.Printf("local env http://localhost:%s", s.cfg.Port)
-		addr = fmt.Sprintf("localhost:%s", s.cfg.Port)
+		addr = fmt.Sprintf("0.0.0.0:%s", s.cfg.Port)
 	}
 	return http.ListenAndServe(
 		addr,
