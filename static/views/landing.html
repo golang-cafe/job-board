@@ -303,7 +303,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 			<article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
 				<div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;" id="email-subscribe-item-text">Get a weekly email with all new Go jobs</div>
 				<input type="email" name="job-email-subscription" id="job-email-subscription" style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
-				<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Subscribe" style="width:50%;display:table;margin:5px auto;"/>
+				<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;"/>
 			</article>
 			{{ if gt $jobsFound 0 }}
 			{{ if .LocationFilter }}
