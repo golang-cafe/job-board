@@ -155,6 +155,8 @@ header{padding:0 10px;width:780px;margin:auto;}
 			{{ end }}
 			{{ $locationFilter := .LocationFilter }}
 			{{ $tagFilter := .TagFilter }}
+			{{ $siteJobCatURLEnc := .SiteJobCategoryURLEncoded }}
+			{{ $siteHost := .SiteHost }}
 			{{ range $i, $j := .PinnedJobs }}
 			<article class="line-item line-item-sponsored-1">
 				{{ if .CompanyIconID }}
@@ -162,7 +164,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 				{{ end }}
 				<div style="float: left;">
 					<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a> &bull; <small>Sponsored</small><br />
-					<a style="font-size:12pt;" href="/Golang-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
+					<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
 					<b>{{ .Location }}</b><br/>{{ .SalaryRange }} a {{ .SalaryPeriod }}
 					<br />
 					<small>{{ .TimeAgo }}</small>
@@ -188,7 +190,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 					{{ else }}
 					<a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow" class="apply-link">Apply</a>
 					{{ end }}
-					<a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
+					<a class="copy-to-clipboard" data-link="https://{{ $siteHost }}/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
 					<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>
 				</div>
 				<div class="clearfix"></div>
@@ -213,7 +215,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 				{{ end }}
 				<div style="float: left;">
 					<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a> &bull; <small>Sponsored</small><br />
-					<a style="font-size:12pt;" href="/Golang-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
+					<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
 					<b>{{ .Location }}</b><br/>{{ .SalaryRange }} a {{ .SalaryPeriod }}
 					<br />
 					<small>{{ .TimeAgo }}</small>
@@ -246,7 +248,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 					{{ else }}
 					<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
 					{{ end }}
-					<a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
+					<a class="copy-to-clipboard" data-link="https://{{ $siteHost }}/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
 					<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>  
 				</div>
 				<div class="clearfix"></div>
@@ -258,7 +260,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 				{{ end }}
 				<div style="float: left;">
 					<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a>{{ if or (eq .AdType 2) (eq .AdType 3) (eq .AdType 5) }} &bull; <small>Sponsored</small>{{ end }}<br />
-					<a style="font-size:12pt;" href="/Golang-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
+					<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
 					<b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
 					<br />
 					<small>{{ .TimeAgo }}</small>
@@ -291,7 +293,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 					{{ else }}
 					<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
 					{{ end }}
-					<a class="copy-to-clipboard" data-link="https://golang.cafe/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
+					<a class="copy-to-clipboard" data-link="https://{{ $siteHost }}/job/{{ .Slug }}" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398 Copy Link</a>
 					<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank" style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>
 				</div>
 				<div class="clearfix"></div>
