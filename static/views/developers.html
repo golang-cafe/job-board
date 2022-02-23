@@ -45,7 +45,23 @@ body{background:#ffffff;}
 .container{display: grid;grid-template-columns: 375px 375px;column-gap: 10px;row-gap: 10px;}.container .line-item {align-self: auto;}.send-message {float:left; margin-top:15px;}
   @media only screen and (max-width: 768px) {.container{grid-template-columns: 100%;}.line-item{margin:10px 0;}}
   .overflow{display: -webkit-box;max-width: 250px;-webkit-line-clamp: 4;-webkit-box-orient: vertical;overflow: hidden;}.overflow p {margin-bottom:0;}
+  .skill {
+		display: inline-block;
+		margin-top:10px;
+		background: #dbdbdb;
+		font-size: medium;
+		padding: 4px 10px;
+		border-radius: 5px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+		.skill {
+			color: #fff;
+			background: gray;
+		}
+  }
     </style>
+	{{ template "dark-mode-css" }}
   </head>
   <body>
     <div id="feedback-box">
@@ -119,7 +135,7 @@ body{background:#ffffff;}
 		  Currently in <b id="location-{{ .ID }}">{{ .Location }}</b><br/>
 		  <span id="skills-{{ .ID }}">
 		  {{ range $x, $y := .SkillsArray }}
-		  	<span style="display: inline-block;margin-top:10px;background: #dbdbdb;font-size:medium;padding: 4px 10px;border-radius:5px;">{{ $y }}</span>
+		  	<span class="skill">{{ $y }}</span>
 		  {{ end }}
 		  </span>
                   <br />
