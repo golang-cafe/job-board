@@ -281,6 +281,10 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 			background: #bbb;
 			padding: 10px;
 		}
+
+		.salary-upper-bound {
+			color: lightcoral;
+		}
 	}
 		</style>
 		{{ template "dark-mode-css" }}
@@ -347,27 +351,27 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 					<tr>
 						<td>Salary Range 10th percentile</td>
 						<td><span style="color: #69b3a2;">{{ .Currency }}{{ .P10Min }}</span></td>
-						<td><span style="color: #6900a2;">{{ .Currency }}{{ .P10Max }}</span></td>
+						<td><span class="salary-upper-bound">{{ .Currency }}{{ .P10Max }}</span></td>
 					</tr>
 					<tr>
 						<td>Salary Range 50th percentile</td>
 						<td><span style="color: #69b3a2;">{{ .Currency }}{{ .P50Min }}</span></td>
-						<td><span style="color: #6900a2;">{{ .Currency }}{{ .P50Max }}</span></td>
+						<td><span class="salary-upper-bound">{{ .Currency }}{{ .P50Max }}</span></td>
 					</tr>
 					<tr>
 						<td>Salary Range 90th percentile</td>
 						<td><span style="color: #69b3a2;">{{ .Currency }}{{ .P90Min }}</span></td>
-						<td><span style="color: #6900a2;">{{ .Currency }}{{ .P90Max }}</span></td>
+						<td><span class="salary-upper-bound">{{ .Currency }}{{ .P90Max }}</span></td>
 					</tr>
 					<tr>
 						<td>Average Salary Range</td>
 						<td><span style="color: #69b3a2;">{{ .Currency }}{{ .MeanMin }}</span></td>
-						<td><span style="color: #6900a2;">{{ .Currency }}{{ .MeanMax }}</span></td>
+						<td><span class="salary-upper-bound">{{ .Currency }}{{ .MeanMax }}</span></td>
 					</tr>
 					<tr>
 						<td>Salary Standard Deviation</td>
 						<td><span style="color: #69b3a2;">{{ .Currency }}{{ .StdDevMin }}</span></td>
-						<td><span style="color: #6900a2;">{{ .Currency }}{{ .StdDevMax }}</span></td>
+						<td><span class="salary-upper-bound">{{ .Currency }}{{ .StdDevMax }}</span></td>
 					</tr>
 				</table>
 				<p>
