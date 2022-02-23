@@ -64,9 +64,9 @@ func main() {
 	svr.RegisterPathPrefix("/blog/", http.StripPrefix("/blog/", handler.DisableDirListing(http.FileServer(http.Dir("./static/blog")))), []string{"GET"})
 	svr.RegisterPathPrefix("/blog", handler.BlogListHandler(svr, "./static/blog"), []string{"GET"})
 
-	svr.RegisterRoute("/about", handler.AboutPageHandler, []string{"GET"})
-	svr.RegisterRoute("/privacy-policy", handler.PrivacyPolicyPageHandler, []string{"GET"})
-	svr.RegisterRoute("/terms-of-service", handler.TermsOfServicePageHandler, []string{"GET"})
+	svr.RegisterRoute("/about", handler.AboutPageHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/privacy-policy", handler.PrivacyPolicyPageHandler(svr), []string{"GET"})
+	svr.RegisterRoute("/terms-of-service", handler.TermsOfServicePageHandler(svr), []string{"GET"})
 
 	svr.RegisterRoute("/", handler.IndexPageHandler(svr, jobRepo), []string{"GET"})
 	svr.RegisterRoute("/Companies-Using-Golang", handler.CompaniesHandler(svr, companyRepo, jobRepo), []string{"GET"})

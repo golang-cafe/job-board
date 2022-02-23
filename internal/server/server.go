@@ -20,12 +20,12 @@ import (
 	stdtemplate "html/template"
 
 	"github.com/0x13a/golang.cafe/internal/company"
-	"github.com/0x13a/golang.cafe/internal/developer"
-	"github.com/0x13a/golang.cafe/internal/job"
 	"github.com/0x13a/golang.cafe/internal/config"
 	"github.com/0x13a/golang.cafe/internal/database"
+	"github.com/0x13a/golang.cafe/internal/developer"
 	"github.com/0x13a/golang.cafe/internal/email"
 	"github.com/0x13a/golang.cafe/internal/ipgeolocation"
+	"github.com/0x13a/golang.cafe/internal/job"
 	"github.com/0x13a/golang.cafe/internal/middleware"
 	"github.com/0x13a/golang.cafe/internal/template"
 	"github.com/aclements/go-moremath/stats"
@@ -980,7 +980,10 @@ func (s Server) GetCurrencyFromRequest(r *http.Request) (ipgeolocation.Currency,
 }
 
 func (s Server) Render(w http.ResponseWriter, status int, htmlView string, data interface{}) error {
-	dataMap := data.(map[string]interface{})
+	dataMap := make(map[string]interface{}, 0)
+	if data != nil {
+		dataMap = data.(map[string]interface{})
+	}
 	dataMap["SiteName"] = s.GetConfig().SiteName
 	dataMap["SiteJobCategory"] = strings.Title(strings.ToLower(s.GetConfig().SiteJobCategory))
 	dataMap["SiteJobCategoryURLEncoded"] = strings.ReplaceAll(strings.Title(strings.ToLower(s.GetConfig().SiteJobCategory)), " ", "-")
