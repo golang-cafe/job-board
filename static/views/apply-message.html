@@ -26,7 +26,7 @@ body{background:#ffffff;}
     <meta name="twitter:title" content="{{ .Title }}">
     <meta name="twitter:description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Title }} | {{ .SiteName }}">
     <meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
-    <meta name="twitter:site" content="@golangcafe"/>
+    <meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
   </head>
   <body>
   <section>
@@ -46,8 +46,8 @@ body{background:#ffffff;}
     <nav class="subnav">
         <ul>
             <li><a href="/">Jobs</a></li>
-	    <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
-	    <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub</a></li>
+	    <li><a target="_blank" href="https://twitter.com/{{ .SiteTwitter }}">{{ .SiteName }} on Twitter</a></li>
+	    <li><a target="_blank" href="https://github.com/{{ .SiteGithub }}">{{ .SiteName }} on GitHub</a></li>
 	    <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
 	    <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
             <li><a href="/support">Support</a></li>

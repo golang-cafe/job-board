@@ -29,17 +29,17 @@ body{background:#ffffff;}
     <meta name="description" content="Golang Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}" />
     <meta itemprop="name" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <meta itemprop="description" content="Golang Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
-    <meta itemprop="image" content="https://golang.cafe/s/img/banner.jpg">
-    <meta property="og:url" content="https://golang.cafe">
+    <meta itemprop="image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
+    <meta property="og:url" content="https://{{ .SiteHost }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <meta property="og:description" content="Golang Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
-    <meta property="og:image" content="https://golang.cafe/s/img/banner.jpg">
+    <meta property="og:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <meta name="twitter:description" content="Golang Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
-    <meta name="twitter:image" content="https://golang.cafe/s/img/banner.jpg">
-    <meta name="twitter:site" content="@golangcafe"/>
+    <meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
+    <meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
   </head>
@@ -64,7 +64,7 @@ body{background:#ffffff;}
             <small>
                 <b>Created:</b> {{ .DeveloperProfile.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br />
                 <b>Last Updated:</b> {{ .DeveloperProfile.UpdatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br />
-                <b>View Profile:</b> <a href="/developer/{{ .DeveloperProfile.Slug }}" rel="noopener noreferrer" target="_blank">https://golang.cafe/developer/{{ .DeveloperProfile.Slug }}</a>
+		<b>View Profile:</b> <a href="/developer/{{ .DeveloperProfile.Slug }}" rel="noopener noreferrer" target="_blank">https://{{ .SiteHost }}/developer/{{ .DeveloperProfile.Slug }}</a>
             </small><br /><br />
         </p>
     </article>

@@ -44,7 +44,7 @@
 	<link rel="canonical" href="https://{{ .SiteHost }}/Companies-Using-Golang{{ if .LocationFilter }}-In-{{.LocationFilter}}{{ end }}" />
 	{{ end }}
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
-    <meta name="twitter:site" content="@golangcafe"/>
+	<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
     <meta name="google-site-verification" content="CsoJdYDgMeIeUO0ylZtiDUb4-VZvb2tCpLTkq3GglVo" />
     <meta name="msvalidate.01" content="E75D7CB7D078DD8E9C2FBA8C285CD656" />
     <style type="text/css">
@@ -262,8 +262,8 @@ body{background:#ffffff;}
     <nav class="subnav">
         <ul>
             <li><a href="/">Jobs</a></li>
-	    <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
-	    <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub</a></li>
+	    <li><a target="_blank" href="https://twitter.com/{{ .SiteTwitter }}">{{ .SiteName }} on Twitter</a></li>
+	    <li><a target="_blank" href="https://github.com/{{ .SiteGithub }}">{{ .SiteName }} on GitHub</a></li>
 	    <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
 	    <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
             <li><a href="/support">Support</a></li>

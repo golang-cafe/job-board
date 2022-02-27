@@ -29,7 +29,7 @@ body{background:#ffffff;}
     <meta name="twitter:title" content="About - {{ .SiteName }}">
     <meta name="twitter:description" content="{{ .SiteName }} is the first Go job board with no recruiters and clear salary ranges">
     <meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
-    <meta name="twitter:site" content="@golangcafe"/>
+    <meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
   </head>
@@ -73,7 +73,7 @@ body{background:#ffffff;}
                 All submitted jobs are manually reviewed and updated. All jobs that don't follow the standards above are not allowed on the platform.
 
                 <h3>Open Source</h3>
-		{{ .SiteName }} is <a href="https://github.com/golang-cafe/{{ .SiteHost }}" target="_blank" rel="noopener noreferrer">open source</a> and licensed under BSD 3-Clause. It's written entirely in <b><a href="https://golang.org" target="_blank" rel="noreferrer nofollow">Go</a>/HTML/CSS/JavaScript</b>.
+		{{ .SiteName }} is <a href="https://github.com/{{ .SiteGithub }}" target="_blank" rel="noopener noreferrer">open source</a> and licensed under BSD 3-Clause. It's written entirely in <b><a href="https://golang.org" target="_blank" rel="noreferrer nofollow">Go</a>/HTML/CSS/JavaScript</b>.
                 As of today the app is using <a href="https://www.postgresql.org" target="_blank" rel="noreferrer nofollow">PostgreSQL</a> as primary data store and it's being hosted on <a href="https://m.do.co/c/1a2d92c7bce8" target="_blank" rel="noreferrer nofollow">DigitalOcean</a>.
                 No frameworks have been used, apart from Go's <a href="https://github.com/gorilla/mux" target="_blank" rel="noreferrer nofollow">gorilla mux</a> for routing.
 
@@ -82,8 +82,8 @@ body{background:#ffffff;}
 
 		<h3>{{ .SiteName }} Elsewhere</h3>
                 <ul>
-			<li><a href="https://github.com/golang-cafe/{{ .SiteHost }}" target="_blank" rel="noopener noreferrer">GitHub</a></li>
-                  <li><a href="https://twitter.com/golangcafe" target="_blank" rel="noopener noreferrer">Twitter</a></li>
+			<li><a href="https://github.com/{{ .SiteHost }}" target="_blank" rel="noopener noreferrer">GitHub</a></li>
+			<li><a href="https://twitter.com/{{ .SiteTwitter }}" target="_blank" rel="noopener noreferrer">Twitter</a></li>
                   <li><a href="https://www.linkedin.com/company/golangcafe" target="_blank" rel="noopener noreferrer">LinkedIn</a></li>
                   <li><a href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w" target="_blank" rel="noopener noreferrer">YouTube</a></li>
                   <li><a href="https://t.me/golangcafe">Telegram</a></li>
@@ -100,8 +100,8 @@ body{background:#ffffff;}
     <nav class="subnav">
         <ul>
             <li><a href="/">Jobs</a></li>
-	    <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
-	    <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub</a></li>
+	    <li><a target="_blank" href="https://twitter.com/{{ .SiteTwitter }}">{{ .SiteName }} on Twitter</a></li>
+	    <li><a target="_blank" href="https://github.com/{{ .SiteGithub }}">{{ .SiteName }} on GitHub</a></li>
 	    <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
 	    <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
             <li><a href="/support">Support</a></li>

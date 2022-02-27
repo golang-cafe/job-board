@@ -239,18 +239,18 @@ background-color: #FF6600
     <meta name="description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}" />
     <meta itemprop="name" content="{{ .DeveloperProfile.Name }}">
     <meta itemprop="description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
-    <meta itemprop="image" content="https://golang.cafe/s/img/logo.png">
-    <meta property="og:url" content="https://golang.cafe/developer/{{ .DeveloperProfile.Slug }}">
+    <meta itemprop="image" content="https://{{ .SiteHost }}/s/img/logo.png">
+    <meta property="og:url" content="https://{{ .SiteHost }}/developer/{{ .DeveloperProfile.Slug }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
     <meta property="og:description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
-    <meta property="og:image" content="https://golang.cafe/s/img/logo.png">
+    <meta property="og:image" content="https://{{ .SiteHost }}/s/img/logo.png">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
     <meta name="twitter:description" content="{{ .DeveloperProfile.Name }} - Golang Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
-    <meta name="twitter:image" content="https://golang.cafe/s/img/logo.png">
-    <meta name="twitter:site" content="@golangcafe"/>
-    <link rel="canonical" href="https://golang.cafe/developer/{{ .DeveloperProfile.Slug }}" />
+    <meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/logo.png">
+    <meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
+    <link rel="canonical" href="https://{{ .SiteHost }}/developer/{{ .DeveloperProfile.Slug }}" />
   </head>
   <body>
     <header>
@@ -348,8 +348,8 @@ background-color: #FF6600
   <nav class="subnav">
       <ul>
 	  <li><a href="/">Jobs</a></li>
-	  <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
-	  <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub</a></li>
+	  <li><a target="_blank" href="https://twitter.com/{{ .SiteTwitter }}">{{ .SiteName }} on Twitter</a></li>
+	  <li><a target="_blank" href="https://github.com/{ .SiteGithub }}">{{ .SiteName }} on GitHub</a></li>
 	  <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
 	  <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
 	  <li><a href="/support">Support</a></li>

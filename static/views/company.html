@@ -23,18 +23,18 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 		<meta name="description" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}" />
 		<meta itemprop="name" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
 		<meta itemprop="description" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
-		<meta itemprop="image" content="https://golang.cafe/x/s/m/{{ .Company.IconImageID }}">
-		<meta property="og:url" content="https://golang.cafe/company/{{ .Company.Slug }}">
+		<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .Company.IconImageID }}">
+		<meta property="og:url" content="https://{{ .SiteHost }}/company/{{ .Company.Slug }}">
 		<meta property="og:type" content="website">
 		<meta property="og:title" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
 		<meta property="og:description" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
-		<meta property="og:image" content="https://golang.cafe/x/s/m/{{ .Company.IconImageID }}">
+		<meta property="og:image" content="https://{{ .SiteHost }}/x/s/m/{{ .Company.IconImageID }}">
 		<meta name="twitter:card" content="summary_large_image">
 		<meta name="twitter:title" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
 		<meta name="twitter:description" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
-		<meta name="twitter:image" content="https://golang.cafe/x/s/m/{{ .Company.IconImageID }}">
-		<meta name="twitter:site" content="@golangcafe"/>
-		<link rel="canonical" href="https://golang.cafe/company/{{ .Company.Slug }}" />
+		<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .Company.IconImageID }}">
+		<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
+		<link rel="canonical" href="https://{{ .SiteHost }}/company/{{ .Company.Slug }}" />
 	</head>
 	<body>
 		<header>
@@ -155,8 +155,8 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			<nav class="subnav">
 				<ul>
 					<li><a href="/">Jobs</a></li>
-					<li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
-					<li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub</a></li>
+					<li><a target="_blank" href="https://twitter.com/{{ .SiteTwitter }}">{{ .SiteName }} on Twitter</a></li>
+					<li><a target="_blank" href="https://github.com/{{ .SiteGithub }}">{{ .SiteName }} on GitHub</a></li>
 					<li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
 					<li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
 					<li><a href="/support">Support</a></li>

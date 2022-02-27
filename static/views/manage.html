@@ -50,8 +50,8 @@ body{background:#ffffff;}
                 {{ if .ConversionRate }}
                     <b>Click Through Rate:</b> {{ .ConversionRate }}%<br />
                 {{ end }}
-                <b>Job Post Link:</b> <a href="/job/{{ .Job.Slug }}" rel="noopener noreferrer" target="_blank">https://golang.cafe/job/{{ .Job.Slug }}</a>
-                <b>Job Post Link:</b> <a href="/edit/{{ .Token }}" rel="noopener noreferrer">https://golang.cafe/edit/{{ .Token }}</a>
+		<b>Job Post Link:</b> <a href="/job/{{ .Job.Slug }}" rel="noopener noreferrer" target="_blank">https://{{ .SiteHost }}/job/{{ .Job.Slug }}</a>
+		<b>Job Post Link:</b> <a href="/edit/{{ .Token }}" rel="noopener noreferrer">https://{{ .SiteHost }}/edit/{{ .Token }}</a>
             </small><br /><br />
             <input type="text" name="job-title" id="job-title" placeholder="Job Title" style="width: 100%;" value="{{ .Job.JobTitle }}"/><br />
             <input type="text" name="job-location" id="job-location" placeholder="Job Location" style="width: 100%;" value="{{ .Job.Location }}"/><br />
