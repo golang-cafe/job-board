@@ -12,20 +12,20 @@ body{background:#ffffff;}
     </style>
     <meta charset="utf-8">
     <meta name="title" content="{{ .Title }}" />
-    <meta name="keywords" content="golang, golang jobs, go programming language" />
-    <meta name="description" content="Golang Developer Jobs | {{ .Title }} | Golang Cafe" />
+    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, go programming language" />
+    <meta name="description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Title }} | {{ .SiteName }}" />
     <meta itemprop="name" content="{{ .Title }}">
-    <meta itemprop="description" content="Golang Developer Jobs | {{ .Title }} | Golang Cafe">
-    <meta itemprop="image" content="https://golang.cafe/s/img/banner.jpg">
-    <meta property="og:url" content="https://golang.cafe">
+    <meta itemprop="description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Title }} | {{ .SiteName }}">
+    <meta itemprop="image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
+    <meta property="og:url" content="https://{{ .SiteHost }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ .Title }}">
-    <meta property="og:description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidate | Golang Cafes">
-    <meta property="og:image" content="https://golang.cafe/s/img/banner.jpg">
+    <meta property="og:description" content="{{ .SiteJobCategory }} Developer Jobs | Post a {{ .SiteJobCategory }} Job now and reach thousands of candidate | {{ .SiteName }}s">
+    <meta property="og:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ .Title }}">
-    <meta name="twitter:description" content="Golang Developer Jobs | {{ .Title }} | Golang Cafe">
-    <meta name="twitter:image" content="https://golang.cafe/s/img/banner.jpg">
+    <meta name="twitter:description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Title }} | {{ .SiteName }}">
+    <meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
     <meta name="twitter:site" content="@golangcafe"/>
   </head>
   <body>
@@ -37,21 +37,21 @@ body{background:#ffffff;}
             </p>
             <br/>
             <p>
-              <input type="submit" style="width: 100%;" value="Browse Jobs On Golang Cafe" onclick="window.location.href='/'" />
+	    <input type="submit" style="width: 100%;" value="Browse Jobs On {{ .SiteName }}" onclick="window.location.href='/'" />
             </p>
       </article>
   </section>
   <footer>
-    <h4 style="margin-left: 9px;">Golang Cafe</h4>
+	  <h4 style="margin-left: 9px;">{{ .SiteName }}</h4>
     <nav class="subnav">
         <ul>
             <li><a href="/">Jobs</a></li>
-            <li><a target="_blank" href="https://twitter.com/golangcafe">Golang Cafe on Twitter</a></li>
-            <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">Golang Cafe on GitHub (Open source)</a></li>
-            <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">Golang Cafe YouTube Channel</a></li>
-            <li><a href="/rss">Golang Cafe RSS Feed</a></li>
+	    <li><a target="_blank" href="https://twitter.com/golangcafe">{{ .SiteName }} on Twitter</a></li>
+	    <li><a target="_blank" href="https://github.com/golang-cafe/golang.cafe">{{ .SiteName }} on GitHub (Open source)</a></li>
+	    <li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+	    <li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
             <li><a href="/support">Support</a></li>
-            <li><a href="/about">About Golang Cafe</a></li>
+	    <li><a href="/about">About {{ .SiteName }}</a></li>
             <li><a href="/terms-of-service">T&Cs</a></li>
             <li><a href="/privacy-policy">Privacy Policy</a></li>
         </ul>
