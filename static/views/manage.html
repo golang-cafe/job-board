@@ -98,11 +98,6 @@ body{background:#ffffff;}
                 {{ else }}
                     <option value="₹">INR</option>
                 {{ end }}
-                {{ if eq .Job.SalaryCurrency "₽" }}
-                    <option value="₽" selected>RUB</option>
-                {{ else }}
-                    <option value="₽">RUB</option>
-                {{ end }}
                 {{ if eq .Job.SalaryCurrency "¥" }}
                     <option value="¥" selected>JPY</option>
                 {{ else }}

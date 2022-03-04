@@ -34,6 +34,9 @@ export SITE_JOB_CATEGORY="golang"
 export SITE_HOST="golang.cafe"
 export SITE_GITHUB="golang-cafe/golang.cafe"
 export SITE_TWITTER="golangcafe"
+export SITE_YOUTUBE="golangcafe"
+export SITE_LINKEDIN="golangcafe"
+export SITE_TELEGRAM="golangcafe"
 
 go build -o bin/server cmd/server/main.go
 
