@@ -56,7 +56,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<img src="/x/s/m/{{ .Company.IconImageID }}?w=100&h=100" width="100" height="100" title="{{ .Company.Name }} Logo" alt="{{ .Company.Name }} Logo" style="border-radius: 50px; border: 1px solid #ccc;"/><br />
 				{{ end }}
 				<br />
-				<b>Company Website</b> <a href="{{ .Company.URL }}" target="_blank" rel="nofollow">{{ .Company.URL }}</a><br />
+				<b>Company Website</b> <a href="{{ .Company.URL }}" target="_blank" rel="noreferrer nofollow">{{ .Company.URL }}</a><br />
 				<b>Last Job Posted</b> {{ humantime .Company.LastJobCreatedAt }}<br />
 				<b>Golang Job Openings:</b> {{ .Company.ActiveJobCount }}<br />
 				<b>Locations</b> {{ .Company.Locations }}<br />

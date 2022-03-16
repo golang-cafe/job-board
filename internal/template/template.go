@@ -82,5 +82,11 @@ func (t *Template) StringToHTML(s string) stdtemplate.HTML {
 }
 
 func (t *Template) MarkdownToHTML(s string) stdtemplate.HTML {
-	return stdtemplate.HTML(blackfriday.Run([]byte(s)))
+	renderer := blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{
+		Flags: blackfriday.Safelink |
+			blackfriday.NofollowLinks |
+			blackfriday.NoreferrerLinks |
+			blackfriday.HrefTargetBlank,
+	})
+	return stdtemplate.HTML(blackfriday.Run([]byte(s), blackfriday.WithRenderer(renderer)))
 }
