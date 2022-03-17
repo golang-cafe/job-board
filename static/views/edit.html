@@ -411,7 +411,7 @@ body{background:#ffffff;}
         function update() {
             sendReq('/x/u');
         }
-	var cropInstasnce = null;
+	var cropInstance = null;
         	document.getElementById("company-icon-file").addEventListener("change", function() {
             		if (this.files && this.files[0]) {
                 	if (['png', 'jpg', 'jpeg'].indexOf(this.files[0].name.split('.').pop()) === -1) {
