@@ -34,7 +34,6 @@ import (
 	"github.com/gorilla/sessions"
 
 	"github.com/allegro/bigcache/v3"
-	"github.com/getsentry/raven-go"
 )
 
 const (
@@ -64,9 +63,6 @@ func NewServer(
 	ipGeoLocation ipgeolocation.IPGeoLocation,
 	sessionStore *sessions.CookieStore,
 ) Server {
-	// todo: move somewhere else
-	raven.SetDSN(cfg.SentryDSN)
-
 	bigCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(12 * time.Hour))
 	svr := Server{
 		cfg:           cfg,
@@ -1023,7 +1019,6 @@ func (s Server) MEDIA(w http.ResponseWriter, status int, media []byte, mediaType
 }
 
 func (s Server) Log(err error, msg string) {
-	raven.CaptureErrorAndWait(err, map[string]string{"ctx": msg})
 	log.Printf("%s: %+v", msg, err)
 }
 
