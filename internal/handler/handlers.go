@@ -1653,6 +1653,7 @@ func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *de
 		sess, err := svr.SessionStore.Get(r, "____gc")
 		if err != nil {
 			svr.TEXT(w, http.StatusInternalServerError, "Invalid or expired token")
+			svr.Log(err, "unable to get session cookie from request")
 			return
 		}
 		stdClaims := &jwt.StandardClaims{
