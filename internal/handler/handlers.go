@@ -203,7 +203,7 @@ func TriggerFXRateUpdate(svr server.Server) http.HandlerFunc {
 			go func() {
 				log.Println("going through list of available currencies")
 				for _, base := range svr.GetConfig().AvailableCurrencies {
-					req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://freecurrencyapi.net/api/v2/latest?apikey=%s&base_currency=%s", svr.GetConfig().FXAPIKey, base), nil)
+					req, err := http.NewRequest(http.MethodGet, fmt.Sprintf("https://api.currencyapi.com/v3/latest?apikey=%s&base_currency=%s", svr.GetConfig().FXAPIKey, base), nil)
 					if err != nil {
 						svr.Log(err, "http.NewRequest")
 						continue
@@ -214,11 +214,10 @@ func TriggerFXRateUpdate(svr server.Server) http.HandlerFunc {
 						continue
 					}
 					var ratesResponse struct {
-						Query struct {
-							Base      string `json:"base_currency"`
-							Timestamp int    `json:"timestamp"`
-						} `json:"query"`
-						Rates map[string]interface{} `json:"data"`
+						Rates map[string]struct {
+							Code  string  `json:"code"`
+							Value float64 `json:"value"`
+						} `json:"data"`
 					}
 					defer res.Body.Close()
 					if err := json.NewDecoder(res.Body).Decode(&ratesResponse); err != nil {
@@ -226,30 +225,21 @@ func TriggerFXRateUpdate(svr server.Server) http.HandlerFunc {
 						continue
 					}
 					log.Printf("rate response for currency %s: %#v", base, ratesResponse)
-					if ratesResponse.Query.Base != base {
-						svr.Log(errors.New("got different base currency than requested"), "inconsistent reply from APIs")
-						continue
-					}
 					for _, target := range svr.GetConfig().AvailableCurrencies {
 						if target == base {
 							continue
 						}
-						value, ok := ratesResponse.Rates[target]
+						cur, ok := ratesResponse.Rates[target]
 						if !ok {
 							svr.Log(errors.New("could not find target currency"), fmt.Sprintf("could not find target currency %s for base %s", target, base))
 							continue
 						}
-						log.Println("updating fx rate pair ", base, target, value)
-						valueFloat, ok := value.(float64)
-						if !ok {
-							svr.Log(errors.New("unable to cast to float"), "parsing value to float64")
-							continue
-						}
+						log.Println("updating fx rate pair ", base, target, cur.Code, cur.Value)
 						fx := database.FXRate{
 							Base:      base,
 							UpdatedAt: time.Now(),
 							Target:    target,
-							Value:     valueFloat,
+							Value:     cur.Value,
 						}
 						if err := database.AddFXRate(svr.Conn, fx); err != nil {
 							svr.Log(err, "database.AddFxRate")
