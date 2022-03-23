@@ -10,7 +10,7 @@
 		<link href="/s/img/favicon.ico" rel="shortcut icon">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="title" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}" />
-		<meta name="keywords" content="golang, golang {{ .LocationFilter }} jobs, go programming language, golang backend engineer, golang software engineer, remote golang {{ if .TagFilter }}{{ .TagFilter }}{{ end }}" />
+		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} {{ .LocationFilter }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} engineer, {{ .SiteJobCategory }} software engineer, remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }}{{ end }}" />
 		<meta name="description" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
 		<meta itemprop="name" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta itemprop="description" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
@@ -29,7 +29,7 @@
 		<link href="/s/img/favicon.ico" rel="shortcut icon">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter }}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}" />
-		<meta name="keywords" content="golang, golang {{ .LocationFilter }} jobs, go programming language, golang backend engineer, golang software engineer, golang {{ if .TagFilter }}{{.TagFilter}}{{ end }}" />
+		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} {{ .LocationFilter }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} engineer, {{ .SiteJobCategory }} software engineer, {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}}{{ end }}" />
 		<meta name="description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
 		<meta itemprop="name" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs | {{ .SiteName }}">
 		<meta itemprop="description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
@@ -444,8 +444,8 @@ header{padding:0 10px;width:780px;margin:auto;}
 				<ul>
 					<li><a href="/">Jobs</a></li>
 					<li><a target="_blank" href="https://twitter.com/{{ .SiteTwitter }}">{{ .SiteName }} on Twitter</a></li>
-					<li><a target="_blank" href="https://github.com/{{ .SiteGithub }}">{{ .SiteName }} on GitHub</a></li>
-					<li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+					{{ if .SiteGithub }}<li><a target="_blank" href="https://github.com/{{ .SiteGithub }}">{{ .SiteName }} on GitHub</a></li>{{ end }}
+					{{ if .SiteYoutube }}<li><a target="_blank" href="https://www.youtube.com/c/{{ .SiteYoutube }}">{{ .SiteName }} YouTube Channel</a></li>{{ end }}
 					<li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
 					<li><a href="/support">Support</a></li>
 					<li><a href="/about">About {{ .SiteName }}</a></li>

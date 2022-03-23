@@ -987,6 +987,9 @@ func (s Server) Render(w http.ResponseWriter, status int, htmlView string, data 
 	dataMap["SiteHost"] = s.GetConfig().SiteHost
 	dataMap["SiteTwitter"] = s.GetConfig().SiteTwitter
 	dataMap["SiteGithub"] = s.GetConfig().SiteGithub
+	dataMap["SiteLinkedin"] = s.GetConfig().SiteLinkedin
+	dataMap["SiteYoutube"] = s.GetConfig().SiteYoutube
+	dataMap["SiteTelegramChannel"] = s.GetConfig().SiteTelegramChannel
 
 	return s.tmpl.Render(w, status, htmlView, dataMap)
 }
