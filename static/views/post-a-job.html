@@ -22,66 +22,66 @@ body{background:#ffffff;}
     </style>
         <meta charset="utf-8">
     {{ if and .Location $isRemote }}
-    <title>Hire Remote Golang Developers | {{ .SiteName }}</title>
-    <meta name="title" content="Hire Remote Golang Developers | {{ .SiteName }}" />
-        <meta name="keywords" content="golang, golang jobs, go programming language, hire golang developers, hire go developers, hire remote golang developers, hire remote go developers, hire remote go engineers" />
-	<meta name="description" content="Hire Remote Golang Developers on {{ .SiteName }}" />
-        <meta itemprop="name" content="Hire Remote Golang Developers">
-	<meta itemprop="description" content="Hire Remote Golang Developers on {{ .SiteName }}">
+    <title>Hire Remote {{ .SiteJobCategory }} Developers | {{ .SiteName }}</title>
+    <meta name="title" content="Hire Remote {{ .SiteJobCategory }} Developers | {{ .SiteName }}" />
+    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire go developers, hire remote {{ .SiteJobCategory }} developers, hire remote go developers, hire remote go engineers" />
+    <meta name="description" content="Hire Remote {{ .SiteJobCategory }} Developers on {{ .SiteName }}" />
+    <meta itemprop="name" content="Hire Remote {{ .SiteJobCategory }} Developers">
+    <meta itemprop="description" content="Hire Remote {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
 	<meta itemprop="image" content="https://{{ .SiteHost }}/s/img/hire-go-engineers.jpg">
 	<meta property="og:url" content="https://{{ .SiteHost }}">
         <meta property="og:type" content="website">
-	<meta property="og:title" content="Hire Remote Golang Developers | {{ .SiteName }}">
-	<meta property="og:description" content="Hire Remote Golang Developers on {{ .SiteName }}s">
+	<meta property="og:title" content="Hire Remote {{ .SiteJobCategory }} Developers | {{ .SiteName }}">
+	<meta property="og:description" content="Hire Remote {{ .SiteJobCategory }} Developers on {{ .SiteName }}s">
 	<meta property="og:image" content="https://{{ .SiteHost }}/s/img/hire-go-engineers.jpg">
         <meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="Hire Remote Golang Developers | {{ .SiteName }}">
-	<meta name="twitter:description" content="Hire Remote Golang Developers on {{ .SiteName }}">
+	<meta name="twitter:title" content="Hire Remote {{ .SiteJobCategory }} Developers | {{ .SiteName }}">
+	<meta name="twitter:description" content="Hire Remote {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/hire-go-engineers.jpg">
         
 	<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
-	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-Remote-Golang-Developers" />
+	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-Remote-{{ .SiteJobCategoryURLEncoded }}-Developers" />
     {{ else }}
         {{ if .Location }}
-	<title>Hire Golang Developers In {{ .Location }} | {{ .SiteName }}</title>
-	<meta name="title" content="Hire Golang Developers In {{ .Location }} | {{ .SiteName }}" />
-        <meta name="keywords" content="golang, golang jobs, go programming language, hire golang developers, hire go developers in {{ .Location }}, hire golang developers in {{ .Location }}, hire go developers, hire go engineers in {{ .Location }}" />
-	<meta name="description" content="Hire Golang Developers In {{ .Location }} on {{ .SiteName }}" />
-        <meta itemprop="name" content="Hire Golang Developers In {{ .Location }}">
-	<meta itemprop="description" content="Hire Golang Developers In {{ .Location }} on {{ .SiteName }}">
+	<title>Hire {{ .SiteJobCategory }} Developers In {{ .Location }} | {{ .SiteName }}</title>
+	<meta name="title" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} | {{ .SiteName }}" />
+	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire go developers in {{ .Location }}, hire {{ .SiteJobCategory }} developers in {{ .Location }}, hire go developers, hire go engineers in {{ .Location }}" />
+	<meta name="description" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} on {{ .SiteName }}" />
+	<meta itemprop="name" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }}">
+	<meta itemprop="description" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} on {{ .SiteName }}">
 	<meta itemprop="image" content="https://{{ .SiteHost }}/s/img/hire-go-engineers.jpg">
 	<meta property="og:url" content="https://{{ .SiteHost }}">
         <meta property="og:type" content="website">
-	<meta property="og:title" content="Hire Golang Developers In {{ .Location }} | {{ .SiteName }}">
-	<meta property="og:description" content="Hire Golang Developers In {{ .Location }} on {{ .SiteName }}s">
+	<meta property="og:title" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} | {{ .SiteName }}">
+	<meta property="og:description" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} on {{ .SiteName }}s">
 	<meta property="og:image" content="https://{{ .SiteHost }}/s/img/hire-go-engineers.jpg">
         <meta name="twitter:card" content="summary_large_image">
-        <meta name="twitter:title" content="Hire Golang Developers In {{ .Location }}">
-	<meta name="twitter:description" content="Hire Golang Developers In {{ .Location }} on {{ .SiteName }}">
+	<meta name="twitter:title" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }}">
+	<meta name="twitter:description" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} on {{ .SiteName }}">
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/hire-go-engineers.jpg">
         
 	<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
-	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-Golang-Developers-In-{{ .Location }}" />
+	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers-In-{{ .Location }}" />
         {{ else }}
-	<title>Hire Golang Developers | {{ .SiteName }}</title> 
-	<meta name="title" content="Hire Golang Developers | {{ .SiteName }}" />
-        <meta name="keywords" content="golang, golang jobs, go programming language, hire golang developers, hire go developers, hire go engineers" />
-	<meta name="description" content="Hire Golang Developers on {{ .SiteName }}" />
-        <meta itemprop="name" content="Hire Golang Developers">
-	<meta itemprop="description" content="Hire Golang Developers on {{ .SiteName }}">
+	<title>Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}</title> 
+	<meta name="title" content="Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}" />
+	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire go developers, hire go engineers" />
+	<meta name="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}" />
+	<meta itemprop="name" content="Hire {{ .SiteJobCategory }} Developers">
+	<meta itemprop="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
 	<meta itemprop="image" content="https://{{ .SiteHost }}/s/img/hire-go-engineers.jpg">
 	<meta property="og:url" content="https://{{ .SiteHost }}">
         <meta property="og:type" content="website">
-	<meta property="og:title" content="Hire Golang Developers | {{ .SiteName }}">
-	<meta property="og:description" content="Hire Golang Developers on {{ .SiteName }}s">
+	<meta property="og:title" content="Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}">
+	<meta property="og:description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}s">
 	<meta property="og:image" content="https://{{ .SiteHost }}/s/img/hire-go-engineers.jpg">
         <meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="Hire Golang Developers | {{ .SiteName }}">
-	<meta name="twitter:description" content="Hire Golang Developers on {{ .SiteName }}">
+	<meta name="twitter:title" content="Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}">
+	<meta name="twitter:description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/hire-go-engineers.jpg">
         
 	<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>   
-	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-Golang-Developers" />
+	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers" />
         {{ end }}
     {{ end }}
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
@@ -103,15 +103,15 @@ body{background:#ffffff;}
   <section>
       <article style="margin-top:20px;">
                 {{ if and .Location $isRemote }}
-                    <h1 style="margin-top:20px;">Hire Remote Golang Developers</h1>
-		    <p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Remote Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
+		<h1 style="margin-top:20px;">Hire Remote {{ .SiteJobCategory }} Developers</h1>
+		<p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved {{ .SiteJobCategory }} Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Remote Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                 {{ else }}
                     {{ if .Location }}
-                        <h1 style="margin-top: 20px;">Hire Golang Developers In {{ .Location }}</h1>
-			<p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers in {{ .Location }} today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
+		    <h1 style="margin-top: 20px;">Hire {{ .SiteJobCategory }} Developers In {{ .Location }}</h1>
+		    <p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved {{ .SiteJobCategory }} Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers in {{ .Location }} today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                     {{ else }}
-                        <h1 style="margin-top: 20px;">Hire Golang Developers</h1>
-			<p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved Go Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new last week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
+		    <h1 style="margin-top: 20px;">Hire {{ .SiteJobCategory }} Developers</h1>
+		    <p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved {{ .SiteJobCategory }} Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new last week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                     {{ end }}
                 {{ end }}
 		{{ if .FeaturedCompanies }}
@@ -128,7 +128,7 @@ body{background:#ffffff;}
 		<h3>Supercharge Your Hiring On {{ .SiteName }}</h3>
                 <ul>
 		    <li><b>{{ .PageviewsLastMonth }}</b> website pageviews last month</li>
-                    <li>Thriving &amp; Exclusive Community of <b>Golang Developers</b></li>
+		    <li>Thriving &amp; Exclusive Community of <b>{{ .SiteJobCategory }} Developers</b></li>
 		    <li>Real-Time Job Advert <b>Performance Insights</b></li>
                     <li><b>24/7 email</b> friendly customer support</li>
 		    <li><b>{{ .JobApplicantsLastMonth }}</b> applicants last month</li>

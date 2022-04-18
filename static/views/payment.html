@@ -20,7 +20,7 @@ body{background:#ffffff;}
         <meta charset="utf-8">
 	<title>Complete Your Payment | {{ .SiteName }}</title>
 	<meta name="title" content="Complete Your Payment | {{ .SiteName }}" />
-        <meta name="keywords" content="golang, golang jobs, go programming language, hire golang developers, hire go developers, hire remote golang developers, hire remote go developers, hire remote go engineers" />
+	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire go developers, hire remote {{ .SiteJobCategory }} developers, hire remote go developers, hire remote go engineers" />
 	<meta name="description" content="Complete Your Payment on {{ .SiteName }}" />
         <meta itemprop="name" content="Complete Your Payment">
 	<meta itemprop="description" content="Complete Your Payment on {{ .SiteName }}">
@@ -36,7 +36,7 @@ body{background:#ffffff;}
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/hire-go-engineers.jpg">
         
 	<meta name="twitter:site" content="@{{ .SiteTiwtter }}"/>
-	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-Remote-Golang-Developers" />
+	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-Remote-{{ .SiteJobCategoryURLEncoded }}-Developers" />
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
   </head>

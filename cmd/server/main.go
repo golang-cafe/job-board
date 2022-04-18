@@ -1,8 +1,10 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/0x13a/golang.cafe/internal/company"
 	"github.com/0x13a/golang.cafe/internal/config"
@@ -15,7 +17,6 @@ import (
 	"github.com/0x13a/golang.cafe/internal/server"
 	"github.com/0x13a/golang.cafe/internal/template"
 	"github.com/0x13a/golang.cafe/internal/user"
-
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 )
@@ -69,17 +70,17 @@ func main() {
 	svr.RegisterRoute("/terms-of-service", handler.TermsOfServicePageHandler(svr), []string{"GET"})
 
 	svr.RegisterRoute("/", handler.IndexPageHandler(svr, jobRepo), []string{"GET"})
-	svr.RegisterRoute("/Companies-Using-Golang", handler.CompaniesHandler(svr, companyRepo, jobRepo), []string{"GET"})
-	svr.RegisterRoute("/Remote-Companies-Using-Golang", handler.CompaniesForLocationHandler(svr, companyRepo, jobRepo, "Remote"), []string{"GET"})
-	svr.RegisterRoute("/Companies-Using-Golang-In-{location}", handler.CompaniesHandler(svr, companyRepo, jobRepo), []string{"GET"})
+	svr.RegisterRoute(fmt.Sprintf("/Companies-Using-%s", strings.ToUpper(cfg.SiteJobCategory)), handler.CompaniesHandler(svr, companyRepo, jobRepo), []string{"GET"})
+	svr.RegisterRoute(fmt.Sprintf("/Remote-Companies-Using-%s", strings.ToUpper(cfg.SiteJobCategory)), handler.CompaniesForLocationHandler(svr, companyRepo, jobRepo, "Remote"), []string{"GET"})
+	svr.RegisterRoute(fmt.Sprintf("/Companies-Using-%s-In-{location}", strings.ToUpper(cfg.SiteJobCategory)), handler.CompaniesHandler(svr, companyRepo, jobRepo), []string{"GET"})
 
 	// developers pages
-	svr.RegisterRoute("/Golang-Developers", handler.DevelopersHandler(svr, devRepo), []string{"GET"})
-	svr.RegisterRoute("/Golang-Developers-In-{location}", handler.DevelopersHandler(svr, devRepo), []string{"GET"})
-	svr.RegisterRoute("/Golang-{tag}-Developers", handler.DevelopersHandler(svr, devRepo), []string{"GET"})
-	svr.RegisterRoute("/Golang-{tag}-Developers-In-{location}", handler.DevelopersHandler(svr, devRepo), []string{"GET"})
-	svr.RegisterRoute("/Submit-Developer-Profile", handler.PermanentRedirectHandler(svr, "/Join-Golang-Community"), []string{"GET"})
-	svr.RegisterRoute("/Join-Golang-Community", handler.SubmitDeveloperProfileHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute(fmt.Sprintf("/%s-Developers", strings.ToUpper(cfg.SiteJobCategory)), handler.DevelopersHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute(fmt.Sprintf("/%s-Developers-In-{location}", strings.ToUpper(cfg.SiteJobCategory)), handler.DevelopersHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute(fmt.Sprintf("/%s-{tag}-Developers", strings.ToUpper(cfg.SiteJobCategory)), handler.DevelopersHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute(fmt.Sprintf("/%s-{tag}-Developers-In-{location}", strings.ToUpper(cfg.SiteJobCategory)), handler.DevelopersHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute("/Submit-Developer-Profile", handler.PermanentRedirectHandler(svr, fmt.Sprintf("/Join-%s-Community", strings.ToUpper(cfg.SiteJobCategory))), []string{"GET"})
+	svr.RegisterRoute(fmt.Sprintf("/Join-%s-Community", strings.ToUpper(cfg.SiteJobCategory)), handler.SubmitDeveloperProfileHandler(svr, devRepo), []string{"GET"})
 	svr.RegisterRoute("/x/sdp", handler.SaveDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/udp", handler.UpdateDeveloperProfileHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/ddp", handler.DeleteDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
@@ -205,11 +206,10 @@ func main() {
 	//
 
 	// Aliases
-	svr.RegisterRoute("/Golang-Jobs", handler.PermanentRedirectHandler(svr, "/"), []string{"GET"})
-	svr.RegisterRoute("/Remote-Jobs", handler.PermanentRedirectHandler(svr, "/Remote-Golang-Jobs"), []string{"GET"})
-	svr.RegisterRoute("/youtube", handler.PermanentExternalRedirectHandler(svr, "https://www.youtube.com/c/GolangCafe"), []string{"GET"})
-	svr.RegisterRoute("/telegram", handler.PermanentExternalRedirectHandler(svr, "https://t.me/golangcafe"), []string{"GET"})
-	svr.RegisterRoute("/5USD", handler.PermanentExternalRedirectHandler(svr, "https://buy.stripe.com/00gaEQ0m1fvF5Xi8wy"), []string{"GET"})
+	svr.RegisterRoute(fmt.Sprintf("/%s-Jobs", cfg.SiteJobCategory), handler.PermanentRedirectHandler(svr, "/"), []string{"GET"})
+	svr.RegisterRoute("/Remote-Jobs", handler.PermanentRedirectHandler(svr, fmt.Sprintf("/Remote-%s-Jobs", strings.ToUpper(cfg.SiteJobCategory))), []string{"GET"})
+	svr.RegisterRoute("/youtube", handler.PermanentExternalRedirectHandler(svr, fmt.Sprintf("https://www.youtube.com/c/%s", cfg.SiteYoutube)), []string{"GET"})
+	svr.RegisterRoute("/telegram", handler.PermanentExternalRedirectHandler(svr, fmt.Sprintf("https://t.me/%s", cfg.SiteTelegram)), []string{"GET"})
 	svr.RegisterRoute("/twitter", handler.PermanentExternalRedirectHandler(svr, "https://twitter.com/GolangCafe"), []string{"GET"})
 	svr.RegisterRoute("/linkedin", handler.PermanentExternalRedirectHandler(svr, "https://www.linkedin.com/company/15868466"), []string{"GET"})
 	svr.RegisterRoute("/github", handler.PermanentExternalRedirectHandler(svr, "https://github.com/golang-cafe/golang.cafe"), []string{"GET"})

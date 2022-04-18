@@ -80,7 +80,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 		</div>
 		<div id="feedback"><span style="color:#fff;">Feedback</span></div>
 		<div id="newsletter-banner">
-			Get a weekly email with all new Go jobs
+			Get a weekly email with all new {{ .SiteJobCategory }} jobs
 			<input id="newsletter-banner-input" type="text" placeholder="Your Email" />
 			<input id="newsletter-banner-submit" type="submit" value="Join {{ .EmailSubscribersCount }}+ others" />
 			<div id="newsletter-banner-close">x</div>
@@ -101,11 +101,11 @@ header{padding:0 10px;width:780px;margin:auto;}
 			<input type="submit" value="Post a Job" id="post-btn" onclick="window.location.href='/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers';">
 			{{ if $isRemote }}
 			<h1 class="main-title">Remote {{ if .TagFilter }}{{ .TagFilter }} {{ else }}{{ .SiteJobCategory }} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }}</h1><br/>
-			<b style="font-size:12pt;">Hand-Picked Go Jobs &bull; Apply directly to companies &bull; Clear salary ranges</b>
+			<b style="font-size:12pt;">Hand-Picked {{ .SiteJobCategory }} jobs &bull; Apply directly to companies &bull; Clear salary ranges</b>
 			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} 🌎 Remote {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b> in {{ .MonthAndYear }} {{ if .TextCompanies }}at companies like <b>{{ .TextCompanies }}</b>{{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year{{ else }}{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }}{{ end }} working as a <b>{{ .TextJobTitles }}</b>.{{ end }} Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
 			{{ else }}
 			<h1 class="main-title">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }}{{ end }} Jobs {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }}{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year{{ end }}</h1><br/>
-			<b style="font-size:12pt;">Hand-Picked Go Jobs &bull; Apply directly to companies &bull; Clear salary ranges</b>
+			<b style="font-size:12pt;">Hand-Picked {{ .SiteJobCategory }} jobs &bull; Apply directly to companies &bull; Clear salary ranges</b>
 			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b>{{ if not .ComplementaryRemote }}{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}{{ end }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }} in {{ .MonthAndYear }} {{ if .TextCompanies }}at companies like <b>{{ .TextCompanies }}</b>{{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year{{ else }}{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }}{{ end }} working as a <b>{{ .TextJobTitles }}</b>.{{ end }} Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
 			{{ end }}
 			</p>
@@ -301,7 +301,7 @@ header{padding:0 10px;width:780px;margin:auto;}
 			{{ end }}
 			{{ end }}
 			<article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
-				<div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;" id="email-subscribe-item-text">Get a weekly email with all new Go jobs</div>
+				<div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;" id="email-subscribe-item-text">Get a weekly email with all new {{ .SiteJobCategory }} jobs</div>
 				<input type="email" name="job-email-subscription" id="job-email-subscription" style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
 				<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;"/>
 			</article>

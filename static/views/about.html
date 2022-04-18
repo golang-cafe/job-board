@@ -15,19 +15,19 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 		</style>
 		<meta charset="utf-8">
 		<meta name="title" content="About - {{ .SiteName }}" />
-		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, go programming language, {{ .SiteJobCategory }} job board, find {{ .SiteJobCategory }} job, go job board" />
-		<meta name="description" content="{{ .SiteName }} is the first Go job board with no recruiters and clear salary ranges" />
+		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} job board, find {{ .SiteJobCategory }} job, {{ .SiteJobCategory }} job board" />
+		<meta name="description" content="{{ .SiteName }} is the first {{ .SiteJobCategory }} job board with no recruiters and clear salary ranges" />
 		<meta itemprop="name" content="About - {{ .SiteName }}">
-		<meta itemprop="description" content="{{ .SiteName }} is the first Go job board with no recruiters and clear salary ranges">
+		<meta itemprop="description" content="{{ .SiteName }} is the first {{ .SiteJobCategory }} job board with no recruiters and clear salary ranges">
 		<meta itemprop="image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
 		<meta property="og:url" content="https://{{ .SiteHost }}">
 		<meta property="og:type" content="website">
 		<meta property="og:title" content="About - {{ .SiteName }}">
-		<meta property="og:description" content="{{ .SiteName }} is the first Go job board with no recruiters and clear salary ranges">
+		<meta property="og:description" content="{{ .SiteName }} is the first {{ .SiteJobCategory }} job board with no recruiters and clear salary ranges">
 		<meta property="og:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
 		<meta name="twitter:card" content="summary_large_image">
 		<meta name="twitter:title" content="About - {{ .SiteName }}">
-		<meta name="twitter:description" content="{{ .SiteName }} is the first Go job board with no recruiters and clear salary ranges">
+		<meta name="twitter:description" content="{{ .SiteName }} is the first {{ .SiteJobCategory }} job board with no recruiters and clear salary ranges">
 		<meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
 		<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
 		<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
@@ -57,7 +57,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			<article>
 				<p>
 				<h1>{{ .SiteName }}</h1><br />
-				{{ .SiteName }} is the first Go job board with no recruiters and clear salary ranges. You can apply directly to companies.
+				{{ .SiteName }} is the first {{ .SiteJobCategory }} job board with no recruiters and clear salary ranges. You can apply directly to companies.
 
 				<h3>Salary Range information in each Job Ad</h3>
 				{{ .SiteName }} will always have salary range information in each job ad. You should not waste your and the company's time if your expectations don't match with the salary range.

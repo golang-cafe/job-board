@@ -20,23 +20,23 @@ input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18
 footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
 		</style>
 		<meta charset="utf-8">
-		<title>Join the Golang Developers Community | {{ .SiteName }}</title> 
-		<meta name="title" content="Join the Golang Developers Community | {{ .SiteName }}" />
-		<meta name="keywords" content="golang, golang jobs, go programming language, hire golang developers, hire go developers, hire go engineers" />
-		<meta name="description" content="Join the Golang Developers Community on {{ .SiteName }}" />
-		<meta itemprop="name" content="Joim the Golang Developers Community">
-		<meta itemprop="description" content="Join the Golang Developers Community on {{ .SiteName }}">
+		<title>Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}</title> 
+		<meta name="title" content="Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}" />
+		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire go developers, hire go engineers" />
+		<meta name="description" content="Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}" />
+		<meta itemprop="name" content="Joim the {{ .SiteJobCategory }} Developers Community">
+		<meta itemprop="description" content="Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}">
 		<meta property="og:url" content="https://{{ .SiteHost }}">
 		<meta property="og:type" content="website">
-		<meta property="og:title" content="Join the Golang Developers Community | {{ .SiteName }}">
-		<meta property="og:description" content="Join the Golang Developers Community on {{ .SiteName }}s">
+		<meta property="og:title" content="Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}">
+		<meta property="og:description" content="Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}s">
 		<meta property="og:image" content="https://{{ .SiteHost }}/s/img/hire-go-engineers.jpg">
 		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:title" content="Join the Golang Developers Community | {{ .SiteName }}">
-		<meta name="twitter:description" content="Join the Golang Developers Community on {{ .SiteName }}">
+		<meta name="twitter:title" content="Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}">
+		<meta name="twitter:description" content="Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}">
 
 		<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>   
-		<link rel="canonical" href="https://{{ .SiteHost }}/Hire-Golang-Developers" />
+		<link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers" />
 		<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 		<script src="https://js.stripe.com/v3/"></script>
 	</head>
@@ -56,9 +56,9 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 		<section>
 			<article>
 				<p>
-				<h1>Join the Golang Developers Community on {{ .SiteName }}</h1>
+				<h1>Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}</h1>
 				<p style="font-size: 18px;">
-				Register your free developer profile on {{ .SiteName }}. Get matched with <a href="/Companies-Using-Golang" target="_blank">hundreds of companies</a> looking for Go engineers all over the world.<br /><br /> Join developers like <b>{{ .TopDeveloperNames }}</b> experienced in <b>{{ .TopDeveloperSkills }}</b>. 
+				Register your free developer profile on {{ .SiteName }}. Get matched with <a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}" target="_blank">hundreds of companies</a> looking for Go engineers all over the world.<br /><br /> Join developers like <b>{{ .TopDeveloperNames }}</b> experienced in <b>{{ .TopDeveloperSkills }}</b>. 
 				</p>
 				<div style="margin-bottom: 20px; text-align: center;">
 				{{ range $i, $j := .TopDevelopers }}

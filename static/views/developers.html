@@ -2,24 +2,24 @@
 <html lang="en">
   <head>
 	<meta name="yandex-verification" content="96b3163b8551fd06" />
-	<title>Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}</title>
+	<title>{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}</title>
         <link href="/s/img/favicon.ico" rel="shortcut icon">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-	<meta name="title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}" />
-	<meta name="keywords" content="golang developers, golang developers for hire{{ if .TagFilter }}, golang {{ .TagFilter }} developers{{ end }}{{ if .LocationFilter }}, golang developers in {{ .LocationFilter }}{{ end }}" />
-	<meta name="description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}" />
-	<meta itemprop="name" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
-	<meta itemprop="description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
+	<meta name="title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}" />
+	<meta name="keywords" content="{{ .SiteJobCategory }} developers, {{ .SiteJobCategory }} developers for hire{{ if .TagFilter }}, {{ .SiteJobCategory }} {{ .TagFilter }} developers{{ end }}{{ if .LocationFilter }}, {{ .SiteJobCategory }} developers in {{ .LocationFilter }}{{ end }}" />
+	<meta name="description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}" />
+	<meta itemprop="name" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
+	<meta itemprop="description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
 	<meta itemprop="image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
 	<meta property="og:url" content="https://{{ .SiteHost }}">
         <meta property="og:type" content="website">
-	<meta property="og:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
-	<meta property="og:description" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
+	<meta property="og:title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
+	<meta property="og:description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
 	<meta property="og:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
         <meta name="twitter:card" content="summary_large_image">
-	<meta name="twitter:title" content="Golang {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
+	<meta name="twitter:title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
         <meta name="twitter:description" content="">
-	<link rel="canonical" href="https://{{ .SiteHost }}/Golang-{{ if .TagFilter }}{{ .TagFilterURLEncoded }}-{{ end }}Developers{{ if .LocationFilter }}-In-{{ .LocationURLEncoded }}{{ end }}" />
+	<link rel="canonical" href="https://{{ .SiteHost }}/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{ .TagFilterURLEncoded }}-{{ end }}Developers{{ if .LocationFilter }}-In-{{ .LocationURLEncoded }}{{ end }}" />
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
 	<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
     <meta name="google-site-verification" content="CsoJdYDgMeIeUO0ylZtiDUb4-VZvb2tCpLTkq3GglVo" />
@@ -57,7 +57,7 @@ body{background:#ffffff;}
     </div>
     <div id="feedback"><span style="color:#fff;">Feedback</span></div>
     <div id="newsletter-banner">
-	Get a weekly email with all new Go jobs
+	    Get a weekly email with all new {{ .SiteJobCategory }} jobs
 	<input id="newsletter-banner-input" type="text" placeholder="Your Email" />
 	<input id="newsletter-banner-submit" type="submit" value="Join {{ .EmailSubscribersCount }}+ others" />
 	<div id="newsletter-banner-close">x</div>
@@ -66,18 +66,18 @@ body{background:#ffffff;}
         <nav class="menu-header">
           <small>
             <a href="/">Jobs</a>&bull;
-            <a href="/Golang-Developer-Salary-Remote">Salaries</a>&bull;
-            <a href="/Companies-Using-Golang">Companies</a></a>&bull;
-            <a style="text-decoration: underline;" href="/Golang-Developers">Developers</a>
+	    <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
+	    <a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a></a>&bull;
+    <a style="text-decoration: underline;" href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
             <br>
           </small>
         </nav>
       </header>
   <section style="padding: 0 10px;">
     <p>
-        <input type="submit" value="Join the Community" id="post-btn" onclick="window.location.href='/Join-Golang-Community';">
-            <h1 class="main-title">Golang {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }} </h1><br/>
-	    <h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse, view and reach <b>{{ .TextJobCount }} Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} developers</b> for hire {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }}. Search developers experienced in <b>{{ .TopDeveloperSkills }}</b>. Golang developers like <b>{{ .TopDeveloperNames }}</b> and many more are available for hire on {{ .SiteName }}. Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></h2>
+    <input type="submit" value="Join the Community" id="post-btn" onclick="window.location.href='/Join-{{ .SiteJobCategoryURLEncoded }}-Community';">
+	<h1 class="main-title">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }} </h1><br/>
+	<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse, view and reach <b>{{ .TextJobCount }} {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} developers</b> for hire {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }}. Search developers experienced in <b>{{ .TopDeveloperSkills }}</b>. {{ .SiteJobCategory }} developers like <b>{{ .TopDeveloperNames }}</b> and many more are available for hire on {{ .SiteName }}. Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></h2>
     </p>
     <div style="margin-bottom: 10px;">
 	<div id="search-tag-container">
@@ -106,9 +106,9 @@ body{background:#ffffff;}
 	</div>
     </article>
           {{ if .ComplementaryRemote }}
-	  <small><b>No {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers</b> found in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }} &bull; Showing {{ len .Developers }} of {{ .TotalDevelopersCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}Golang {{ end }}Developers for hire available <b>Remotely</b> &bull; Sort by <b>Last Updated</b></small><br />
+	  <small><b>No {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers</b> found in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }} &bull; Showing {{ len .Developers }} of {{ .TotalDevelopersCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Developers for hire available <b>Remotely</b> &bull; Sort by <b>Last Updated</b></small><br />
 	  {{ else }}
-	  <small>{{ len .Developers }} of {{ .TotalDevelopersCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}Golang {{ end }}Developers for hire found {{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}&bull; Sort by <b>Last Updated</b></small><br />
+	  <small>{{ len .Developers }} of {{ .TotalDevelopersCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Developers for hire found {{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}&bull; Sort by <b>Last Updated</b></small><br />
 	  {{ end }}
     <div class="container">
 	    {{ range $i, $j := .Developers }}
@@ -135,14 +135,14 @@ body{background:#ffffff;}
 	      {{ end }}
 	      </div>
           <article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
-		  <div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:5px auto 20px auto;" id="email-subscribe-item-text">Get a weekly email with all new Go jobs</div>
+		  <div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:5px auto 20px auto;" id="email-subscribe-item-text">Get a weekly email with all new {{ .SiteJobCategory }} jobs</div>
                 <input type="email" name="job-email-subscription" id="job-email-subscription" style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
 		<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;"/>
             </article>
           {{ if .ComplementaryRemote }}
-	  <small><b>No {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers</b> found in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }} &bull; Showing {{ len .Developers }} of {{ .TotalDevelopersCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}Golang {{ end }}Developers for hire available <b>Remotely</b> &bull; Sort by <b>Last Updated</b></small><br />
+	  <small><b>No {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers</b> found in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }} &bull; Showing {{ len .Developers }} of {{ .TotalDevelopersCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Developers for hire available <b>Remotely</b> &bull; Sort by <b>Last Updated</b></small><br />
 	  {{ else }}
-	  <small>{{ len .Developers }} of {{ .TotalDevelopersCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}Golang {{ end }}Developers for hire found {{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}&bull; Sort by <b>Last Updated</b></small><br />
+	  <small>{{ len .Developers }} of {{ .TotalDevelopersCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Developers for hire found {{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}&bull; Sort by <b>Last Updated</b></small><br />
 	  {{ end }}
             <br />
             <nav>
@@ -178,47 +178,47 @@ body{background:#ffffff;}
 	  <h4 style="margin-left: 9px;">Get Hired{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</h4>
     <nav class="subnav" style="width:100%;">
         <ul>
-            <li><a href="/Join-Golang-Community">Join the Golang Developers Community</a></li>
+		<li><a href="/Join-{{ .SiteJobCategoryURLEncoded }}-Community">Join the {{ .SiteJobCategory }} Developers Community</a></li>
         </ul>
     </nav>
-    <h4 style="margin-left: 9px;">Related To Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Developers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</h4>
+    <h4 style="margin-left: 9px;">Related To {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Developers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</h4>
     	<nav class="subnav">
         	<ul>
-			<li><a href="/Golang-Developer-Salary-{{ if .LocationFilter }}{{ .LocationURLEncoded }}{{ else }}Remote{{ end }}">Average Salary For Golang Developers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</a></li>
-			<li><a href="/Companies-Using-Golang{{ if .LocationFilter }}-In-{{ .LocationURLEncoded }}{{ end }}">Companies Hiring Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Engineers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</a></li>
-			<li><a href="/Golang-Jobs-{{ if .LocationFilter }}In-{{ .LocationURLEncoded }}{{ else }}-Remote{{ end }}">Golang Jobs {{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</a></li>
+			<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-{{ if .LocationFilter }}{{ .LocationURLEncoded }}{{ else }}Remote{{ end }}">Average Salary For {{ .SiteJobCategory }} Developers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</a></li>
+			<li><a href="/Companies-Using-{{ .SiteJobCategory }}{{ if .LocationFilter }}-In-{{ .LocationURLEncoded }}{{ end }}">Companies Hiring {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Engineers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</a></li>
+			<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-{{ if .LocationFilter }}In-{{ .LocationURLEncoded }}{{ else }}-Remote{{ end }}">{{ .SiteJobCategory }} Jobs {{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</a></li>
         	</ul>
     	</nav>
-	<h4 style="margin-left: 9px;">Golang{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Developers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} Related Searches</h4>
+	<h4 style="margin-left: 9px;">{{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Developers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} Related Searches</h4>
     <nav class="subnav">
         <ul>
-            <li><a href="/Golang-DevOps-Developers">Golang DevOps Developers</a></li>
-            <li><a href="/Golang-GCP-Developers">Golang GCP Developers</a></li>
-            <li><a href="/Golang-AWS-Developers">Golang AWS Developers</a></li>
-            <li><a href="/Golang-SRE-Developers">Golang SRE Developers</a></li>
-            <li><a href="/Golang-K8s-Developers">Golang K8s Developers</a></li>
-            <li><a href="/Golang-MySQL-Developers">Golang MySQL Developers</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-DevOps-Developers">{{ .SiteJobCategory }} DevOps Developers</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-GCP-Developers">{{ .SiteJobCategory }} GCP Developers</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-AWS-Developers">{{ .SiteJobCategory }} AWS Developers</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-SRE-Developers">{{ .SiteJobCategory }} SRE Developers</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-K8s-Developers">{{ .SiteJobCategory }} K8s Developers</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-MySQL-Developers">{{ .SiteJobCategory }} MySQL Developers</a></li>
         </ul>
     </nav>
     <nav class="subnav">
         <ul>
-            <li><a href="/Golang-Developers-In-United-Kingdom">Golang Developers in UK</a></li>
-            <li><a href="/Golang-Developers-In-Germany">Golang Developers in Germany</a></li>
-            <li><a href="/Golang-Developers-In-Netherlands">Golang Developers in Netherlands</a></li>
-            <li><a href="/Golang-Developers-In-USA">Golang Developers in USA</a></li>
-            <li><a href="/Golang-Developers-In-India">Golang Developers in India</a></li>
-            <li><a href="/Golang-Developers-In-Europe">Golang Developers in Europe</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developers-In-United-Kingdom">{{ .SiteJobCategory }} Developers in UK</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developers-In-Germany">{{ .SiteJobCategory }} Developers in Germany</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developers-In-Netherlands">{{ .SiteJobCategory }} Developers in Netherlands</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developers-In-USA">{{ .SiteJobCategory }} Developers in USA</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developers-In-India">{{ .SiteJobCategory }} Developers in India</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developers-In-Europe">{{ .SiteJobCategory }} Developers in Europe</a></li>
         </ul>
     </nav>
-    <h4 style="margin-left: 9px;">Explore Golang Developer Salary Data</h4>
+    <h4 style="margin-left: 9px;">Explore {{ .SiteJobCategory }} Developer Salary Data</h4>
     <nav class="subnav">
         <ul>
-            <li><a href="/Golang-Developer-Salary-Remote">Golang Developer Salary Remote</a></li>
-            <li><a href="/Golang-Developer-Salary-London">Golang Developer Salary London</a></li>
-            <li><a href="/Golang-Developer-Salary-Berlin">Golang Developer Salary Berlin</a></li>
-            <li><a href="/Golang-Developer-Salary-Amsterdam">Golang Developer Salary Amsterdam</a></li>
-            <li><a href="/Golang-Developer-Salary-New-York">Golang Developer Salary New York</a></li>
-            <li><a href="/Golang-Developer-Salary-Vancouver">Golang Developer Salary Vancouver</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">{{ .SiteJobCategory }} Developer Salary Remote</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-London">{{ .SiteJobCategory }} Developer Salary London</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Berlin">{{ .SiteJobCategory }} Developer Salary Berlin</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Amsterdam">{{ .SiteJobCategory }} Developer Salary Amsterdam</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-New-York">{{ .SiteJobCategory }} Developer Salary New York</a></li>
+		<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Vancouver">{{ .SiteJobCategory }} Developer Salary Vancouver</a></li>
         </ul>
     </nav>
     <h4 style="margin-left: 9px;">{{ .SiteName }}</h4>
@@ -340,13 +340,13 @@ body{background:#ffffff;}
                 return;
             }
             if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '') {
-                window.location.href = '/Golang-Developers';
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Developers';
             } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '') {
-                window.location.href = '/Golang-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
             } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers';
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers';
             } else {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
             }
         });
     document
@@ -376,26 +376,26 @@ body{background:#ffffff;}
                 return;
             }
             if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '') {
-                window.location.href = '/Golang-Developers';
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Developers';
             } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '') {
-                window.location.href = '/Golang-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
             } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers';
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers';
             } else {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
             }
         });
     document
         .getElementById('search-btn')
         .addEventListener('click', function() {
             if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() === '') {
-                window.location.href = '/Golang-Developers';
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Developers';
             } else if (document.getElementById('search-location').value.trim() !== '' && document.getElementById('search-tag').value.trim() === '') {
-                window.location.href = '/Golang-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
             } else if (document.getElementById('search-location').value.trim() === '' && document.getElementById('search-tag').value.trim() !== '') {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers';
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers';
             } else {
-                window.location.href = '/Golang-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
+				window.location.href = '/{{ .SiteJobCategoryURLEncoded }}-'+encodeURIComponent(document.getElementById('search-tag').value)+'-Developers-In-'+encodeURIComponent(document.getElementById('search-location').value);
             }
         });
     function hideEmailBanner() {

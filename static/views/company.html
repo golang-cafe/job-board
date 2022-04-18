@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}</title>
+		<title>{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}</title>
 		<link href="/s/img/favicon.ico" rel="shortcut icon">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<style type="text/css">
@@ -18,20 +18,20 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
   .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
 		</style>
 		<meta charset="utf-8">
-		<meta name="title" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}" />
-		<meta name="keywords" content="golang, golang jobs, go programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}" />
-		<meta name="description" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}" />
-		<meta itemprop="name" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
-		<meta itemprop="description" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
+		<meta name="title" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}" />
+		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}" />
+		<meta name="description" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}" />
+		<meta itemprop="name" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
+		<meta itemprop="description" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
 		<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .Company.IconImageID }}">
 		<meta property="og:url" content="https://{{ .SiteHost }}/company/{{ .Company.Slug }}">
 		<meta property="og:type" content="website">
-		<meta property="og:title" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
-		<meta property="og:description" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
+		<meta property="og:title" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
+		<meta property="og:description" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
 		<meta property="og:image" content="https://{{ .SiteHost }}/x/s/m/{{ .Company.IconImageID }}">
 		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:title" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
-		<meta name="twitter:description" content="{{ .Company.Name }} is hiring Go (Golang) Developers - {{ .MonthAndYear }}">
+		<meta name="twitter:title" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
+		<meta name="twitter:description" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
 		<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .Company.IconImageID }}">
 		<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
 		<link rel="canonical" href="https://{{ .SiteHost }}/company/{{ .Company.Slug }}" />
@@ -41,9 +41,9 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			<nav class="menu-header">
 				<small>
 					<a href="/">Jobs</a>&bull;
-					<a href="/Golang-Developer-Salary-Remote">Salaries</a>&bull;
-					<a href="/Companies-Using-Golang">Companies</a></a>&bull;
-					<a href="/Golang-Developers">Developers</a>
+					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
+					<a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a></a>&bull;
+				<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
 					<br>
 				</small>
 			</nav>
@@ -58,7 +58,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<br />
 				<b>Company Website</b> <a href="{{ .Company.URL }}" target="_blank" rel="noreferrer nofollow">{{ .Company.URL }}</a><br />
 				<b>Last Job Posted</b> {{ humantime .Company.LastJobCreatedAt }}<br />
-				<b>Golang Job Openings:</b> {{ .Company.ActiveJobCount }}<br />
+				<b>{{ .SiteJobCategory }} Job Openings:</b> {{ .Company.ActiveJobCount }}<br />
 				<b>Locations</b> {{ .Company.Locations }}<br />
 				{{ if .Company.Github }}
 				<b>GitHub</b> <a href="{{ .Company.Github }}" target="_blank">{{ .Company.Github }}</a><br />
@@ -75,7 +75,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<br />
 			</article>
 			{{ if .CompanyJobs }}
-			<h3>Company Go (Golang) Job Openings</h3>
+			<h3>Company {{ .SiteJobCategory }} Job Openings</h3>
 			{{ end }}
 			{{ range $i, $j := .CompanyJobs }}
 			<article class="line-item">
@@ -84,7 +84,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				{{ end }}
 				<div style="float: left;">
 					<a href="/job/{{ .Slug }}" target="_blank"><b>{{ .JobTitle }}</b><br />
-						<a style="font-size:12pt;" href="/Golang-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
+						<a style="font-size:12pt;" href="/{{ .SiteJobCategoryURLEncoded }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
 						<b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
 						<br />
 						<small>{{ .TimeAgo }}</small>
@@ -104,51 +104,51 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			<h4 style="margin-left: 9px;">Join the Community</h4>
 			<nav class="subnav" style="width: 100%;">
 				<ul>
-					<li><a href="/Join-Golang-Community">Join the Golang Developers Community</a></li>
+					<li><a href="/Join-{{ .SiteJobCategoryURLEncoded }}-Community">Join the {{ .SiteJobCategory }} Developers Community</a></li>
 				</ul>
 			</nav>
-			<h4 style="margin-left: 9px;">Golang Jobs Related Searches to {{ .Job.Location }}</h4>
+			<h4 style="margin-left: 9px;">{{ .SiteJobCategory }} Jobs Related Searches to {{ .Job.Location }}</h4>
 			<nav class="subnav">
 				<ul>
-					<li><a href="/Remote-Golang-Jobs">Remote Golang Jobs</a></li>
-					<li><a href="/Golang-Jobs-In-London">Golang Jobs in London</a></li>
-					<li><a href="/Golang-Jobs-In-Berlin">Golang Jobs in Berlin</a></li>
-					<li><a href="/Golang-Jobs-In-Amsterdam">Golang Jobs in Amsterdam</a></li>
-					<li><a href="/Golang-Jobs-In-New-York">Golang Jobs in New York</a></li>
-					<li><a href="/Golang-Jobs-In-San-Francisco">Golang Jobs in San Francisco</a></li>
+					<li><a href="/Remote-{{ .SiteJobCategoryURLEncoded }}-Jobs">Remote {{ .SiteJobCategory }} Jobs</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-London">{{ .SiteJobCategory }} Jobs in London</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-Berlin">{{ .SiteJobCategory }} Jobs in Berlin</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-Amsterdam">{{ .SiteJobCategory }} Jobs in Amsterdam</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-New-York">{{ .SiteJobCategory }} Jobs in New York</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-San-Francisco">{{ .SiteJobCategory }} Jobs in San Francisco</a></li>
 				</ul>
 			</nav>
-			<h4 style="margin-left: 9px;">Golang Jobs Related Searches</h4>
+			<h4 style="margin-left: 9px;">{{ .SiteJobCategory }} Jobs Related Searches</h4>
 			<nav class="subnav">
 				<ul>
-					<li><a href="/Golang-DevOps-Jobs">Golang DevOps Jobs</a></li>
-					<li><a href="/Golang-Fintech-Jobs">Golang Fintech Jobs</a></li>
-					<li><a href="/Golang-Blockchain-Jobs">Golang Blockchain Jobs</a></li>
-					<li><a href="/Golang-Site-Reliability-Jobs">Golang Site Reliability Jobs</a></li>
-					<li><a href="/Golang-Distributed-Systems-Jobs">Golang Distributed Systems Jobs</a></li>
-					<li><a href="/Golang-Senior-Jobs">Golang Senior Jobs</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-DevOps-Jobs">{{ .SiteJobCategory }} DevOps Jobs</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Fintech-Jobs">{{ .SiteJobCategory }} Fintech Jobs</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Blockchain-Jobs">{{ .SiteJobCategory }} Blockchain Jobs</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Site-Reliability-Jobs">{{ .SiteJobCategory }} Site Reliability Jobs</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Distributed-Systems-Jobs">{{ .SiteJobCategory }} Distributed Systems Jobs</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Senior-Jobs">{{ .SiteJobCategory }} Senior Jobs</a></li>
 				</ul>
 			</nav>
-			<h4 style="margin-left: 9px;">Golang Jobs Worldwide</h4>
+			<h4 style="margin-left: 9px;">{{ .SiteJobCategory }} Jobs Worldwide</h4>
 			<nav class="subnav">
 				<ul>
-					<li><a href="/Golang-Jobs-In-United-Kingdom">Golang Jobs in UK</a></li>
-					<li><a href="/Golang-Jobs-In-Germany">Golang Jobs in Germany</a></li>
-					<li><a href="/Golang-Jobs-In-Netherlands">Golang Jobs in Netherlands</a></li>
-					<li><a href="/Golang-Jobs-In-USA">Golang Jobs in USA</a></li>
-					<li><a href="/Golang-Jobs-In-Spain">Golang Jobs in Spain</a></li>
-					<li><a href="/Golang-Jobs-In-France">Golang Jobs in France</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-United-Kingdom">{{ .SiteJobCategory }} Jobs in UK</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-Germany">{{ .SiteJobCategory }} Jobs in Germany</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-Netherlands">{{ .SiteJobCategory }} Jobs in Netherlands</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-USA">{{ .SiteJobCategory }} Jobs in USA</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-Spain">{{ .SiteJobCategory }} Jobs in Spain</a></li>
+					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-France">{{ .SiteJobCategory }} Jobs in France</a></li>
 				</ul>
 			</nav>
-			<h4 style="margin-left: 9px;">Golang Salary Related Searches</h4>
+			<h4 style="margin-left: 9px;">{{ .SiteJobCategory }} Salary Related Searches</h4>
 			<nav class="subnav">
 				<ul>
-					<li><a target="_blank" href="/Golang-Developer-Salary-Remote">Golang Developer Salary Remote</a></li>
-					<li><a target="_blank" href="/Golang-Developer-Salary-London">Golang Developer Salary London</a target="_blank"></li>
-					<li><a target="_blank" href="/Golang-Developer-Salary-Berlin">Golang Developer Salary Berlin</a></li>
-					<li><a target="_blank" href="/Golang-Developer-Salary-Amsterdam">Golang Developer Salary Amsterdam</a></li>
-					<li><a target="_blank" href="/Golang-Developer-Salary-New-York">Golang Developer Salary New York</a></li>
-					<li><a target="_blank" href="/Golang-Developer-Salary-Paris">Golang Developer Salary Paris</a></li>
+					<li><a target="_blank" href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">{{ .SiteJobCategory }} Developer Salary Remote</a></li>
+					<li><a target="_blank" href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-London">{{ .SiteJobCategory }} Developer Salary London</a target="_blank"></li>
+					<li><a target="_blank" href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Berlin">{{ .SiteJobCategory }} Developer Salary Berlin</a></li>
+					<li><a target="_blank" href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Amsterdam">{{ .SiteJobCategory }} Developer Salary Amsterdam</a></li>
+					<li><a target="_blank" href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-New-York">{{ .SiteJobCategory }} Developer Salary New York</a></li>
+					<li><a target="_blank" href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Paris">{{ .SiteJobCategory }} Developer Salary Paris</a></li>
 				</ul>
 			</nav>
 			<h4 style="margin-left: 9px;">{{ .SiteName }}</h4>

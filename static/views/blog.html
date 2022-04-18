@@ -5,7 +5,7 @@
     <link href="/s/img/favicon.ico" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="title" content="{{ .SiteName }} Blog | {{ .MonthAndYear }}" />
-    <meta name="keywords" content="golang, golang jobs, go programming language, golang backend engineer, golang software engineer, remote golang" />
+    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} software engineer, remote {{ .SiteJobCategory }}" />
     <meta name="description" content="{{ .SiteName }} Blog | {{ .MonthAndYear }}" />
     <meta itemprop="name" content="{{ .SiteName }} Blog | {{ .MonthAndYear }}">
     <meta itemprop="description" content="{{ .SiteName }} Blog | {{ .MonthAndYear }}">
@@ -44,9 +44,9 @@ body{background:#ffffff;}
       <nav class="menu-header">
         <small>
                   <a href="/">Jobs</a>&bull;
-                  <a href="/Golang-Developer-Salary-Remote">Salaries</a>&bull;
-                  <a href="/Companies-Using-Golang">Companies</a>&bull;
-                  <a href="/Golang-Developers">Developers</a>
+		  <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
+		  <a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
+		  <a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
           <br>
         </small>
       </nav>
@@ -57,7 +57,7 @@ body{background:#ffffff;}
     </div>
     <section style="margin: 30px auto;">
             <article>
-              <h1>Latest Go Blog Posts</h1>
+		    <h1>Latest {{ .SiteJobCategory }} Blog Posts</h1>
               <ul>
               {{ range $i, $j := .Posts }}
                   <li><a href="/blog/{{ .Path }}">{{ .Title }}</a></li>

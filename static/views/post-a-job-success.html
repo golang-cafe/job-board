@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>Post a Golang Job now and reach thousands of candidates</title>
+	  <title>Post a {{ .SiteJobCategory }} Job now and reach thousands of candidates</title>
     <link href="/s/img/favicon.ico" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css">
@@ -11,21 +11,21 @@ body{background:#ffffff;}
     footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
     </style>
     <meta charset="utf-8">
-    <meta name="title" content="Post a Golang Job now and reach thousands of candidates" />
-    <meta name="keywords" content="golang, golang jobs, go programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}" />
-    <meta name="description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | {{ .SiteName }}" />
+    <meta name="title" content="Post a {{ .SiteJobCategory }} Job now and reach thousands of candidates" />
+    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}" />
+    <meta name="description" content="{{ .SiteJobCategory }} Developer Jobs | Post a {{ .SiteJobCategory }} Job now and reach thousands of candidates | {{ .SiteName }}" />
 
-    <meta itemprop="name" content="Post a Golang Job now and reach thousands of candidates">
-    <meta itemprop="description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | {{ .SiteName }}">
+    <meta itemprop="name" content="Post a {{ .SiteJobCategory }} Job now and reach thousands of candidates">
+    <meta itemprop="description" content="{{ .SiteJobCategory }} Developer Jobs | Post a {{ .SiteJobCategory }} Job now and reach thousands of candidates | {{ .SiteName }}">
     <meta itemprop="image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
     <meta property="og:url" content="https://{{ .SiteHost }}">
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Post a Golang Job now and reach thousands of candidates">
-    <meta property="og:description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidate | {{ .SiteName }}s">
+    <meta property="og:title" content="Post a {{ .SiteJobCategory }} Job now and reach thousands of candidates">
+    <meta property="og:description" content="{{ .SiteJobCategory }} Developer Jobs | Post a {{ .SiteJobCategory }} Job now and reach thousands of candidate | {{ .SiteName }}s">
     <meta property="og:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="Post a Golang Job now and reach thousands of candidates">
-    <meta name="twitter:description" content="Golang Developer Jobs | Post a Golang Job now and reach thousands of candidates | {{ .SiteName }}">
+    <meta name="twitter:title" content="Post a {{ .SiteJobCategory }} Job now and reach thousands of candidates">
+    <meta name="twitter:description" content="{{ .SiteJobCategory }} Developer Jobs | Post a {{ .SiteJobCategory }} Job now and reach thousands of candidates | {{ .SiteName }}">
     <meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
     
     <meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
@@ -44,7 +44,7 @@ body{background:#ffffff;}
 		You will automatically receive a receipt of purchase in your inbox. For customers located in the United Kingdom the purchase is inclusive of VAT. If you need a VAT invoice for your records, you can request one at <a href="mailto:{{ .SupportEmail }}">{{ .SupportEmail }}</a>.
             </p>
             <p>
-	    <input type="submit" onClick="window.location.href='http://{{ .SiteHost }}/Hire-Golang-Developers'" value="Go to the homepage">
+	    <input type="submit" onClick="window.location.href='http://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers'" value="Go to the homepage">
             </p>
       </article>
   </section>
