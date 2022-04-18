@@ -7,9 +7,9 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/0x13a/golang.cafe/internal/company"
-	"github.com/0x13a/golang.cafe/internal/database"
-	"github.com/0x13a/golang.cafe/internal/developer"
+	"github.com/golang-cafe/job-board/internal/company"
+	"github.com/golang-cafe/job-board/internal/database"
+	"github.com/golang-cafe/job-board/internal/developer"
 )
 
 func StaticPages() []string {

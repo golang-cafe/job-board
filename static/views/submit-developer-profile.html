@@ -22,7 +22,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 		<meta charset="utf-8">
 		<title>Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}</title> 
 		<meta name="title" content="Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}" />
-		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire go developers, hire go engineers" />
+		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire go engineers" />
 		<meta name="description" content="Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}" />
 		<meta itemprop="name" content="Joim the {{ .SiteJobCategory }} Developers Community">
 		<meta itemprop="description" content="Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}">
@@ -191,7 +191,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
             var currentLocation = document.getElementById("current-location").value;
             var tags = document.getElementById("tags").value;
             if (empty(tags, fullName, linkedinURL, bio, email, currentLocation)) {
-                alert('You must fill all the mandatory forms in order to Hire Go Developers');
+		alert('You must fill all the mandatory forms in order to Hire {{ .SiteJobCategory }} Developers');
                 return;
             }
             if (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL)) {

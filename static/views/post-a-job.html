@@ -24,7 +24,7 @@ body{background:#ffffff;}
     {{ if and .Location $isRemote }}
     <title>Hire Remote {{ .SiteJobCategory }} Developers | {{ .SiteName }}</title>
     <meta name="title" content="Hire Remote {{ .SiteJobCategory }} Developers | {{ .SiteName }}" />
-    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire go developers, hire remote {{ .SiteJobCategory }} developers, hire remote go developers, hire remote go engineers" />
+    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire remote {{ .SiteJobCategory }} developers, hire remote {{ .SiteJobCategory }} developers, hire remote go engineers" />
     <meta name="description" content="Hire Remote {{ .SiteJobCategory }} Developers on {{ .SiteName }}" />
     <meta itemprop="name" content="Hire Remote {{ .SiteJobCategory }} Developers">
     <meta itemprop="description" content="Hire Remote {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
@@ -45,7 +45,7 @@ body{background:#ffffff;}
         {{ if .Location }}
 	<title>Hire {{ .SiteJobCategory }} Developers In {{ .Location }} | {{ .SiteName }}</title>
 	<meta name="title" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} | {{ .SiteName }}" />
-	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire go developers in {{ .Location }}, hire {{ .SiteJobCategory }} developers in {{ .Location }}, hire go developers, hire go engineers in {{ .Location }}" />
+	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers in {{ .Location }}, hire {{ .SiteJobCategory }} developers in {{ .Location }}, hire {{ .SiteJobCategory }} developers, hire go engineers in {{ .Location }}" />
 	<meta name="description" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} on {{ .SiteName }}" />
 	<meta itemprop="name" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }}">
 	<meta itemprop="description" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} on {{ .SiteName }}">
@@ -65,7 +65,7 @@ body{background:#ffffff;}
         {{ else }}
 	<title>Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}</title> 
 	<meta name="title" content="Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}" />
-	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire go developers, hire go engineers" />
+	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire go engineers" />
 	<meta name="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}" />
 	<meta itemprop="name" content="Hire {{ .SiteJobCategory }} Developers">
 	<meta itemprop="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
@@ -104,14 +104,14 @@ body{background:#ffffff;}
       <article style="margin-top:20px;">
                 {{ if and .Location $isRemote }}
 		<h1 style="margin-top:20px;">Hire Remote {{ .SiteJobCategory }} Developers</h1>
-		<p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved {{ .SiteJobCategory }} Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Remote Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
+		<p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved {{ .SiteJobCategory }} Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Remote {{ .SiteJobCategory }} developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                 {{ else }}
                     {{ if .Location }}
 		    <h1 style="margin-top: 20px;">Hire {{ .SiteJobCategory }} Developers In {{ .Location }}</h1>
-		    <p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved {{ .SiteJobCategory }} Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers in {{ .Location }} today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
+		    <p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved {{ .SiteJobCategory }} Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire {{ .SiteJobCategory }} developers in {{ .Location }} today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new this week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                     {{ else }}
 		    <h1 style="margin-top: 20px;">Hire {{ .SiteJobCategory }} Developers</h1>
-		    <p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved {{ .SiteJobCategory }} Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire Go developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new last week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
+		    <p style="font-size: 18px;"><b>{{ .SiteName }} is the most loved {{ .SiteJobCategory }} Job board</b>. We put simplicity and transparency at the forefront of everything we do. Post a job now and hire {{ .SiteJobCategory }} developers today. <b>Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></b>{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new last week){{ else }} ({{ .NewJobsLastMonth }} new last month){{ end }}{{ end }}</p>
                     {{ end }}
                 {{ end }}
 		{{ if .FeaturedCompanies }}
@@ -180,7 +180,7 @@ body{background:#ffffff;}
                 </article>
                 <h4>Choose Your Package</h4>
                 <input type="checkbox" disabled name="ad-type-0" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-0" checked><label>Standard Submission <b>{{ .Currency.Symbol }}39</b></label><br/>
-                <input type="checkbox" disabled style="margin-right: 8px; margin-bottom: 5px;" checked><label>👤 Get Matched with Go developers from the directory <b>Included</b></label><br/>
+		<input type="checkbox" disabled style="margin-right: 8px; margin-bottom: 5px;" checked><label>👤 Get Matched with {{ .SiteJobCategory }} developers from the directory <b>Included</b></label><br/>
                 <input type="checkbox" disabled style="margin-right: 8px; margin-bottom: 5px;" checked><label>✉️  Share job on the weekly newsletter <b>Included</b></label><br/>
                 <input type="checkbox" name="ad-type-4" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-4" checked><label>🖼 Add Company Logo besides Job Post <b>{{ .Currency.Symbol }}49</b></label><br/>
                 <h4>Get 2x More Views</h4>
@@ -189,7 +189,7 @@ body{background:#ffffff;}
                 <input type="checkbox" name="ad-type-5" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-5"><label>📌 Pinned to the Front Page for 60 days <b>{{ .Currency.Symbol }}199</b>  (save 60%)</label><br/>
                 <br />
                 <br />
-                <input type="submit" id="submit" value="Hire Go Developers {{ .Currency.Symbol }}59" onclick="post();" style="float: right;margin-right:0px;margin-bottom:0px;">
+		<input type="submit" id="submit" value="Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}59" onclick="post();" style="float: right;margin-right:0px;margin-bottom:0px;">
                 <div class="clearfix"></div>
 		<p style="line-height:1rem;float:right;width:50%;text-align:right;font-size:9pt;margin-bottom:0px;margin-top:10px;">This is not a subscription. You will only be charged once. By continuing you accept the <a href="/terms-of-service" target="_blank">Terms of Service</a></p>
                 <div class="clearfix"></div>
@@ -278,12 +278,12 @@ body{background:#ffffff;}
                 document.getElementById("ad-type-4").checked = true;
                 document.getElementById("ad-type-3").checked = false;
                 document.getElementById("ad-type-2").checked = false;
-                document.getElementById("submit").value = 'Hire Go Developers {{ .Currency.Symbol }}199';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}199';
             } else {
                 document.getElementById("ad-type-4").checked = true;
                 document.getElementById("ad-type-3").checked = false;
                 document.getElementById("ad-type-2").checked = false;
-                document.getElementById("submit").value = 'Hire Go Developers {{ .Currency.Symbol }}49';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}49';
             }
             updateJobPreviewImg();
             updateSponsoredJobPreview();
@@ -293,25 +293,25 @@ body{background:#ffffff;}
                 document.getElementById("ad-type-4").checked = true;
                 document.getElementById("ad-type-3").checked = false;
                 document.getElementById("ad-type-5").checked = false;
-                document.getElementById("submit").value = 'Hire Go Developers {{ .Currency.Symbol }}129';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}129';
             } else {
                 document.getElementById("ad-type-4").checked = true;
                 document.getElementById("ad-type-3").checked = false;
                 document.getElementById("ad-type-5").checked = false;
-                document.getElementById("submit").value = 'Hire Go Developers {{ .Currency.Symbol }}49';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}49';
             }
             updateJobPreviewImg();
             updateSponsoredJobPreview();
         });
         document.getElementById("ad-type-4").addEventListener('change', function() {
             if (this.checked) {
-                document.getElementById("submit").value = 'Hire Go Developers {{ .Currency.Symbol }}49';
+		    document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}49';
             } else {
                 if (confirm("You are about to remove your company logo from you Ad. Are you sure?")) {
                     document.getElementById("ad-type-2").checked = false;
                     document.getElementById("ad-type-3").checked = false;
                     document.getElementById("ad-type-5").checked = false;
-                    document.getElementById("submit").value = 'Hire Go Developers {{ .Currency.Symbol }}39';
+		    document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}39';
                 } else {
                     this.checked = true;
                 }
@@ -324,12 +324,12 @@ body{background:#ffffff;}
                 document.getElementById("ad-type-4").checked = true;
                 document.getElementById("ad-type-2").checked = false;
                 document.getElementById("ad-type-5").checked = false;
-                document.getElementById("submit").value = 'Hire Go Developers {{ .Currency.Symbol }}59';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}59';
             } else {
                 document.getElementById("ad-type-3").checked = false;
                 document.getElementById("ad-type-2").checked = false;
                 document.getElementById("ad-type-5").checked = false;
-                document.getElementById("submit").value = 'Hire Go Developers {{ .Currency.Symbol }}49';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}49';
             }
             updateJobPreviewImg();
             updateSponsoredJobPreview();
@@ -387,7 +387,7 @@ body{background:#ffffff;}
             var salaryCurrencySymbol = salaryCurrency.split('-')[1];
 	    var salaryCurrencyISO = salaryCurrency.split('-')[0];
             if (empty(jobTitle, jobLocation, salaryMin, salaryMax, companyName, companyWebsite, jobDescription, howToApply, companyEmail)) {
-                alert('You must fill all the mandatory forms in order to Hire Go Developers');
+		alert('You must fill all the mandatory forms in order to Hire {{ .SiteJobCategory }} Developers');
                 return;
             }
             if (!isInteger(salaryMax) || !isInteger(salaryMin)) {

@@ -1,4 +1,4 @@
-module github.com/0x13a/golang.cafe
+module github.com/golang-cafe/job-board
 
 go 1.13
 
@@ -13,7 +13,6 @@ require (
 	github.com/allegro/bigcache/v3 v3.0.0
 	github.com/azr/backoff v0.0.0-20160115115103-53511d3c7330 // indirect
 	github.com/bot-api/telegram v0.0.0-20170115211335-b7abf87c449e
-	github.com/certifi/gocertifi v0.0.0-20180118203423-deb3ae2ef261 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dustin/go-humanize v1.0.0
@@ -21,7 +20,6 @@ require (
 	github.com/dustin/gojson v0.0.0-20160307161227-2e71ec9dd5ad // indirect
 	github.com/fogleman/gg v1.3.0
 	github.com/garyburd/go-oauth v0.0.0-20180319155456-bca2e7f09a17 // indirect
-	github.com/getsentry/raven-go v0.1.0
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	github.com/gorilla/feeds v1.1.1
 	github.com/gorilla/mux v1.7.3

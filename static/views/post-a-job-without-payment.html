@@ -21,7 +21,7 @@ body{background:#ffffff;}
     <meta charset="utf-8">
     <title>Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}</title> 
     <meta name="title" content="Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}" />
-    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire go developers, hire go engineers" />
+    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire go engineers" />
     <meta name="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}" />
     <meta itemprop="name" content="Hire {{ .SiteJobCategory }} Developers">
     <meta itemprop="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
@@ -49,7 +49,7 @@ body{background:#ffffff;}
         <p>
             <small>
                 <a href="/manage/list">Search Jobs</a> | 
-                <a href="/manage/new">Hire Go Developers</a>
+		<a href="/manage/new">Hire {{ .SiteJobCategory }} Developers</a>
             </small>
         </p>
       <article>
@@ -148,7 +148,7 @@ body{background:#ffffff;}
 	    var salaryCurrencySymbol = salaryCurrency.split('-')[1];
 	    var visaSponsorship = document.getElementById("visa-sponsorship").checked;
             if (empty(jobTitle, jobLocation, salaryMin, salaryMax, companyName, companyWebsite, jobDescription, howToApply, companyEmail)) {
-                alert('You must fill all the mandatory forms in order to Hire Go Developers');
+		alert('You must fill all the mandatory forms in order to Hire {{ .SiteJobCategory }} Developers');
                 return;
             }
             if (!isInteger(salaryMax) || !isInteger(salaryMin)) {

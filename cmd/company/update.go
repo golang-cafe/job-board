@@ -6,9 +6,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/0x13a/golang.cafe/internal/company"
-	"github.com/0x13a/golang.cafe/internal/config"
-	"github.com/0x13a/golang.cafe/internal/database"
+	"github.com/golang-cafe/job-board/internal/company"
+	"github.com/golang-cafe/job-board/internal/config"
+	"github.com/golang-cafe/job-board/internal/database"
 
 	"github.com/PuerkitoBio/goquery"
 	"github.com/gosimple/slug"

@@ -6,17 +6,17 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/0x13a/golang.cafe/internal/company"
-	"github.com/0x13a/golang.cafe/internal/config"
-	"github.com/0x13a/golang.cafe/internal/database"
-	"github.com/0x13a/golang.cafe/internal/developer"
-	"github.com/0x13a/golang.cafe/internal/email"
-	"github.com/0x13a/golang.cafe/internal/handler"
-	"github.com/0x13a/golang.cafe/internal/ipgeolocation"
-	"github.com/0x13a/golang.cafe/internal/job"
-	"github.com/0x13a/golang.cafe/internal/server"
-	"github.com/0x13a/golang.cafe/internal/template"
-	"github.com/0x13a/golang.cafe/internal/user"
+	"github.com/golang-cafe/job-board/internal/company"
+	"github.com/golang-cafe/job-board/internal/config"
+	"github.com/golang-cafe/job-board/internal/database"
+	"github.com/golang-cafe/job-board/internal/developer"
+	"github.com/golang-cafe/job-board/internal/email"
+	"github.com/golang-cafe/job-board/internal/handler"
+	"github.com/golang-cafe/job-board/internal/ipgeolocation"
+	"github.com/golang-cafe/job-board/internal/job"
+	"github.com/golang-cafe/job-board/internal/server"
+	"github.com/golang-cafe/job-board/internal/template"
+	"github.com/golang-cafe/job-board/internal/user"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 )
@@ -62,7 +62,11 @@ func main() {
 	svr.RegisterRoute("/.well-known/security.txt", handler.WellKnownSecurityHandler, []string{"GET"})
 
 	svr.RegisterPathPrefix("/s/", http.StripPrefix("/s/", http.FileServer(http.Dir("./static/assets"))), []string{"GET"})
-	svr.RegisterPathPrefix("/blog/", http.StripPrefix("/blog/", handler.DisableDirListing(http.FileServer(http.Dir("./static/blog")))), []string{"GET"})
+	svr.RegisterPathPrefix(
+		"/blog/",
+		http.StripPrefix("/blog/", handler.DisableDirListing(http.FileServer(http.Dir("./static/blog")))),
+		[]string{"GET"},
+	)
 	svr.RegisterPathPrefix("/blog", handler.BlogListHandler(svr, "./static/blog"), []string{"GET"})
 
 	svr.RegisterRoute("/about", handler.AboutPageHandler(svr), []string{"GET"})
@@ -70,17 +74,53 @@ func main() {
 	svr.RegisterRoute("/terms-of-service", handler.TermsOfServicePageHandler(svr), []string{"GET"})
 
 	svr.RegisterRoute("/", handler.IndexPageHandler(svr, jobRepo), []string{"GET"})
-	svr.RegisterRoute(fmt.Sprintf("/Companies-Using-%s", strings.ToUpper(cfg.SiteJobCategory)), handler.CompaniesHandler(svr, companyRepo, jobRepo), []string{"GET"})
-	svr.RegisterRoute(fmt.Sprintf("/Remote-Companies-Using-%s", strings.ToUpper(cfg.SiteJobCategory)), handler.CompaniesForLocationHandler(svr, companyRepo, jobRepo, "Remote"), []string{"GET"})
-	svr.RegisterRoute(fmt.Sprintf("/Companies-Using-%s-In-{location}", strings.ToUpper(cfg.SiteJobCategory)), handler.CompaniesHandler(svr, companyRepo, jobRepo), []string{"GET"})
+	svr.RegisterRoute(
+		fmt.Sprintf("/Companies-Using-%s", strings.Title(cfg.SiteJobCategory)),
+		handler.CompaniesHandler(svr, companyRepo, jobRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/Remote-Companies-Using-%s", strings.Title(cfg.SiteJobCategory)),
+		handler.CompaniesForLocationHandler(svr, companyRepo, jobRepo, "Remote"),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/Companies-Using-%s-In-{location}", strings.Title(cfg.SiteJobCategory)),
+		handler.CompaniesHandler(svr, companyRepo, jobRepo),
+		[]string{"GET"},
+	)
 
 	// developers pages
-	svr.RegisterRoute(fmt.Sprintf("/%s-Developers", strings.ToUpper(cfg.SiteJobCategory)), handler.DevelopersHandler(svr, devRepo), []string{"GET"})
-	svr.RegisterRoute(fmt.Sprintf("/%s-Developers-In-{location}", strings.ToUpper(cfg.SiteJobCategory)), handler.DevelopersHandler(svr, devRepo), []string{"GET"})
-	svr.RegisterRoute(fmt.Sprintf("/%s-{tag}-Developers", strings.ToUpper(cfg.SiteJobCategory)), handler.DevelopersHandler(svr, devRepo), []string{"GET"})
-	svr.RegisterRoute(fmt.Sprintf("/%s-{tag}-Developers-In-{location}", strings.ToUpper(cfg.SiteJobCategory)), handler.DevelopersHandler(svr, devRepo), []string{"GET"})
-	svr.RegisterRoute("/Submit-Developer-Profile", handler.PermanentRedirectHandler(svr, fmt.Sprintf("/Join-%s-Community", strings.ToUpper(cfg.SiteJobCategory))), []string{"GET"})
-	svr.RegisterRoute(fmt.Sprintf("/Join-%s-Community", strings.ToUpper(cfg.SiteJobCategory)), handler.SubmitDeveloperProfileHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-Developers", strings.Title(cfg.SiteJobCategory)),
+		handler.DevelopersHandler(svr, devRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-Developers-In-{location}", strings.Title(cfg.SiteJobCategory)),
+		handler.DevelopersHandler(svr, devRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-{tag}-Developers", strings.Title(cfg.SiteJobCategory)),
+		handler.DevelopersHandler(svr, devRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-{tag}-Developers-In-{location}", strings.Title(cfg.SiteJobCategory)),
+		handler.DevelopersHandler(svr, devRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		"/Submit-Developer-Profile",
+		handler.PermanentRedirectHandler(svr, fmt.Sprintf("/Join-%s-Community", strings.Title(cfg.SiteJobCategory))),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/Join-%s-Community", strings.Title(cfg.SiteJobCategory)),
+		handler.SubmitDeveloperProfileHandler(svr, devRepo),
+		[]string{"GET"},
+	)
 	svr.RegisterRoute("/x/sdp", handler.SaveDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/udp", handler.UpdateDeveloperProfileHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/ddp", handler.DeleteDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
@@ -206,53 +246,171 @@ func main() {
 	//
 
 	// Aliases
-	svr.RegisterRoute(fmt.Sprintf("/%s-Jobs", cfg.SiteJobCategory), handler.PermanentRedirectHandler(svr, "/"), []string{"GET"})
-	svr.RegisterRoute("/Remote-Jobs", handler.PermanentRedirectHandler(svr, fmt.Sprintf("/Remote-%s-Jobs", strings.ToUpper(cfg.SiteJobCategory))), []string{"GET"})
-	svr.RegisterRoute("/youtube", handler.PermanentExternalRedirectHandler(svr, fmt.Sprintf("https://www.youtube.com/c/%s", cfg.SiteYoutube)), []string{"GET"})
-	svr.RegisterRoute("/telegram", handler.PermanentExternalRedirectHandler(svr, fmt.Sprintf("https://t.me/%s", cfg.SiteTelegram)), []string{"GET"})
-	svr.RegisterRoute("/twitter", handler.PermanentExternalRedirectHandler(svr, "https://twitter.com/GolangCafe"), []string{"GET"})
-	svr.RegisterRoute("/linkedin", handler.PermanentExternalRedirectHandler(svr, "https://www.linkedin.com/company/15868466"), []string{"GET"})
-	svr.RegisterRoute("/github", handler.PermanentExternalRedirectHandler(svr, "https://github.com/golang-cafe/golang.cafe"), []string{"GET"})
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-Jobs", cfg.SiteJobCategory),
+		handler.PermanentRedirectHandler(svr, "/"),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		"/Remote-Jobs",
+		handler.PermanentRedirectHandler(svr, fmt.Sprintf("/Remote-%s-Jobs", strings.Title(cfg.SiteJobCategory))),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		"/youtube",
+		handler.PermanentExternalRedirectHandler(svr, fmt.Sprintf("https://www.youtube.com/c/%s", cfg.SiteYoutube)),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		"/telegram",
+		handler.PermanentExternalRedirectHandler(svr, fmt.Sprintf("https://t.me/%s", cfg.SiteTelegramChannel)),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		"/twitter",
+		handler.PermanentExternalRedirectHandler(svr, fmt.Sprintf("https://twitter.com/%s", cfg.SiteTwitter)), []string{"GET"})
+	svr.RegisterRoute(
+		"/linkedin",
+		handler.PermanentExternalRedirectHandler(svr, fmt.Sprintf("https://www.linkedin.com/company/%s", cfg.SiteLinkedin)),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		"/github",
+		handler.PermanentExternalRedirectHandler(svr, fmt.Sprintf("https://github.com/%s", cfg.SiteGithub)),
+		[]string{"GET"},
+	)
 
 	// Remote Landing Page No Skill
-	svr.RegisterRoute("/Remote-Golang-Jobs", handler.LandingPageForLocationHandler(svr, jobRepo, "Remote"), []string{"GET"})
-	svr.RegisterRoute("/Remote-Golang-Jobs-Paying-{salary}-{currency}-year", handler.LandingPageForLocationHandler(svr, jobRepo, "Remote"), []string{"GET"})
+	svr.RegisterRoute(
+		fmt.Sprintf("/Remote-%s-Jobs", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForLocationHandler(svr, jobRepo, "Remote"),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/Remote-%s-Jobs-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForLocationHandler(svr, jobRepo, "Remote"),
+		[]string{"GET"},
+	)
 
 	// Salary Only Landing Page
-	svr.RegisterRoute("/Golang-Jobs-Paying-{salary}-{currency}-year", handler.IndexPageHandler(svr, jobRepo), []string{"GET"})
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-Jobs-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
+		handler.IndexPageHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
 
 	// Remote Landing Page Skill
-	svr.RegisterRoute("/Remote-Golang-{skill}-Jobs", handler.LandingPageForLocationAndSkillPlaceholderHandler(svr, jobRepo, "Remote"), []string{"GET"})
-	svr.RegisterRoute("/Remote-Golang-{skill}-Jobs-Paying-{salary}-{currency}-year", handler.LandingPageForLocationAndSkillPlaceholderHandler(svr, jobRepo, "Remote"), []string{"GET"})
+	svr.RegisterRoute(
+		fmt.Sprintf("/Remote-%s-{skill}-Jobs", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForLocationAndSkillPlaceholderHandler(svr, jobRepo, "Remote"),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/Remote-%s-{skill}-Jobs-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForLocationAndSkillPlaceholderHandler(svr, jobRepo, "Remote"),
+		[]string{"GET"},
+	)
 
 	// Location Only Landing Page
-	svr.RegisterRoute("/Golang-Jobs-In-{location}-Paying-{salary}-{currency}-year", handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo), []string{"GET"})
-	svr.RegisterRoute("/Golang-Jobs-in-{location}-Paying-{salary}-{currency}-year", handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo), []string{"GET"})
-	svr.RegisterRoute("/Golang-Jobs-In-{location}", handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo), []string{"GET"})
-	svr.RegisterRoute("/Golang-Jobs-in-{location}", handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo), []string{"GET"})
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-Jobs-In-{location}-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-Jobs-in-{location}-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-Jobs-In-{location}", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-Jobs-in-{location}", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
 
 	// Skill Only Landing Page
-	svr.RegisterRoute("/Golang-{skill}-Jobs", handler.LandingPageForSkillPlaceholderHandler(svr, jobRepo), []string{"GET"})
-	svr.RegisterRoute("/Golang-{skill}-Jobs-Paying-{salary}-{currency}-year", handler.LandingPageForSkillPlaceholderHandler(svr, jobRepo), []string{"GET"})
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-{skill}-Jobs", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForSkillPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-{skill}-Jobs-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForSkillPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
 
 	// Skill And Location Landing Page
-	svr.RegisterRoute("/Golang-{skill}-Jobs-In-{location}", handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo), []string{"GET"})
-	svr.RegisterRoute("/Golang-{skill}-Jobs-in-{location}", handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo), []string{"GET"})
-	svr.RegisterRoute("/Golang-{skill}-Jobs-In-{location}-Paying-{salary}-{currency}-year", handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo), []string{"GET"})
-	svr.RegisterRoute("/Golang-{skill}-Jobs-in-{location}-Paying-{salary}-{currency}-year", handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo), []string{"GET"})
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-{skill}-Jobs-In-{location}", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-{skill}-Jobs-in-{location}", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-{skill}-Jobs-In-{location}-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-{skill}-Jobs-in-{location}-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
 
-	// Golang Salary for location
-	svr.RegisterRoute("/Golang-Developer-Salary-{location}", handler.SalaryLandingPageLocationPlaceholderHandler(svr, jobRepo), []string{"GET"})
-	// Golang Salary for remote
-	svr.RegisterRoute("/Remote-Golang-Developer-Salary", handler.SalaryLandingPageLocationHandler(svr, jobRepo, "Remote"), []string{"GET"})
+	// Salary for location
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-Developer-Salary-{location}", strings.Title(cfg.SiteJobCategory)),
+		handler.SalaryLandingPageLocationPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
+	// Salary for remote
+	svr.RegisterRoute(
+		fmt.Sprintf("/Remote-%s-Developer-Salary", strings.Title(cfg.SiteJobCategory)),
+		handler.SalaryLandingPageLocationHandler(svr, jobRepo, "Remote"),
+		[]string{"GET"},
+	)
 
-	// hire golang developers pages
-	svr.RegisterRoute("/Hire-Golang-Developers", handler.PostAJobPageHandler(svr, companyRepo, jobRepo), []string{"GET"})
-	svr.RegisterRoute("/hire-golang-developers", handler.PermanentRedirectHandler(svr, "Hire-Golang-Developers"), []string{"GET"})
-	svr.RegisterRoute("/post-a-job", handler.PermanentRedirectHandler(svr, "Hire-Golang-Developers"), []string{"GET"})
-	svr.RegisterRoute("/ad", handler.PermanentRedirectHandler(svr, "Hire-Golang-Developers"), []string{"GET"})
-	svr.RegisterRoute("/Hire-Remote-Golang-Developers", handler.PostAJobForLocationPageHandler(svr, companyRepo, jobRepo, "Remote"), []string{"GET"})
-	svr.RegisterRoute("/Hire-Golang-Developers-In-{location}", handler.PostAJobForLocationFromURLPageHandler(svr, companyRepo, jobRepo), []string{"GET"})
+	// hire developers pages
+	svr.RegisterRoute(
+		fmt.Sprintf("/Hire-%s-Developers", strings.Title(cfg.SiteJobCategory)),
+		handler.PostAJobPageHandler(svr, companyRepo, jobRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/hire-%s-developers", cfg.SiteJobCategory),
+		handler.PermanentRedirectHandler(svr, fmt.Sprintf("Hire-%s-Developers", strings.Title(cfg.SiteJobCategory))),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		"/post-a-job",
+		handler.PermanentRedirectHandler(svr, fmt.Sprintf("Hire-%s-Developers", strings.Title(cfg.SiteJobCategory))),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		"/ad",
+		handler.PermanentRedirectHandler(svr, fmt.Sprintf("Hire-%s-Developers", strings.Title(cfg.SiteJobCategory))),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/Hire-Remote-%s-Developers", strings.Title(cfg.SiteJobCategory)),
+		handler.PostAJobForLocationPageHandler(svr, companyRepo, jobRepo, "Remote"),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/Hire-%s-Developers-In-{location}", strings.Title(cfg.SiteJobCategory)),
+		handler.PostAJobForLocationFromURLPageHandler(svr, companyRepo, jobRepo),
+		[]string{"GET"},
+	)
 
 	// generic payment intent view
 	svr.RegisterRoute("/x/payment", handler.ShowPaymentPage(svr), []string{"GET"})

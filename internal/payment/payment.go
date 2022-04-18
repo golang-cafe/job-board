@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/0x13a/golang.cafe/internal/job"
+	"github.com/golang-cafe/job-board/internal/job"
 
 	stripe "github.com/stripe/stripe-go"
 	charge "github.com/stripe/stripe-go/charge"

@@ -8,7 +8,7 @@ import (
 	"io"
 	"path/filepath"
 
-	"github.com/0x13a/golang.cafe/internal/job"
+	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/fogleman/gg"
 	"github.com/pkg/errors"
 )
