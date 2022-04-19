@@ -56,18 +56,18 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<img src="/x/s/m/{{ .Company.IconImageID }}?w=100&h=100" width="100" height="100" title="{{ .Company.Name }} Logo" alt="{{ .Company.Name }} Logo" style="border-radius: 50px; border: 1px solid #ccc;"/><br />
 				{{ end }}
 				<br />
-				<b>Company Website</b> <a href="{{ .Company.URL }}" target="_blank" rel="noreferrer nofollow">{{ .Company.URL }}</a><br />
+				<b>Company Website</b> <a href="{{ .Company.URL }}" target="_blank" rel="noopener noreferrer nofollow">{{ .Company.URL }}</a><br />
 				<b>Last Job Posted</b> {{ humantime .Company.LastJobCreatedAt }}<br />
 				<b>{{ .SiteJobCategory }} Job Openings:</b> {{ .Company.ActiveJobCount }}<br />
 				<b>Locations</b> {{ .Company.Locations }}<br />
 				{{ if .Company.Github }}
-				<b>GitHub</b> <a href="{{ .Company.Github }}" target="_blank">{{ .Company.Github }}</a><br />
+				<b>GitHub</b> <a href="{{ .Company.Github }}" target="_blank" rel="noopener">{{ .Company.Github }}</a><br />
 				{{ end }}
 				{{ if .Company.Twitter }}
-				<b>Twitter</b> <a href="{{ .Company.Twitter }}" target="_blank">{{ .Company.Twitter }}</a><br />
+				<b>Twitter</b> <a href="{{ .Company.Twitter }}" target="_blank" rel="noopener">{{ .Company.Twitter }}</a><br />
 				{{ end }}
 				{{ if .Company.Linkedin }}
-				<b>Linkedin</b> <a href="{{ .Company.Linkedin }}" target="_blank">{{ .Company.Linkedin }}</a><br />
+				<b>Linkedin</b> <a href="{{ .Company.Linkedin }}" target="_blank" rel="noopener">{{ .Company.Linkedin }}</a><br />
 				{{ end }}
 				<br />
 				<h3>Company Description</h3>
@@ -155,9 +155,9 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			<nav class="subnav">
 				<ul>
 					<li><a href="/">Jobs</a></li>
-					<li><a target="_blank" href="https://twitter.com/{{ .SiteTwitter }}">{{ .SiteName }} on Twitter</a></li>
-					<li><a target="_blank" href="https://github.com/{{ .SiteGithub }}">{{ .SiteName }} on GitHub</a></li>
-					<li><a target="_blank" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
+					<li><a target="_blank" rel="noopener" href="https://twitter.com/{{ .SiteTwitter }}">{{ .SiteName }} on Twitter</a></li>
+					<li><a target="_blank" rel="noopener" href="https://github.com/{{ .SiteGithub }}">{{ .SiteName }} on GitHub</a></li>
+					<li><a target="_blank" rel="noopener" href="https://www.youtube.com/channel/UCq4YrlwwXwF74Z3g-VDae2w">{{ .SiteName }} YouTube Channel</a></li>
 					<li><a href="/rss">{{ .SiteName }} RSS Feed</a></li>
 					<li><a href="/support">Support</a></li>
 					<li><a href="/about">About {{ .SiteName }}</a></li>
