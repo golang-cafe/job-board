@@ -19,6 +19,8 @@ import (
 
 	stdtemplate "html/template"
 
+	"github.com/aclements/go-moremath/stats"
+	"github.com/dustin/go-humanize"
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/config"
 	"github.com/golang-cafe/job-board/internal/database"
@@ -28,8 +30,6 @@ import (
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/middleware"
 	"github.com/golang-cafe/job-board/internal/template"
-	"github.com/aclements/go-moremath/stats"
-	"github.com/dustin/go-humanize"
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
 
@@ -990,6 +990,8 @@ func (s Server) Render(w http.ResponseWriter, status int, htmlView string, data 
 	dataMap["SiteLinkedin"] = s.GetConfig().SiteLinkedin
 	dataMap["SiteYoutube"] = s.GetConfig().SiteYoutube
 	dataMap["SiteTelegramChannel"] = s.GetConfig().SiteTelegramChannel
+	dataMap["PrimaryColor"] = s.GetConfig().PrimaryColor
+	dataMap["SecondaryColor"] = s.GetConfig().SecondaryColor
 
 	return s.tmpl.Render(w, status, htmlView, dataMap)
 }

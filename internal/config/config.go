@@ -51,6 +51,8 @@ type Config struct {
 	SiteLinkedin                 string
 	SiteYoutube                  string
 	SiteTelegramChannel          string
+	PrimaryColor                 string
+	SecondaryColor               string
 }
 
 func LoadConfig() (Config, error) {
@@ -199,6 +201,14 @@ func LoadConfig() (Config, error) {
 	siteYoutube := os.Getenv("SITE_YOUTUBE")
 	siteLinkedin := os.Getenv("SITE_LINKEDIN")
 	siteTelegramChannel := os.Getenv("SITE_TELEGRAM_CHANNEL")
+	primaryColor := os.Getenv("PRIMARY_COLOR")
+	if primaryColor == "" {
+		primaryColor = "#000090"
+	}
+	secondaryColor := os.Getenv("SECONDARY_COLOR")
+	if secondaryColor == "" {
+		secondaryColor = "#0000c5"
+	}
 
 	return Config{
 		Port:                         port,
@@ -239,6 +249,8 @@ func LoadConfig() (Config, error) {
 		SiteYoutube:                  siteYoutube,
 		SiteTelegramChannel:          siteTelegramChannel,
 		SiteLinkedin:                 siteLinkedin,
+		PrimaryColor:                 primaryColor,
+		SecondaryColor:               secondaryColor,
 		AvailableCurrencies:          []string{"USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN", "INR", "ZAR", "TRY", "BRL"},
 		AvailableSalaryBands:         []int{10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000, 240000, 250000},
 	}, nil
