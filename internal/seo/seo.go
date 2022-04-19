@@ -21,8 +21,6 @@ func StaticPages() []string {
 		"newsletter",
 		"blog",
 		"support",
-		"ksuid",
-		"whats-my-ip",
 	}
 }
 

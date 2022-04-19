@@ -11,7 +11,6 @@ import (
 	"image/png"
 	"io/ioutil"
 	"log"
-	"net"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -19,6 +18,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/ChimeraCoder/anaconda"
+	"github.com/PuerkitoBio/goquery"
+	"github.com/bot-api/telegram"
+	jwt "github.com/dgrijalva/jwt-go"
+	humanize "github.com/dustin/go-humanize"
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/database"
 	"github.com/golang-cafe/job-board/internal/developer"
@@ -30,11 +34,6 @@ import (
 	"github.com/golang-cafe/job-board/internal/seo"
 	"github.com/golang-cafe/job-board/internal/server"
 	"github.com/golang-cafe/job-board/internal/user"
-	"github.com/ChimeraCoder/anaconda"
-	"github.com/PuerkitoBio/goquery"
-	"github.com/bot-api/telegram"
-	jwt "github.com/dgrijalva/jwt-go"
-	humanize "github.com/dustin/go-humanize"
 	"github.com/gorilla/feeds"
 	"github.com/gorilla/mux"
 	"github.com/gosimple/slug"
@@ -2140,108 +2139,6 @@ func ViewSupportPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 }
 
 var allowedMediaTypes = []string{"image/png", "image/jpeg", "image/jpg"}
-
-func GenerateKsuIDPageHandler(svr server.Server) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		id, err := ksuid.NewRandom()
-		if err != nil {
-			svr.Render(w, http.StatusInternalServerError, "ksuid.html", map[string]string{"KSUID": ""})
-			return
-		}
-		svr.Render(w, http.StatusOK, "ksuid.html", map[string]string{"KSUID": id.String()})
-	}
-}
-
-func IPAddressLookup(svr server.Server) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		ipAddress := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
-		if len(ipAddress) < 1 {
-			svr.Render(w, http.StatusInternalServerError, "whats-my-ip.html", map[string]string{"IPAddress": ""})
-			return
-		}
-		svr.Render(w, http.StatusOK, "whats-my-ip.html", map[string]string{"IPAddress": ipAddress[0]})
-	}
-}
-
-func DNSCheckerPageHandler(svr server.Server) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		svr.Render(w, http.StatusOK, "dns-checker.html", nil)
-	}
-}
-
-func DNSChecker(svr server.Server) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		dnsType := r.URL.Query().Get("t")
-		dnsHost := r.URL.Query().Get("h")
-		switch dnsType {
-		case "A":
-			res, err := net.LookupIP(dnsHost)
-			if err != nil || len(res) == 0 {
-				svr.TEXT(w, http.StatusInternalServerError, "unable to retrieve A record")
-				return
-			}
-			var buffer bytes.Buffer
-			for _, ip := range res {
-				buffer.WriteString(fmt.Sprintf("%s\n", ip.String()))
-			}
-			svr.TEXT(w, http.StatusOK, buffer.String())
-		case "PTR":
-			res, err := net.LookupAddr(dnsHost)
-			if err != nil || len(res) == 0 {
-				svr.TEXT(w, http.StatusInternalServerError, "unable to retrieve PTR record")
-				return
-			}
-			var buffer bytes.Buffer
-			for _, ptr := range res {
-				buffer.WriteString(fmt.Sprintf("%s\n", ptr))
-			}
-			svr.TEXT(w, http.StatusOK, buffer.String())
-		case "MX":
-			res, err := net.LookupMX(dnsHost)
-			if err != nil {
-				svr.TEXT(w, http.StatusInternalServerError, "unable to retrieve CNAME record")
-				return
-			}
-			var buffer bytes.Buffer
-			for _, m := range res {
-				buffer.WriteString(fmt.Sprintf("%s %v\n", m.Host, m.Pref))
-			}
-			svr.TEXT(w, http.StatusOK, buffer.String())
-		case "CNAME":
-			res, err := net.LookupCNAME(dnsHost)
-			if err != nil {
-				svr.TEXT(w, http.StatusInternalServerError, "unable to retrieve CNAME record")
-				return
-			}
-			svr.TEXT(w, http.StatusOK, res)
-		case "NS":
-			res, err := net.LookupNS(dnsHost)
-			if err != nil || len(res) == 0 {
-				svr.TEXT(w, http.StatusInternalServerError, "unable to retrieve NS record")
-				return
-			}
-			var buffer bytes.Buffer
-			for _, ns := range res {
-				buffer.WriteString(fmt.Sprintf("%s\n", ns.Host))
-			}
-			svr.TEXT(w, http.StatusOK, buffer.String())
-		case "TXT":
-			res, err := net.LookupTXT(dnsHost)
-			if err != nil || len(res) == 0 {
-				svr.TEXT(w, http.StatusInternalServerError, "unable to retrieve TXT record")
-				return
-			}
-			var buffer bytes.Buffer
-			for _, t := range res {
-				buffer.WriteString(fmt.Sprintf("%s\n", t))
-			}
-			svr.TEXT(w, http.StatusOK, buffer.String())
-		default:
-			svr.TEXT(w, http.StatusInternalServerError, "invalid dns record type")
-		}
-
-	}
-}
 
 func PostAJobSuccessPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
