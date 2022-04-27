@@ -29,7 +29,7 @@ body{background:#ffffff;}
       <nav class="menu-header">
         <small>
                   <a href="/profile/home">Profile Home</a> &bull;
-                  <a href="/" target="_blank">Golang Cafe</a>
+		  <a href="/" target="_blank">{{ .SiteName }}</a>
           <br>
         </small>
       </nav>
@@ -55,7 +55,7 @@ body{background:#ffffff;}
 		<footer>
 			<nav>
 				<small>
-					<a href="/">Golang Cafe</a> &bull;
+					<a href="/">{{ .SiteName }}</a> &bull;
 					<a href="/support">Support</a> &bull;
 					<a href="/terms-of-service">T&Cs</a>
 					<br>
