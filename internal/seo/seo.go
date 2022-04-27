@@ -3,10 +3,10 @@ package seo
 import (
 	"database/sql"
 	"fmt"
-	"io/ioutil"
 	"net/url"
 	"strings"
 
+	"github.com/golang-cafe/job-board/internal/blog"
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/database"
 	"github.com/golang-cafe/job-board/internal/developer"
@@ -28,21 +28,16 @@ type BlogPost struct {
 	Title, Path string
 }
 
-func BlogPages(blogDir string) ([]BlogPost, error) {
+func BlogPages(blogRepo *blog.Repository) ([]BlogPost, error) {
 	posts := make([]BlogPost, 0, 100)
-	files, err := ioutil.ReadDir(blogDir)
+	blogs, err := blogRepo.GetAllPublished()
 	if err != nil {
 		return posts, err
 	}
-	for _, f := range files {
+	for _, b := range blogs {
 		posts = append(posts, BlogPost{
-			Title: strings.Title(
-				strings.ReplaceAll(
-					strings.ReplaceAll(f.Name(), ".html", ""),
-					"-",
-					" ",
-				)),
-			Path: f.Name(),
+			Title: b.Title,
+			Path:  b.Slug,
 		})
 	}
 

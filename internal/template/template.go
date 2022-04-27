@@ -29,6 +29,7 @@ func NewTemplate() *Template {
 			}
 			return a[len(a)-1]
 		},
+		"jsescape":  customtemplate.JSEscapeString,
 		"humantime": humanize.Time,
 		"humannumber": func(n int) string {
 			return humanize.Comma(int64(n))

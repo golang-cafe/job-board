@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/golang-cafe/job-board/internal/blog"
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/config"
 	"github.com/golang-cafe/job-board/internal/database"
@@ -42,6 +43,7 @@ func main() {
 	sessionStore := sessions.NewCookieStore(cfg.SessionKey)
 
 	devRepo := developer.NewRepository(conn)
+	blogRepo := blog.NewRepository(conn)
 	userRepo := user.NewRepository(conn)
 	companyRepo := company.NewRepository(conn)
 	jobRepo := job.NewRepository(conn)
@@ -62,12 +64,6 @@ func main() {
 	svr.RegisterRoute("/.well-known/security.txt", handler.WellKnownSecurityHandler, []string{"GET"})
 
 	svr.RegisterPathPrefix("/s/", http.StripPrefix("/s/", http.FileServer(http.Dir("./static/assets"))), []string{"GET"})
-	svr.RegisterPathPrefix(
-		"/blog/",
-		http.StripPrefix("/blog/", handler.DisableDirListing(http.FileServer(http.Dir("./static/blog")))),
-		[]string{"GET"},
-	)
-	svr.RegisterPathPrefix("/blog", handler.BlogListHandler(svr, "./static/blog"), []string{"GET"})
 
 	svr.RegisterRoute("/about", handler.AboutPageHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/privacy-policy", handler.PrivacyPolicyPageHandler(svr), []string{"GET"})
@@ -125,9 +121,21 @@ func main() {
 	svr.RegisterRoute("/x/udp", handler.UpdateDeveloperProfileHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/ddp", handler.DeleteDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/smdp/{id}", handler.SendMessageDeveloperProfileHandler(svr, devRepo), []string{"POST"})
-	svr.RegisterRoute("/edit/profile/{id}", handler.EditDeveloperProfileHandler(svr, devRepo), []string{"GET"})
 	svr.RegisterRoute("/developer/{slug}", handler.ViewDeveloperProfileHandler(svr, devRepo), []string{"GET"})
 	svr.RegisterRoute("/x/auth/message/{id}", handler.DeliverMessageDeveloperProfileHandler(svr, devRepo), []string{"GET"})
+
+	// blog
+	svr.RegisterRoute("/profile/home", handler.ProfileHomepageHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute("/profile/{id}/edit", handler.EditDeveloperProfileHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute("/profile/blog/create", handler.CreateDraftBlogPostHandler(svr, blogRepo), []string{"GET"})
+	svr.RegisterRoute("/profile/blog/list", handler.GetUserBlogPostsHandler(svr, blogRepo), []string{"GET"})
+	svr.RegisterRoute("/profile/blog/{id}/edit", handler.EditBlogPostHandler(svr, blogRepo), []string{"GET"})
+	svr.RegisterRoute("/x/profile/blog/create", handler.CreateBlogPostHandler(svr, blogRepo), []string{"POST"})
+	svr.RegisterRoute("/x/profile/blog/{id}/publish", handler.PublishBlogPostHandler(svr, blogRepo), []string{"POST"})
+	svr.RegisterRoute("/x/profile/blog/{id}/unpublish", handler.UnpublishBlogPostHandler(svr, blogRepo), []string{"POST"})
+	svr.RegisterRoute("/x/profile/blog/{id}/update", handler.UpdateBlogPostHandler(svr, blogRepo), []string{"POST"})
+	svr.RegisterRoute("/blog/{slug}", handler.GetBlogPostBySlugHandler(svr, blogRepo), []string{"GET"})
+	svr.RegisterRoute("/blog", handler.GetAllPublishedBlogPostsHandler(svr, blogRepo), []string{"GET"})
 
 	// tasks
 	svr.RegisterRoute("/x/task/weekly-newsletter", handler.TriggerWeeklyNewsletter(svr, jobRepo), []string{"POST"})
@@ -135,7 +143,7 @@ func main() {
 	svr.RegisterRoute("/x/task/twitter-scheduler", handler.TriggerTwitterScheduler(svr, jobRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/telegram-scheduler", handler.TriggerTelegramScheduler(svr, jobRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/company-update", handler.TriggerCompanyUpdate(svr, companyRepo), []string{"POST"})
-	svr.RegisterRoute("/x/task/sitemap-update", handler.TriggerSitemapUpdate(svr, devRepo, jobRepo), []string{"POST"})
+	svr.RegisterRoute("/x/task/sitemap-update", handler.TriggerSitemapUpdate(svr, devRepo, jobRepo, blogRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/cloudflare-stats-export", handler.TriggerCloudflareStatsExport(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/expired-jobs", handler.TriggerExpiredJobsTask(svr, jobRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/update-last-week-clickouts", handler.TriggerUpdateLastWeekClickouts(svr), []string{"POST"})

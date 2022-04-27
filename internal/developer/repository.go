@@ -49,6 +49,7 @@ func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE lower(email) = lower($1)`, email)
 	dev := Developer{}
+	var nullUpdatedAt sql.NullTime
 	err := row.Scan(
 		&dev.ID,
 		&dev.Email,
@@ -58,11 +59,14 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 		&dev.ImageID,
 		&dev.Slug,
 		&dev.CreatedAt,
-		&dev.UpdatedAt,
+		&nullUpdatedAt,
 		&dev.Skills,
 		&dev.Name,
 		&dev.Bio,
 	)
+	if nullUpdatedAt.Valid {
+		dev.UpdatedAt = nullUpdatedAt.Time
+	}
 	if err == sql.ErrNoRows {
 		return dev, nil
 	}
@@ -76,6 +80,7 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
+	var nullTime sql.NullTime
 	err := row.Scan(
 		&dev.ID,
 		&dev.Email,
@@ -85,11 +90,14 @@ func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 		&dev.ImageID,
 		&dev.Slug,
 		&dev.CreatedAt,
-		&dev.UpdatedAt,
+		&nullTime,
 		&dev.Skills,
 		&dev.Name,
 		&dev.Bio,
 	)
+	if nullTime.Valid {
+		dev.UpdatedAt = nullTime.Time
+	}
 	if err != nil {
 		return dev, err
 	}

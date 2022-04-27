@@ -23,6 +23,7 @@ import (
 	"github.com/bot-api/telegram"
 	jwt "github.com/dgrijalva/jwt-go"
 	humanize "github.com/dustin/go-humanize"
+	"github.com/golang-cafe/job-board/internal/blog"
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/database"
 	"github.com/golang-cafe/job-board/internal/developer"
@@ -251,7 +252,7 @@ func TriggerFXRateUpdate(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobRepo *job.Repository) http.HandlerFunc {
+func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobRepo *job.Repository, blogRepo *blog.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
@@ -297,7 +298,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 					svr.Log(err, "seo.GenerateDevelopersLocationPages")
 					return
 				}
-				blogPosts, err := seo.BlogPages("./static/blog")
+				blogPosts, err := seo.BlogPages(blogRepo)
 				if err != nil {
 					svr.Log(err, "seo.BlogPages")
 					return
@@ -1654,6 +1655,7 @@ func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *de
 			UserID:         user.ID,
 			Email:          user.Email,
 			IsAdmin:        user.Email == adminEmail,
+			CreatedAt:      user.CreatedAt,
 			StandardClaims: *stdClaims,
 		}
 		tkn := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
@@ -1679,7 +1681,7 @@ func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *de
 				svr.JSON(w, http.StatusNotFound, "unable to find developer profile by email")
 				return
 			}
-			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("/edit/profile/%s", dev.ID))
+			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("/profile/%s/edit", dev.ID))
 			return
 		case AuthStepLoginDeveloperProfile == next:
 			dev, err := devRepo.DeveloperProfileByEmail(user.Email)
@@ -1688,10 +1690,10 @@ func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *de
 				svr.JSON(w, http.StatusNotFound, "unable to find developer profile by email")
 				return
 			}
-			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("/edit/profile/%s", dev.ID))
+			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("/profile/%s/edit", dev.ID))
 			return
 		case claims.IsAdmin:
-			svr.Redirect(w, r, http.StatusMovedPermanently, "/manage/list")
+			svr.Redirect(w, r, http.StatusMovedPermanently, "/profile/home")
 			return
 		}
 		svr.Log(errors.New("unable to find next step in token verification flow"), fmt.Sprintf("unable to know next step for %s token %s and next %s", user.Email, token, next))
@@ -1993,20 +1995,6 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 		}
 
 		svr.JSON(w, http.StatusOK, nil)
-	}
-}
-
-func BlogListHandler(svr server.Server, blogDir string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		posts, err := seo.BlogPages(blogDir)
-		if err != nil {
-			svr.TEXT(w, http.StatusInternalServerError, "internal error. please try again later")
-			return
-		}
-		svr.Render(w, http.StatusOK, "blog.html", map[string]interface{}{
-			"Posts":        posts,
-			"MonthAndYear": time.Now().UTC().Format("January 2006"),
-		})
 	}
 }
 
@@ -3052,6 +3040,271 @@ func ManageJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.H
 				"ViewCount":                  viewCount,
 				"ClickoutCount":              clickoutCount,
 				"ConversionRate":             conversionRate,
+			})
+		},
+	)
+}
+
+func GetBlogPostBySlugHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		slug := vars["slug"]
+		bp, err := blogPostRepo.GetBySlug(slug)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to retrieve blog post: Slug=%s", slug))
+			svr.TEXT(w, http.StatusNotFound, "Could not retrieve blogpost. Please try again later.")
+			return
+		}
+		svr.Render(w, http.StatusOK, "view-blogpost.html", map[string]interface{}{
+			"BlogPost":         bp,
+			"BlogPostTextHTML": svr.MarkdownToHTML(bp.Text),
+		})
+	}
+}
+
+func EditBlogPostHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {
+	return middleware.AdminAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			vars := mux.Vars(r)
+			id := vars["id"]
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to retrieve user from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			bp, err := blogPostRepo.GetByIDAndAuthor(id, profile.UserID)
+			if err != nil {
+				svr.Log(err, fmt.Sprintf("unable to retrieve blog post: ID=%s authorID=%s", id, profile.UserID))
+				svr.TEXT(w, http.StatusNotFound, "Could not retrieve blogpost. Please try again later.")
+				return
+			}
+			svr.Render(w, http.StatusOK, "edit-blogpost.html", map[string]interface{}{
+				"BlogPost":    bp,
+				"IsPublished": bp.PublishedAt != nil,
+			})
+		},
+	)
+}
+
+func CreateBlogPostHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {
+	return middleware.AdminAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			decoder := json.NewDecoder(r.Body)
+			blogRq := &blog.CreateRq{}
+			if err := decoder.Decode(&blogRq); err != nil {
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			k, err := ksuid.NewRandom()
+			if err != nil {
+				svr.Log(err, "unable to generate unique blog post id")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			blogPostID, err := k.Value()
+			if err != nil {
+				svr.Log(err, "unable to get blog post id value")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			blogPostIDStr, ok := blogPostID.(string)
+			if !ok {
+				svr.Log(err, "unbale to assert blog post id value as string")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to retrieve user from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			bp := blog.BlogPost{
+				ID:          blogPostIDStr,
+				Title:       blogRq.Title,
+				Slug:        slug.Make(blogRq.Title),
+				Description: blogRq.Description,
+				Tags:        blogRq.Tags,
+				Text:        blogRq.Text,
+				CreatedBy:   profile.UserID,
+			}
+			if err := blogPostRepo.Create(bp); err != nil {
+				svr.Log(err, fmt.Sprintf("unable to create blog post: ID=%s authorID=%s", blogPostIDStr, profile.UserID))
+				svr.JSON(w, http.StatusInternalServerError, map[string]interface{}{"error": "could not create blog post. Please try again later." + err.Error()})
+				return
+			}
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"id": bp.ID})
+		},
+	)
+}
+
+func CreateDraftBlogPostHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {
+	return middleware.AdminAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			svr.Render(w, http.StatusOK, "create-blogpost.html", map[string]interface{}{})
+		},
+	)
+}
+
+func UpdateBlogPostHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			decoder := json.NewDecoder(r.Body)
+			bpRq := &blog.UpdateRq{}
+			if err := decoder.Decode(&bpRq); err != nil {
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to retrieve user from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			bp := blog.BlogPost{
+				ID:          bpRq.ID,
+				Title:       bpRq.Title,
+				Description: bpRq.Description,
+				Tags:        bpRq.Tags,
+				Text:        bpRq.Text,
+				CreatedBy:   profile.UserID,
+			}
+			if err := blogPostRepo.Update(bp); err != nil {
+				svr.Log(err, fmt.Sprintf("unable to update blog post: ID=%s authorID=%s", bp.ID, profile.UserID))
+				svr.JSON(w, http.StatusNotFound, map[string]interface{}{"error": "could not update blog post. Please try again later"})
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
+func PublishBlogPostHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			vars := mux.Vars(r)
+			id := vars["id"]
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			bp := blog.BlogPost{
+				ID:        id,
+				CreatedBy: profile.UserID,
+			}
+			if err := blogPostRepo.Publish(bp); err != nil {
+				svr.Log(err, fmt.Sprintf("unable to unpublish blog post: ID=%s authorID=%s", id, profile.UserID))
+				svr.JSON(w, http.StatusInternalServerError, "Could not unpublish blogpost. Please try again later.")
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
+func UnpublishBlogPostHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			vars := mux.Vars(r)
+			id := vars["id"]
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			bp := blog.BlogPost{
+				ID:        id,
+				CreatedBy: profile.UserID,
+			}
+			if err := blogPostRepo.Unpublish(bp); err != nil {
+				svr.Log(err, fmt.Sprintf("unable to unpublish blog post: ID=%s authorID=%s", id, profile.UserID))
+				svr.JSON(w, http.StatusInternalServerError, "Could not unpublish blogpost. Please try again later.")
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
+func GetAllPublishedBlogPostsHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		all, err := blogPostRepo.GetAllPublished()
+		if err != nil {
+			svr.Log(err, "unable to retrieve blogposts")
+			svr.TEXT(w, http.StatusNotFound, "could not retrieve blog posts. Please try again later")
+			return
+		}
+		fmt.Println("returning all blogposts", len(all))
+		svr.Render(w, http.StatusOK, "list-blogposts.html", map[string]interface{}{
+			"BlogPosts": all,
+		})
+	}
+}
+
+func GetUserBlogPostsHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			all, err := blogPostRepo.GetByCreatedBy(profile.UserID)
+			if err != nil {
+				svr.Log(err, "unable to retrieve blogposts")
+				svr.TEXT(w, http.StatusNotFound, "could not retrieve blog posts. Please try again later")
+				return
+			}
+			fmt.Println("returning all blogposts", len(all))
+			svr.Render(w, http.StatusOK, "user-blogposts.html", map[string]interface{}{
+				"BlogPosts": all,
+			})
+		},
+	)
+}
+
+func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			devProfileID := ""
+			dev, err := devRepo.DeveloperProfileByEmail(profile.Email)
+			if err == nil {
+				devProfileID = dev.ID
+			}
+			fmt.Println(err, dev, profile.Email)
+			svr.Render(w, http.StatusOK, "profile-home.html", map[string]interface{}{
+				"IsAdmin":            profile.IsAdmin,
+				"UserID":             profile.UserID,
+				"UserEmail":          profile.Email,
+				"UserCreatedAt":      profile.CreatedAt,
+				"DeveloperProfileID": devProfileID,
 			})
 		},
 	)
