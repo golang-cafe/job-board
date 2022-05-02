@@ -1,6 +1,6 @@
-## Golang Cafe
+## Job Board
 
-[Golang Cafe](https://golang.cafe) is the first Go job board with no recruiters & clear salary ranges.
+This is the first Go job board with no recruiters & clear salary ranges.
 
 - Clear salary range in each job description
 - No third party recruiters (apply directly to companies)
@@ -25,7 +25,7 @@
 
 ### Local Development Mode - Setup Guide
 
-It's possible to setup a blank instance of Golang Cafe locally. This is a local development mode and it's different from the way the app runs in production. In this scenario the app runs on a minimal database containing mock data. The app has reduced functionality when ran in local development mode. It's not possible to send emails or connect to third party services, like Twitter, Telegram and FX APIs. It's still possible to run and test the app but with limited functionality.
+It's possible to setup a blank instance of this job board locally. This is a local development mode and it's different from the way the app runs in production. In this scenario the app runs on a minimal database containing mock data. The app has reduced functionality when ran in local development mode. It's not possible to send emails or connect to third party services, like Twitter, Telegram and FX APIs. It's still possible to run and test the app but with limited functionality.
 
 **Requirements**
 
@@ -39,8 +39,8 @@ These are basic requirements with the respective versions have been tested to wo
 
 - **PostgreSQL instance** mocked using local Docker container, with local schema and fixtures
 - **Sparkpost Mail** emails are sent using http requests through Sparkpost APIs. This is not enabled in local development mode.
-- **Telegram API** telegram updates are sent through Golang Cafe official Telegram channel. This is not enabled in local development mode.
-- **Twitter API** twitter updates are sent through Golang Cafe official page. This is not enabled in local development mode.
+- **Telegram API** telegram updates are sent through the Job Board official Telegram channel. This is not enabled in local development mode.
+- **Twitter API** twitter updates are sent through the Job Board official page. This is not enabled in local development mode.
 - **FX API** a minimal set of Foreign Currency Exchange data is kept up-to-date to filter out salary ranges. This is not enabled in local development mode.
 
 **Setup Guide**
@@ -59,7 +59,7 @@ Once this command is successful you can now start the application
 
 ### Feedback?
 
-Feel free to open an issue on GitHub or if you prefer send me an email [team@golang.cafe](mailto:team@golang.cafe)
+Feel free to open an issue on GitHub
 
 ### License
 
