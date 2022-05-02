@@ -168,7 +168,7 @@ func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, 
 	ua := r.Header.Get("user-agent")
 	ref := r.Header.Get("referer")
 	ips := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
-	if len(ips) > 0 && strings.Contains(ref, "golang.cafe") {
+	if len(ips) > 0 && strings.Contains(ref, s.GetConfig().SiteHost) {
 		hashedIP := sha256.Sum256([]byte(ips[0]))
 		go func() {
 			if err := database.TrackSearchEvent(s.Conn, ua, hex.EncodeToString(hashedIP[:]), location, "", len(set), job.SearchTypeSalary); err != nil {
@@ -405,7 +405,7 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 	ua := r.Header.Get("user-agent")
 	ref := r.Header.Get("referer")
 	ips := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
-	if len(ips) > 0 && strings.Contains(ref, "golang.cafe") {
+	if len(ips) > 0 && strings.Contains(ref, s.GetConfig().SiteHost) {
 		hashedIP := sha256.Sum256([]byte(ips[0]))
 		go func() {
 			if err := database.TrackSearchEvent(s.Conn, ua, hex.EncodeToString(hashedIP[:]), location, tag, len(jobsForPage), job.SearchTypeJob); err != nil {
@@ -646,7 +646,7 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 	ua := r.Header.Get("user-agent")
 	ref := r.Header.Get("referer")
 	ips := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
-	if len(ips) > 0 && strings.Contains(ref, "golang.cafe") {
+	if len(ips) > 0 && strings.Contains(ref, s.GetConfig().SiteHost) {
 		hashedIP := sha256.Sum256([]byte(ips[0]))
 		go func() {
 			if err := database.TrackSearchEvent(s.Conn, ua, hex.EncodeToString(hashedIP[:]), location, "", len(developersForPage), developer.SearchTypeDeveloper); err != nil {
@@ -756,7 +756,7 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, c
 	ua := r.Header.Get("user-agent")
 	ref := r.Header.Get("referer")
 	ips := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
-	if len(ips) > 0 && strings.Contains(ref, "golang.cafe") {
+	if len(ips) > 0 && strings.Contains(ref, s.GetConfig().SiteHost) {
 		hashedIP := sha256.Sum256([]byte(ips[0]))
 		go func() {
 			if err := database.TrackSearchEvent(s.Conn, ua, hex.EncodeToString(hashedIP[:]), location, "", len(companiesForPage), company.SearchTypeCompany); err != nil {

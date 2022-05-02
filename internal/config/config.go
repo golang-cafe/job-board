@@ -43,9 +43,9 @@ type Config struct {
 	FXAPIKey                     string   // FX rate api API Key to access recent FX data
 	AvailableCurrencies          []string // currencies used throughout the site for salary compensation (post a job, salary filter FX, etc)
 	AvailableSalaryBands         []int    // salary upper limits used in search to filter job by minimum salary
-	SiteName                     string   // Job site name, in this case is "Golang Cafe"
-	SiteJobCategory              string   // Job site category, in this case is "golang"
-	SiteHost                     string   // Job site hostname, just the domain name where the site is deployed ie. "golang.cafe"
+	SiteName                     string   // Job site name
+	SiteJobCategory              string   // Job site category
+	SiteHost                     string   // Job site hostname
 	SiteGithub                   string   // job site github project url (username+repository name)
 	SiteTwitter                  string   // job site twitter account username
 	SiteLinkedin                 string

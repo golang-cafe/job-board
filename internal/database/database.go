@@ -797,7 +797,7 @@ func GetJobClickoutsLast30Days(conn *sql.DB) (int, error) {
 	return c, nil
 }
 
-func GetSitemapIndex(conn *sql.DB) ([]SitemapEntry, error) {
+func GetSitemapIndex(conn *sql.DB, siteHost string) ([]SitemapEntry, error) {
 	entries := make([]SitemapEntry, 0, 20)
 	count, err := GetSitemapEntryCount(conn)
 	if err != nil {
@@ -810,7 +810,7 @@ func GetSitemapIndex(conn *sql.DB) ([]SitemapEntry, error) {
 	slots := math.Ceil(float64(count) / float64(SitemapSize))
 	for i := 0; i <= int(slots); i++ {
 		entries = append(entries, SitemapEntry{
-			Loc:     fmt.Sprintf("https://golang.cafe/sitemap-%d.xml", i),
+			Loc:     fmt.Sprintf("https://%s/sitemap-%d.xml", siteHost, i),
 			LastMod: lastMod,
 		})
 	}

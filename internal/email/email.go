@@ -2,17 +2,18 @@ package email
 
 import (
 	"encoding/base64"
+	"fmt"
 
 	sp "github.com/SparkPost/gosparkpost"
 )
 
-const GolangCafeEmailAddress = "team@golang.cafe"
-
 type Client struct {
-	client sp.Client
+	client        sp.Client
+	senderAddress string
+	siteName      string
 }
 
-func NewClient(apiKey string) (Client, error) {
+func NewClient(apiKey, senderAddress, siteName string) (Client, error) {
 	cfg := &sp.Config{
 		BaseUrl:    "https://api.eu.sparkpost.com",
 		ApiKey:     apiKey,
@@ -24,7 +25,19 @@ func NewClient(apiKey string) (Client, error) {
 		return Client{}, err
 	}
 
-	return Client{client: client}, nil
+	return Client{client: client, senderAddress: senderAddress, siteName: siteName}, nil
+}
+
+func (e Client) DefaultReplyTo() string {
+	return e.senderAddress
+}
+
+func (e Client) DefaultSender() string {
+	return fmt.Sprintf("%s <%s>", e.siteName, e.senderAddress)
+}
+
+func (e Client) DefaultAdminAddress() string {
+	return e.senderAddress
 }
 
 func (e Client) SendEmail(from, to, replyTo, subject, text string) error {

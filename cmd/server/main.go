@@ -15,6 +15,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/handler"
 	"github.com/golang-cafe/job-board/internal/ipgeolocation"
 	"github.com/golang-cafe/job-board/internal/job"
+	"github.com/golang-cafe/job-board/internal/payment"
 	"github.com/golang-cafe/job-board/internal/server"
 	"github.com/golang-cafe/job-board/internal/template"
 	"github.com/golang-cafe/job-board/internal/user"
@@ -31,7 +32,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to connect to postgres: %v", err)
 	}
-	emailClient, err := email.NewClient(cfg.EmailAPIKey)
+	emailClient, err := email.NewClient(cfg.EmailAPIKey, cfg.AdminEmail, cfg.SiteName)
 	if err != nil {
 		log.Fatalf("unable to connect to sparkpost API: %v", err)
 	}
@@ -47,6 +48,7 @@ func main() {
 	userRepo := user.NewRepository(conn)
 	companyRepo := company.NewRepository(conn)
 	jobRepo := job.NewRepository(conn)
+	paymentRepo := payment.NewRepository(cfg.StripeKey, cfg.SiteName, cfg.SiteHost)
 
 	svr := server.NewServer(
 		cfg,
@@ -174,10 +176,10 @@ func main() {
 	svr.RegisterRoute("/apply/{token}", handler.ApplyToJobConfirmation(svr, jobRepo), []string{"GET"})
 
 	// submit job post
-	svr.RegisterRoute("/x/s", handler.SubmitJobPostPageHandler(svr, jobRepo), []string{"POST"})
+	svr.RegisterRoute("/x/s", handler.SubmitJobPostPageHandler(svr, jobRepo, paymentRepo), []string{"POST"})
 
 	// re-submit job post payment for upsell
-	svr.RegisterRoute("/x/s/upsell", handler.SubmitJobPostPaymentUpsellPageHandler(svr, jobRepo), []string{"POST"})
+	svr.RegisterRoute("/x/s/upsell", handler.SubmitJobPostPaymentUpsellPageHandler(svr, jobRepo, paymentRepo), []string{"POST"})
 
 	// save media file
 	svr.RegisterRoute("/x/s/m", handler.SaveMediaPageHandler(svr), []string{"POST"})
@@ -414,7 +416,7 @@ func main() {
 	// generic payment intent view
 	svr.RegisterRoute("/x/payment", handler.ShowPaymentPage(svr), []string{"GET"})
 	// generic payment intent processing
-	svr.RegisterRoute("/x/payment-intent", handler.GeneratePaymentIntent(svr), []string{"POST"})
+	svr.RegisterRoute("/x/payment-intent", handler.GeneratePaymentIntent(svr, paymentRepo), []string{"POST"})
 
 	// RSS feed
 	svr.RegisterRoute("/rss", handler.ServeRSSFeed(svr, jobRepo), []string{"GET"})

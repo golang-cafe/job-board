@@ -27,7 +27,6 @@ import (
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/database"
 	"github.com/golang-cafe/job-board/internal/developer"
-	"github.com/golang-cafe/job-board/internal/email"
 	"github.com/golang-cafe/job-board/internal/imagemeta"
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/middleware"
@@ -177,12 +176,14 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			return
 		}
 		err = svr.GetEmail().SendEmail(
-			"Diego from Golang Cafe <team@golang.cafe>",
+			svr.GetEmail().DefaultSender(),
 			req.Email,
-			email.GolangCafeEmailAddress,
-			"Verify Your Developer Profile on Golang Cafe",
+			svr.GetEmail().DefaultReplyTo(),
+			fmt.Sprintf("Verify Your Developer Profile on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"Verify Your Developer Profile on Golang Cafe https://golang.cafe/x/auth/%s?next=%s",
+				"Verify Your Developer Profile on %s https://%s/x/auth/%s?next=%s",
+				svr.GetConfig().SiteName,
+				svr.GetConfig().SiteHost,
 				k.String(),
 				AuthStepVerifyDeveloperProfile,
 			),
@@ -314,7 +315,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 				database.CreateTmpSitemapTable(svr.Conn)
 				for _, j := range jobPosts {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://golang.cafe/job/%s`, j.Slug),
+						Loc:        fmt.Sprintf(`https://%s/job/%s`, svr.GetConfig().SiteHost, j.Slug),
 						LastMod:    time.Unix(j.CreatedAt, 0),
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -324,7 +325,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, b := range blogPosts {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://golang.cafe/blog/%s`, b.Path),
+						Loc:        fmt.Sprintf(`https://%s/blog/%s`, svr.GetConfig().SiteHost, b.Path),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -334,7 +335,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range pages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -344,7 +345,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range postAJobLandingPages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -354,7 +355,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range salaryLandingPages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -364,7 +365,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range landingPages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p.URI),
+						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p.URI),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -374,7 +375,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range companyLandingPages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -384,7 +385,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range developerSkillsPages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -394,7 +395,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range developerProfilePages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -403,7 +404,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 				}
 				for _, p := range companyProfilePages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -413,7 +414,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range developerLocationPages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://golang.cafe/%s`, p),
+						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -659,23 +660,23 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 				}
 				var jobsHTMLArr []string
 				for _, j := range jobPosts {
-					jobsHTMLArr = append(jobsHTMLArr, `<p><b>Job Title:</b> `+j.JobTitle+`<br /><b>Company:</b> `+j.Company+`<br /><b>Location:</b> `+j.Location+`<br /><b>Salary:</b> `+j.SalaryRange+`<br /><b>Detail:</b> <a href="https://golang.cafe/job/`+j.Slug+`">https://golang.cafe/job/`+j.Slug+`</a></p>`)
+					jobsHTMLArr = append(jobsHTMLArr, `<p><b>Job Title:</b> `+j.JobTitle+`<br /><b>Company:</b> `+j.Company+`<br /><b>Location:</b> `+j.Location+`<br /><b>Salary:</b> `+j.SalaryRange+`<br /><b>Detail:</b> <a href="https://`+svr.GetConfig().SiteHost+`/job/`+j.Slug+`">https://`+svr.GetConfig().SiteHost+`/job/`+j.Slug+`</a></p>`)
 					lastJobID = j.ID
 				}
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
-				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` Go jobs this week on Golang Cafe</p>
+				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `</p>
 ` + jobsHTML + `
-	<p>Check out more jobs at <a title="Golang Cafe" href="https://golang.cafe">https://golang.cafe</a></p>
-	<p>Diego from Golang Cafe</p>
+	<p>Check out more jobs at <a title="` + svr.GetConfig().SiteName + `" href="https://` + svr.GetConfig().SiteHost + `">https://` + svr.GetConfig().SiteHost + `</a></p>
+	<p>` + svr.GetConfig().SiteName + `</p>
 	<hr />`
 				unsubscribeLink := `
-	<h6><strong> Golang Cafe</strong> | London, United Kingdom<br />This email was sent to <strong>%s</strong> | <a href="https://golang.cafe/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
+	<h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br />This email was sent to <strong>%s</strong> | <a href="https://` + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
 
 				for _, s := range subscribers {
 					err = svr.GetEmail().SendHTMLEmail(
-						"Diego from Golang Cafe <team@golang.cafe>",
+						svr.GetEmail().DefaultSender(),
 						s.Email,
-						email.GolangCafeEmailAddress,
+						svr.GetEmail().DefaultReplyTo(),
 						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobPosts)),
 						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
 					)
@@ -720,7 +721,7 @@ func TriggerTelegramScheduler(svr server.Server, jobRepo *job.Repository) http.H
 				api := telegram.New(svr.GetConfig().TelegramAPIToken)
 				ctx := context.Background()
 				for _, j := range jobPosts {
-					_, err := api.SendMessage(ctx, telegram.NewMessage(svr.GetConfig().TelegramChannelID, fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://golang.cafe/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug)))
+					_, err := api.SendMessage(ctx, telegram.NewMessage(svr.GetConfig().TelegramChannelID, fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteHost, j.Slug)))
 					if err != nil {
 						svr.Log(err, "unable to post on telegram")
 						continue
@@ -770,33 +771,18 @@ func TriggerMonthlyHighlights(svr server.Server, jobRepo *job.Repository) http.H
 				jobPageviewsLast30DaysText := humanize.Comma(int64(jobPageviewsLast30Days))
 				jobApplicantsLast30DaysText := humanize.Comma(int64(jobApplicantsLast30Days))
 				newJobsLastMonthText := humanize.Comma(int64(newJobsLastMonth))
-				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
 				highlights := fmt.Sprintf(`This months highlight ✨ 
 
 📣 %s new jobs posted last month
 ✉️  %s applicants last month
 🌎 %s pageviews last month
 💼 %s jobs viewed last month
-
-Find your next job on Golang Cafe ⏩ https://golang.cafe 
-
-#go #golang #gojobs`, newJobsLastMonthText, jobApplicantsLast30DaysText, pageviewsLast30DaysText, jobPageviewsLast30DaysText)
-				_, err = api.PostTweet(highlights, url.Values{})
-				if err != nil {
-					svr.Log(err, "unable to post monthly highlight tweet")
-					return
-				}
-				telegramApi := telegram.New(svr.GetConfig().TelegramAPIToken)
-				_, err = telegramApi.SendMessage(context.Background(), telegram.NewMessage(svr.GetConfig().TelegramChannelID, highlights))
-				if err != nil {
-					svr.Log(err, "unable to post on telegram monthly highlights")
-					return
-				}
+`, newJobsLastMonthText, jobApplicantsLast30DaysText, pageviewsLast30DaysText, jobPageviewsLast30DaysText)
 				err = svr.GetEmail().SendEmail(
-					"Diego from Golang Cafe <team@golang.cafe>",
-					email.GolangCafeEmailAddress,
-					email.GolangCafeEmailAddress,
-					"Golang Cafe Monthly Highlights",
+					svr.GetEmail().DefaultSender(),
+					svr.GetEmail().DefaultAdminAddress(),
+					svr.GetEmail().DefaultReplyTo(),
+					fmt.Sprintf("%s Monthly Highlights", svr.GetConfig().SiteName),
 					highlights,
 				)
 				if err != nil {
@@ -831,7 +817,7 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 				lastJobID := lastTwittedJobID
 				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
 				for _, j := range jobPosts {
-					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://golang.cafe/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, j.Slug), url.Values{})
+					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteHost, j.Slug), url.Values{})
 					if err != nil {
 						svr.Log(err, "unable to post tweet")
 						continue
@@ -990,12 +976,12 @@ func TriggerAdsManager(svr server.Server, jobRepo *job.Repository) http.HandlerF
 						continue
 					} else {
 						err = svr.GetEmail().SendEmail(
-							"Diego from Golang Cafe <team@golang.cafe>",
+							svr.GetEmail().DefaultSender(),
 							j.CompanyEmail,
-							email.GolangCafeEmailAddress,
-							"Your Job Ad on Golang Cafe Has Expired",
+							svr.GetEmail().DefaultReplyTo(),
+							fmt.Sprintf("Your Job Ad on %s Has Expired", svr.GetConfig().SiteName),
 							fmt.Sprintf(
-								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://golang.cafe/edit/%s?expired=1", jobToken,
+								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://%s/edit/%s?expired=1", svr.GetConfig().SiteHost, jobToken,
 							),
 						)
 						if err != nil {
@@ -1020,12 +1006,12 @@ func TriggerAdsManager(svr server.Server, jobRepo *job.Repository) http.HandlerF
 						continue
 					} else {
 						err = svr.GetEmail().SendEmail(
-							"Diego from Golang Cafe <team@golang.cafe>",
+							svr.GetEmail().DefaultSender(),
 							j.CompanyEmail,
-							email.GolangCafeEmailAddress,
-							"Your Job Ad on Golang Cafe Has Expired",
+							svr.GetEmail().DefaultReplyTo(),
+							fmt.Sprintf("Your Job Ad on %s Has Expired", svr.GetConfig().SiteName),
 							fmt.Sprintf(
-								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://golang.cafe/edit/%s?expired=1", jobToken,
+								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://%s/edit/%s?expired=1", svr.GetConfig().SiteHost, jobToken,
 							),
 						)
 						if err != nil {
@@ -1049,12 +1035,12 @@ func TriggerAdsManager(svr server.Server, jobRepo *job.Repository) http.HandlerF
 						continue
 					} else {
 						err = svr.GetEmail().SendEmail(
-							"Diego from Golang Cafe <team@golang.cafe>",
+							svr.GetEmail().DefaultSender(),
 							j.CompanyEmail,
-							email.GolangCafeEmailAddress,
-							"Your Job Ad on Golang Cafe Has Expired",
+							svr.GetEmail().DefaultReplyTo(),
+							fmt.Sprintf("Your Job Ad on %s Has Expired", svr.GetConfig().SiteName),
 							fmt.Sprintf(
-								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://golang.cafe/edit/%s?expired=1", jobToken,
+								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://%s/edit/%s?expired=1", svr.GetConfig().SiteHost, jobToken,
 							),
 						)
 						if err != nil {
@@ -1237,13 +1223,14 @@ func AddEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
 			return
 		}
 		err = svr.GetEmail().SendEmail(
-			"Diego from Golang Cafe <team@golang.cafe>",
+			svr.GetEmail().DefaultSender(),
 			email,
-			"",
-			"Confirm Your Email Subscription on Golang Cafe",
+			svr.GetEmail().DefaultReplyTo(),
+			fmt.Sprintf("Confirm Your Email Subscription on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"Please click on the link below to confirm your subscription to receive weekly emails from Golang Cafe\n\n%s\n\nIf this was not requested by you, please ignore this email.",
-				fmt.Sprintf("https://golang.cafe/x/email/confirm/%s", k.String()),
+				"Please click on the link below to confirm your subscription to receive weekly emails from %s\n\n%s\n\nIf this was not requested by you, please ignore this email.",
+				svr.GetConfig().SiteName,
+				fmt.Sprintf("https://%s/x/email/confirm/%s", svr.GetConfig().SiteHost, k.String()),
 			),
 		)
 		if err != nil {
@@ -1302,14 +1289,15 @@ func SendMessageDeveloperProfileHandler(svr server.Server, devRepo *developer.Re
 			return
 		}
 		err = svr.GetEmail().SendEmail(
-			"Diego from Golang Cafe <team@golang.cafe>",
+			svr.GetEmail().DefaultSender(),
 			req.Email,
 			dev.Email,
-			"Confirm Your Message on Golang Cafe",
+			fmt.Sprintf("Confirm Your Message on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"You have sent a message through Golang Cafe: \n\nMessage: %s\n\nPlease follow this link to confirm and deliver your message: %s\n\nIf this was not requested by you, you can ignore this email.",
+				"You have sent a message through %s: \n\nMessage: %s\n\nPlease follow this link to confirm and deliver your message: %s\n\nIf this was not requested by you, you can ignore this email.",
+				svr.GetConfig().SiteName,
 				req.Content,
-				fmt.Sprintf("https://golang.cafe/x/auth/message/%s", k.String()),
+				fmt.Sprintf("https://%s/x/auth/message/%s", svr.GetConfig().SiteHost, k.String()),
 			),
 		)
 		if err != nil {
@@ -1360,12 +1348,13 @@ func DeliverMessageDeveloperProfileHandler(svr server.Server, devRepo *developer
 			return
 		}
 		err = svr.GetEmail().SendEmail(
-			"Diego from Golang Cafe <team@golang.cafe>",
+			svr.GetEmail().DefaultSender(),
 			email,
 			message.Email,
-			"New Message from Golang Cafe on Golang Cafe",
+			fmt.Sprintf("New Message from %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"You received a new message from Golang Cafe: \n\nMessage: %s\n\nFrom: %s",
+				"You received a new message from %s: \n\nMessage: %s\n\nFrom: %s",
+				svr.GetConfig().SiteName,
 				message.Content,
 				message.Email,
 			),
@@ -1496,7 +1485,7 @@ func IndexPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFu
 
 func PermanentRedirectHandler(svr server.Server, dst string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("https://golang.cafe/%s", dst))
+		svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("https://%s/%s", svr.GetConfig().SiteHost, dst))
 	}
 }
 
@@ -1575,8 +1564,8 @@ func SendFeedbackMessage(svr server.Server) http.HandlerFunc {
 		err := svr.
 			GetEmail().
 			SendEmail(
-				"Diego from Golang Cafe <team@golang.cafe>",
-				email.GolangCafeEmailAddress,
+				svr.GetEmail().DefaultSender(),
+				svr.GetEmail().DefaultAdminAddress(),
 				req.Email,
 				"New Feedback Message",
 				fmt.Sprintf("From: %s\nMessage: %s", req.Email, req.Message),
@@ -1620,7 +1609,12 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.Handl
 		if next != "" {
 			token += "?next=" + next
 		}
-		err = svr.GetEmail().SendEmail("Diego from Golang Cafe <team@golang.cafe>", req.Email, email.GolangCafeEmailAddress, "Sign On on Golang Cafe", fmt.Sprintf("Sign On on Golang Cafe https://golang.cafe/x/auth/%s", token))
+		err = svr.GetEmail().SendEmail(
+			svr.GetEmail().DefaultSender(),
+			req.Email,
+			svr.GetEmail().DefaultReplyTo(),
+			fmt.Sprintf("Sign On on %s", svr.GetConfig().SiteName),
+			fmt.Sprintf("Sign On on %s https://%s/x/auth/%s", svr.GetConfig().SiteName, svr.GetConfig().SiteHost, token))
 		if err != nil {
 			svr.Log(err, "unable to send email while applying to job")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -1649,7 +1643,7 @@ func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *de
 		stdClaims := &jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(30 * 24 * time.Hour).UTC().Unix(),
 			IssuedAt:  time.Now().UTC().Unix(),
-			Issuer:    "https://golang.cafe",
+			Issuer:    fmt.Sprintf("https://%s", svr.GetConfig().SiteHost),
 		}
 		claims := middleware.UserJWT{
 			UserID:         user.ID,
@@ -1743,7 +1737,7 @@ func JobBySlugPageHandler(svr server.Server, jobRepo *job.Repository) http.Handl
 		location := vars["l"]
 		jobPost, err := jobRepo.JobPostBySlug(slug)
 		if err != nil || jobPost == nil {
-			svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job golang.cafe/job/%s not found", slug))
+			svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job %s/job/%s not found", svr.GetConfig().SiteHost, slug))
 			return
 		}
 		if err := jobRepo.TrackJobView(jobPost); err != nil {
@@ -1795,7 +1789,7 @@ func CompanyBySlugPageHandler(svr server.Server, companyRepo *company.Repository
 		slug := vars["slug"]
 		company, err := companyRepo.CompanyBySlug(slug)
 		if err != nil || company == nil {
-			svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Company golang.cafe/job/%s not found", slug))
+			svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Company %s/job/%s not found", svr.GetConfig().SiteHost, slug))
 			return
 		}
 		if err := companyRepo.TrackCompanyView(company); err != nil {
@@ -1890,10 +1884,10 @@ func ServeRSSFeed(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 		}
 		now := time.Now()
 		feed := &feeds.Feed{
-			Title:       "Golang Cafe Jobs",
-			Link:        &feeds.Link{Href: "https://golang.cafe"},
-			Description: "Golang Cafe Jobs",
-			Author:      &feeds.Author{Name: "Golang Cafe", Email: "team@golang.cafe"},
+			Title:       fmt.Sprintf("%s Jobs", svr.GetConfig().SiteName),
+			Link:        &feeds.Link{Href: fmt.Sprintf("https://%s", svr.GetConfig().SiteHost)},
+			Description: fmt.Sprintf("%s Jobs RSS Feed", svr.GetConfig().SiteName),
+			Author:      &feeds.Author{Name: svr.GetConfig().SiteName, Email: svr.GetConfig().SupportEmail},
 			Created:     now,
 		}
 
@@ -1901,18 +1895,18 @@ func ServeRSSFeed(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 			if j.CompanyIconID != "" {
 				feed.Items = append(feed.Items, &feeds.Item{
 					Title:       fmt.Sprintf("%s with %s - %s", j.JobTitle, j.Company, j.Location),
-					Link:        &feeds.Link{Href: fmt.Sprintf("https://golang.cafe/job/%s", j.Slug)},
+					Link:        &feeds.Link{Href: fmt.Sprintf("https://%s/job/%s", svr.GetConfig().SiteHost, j.Slug)},
 					Description: string(svr.MarkdownToHTML(j.JobDescription + "\n\n**Salary Range:** " + j.SalaryRange)),
-					Author:      &feeds.Author{Name: "Golang Cafe", Email: "team@golang.cafe"},
-					Enclosure:   &feeds.Enclosure{Length: "not implemented", Type: "image", Url: fmt.Sprintf("https://golang.cafe/x/s/m/%s", j.CompanyIconID)},
+					Author:      &feeds.Author{Name: svr.GetConfig().SiteName, Email: svr.GetConfig().SupportEmail},
+					Enclosure:   &feeds.Enclosure{Length: "not implemented", Type: "image", Url: fmt.Sprintf("https://%s/x/s/m/%s", svr.GetConfig().SiteHost, j.CompanyIconID)},
 					Created:     *j.ApprovedAt,
 				})
 			} else {
 				feed.Items = append(feed.Items, &feeds.Item{
 					Title:       fmt.Sprintf("%s with %s - %s", j.JobTitle, j.Company, j.Location),
-					Link:        &feeds.Link{Href: fmt.Sprintf("https://golang.cafe/job/%s", j.Slug)},
+					Link:        &feeds.Link{Href: fmt.Sprintf("https://%s/job/%s", svr.GetConfig().SiteHost, j.Slug)},
 					Description: string(svr.MarkdownToHTML(j.JobDescription + "\n\n**Salary Range:** " + j.SalaryRange)),
-					Author:      &feeds.Author{Name: "Golang Cafe", Email: "team@golang.cafe"},
+					Author:      &feeds.Author{Name: svr.GetConfig().SiteName, Email: svr.GetConfig().SupportEmail},
 					Created:     *j.ApprovedAt,
 				})
 			}
@@ -1982,7 +1976,12 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 					svr.JSON(w, http.StatusBadRequest, nil)
 					return
 				}
-				err = svr.GetEmail().SendEmail("Diego from Golang Cafe <team@golang.cafe>", purchaseEvent.Email, email.GolangCafeEmailAddress, "Your Job Ad on Golang Cafe", fmt.Sprintf("Your Job Ad has been upgraded successfully and it's now pinned to the home page. You can edit the Job Ad at any time and check page views and clickouts by following this link https://golang.cafe/edit/%s", jobToken))
+				err = svr.GetEmail().SendEmail(
+					svr.GetEmail().DefaultSender(),
+					purchaseEvent.Email,
+					svr.GetEmail().DefaultReplyTo(),
+					fmt.Sprintf("Your Job Ad on %s", svr.GetConfig().SiteName),
+					fmt.Sprintf("Your Job Ad has been upgraded successfully and it's now pinned to the home page. You can edit the Job Ad at any time and check page views and clickouts by following this link https://%s/edit/%s", svr.GetConfig().SiteHost, jobToken))
 				if err != nil {
 					svr.Log(err, "unable to send email while upgrading job ad")
 				}
@@ -2001,7 +2000,7 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 func SitemapIndexHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		index := sitemap.NewSitemapIndex()
-		entries, err := database.GetSitemapIndex(svr.Conn)
+		entries, err := database.GetSitemapIndex(svr.Conn, svr.GetConfig().SiteHost)
 		if err != nil {
 			svr.Log(err, "database.GetSitemapIndex")
 			svr.TEXT(w, http.StatusInternalServerError, "unable to fetch sitemap")
@@ -2201,7 +2200,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = svr.GetEmail().SendEmail("Diego from Golang Cafe <team@golang.cafe>", emailAddr, email.GolangCafeEmailAddress, fmt.Sprintf("Confirm your job application with %s", jobPost.Company), fmt.Sprintf("Thanks for applying for the position %s with %s - %s (https://golang.cafe/job/%s). You application request, your email and your CV will expire in 72 hours and will be permanently deleted from the system. Please confirm your application now by following this link https://golang.cafe/apply/%s", jobPost.JobTitle, jobPost.Company, jobPost.Location, jobPost.Slug, randomTokenStr))
+		err = svr.GetEmail().SendEmail(svr.GetEmail().DefaultSender(), emailAddr, svr.GetEmail().DefaultReplyTo(), fmt.Sprintf("Confirm your job application with %s", jobPost.Company), fmt.Sprintf("Thanks for applying for the position %s with %s - %s (https://%s/job/%s). You application request, your email and your CV will expire in 72 hours and will be permanently deleted from the system. Please confirm your application now by following this link https://%s/apply/%s", jobPost.JobTitle, jobPost.Company, jobPost.Location, svr.GetConfig().SiteHost, jobPost.Slug, svr.GetConfig().SiteHost, randomTokenStr))
 		if err != nil {
 			svr.Log(err, "unable to send email while applying to job")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -2221,13 +2220,14 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 				return
 			}
 			err = svr.GetEmail().SendEmail(
-				"Diego from Golang Cafe <team@golang.cafe>",
+				svr.GetEmail().DefaultSender(),
 				emailAddr,
-				"",
-				"Confirm Your Email Subscription on Golang Cafe",
+				svr.GetEmail().DefaultReplyTo(),
+				fmt.Sprintf("Confirm Your Email Subscription on %s", svr.GetConfig().SiteName),
 				fmt.Sprintf(
-					"Please click on the link below to confirm your subscription to receive weekly emails from Golang Cafe\n\n%s\n\nIf this was not requested by you, please ignore this email.",
-					fmt.Sprintf("https://golang.cafe/x/email/confirm/%s", k.String()),
+					"Please click on the link below to confirm your subscription to receive weekly emails from %s\n\n%s\n\nIf this was not requested by you, please ignore this email.",
+					svr.GetConfig().SiteName,
+					fmt.Sprintf("https://%s/x/email/confirm/%s", svr.GetConfig().SiteHost, k.String()),
 				),
 			)
 			if err != nil {
@@ -2252,12 +2252,29 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 			})
 			return
 		}
-		err = svr.GetEmail().SendEmailWithPDFAttachment("Diego from Golang Cafe <team@golang.cafe>", jobPost.HowToApply, applicant.Email, "New Applicant from Golang Cafe", fmt.Sprintf("Hi, there is a new applicant for your position on Golang Cafe: %s with %s - %s (https://golang.cafe/job/%s). Applicant's Email: %s. Please find applicant's CV attached below", jobPost.JobTitle, jobPost.Company, jobPost.Location, jobPost.Slug, applicant.Email), applicant.Cv, "cv.pdf")
+		err = svr.GetEmail().SendEmailWithPDFAttachment(
+			svr.GetEmail().DefaultSender(),
+			jobPost.HowToApply,
+			applicant.Email,
+			fmt.Sprintf("New Applicant from %s", svr.GetConfig().SiteName),
+			fmt.Sprintf(
+				"Hi, there is a new applicant for your position on %s: %s with %s - %s (https://%s/job/%s). Applicant's Email: %s. Please find applicant's CV attached below",
+				svr.GetConfig().SiteName,
+				jobPost.JobTitle,
+				jobPost.Company,
+				jobPost.Location,
+				svr.GetConfig().SiteHost,
+				jobPost.Slug,
+				applicant.Email,
+			),
+			applicant.Cv,
+			"cv.pdf",
+		)
 		if err != nil {
 			svr.Log(err, "unable to send email while applying to job")
 			svr.Render(w, http.StatusBadRequest, "apply-message.html", map[string]interface{}{
 				"Title":       "Job Application Failure",
-				"Description": "Oops, there was a problem while completing yuor application. Please try again later. If the problem persists, please contact team@golang.cafe",
+				"Description": fmt.Sprintf("Oops, there was a problem while completing yuor application. Please try again later. If the problem persists, please contact %s", svr.GetConfig().SupportEmail),
 			})
 			return
 		}
@@ -2266,13 +2283,25 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 			svr.Log(err, fmt.Sprintf("unable to update apply_token with successfull application for token %s", token))
 			svr.Render(w, http.StatusBadRequest, "apply-message.html", map[string]interface{}{
 				"Title":       "Job Application Failure",
-				"Description": "Oops, there was a problem while completing yuor application. Please try again later. If the problem persists, please contact team@golang.cafe",
+				"Description": fmt.Sprintf("Oops, there was a problem while completing yuor application. Please try again later. If the problem persists, please contact %s", svr.GetConfig().SupportEmail),
 			})
 			return
 		}
 		svr.Render(w, http.StatusOK, "apply-message.html", map[string]interface{}{
-			"Title":       "Job Application Successfull",
-			"Description": svr.StringToHTML(fmt.Sprintf("Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"https://golang.cafe/job/%s\">https://golang.cafe/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. If you have further questions please reach out to <code>%s</code>. Please note, your email and CV have been permanently deleted from our systems.", jobPost.JobTitle, jobPost.Company, jobPost.Location, jobPost.Slug, jobPost.Slug, jobPost.HowToApply)),
+			"Title": "Job Application Successfull",
+			"Description": svr.StringToHTML(
+				fmt.Sprintf(
+					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"https://%s/job/%s\">https://%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. If you have further questions please reach out to <code>%s</code>. Please note, your email and CV have been permanently deleted from our systems.",
+					jobPost.JobTitle,
+					jobPost.Company,
+					jobPost.Location,
+					svr.GetConfig().SiteHost,
+					jobPost.Slug,
+					svr.GetConfig().SiteHost,
+					jobPost.Slug,
+					jobPost.HowToApply,
+				),
+			),
 		})
 	}
 }
@@ -2324,7 +2353,7 @@ func SubmitJobPostWithoutPaymentHandler(svr server.Server, jobRepo *job.Reposito
 	)
 }
 
-func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repository, paymentRepo *payment.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 		jobRq := &job.JobRqUpsell{}
@@ -2341,12 +2370,23 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		sess, err := payment.CreateSession(svr.GetConfig().StripeKey, &job.JobRq{AdType: jobRq.AdType, CurrencyCode: jobRq.CurrencyCode, Email: jobRq.Email}, jobRq.Token)
+		sess, err := paymentRepo.CreateSession(&job.JobRq{AdType: jobRq.AdType, CurrencyCode: jobRq.CurrencyCode, Email: jobRq.Email}, jobRq.Token)
 		if err != nil {
 			svr.Log(err, "unable to create payment session")
 		}
 
-		err = svr.GetEmail().SendEmail("Diego from Golang Cafe <team@golang.cafe>", email.GolangCafeEmailAddress, jobRq.Email, "New Upgrade on Golang Cafe", fmt.Sprintf("Hey! There is a new ad upgrade on Golang Cafe. Please check https://golang.cafe/manage/%s", jobRq.Token))
+		err = svr.GetEmail().SendEmail(
+			svr.GetEmail().DefaultSender(),
+			svr.GetEmail().DefaultAdminAddress(),
+			jobRq.Email,
+			fmt.Sprintf("New Upgrade on %s", svr.GetConfig().SiteName),
+			fmt.Sprintf(
+				"Hey! There is a new ad upgrade on %s. Please check https://%s/manage/%s",
+				svr.GetConfig().SiteName,
+				svr.GetConfig().SiteHost,
+				jobRq.Token,
+			),
+		)
 		if err != nil {
 			svr.Log(err, "unable to send email to admin while upgrading job ad")
 		}
@@ -2363,7 +2403,7 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 	}
 }
 
-func GeneratePaymentIntent(svr server.Server) http.HandlerFunc {
+func GeneratePaymentIntent(svr server.Server, paymentRepo *payment.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		dec := json.NewDecoder(r.Body)
 		req := struct {
@@ -2381,7 +2421,7 @@ func GeneratePaymentIntent(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		sess, err := payment.CreateGenericSession(svr.GetConfig().StripeKey, req.Email, req.Currency, req.Amount)
+		sess, err := paymentRepo.CreateGenericSession(req.Email, req.Currency, req.Amount)
 		if err != nil {
 			fmt.Println("invalid sess")
 			svr.Log(err, "unable to create payment session")
@@ -2395,7 +2435,7 @@ func GeneratePaymentIntent(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymentRepo *payment.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
 		jobRq := &job.JobRq{}
@@ -2437,12 +2477,22 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository) http.H
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		sess, err := payment.CreateSession(svr.GetConfig().StripeKey, jobRq, randomTokenStr)
+		sess, err := paymentRepo.CreateSession(jobRq, randomTokenStr)
 		if err != nil {
 			svr.Log(err, "unable to create payment session")
 		}
-		approveMsg := fmt.Sprintf("Hey! There is a new Ad on Golang Cafe. Please approve https://golang.cafe/manage/%s", randomTokenStr)
-		err = svr.GetEmail().SendEmail("Diego from Golang Cafe <team@golang.cafe>", email.GolangCafeEmailAddress, jobRq.Email, "New Job Ad on Golang Cafe", approveMsg)
+		err = svr.GetEmail().SendEmail(
+			svr.GetEmail().DefaultSender(),
+			svr.GetEmail().DefaultAdminAddress(),
+			jobRq.Email,
+			fmt.Sprintf("New Job Ad on %s", svr.GetConfig().SiteName),
+			fmt.Sprintf(
+				"Hey! There is a new Ad on %s. Please approve https://%s/manage/%s",
+				svr.GetConfig().SiteName,
+				svr.GetConfig().SiteHost,
+				randomTokenStr,
+			),
+		)
 		if err != nil {
 			svr.Log(err, "unable to send email to admin while posting job ad")
 		}
@@ -2825,7 +2875,13 @@ func ApproveJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Hand
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			err = svr.GetEmail().SendEmail("Diego from Golang Cafe <team@golang.cafe>", jobRq.Email, email.GolangCafeEmailAddress, "Your Job Ad on Golang Cafe", fmt.Sprintf("Thanks for using Golang Cafe,\n\nYour Job Ad has been approved and it's currently live on Golang Cafe: https://golang.cafe.\n\nYour Job Dashboard: https://golang.cafe/edit/%s\n\nThe ad expires in 90 days and does not automatically renew. If you wish to sponsor or pin again the job ad you can do so by following the edit link.\n\nI am always available to answer any questions you may have,\n\nBest,\n\nDiego\n%s", jobRq.Token, svr.GetConfig().AdminEmail))
+			err = svr.GetEmail().SendEmail(
+				svr.GetEmail().DefaultSender(),
+				jobRq.Email,
+				svr.GetEmail().DefaultReplyTo(),
+				fmt.Sprintf("Your Job Ad on %s", svr.GetConfig().SiteName),
+				fmt.Sprintf("Thanks for using %s,\n\nYour Job Ad has been approved and it's currently live on %s: https://%s.\n\nYour Job Dashboard: https://%s/edit/%s\n\nThe ad expires in 90 days and does not automatically renew. If you wish to sponsor or pin again the job ad you can do so by following the edit link.\n\nI am always available to answer any questions you may have,\n\nBest,\n\n%s\n%s", svr.GetConfig().SiteName, svr.GetConfig().SiteName, svr.GetConfig().SiteHost, svr.GetConfig().SiteHost, jobRq.Token, svr.GetConfig().SiteName, svr.GetConfig().AdminEmail),
+			)
 			if err != nil {
 				svr.Log(err, "unable to send email while approving job ad")
 			}
@@ -2926,7 +2982,7 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 		jobPost, err := jobRepo.JobPostByIDForEdit(jobID)
 		if err != nil || jobPost == nil {
 			svr.Log(err, fmt.Sprintf("unable to retrieve job by ID %d", jobID))
-			svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job for golang.cafe/edit/%s not found", token))
+			svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job for %s/edit/%s not found", svr.GetConfig().SiteHost, token))
 			return
 		}
 		clickoutCount, err := jobRepo.GetClickoutCountForJob(jobID)
@@ -2992,7 +3048,7 @@ func ManageJobBySlugViewPageHandler(svr server.Server, jobRepo *job.Repository) 
 			}
 			jobPostToken, err := jobRepo.TokenByJobID(jobPost.ID)
 			if err != nil {
-				svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job for golang.cafe/manage/job/%s not found", slug))
+				svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job for %s/manage/job/%s not found", svr.GetConfig().SiteHost, slug))
 				return
 			}
 			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("/manage/%s", jobPostToken))
@@ -3016,7 +3072,7 @@ func ManageJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.H
 			jobPost, err := jobRepo.JobPostByIDForEdit(jobID)
 			if err != nil || jobPost == nil {
 				svr.Log(err, fmt.Sprintf("unable to retrieve job by ID %d", jobID))
-				svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job for golang.cafe/edit/%s not found", token))
+				svr.JSON(w, http.StatusNotFound, fmt.Sprintf("Job for %s/edit/%s not found", svr.GetConfig().SiteHost, token))
 				return
 			}
 			clickoutCount, err := jobRepo.GetClickoutCountForJob(jobID)

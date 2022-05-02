@@ -7,12 +7,25 @@ import (
 	"github.com/golang-cafe/job-board/internal/job"
 
 	stripe "github.com/stripe/stripe-go"
-	charge "github.com/stripe/stripe-go/charge"
 	session "github.com/stripe/stripe-go/checkout/session"
 	webhook "github.com/stripe/stripe-go/webhook"
 
 	"strings"
 )
+
+type Repository struct {
+	stripeKey string
+	siteName  string
+	siteHost  string
+}
+
+func NewRepository(stripeKey, siteName, siteHost string) *Repository {
+	return &Repository{
+		stripeKey: stripeKey,
+		siteName:  siteName,
+		siteHost:  siteHost,
+	}
+}
 
 func AdTypeToAmount(adType int64) int64 {
 	switch adType {
@@ -52,30 +65,12 @@ func AdTypeToDescription(adType int64) string {
 	return ""
 }
 
-func ProcessPaymentIfApplicable(stripeKey string, jobRq *job.JobRq) error {
-	if !isApplicable(jobRq) {
-		return nil
-	}
-	stripe.Key = stripeKey
-	chargeParams := &stripe.ChargeParams{
-		Amount:       stripe.Int64(AdTypeToAmount(jobRq.AdType)),
-		Currency:     stripe.String(strings.ToLower(jobRq.CurrencyCode)),
-		Description:  stripe.String("Golang Cafe Sponsored Ad"),
-		ReceiptEmail: &jobRq.Email,
-	}
-	if err := chargeParams.SetSource(jobRq.StripeToken); err != nil {
-		return err
-	}
-	_, err := charge.New(chargeParams)
-	return err
-}
-
 func isApplicable(jobRq *job.JobRq) bool {
 	return jobRq.AdType >= 0 && jobRq.AdType <= 5
 }
 
-func CreateGenericSession(stripeKey, email, currency string, amount int) (*stripe.CheckoutSession, error) {
-	stripe.Key = stripeKey
+func (r Repository) CreateGenericSession(email, currency string, amount int) (*stripe.CheckoutSession, error) {
+	stripe.Key = r.stripeKey
 	params := &stripe.CheckoutSessionParams{
 		BillingAddressCollection: stripe.String("required"),
 		PaymentMethodTypes: stripe.StringSlice([]string{
@@ -83,14 +78,14 @@ func CreateGenericSession(stripeKey, email, currency string, amount int) (*strip
 		}),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Name:     stripe.String("Golang Cafe Sponsored Ad"),
+				Name:     stripe.String(fmt.Sprintf("%s Sponsored Ad", r.siteName)),
 				Amount:   stripe.Int64(int64(amount)),
 				Currency: stripe.String(currency),
 				Quantity: stripe.Int64(1),
 			},
 		},
-		SuccessURL:    stripe.String("https://golang.cafe/x/j/p/1"),
-		CancelURL:     stripe.String("https://golang.cafe/x/j/p/0"),
+		SuccessURL:    stripe.String(fmt.Sprintf("https://%s/x/j/p/1", r.siteHost)),
+		CancelURL:     stripe.String(fmt.Sprintf("https://%s/x/j/p/0", r.siteHost)),
 		CustomerEmail: &email,
 	}
 
@@ -101,11 +96,12 @@ func CreateGenericSession(stripeKey, email, currency string, amount int) (*strip
 
 	return session, nil
 }
-func CreateSession(stripeKey string, jobRq *job.JobRq, jobToken string) (*stripe.CheckoutSession, error) {
+
+func (r Repository) CreateSession(jobRq *job.JobRq, jobToken string) (*stripe.CheckoutSession, error) {
 	if !isApplicable(jobRq) {
 		return nil, nil
 	}
-	stripe.Key = stripeKey
+	stripe.Key = r.stripeKey
 	params := &stripe.CheckoutSessionParams{
 		BillingAddressCollection: stripe.String("required"),
 		PaymentMethodTypes: stripe.StringSlice([]string{
@@ -113,14 +109,14 @@ func CreateSession(stripeKey string, jobRq *job.JobRq, jobToken string) (*stripe
 		}),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Name:     stripe.String("Golang Cafe Sponsored Ad"),
+				Name:     stripe.String(fmt.Sprintf("%s Sponsored Ad", r.siteName)),
 				Amount:   stripe.Int64(AdTypeToAmount(jobRq.AdType)),
 				Currency: stripe.String(strings.ToLower(jobRq.CurrencyCode)),
 				Quantity: stripe.Int64(1),
 			},
 		},
-		SuccessURL:    stripe.String(fmt.Sprintf("https://golang.cafe/edit/%s?payment=1&callback=1", jobToken)),
-		CancelURL:     stripe.String(fmt.Sprintf("https://golang.cafe/edit/%s?payment=0&callback=1", jobToken)),
+		SuccessURL:    stripe.String(fmt.Sprintf("https://%s/edit/%s?payment=1&callback=1", r.siteHost, jobToken)),
+		CancelURL:     stripe.String(fmt.Sprintf("https://%s/edit/%s?payment=0&callback=1", r.siteHost, jobToken)),
 		CustomerEmail: &jobRq.Email,
 	}
 
