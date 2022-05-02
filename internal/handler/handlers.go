@@ -721,7 +721,7 @@ func TriggerTelegramScheduler(svr server.Server, jobRepo *job.Repository) http.H
 				api := telegram.New(svr.GetConfig().TelegramAPIToken)
 				ctx := context.Background()
 				for _, j := range jobPosts {
-					_, err := api.SendMessage(ctx, telegram.NewMessage(svr.GetConfig().TelegramChannelID, fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteHost, j.Slug)))
+					_, err := api.SendMessage(ctx, telegram.NewMessage(svr.GetConfig().TelegramChannelID, fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\nhttps://%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteHost, j.Slug)))
 					if err != nil {
 						svr.Log(err, "unable to post on telegram")
 						continue
@@ -817,7 +817,7 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 				lastJobID := lastTwittedJobID
 				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
 				for _, j := range jobPosts {
-					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#golang #golangjobs\n\nhttps://%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteHost, j.Slug), url.Values{})
+					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\nhttps://%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteHost, j.Slug), url.Values{})
 					if err != nil {
 						svr.Log(err, "unable to post tweet")
 						continue
@@ -1438,11 +1438,11 @@ func IndexPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFu
 
 		var dst string
 		if location != "" && tag != "" {
-			dst = fmt.Sprintf("/Golang-%s-Jobs-In-%s", tag, location)
+			dst = fmt.Sprintf("/%s-%s-Jobs-In-%s", strings.Title(svr.GetConfig().SiteJobCategory), tag, location)
 		} else if location != "" {
-			dst = fmt.Sprintf("/Golang-Jobs-In-%s", location)
+			dst = fmt.Sprintf("/%s-Jobs-In-%s", strings.Title(svr.GetConfig().SiteJobCategory), location)
 		} else if tag != "" {
-			dst = fmt.Sprintf("/Golang-%s-Jobs", tag)
+			dst = fmt.Sprintf("/%s-%s-Jobs", strings.Title(svr.GetConfig().SiteJobCategory), tag)
 		}
 		if dst != "" && page != "" {
 			dst += fmt.Sprintf("?p=%s", page)
@@ -1465,11 +1465,11 @@ func IndexPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFu
 		}
 		dst = "/"
 		if location != "" && tag != "" {
-			dst = fmt.Sprintf("/Golang-%s-Jobs-In-%s", tag, location)
+			dst = fmt.Sprintf("/%s-%s-Jobs-In-%s", strings.Title(svr.GetConfig().SiteJobCategory), tag, location)
 		} else if location != "" {
-			dst = fmt.Sprintf("/Golang-Jobs-In-%s", location)
+			dst = fmt.Sprintf("/%s-Jobs-In-%s", strings.Title(svr.GetConfig().SiteJobCategory), location)
 		} else if tag != "" {
-			dst = fmt.Sprintf("/Golang-%s-Jobs", tag)
+			dst = fmt.Sprintf("/%s-%s-Jobs", strings.Title(svr.GetConfig().SiteJobCategory), tag)
 		}
 		if page != "" {
 			dst += fmt.Sprintf("?p=%s", page)
