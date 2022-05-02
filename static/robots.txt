@@ -4,4 +4,4 @@ Allow: /x/s/m/*
 Disallow: /x/*
 Disallow: /cdn-cgi/l/email-protection
 
-Sitemap: https://golang.cafe/sitemap.xml
+Sitemap: https://__host_placeholder__/sitemap.xml

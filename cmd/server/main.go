@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"strings"
 
 	"github.com/golang-cafe/job-board/internal/blog"
@@ -42,6 +43,14 @@ func main() {
 	}
 	defer ipGeolocation.Close()
 	sessionStore := sessions.NewCookieStore(cfg.SessionKey)
+	robotsTxtContent, err := os.ReadFile("./static/robots.txt")
+	if err != nil {
+		log.Fatalf("unable to read robots.txt placeholder file: %w", err)
+	}
+	securityTxtContent, err := os.ReadFile("./static/security.txt")
+	if err != nil {
+		log.Fatalf("unable to read security.txt placeholder file: %w", err)
+	}
 
 	devRepo := developer.NewRepository(conn)
 	blogRepo := blog.NewRepository(conn)
@@ -62,8 +71,8 @@ func main() {
 
 	svr.RegisterRoute("/sitemap.xml", handler.SitemapIndexHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/sitemap-{number}.xml", handler.SitemapHandler(svr), []string{"GET"})
-	svr.RegisterRoute("/robots.txt", handler.RobotsTxtHandler, []string{"GET"})
-	svr.RegisterRoute("/.well-known/security.txt", handler.WellKnownSecurityHandler, []string{"GET"})
+	svr.RegisterRoute("/robots.txt", handler.RobotsTXTHandler(svr, robotsTxtContent), []string{"GET"})
+	svr.RegisterRoute("/.well-known/security.txt", handler.WellKnownSecurityHandler(svr, securityTxtContent), []string{"GET"})
 
 	svr.RegisterPathPrefix("/s/", http.StripPrefix("/s/", http.FileServer(http.Dir("./static/assets"))), []string{"GET"})
 

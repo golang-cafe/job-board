@@ -259,27 +259,27 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
 				database.SaveSEOSkillFromCompany(svr.Conn)
-				landingPages, err := seo.GenerateSearchSEOLandingPages(svr.Conn)
+				landingPages, err := seo.GenerateSearchSEOLandingPages(svr.Conn, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GenerateSearchSEOLandingPages")
 					return
 				}
-				postAJobLandingPages, err := seo.GeneratePostAJobSEOLandingPages(svr.Conn)
+				postAJobLandingPages, err := seo.GeneratePostAJobSEOLandingPages(svr.Conn, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GeneratePostAJobSEOLandingPages")
 					return
 				}
-				salaryLandingPages, err := seo.GenerateSalarySEOLandingPages(svr.Conn)
+				salaryLandingPages, err := seo.GenerateSalarySEOLandingPages(svr.Conn, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GenerateSalarySEOLandingPages")
 					return
 				}
-				companyLandingPages, err := seo.GenerateCompaniesLandingPages(svr.Conn)
+				companyLandingPages, err := seo.GenerateCompaniesLandingPages(svr.Conn, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GenerateCompaniesLandingPages")
 					return
 				}
-				developerSkillsPages, err := seo.GenerateDevelopersSkillLandingPages(devRepo)
+				developerSkillsPages, err := seo.GenerateDevelopersSkillLandingPages(devRepo, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersSkillLandingPages")
 					return
@@ -294,7 +294,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
 					return
 				}
-				developerLocationPages, err := seo.GenerateDevelopersLocationPages(svr.Conn)
+				developerLocationPages, err := seo.GenerateDevelopersLocationPages(svr.Conn, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersLocationPages")
 					return
@@ -304,7 +304,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 					svr.Log(err, "seo.BlogPages")
 					return
 				}
-				pages := seo.StaticPages()
+				pages := seo.StaticPages(svr.GetConfig().SiteJobCategory)
 				jobPosts, err := jobRepo.JobPostByCreatedAt()
 				if err != nil {
 					svr.Log(err, "database.JobPostByCreatedAt")
@@ -2056,12 +2056,17 @@ func SitemapHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func RobotsTxtHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "static/robots.txt")
+func RobotsTXTHandler(svr server.Server, robotsTxtContent []byte) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		svr.TEXT(w, http.StatusOK, strings.ReplaceAll(string(robotsTxtContent), "__host_placeholder__", svr.GetConfig().SiteHost))
+	}
 }
 
-func WellKnownSecurityHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "static/security.txt")
+func WellKnownSecurityHandler(svr server.Server, securityTxtContent []byte) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		contentWithHost := strings.ReplaceAll(string(securityTxtContent), "__host_placeholder__", svr.GetConfig().SiteHost)
+		svr.TEXT(w, http.StatusOK, strings.ReplaceAll(contentWithHost, "__support_email_placeholder__", svr.GetConfig().SupportEmail))
+	}
 }
 
 func AboutPageHandler(svr server.Server) http.HandlerFunc {

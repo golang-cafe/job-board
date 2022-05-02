@@ -12,9 +12,9 @@ import (
 	"github.com/golang-cafe/job-board/internal/developer"
 )
 
-func StaticPages() []string {
+func StaticPages(siteJobCategory string) []string {
 	return []string{
-		"hire-golang-developers",
+		"hire-" + siteJobCategory + "-developers",
 		"privacy-policy",
 		"terms-of-service",
 		"about",
@@ -44,76 +44,79 @@ func BlogPages(blogRepo *blog.Repository) ([]BlogPost, error) {
 	return posts, nil
 }
 
-func GeneratePostAJobSEOLandingPages(conn *sql.DB) ([]string, error) {
+func GeneratePostAJobSEOLandingPages(conn *sql.DB, siteJobCategory string) ([]string, error) {
+	siteJobCategory = strings.Title(siteJobCategory)
 	var seoLandingPages []string
 	locs, err := database.GetSEOLocations(conn)
 	if err != nil {
 		return seoLandingPages, err
 	}
 	for _, loc := range locs {
-		seoLandingPages = appendPostAJobSEOLandingPageForLocation(seoLandingPages, loc.Name)
+		seoLandingPages = appendPostAJobSEOLandingPageForLocation(siteJobCategory, seoLandingPages, loc.Name)
 	}
 
 	return seoLandingPages, nil
 }
 
-func GenerateSalarySEOLandingPages(conn *sql.DB) ([]string, error) {
+func GenerateSalarySEOLandingPages(conn *sql.DB, siteJobCategory string) ([]string, error) {
+	siteJobCategory = strings.Title(siteJobCategory)
 	var landingPages []string
 	locs, err := database.GetSEOLocations(conn)
 	if err != nil {
 		return landingPages, err
 	}
 	for _, loc := range locs {
-		landingPages = appendSalarySEOLandingPageForLocation(landingPages, loc.Name)
+		landingPages = appendSalarySEOLandingPageForLocation(siteJobCategory, landingPages, loc.Name)
 	}
 
 	return landingPages, nil
 }
 
-func GenerateCompaniesLandingPages(conn *sql.DB) ([]string, error) {
+func GenerateCompaniesLandingPages(conn *sql.DB, siteJobCategory string) ([]string, error) {
+	siteJobCategory = strings.Title(siteJobCategory)
 	var landingPages []string
 	locs, err := database.GetSEOLocations(conn)
 	if err != nil {
 		return landingPages, err
 	}
 	for _, loc := range locs {
-		landingPages = appendCompaniesLandingPagesForLocation(landingPages, loc.Name)
+		landingPages = appendCompaniesLandingPagesForLocation(siteJobCategory, landingPages, loc.Name)
 	}
 
 	return landingPages, nil
 }
 
-func appendSalarySEOLandingPageForLocation(landingPages []string, loc string) []string {
-	tmpl := `Golang-Developer-Salary-%s`
+func appendSalarySEOLandingPageForLocation(siteJobCategory string, landingPages []string, loc string) []string {
+	tmpl := `%s-Developer-Salary-%s`
 	if strings.ToLower(loc) == "remote" {
-		return append(landingPages, `Remote-Golang-Developer-Salary`)
+		return append(landingPages, fmt.Sprintf(`Remote-%s-Developer-Salary`, siteJobCategory))
 	}
-	return append(landingPages, fmt.Sprintf(tmpl, strings.ReplaceAll(loc, " ", "-")))
+	return append(landingPages, fmt.Sprintf(tmpl, siteJobCategory, strings.ReplaceAll(loc, " ", "-")))
 }
 
-func appendPostAJobSEOLandingPageForLocation(seoLandingPages []string, loc string) []string {
-	tmpl := `Hire-Golang-Developers-In-%s`
+func appendPostAJobSEOLandingPageForLocation(siteJobCategory string, seoLandingPages []string, loc string) []string {
+	tmpl := `Hire-%s-Developers-In-%s`
 	if strings.ToLower(loc) == "remote" {
-		return append(seoLandingPages, `Hire-Remote-Golang-Developers`)
+		return append(seoLandingPages, fmt.Sprintf(`Hire-Remote-%s-Developers`, siteJobCategory))
 	}
-	return append(seoLandingPages, fmt.Sprintf(tmpl, strings.ReplaceAll(loc, " ", "-")))
+	return append(seoLandingPages, fmt.Sprintf(tmpl, siteJobCategory, strings.ReplaceAll(loc, " ", "-")))
 }
 
-func appendCompaniesLandingPagesForLocation(landingPages []string, loc string) []string {
-	tmpl := `Companies-Using-Golang-In-%s`
+func appendCompaniesLandingPagesForLocation(siteJobCategory string, landingPages []string, loc string) []string {
+	tmpl := `Companies-Using-%s-In-%s`
 	if strings.ToLower(loc) == "remote" {
-		return append(landingPages, `Remote-Companies-Using-Golang`)
+		return append(landingPages, fmt.Sprintf(`Remote-Companies-Using-%s`, siteJobCategory))
 	}
-	return append(landingPages, fmt.Sprintf(tmpl, strings.ReplaceAll(loc, " ", "-")))
+	return append(landingPages, fmt.Sprintf(tmpl, siteJobCategory, strings.ReplaceAll(loc, " ", "-")))
 }
 
-func appendSearchSEOSalaryLandingPageForLocation(seoLandingPages []database.SEOLandingPage, loc database.SEOLocation) []database.SEOLandingPage {
+func appendSearchSEOSalaryLandingPageForLocation(siteJobCategory string, seoLandingPages []database.SEOLandingPage, loc database.SEOLocation) []database.SEOLandingPage {
 	salaryBands := []string{"50000", "10000", "150000", "200000"}
 	tmp := make([]database.SEOLandingPage, 0, len(salaryBands))
 	if loc.Name == "" {
 		for _, salaryBand := range salaryBands {
 			tmp = append(tmp, database.SEOLandingPage{
-				URI: fmt.Sprintf("Golang-Jobs-Paying-%s-USD-year", salaryBand),
+				URI: fmt.Sprintf("%s-Jobs-Paying-%s-USD-year", siteJobCategory, salaryBand),
 			})
 		}
 
@@ -126,14 +129,15 @@ func appendSearchSEOSalaryLandingPageForLocation(seoLandingPages []database.SEOL
 
 	for _, salaryBand := range salaryBands {
 		tmp = append(tmp, database.SEOLandingPage{
-			URI: fmt.Sprintf("Golang-Jobs-In-%s-Paying-%s-USD-year", url.PathEscape(strings.ReplaceAll(loc.Name, " ", "-")), salaryBand),
+			URI: fmt.Sprintf("%s-Jobs-In-%s-Paying-%s-USD-year", siteJobCategory, url.PathEscape(strings.ReplaceAll(loc.Name, " ", "-")), salaryBand),
 		})
 	}
 
 	return append(seoLandingPages, tmp...)
 }
 
-func GenerateSearchSEOLandingPages(conn *sql.DB) ([]database.SEOLandingPage, error) {
+func GenerateSearchSEOLandingPages(conn *sql.DB, siteJobCategory string) ([]database.SEOLandingPage, error) {
+	siteJobCategory = strings.Title(siteJobCategory)
 	var seoLandingPages []database.SEOLandingPage
 	locs, err := database.GetSEOLocations(conn)
 	if err != nil {
@@ -144,40 +148,42 @@ func GenerateSearchSEOLandingPages(conn *sql.DB) ([]database.SEOLandingPage, err
 		return seoLandingPages, err
 	}
 
-	seoLandingPages = appendSearchSEOSalaryLandingPageForLocation(seoLandingPages, database.SEOLocation{})
+	seoLandingPages = appendSearchSEOSalaryLandingPageForLocation(siteJobCategory, seoLandingPages, database.SEOLocation{})
 
 	for _, loc := range locs {
-		seoLandingPages = appendSearchSEOLandingPageForLocationAndSkill(seoLandingPages, loc, database.SEOSkill{})
-		seoLandingPages = appendSearchSEOSalaryLandingPageForLocation(seoLandingPages, loc)
+		seoLandingPages = appendSearchSEOLandingPageForLocationAndSkill(siteJobCategory, seoLandingPages, loc, database.SEOSkill{})
+		seoLandingPages = appendSearchSEOSalaryLandingPageForLocation(siteJobCategory, seoLandingPages, loc)
 	}
 	for _, skill := range skills {
-		seoLandingPages = appendSearchSEOLandingPageForLocationAndSkill(seoLandingPages, database.SEOLocation{}, skill)
+		seoLandingPages = appendSearchSEOLandingPageForLocationAndSkill(siteJobCategory, seoLandingPages, database.SEOLocation{}, skill)
 	}
 
 	return seoLandingPages, nil
 }
 
-func GenerateDevelopersSkillLandingPages(repo *developer.Repository) ([]string, error) {
+func GenerateDevelopersSkillLandingPages(repo *developer.Repository, siteJobCategory string) ([]string, error) {
+	siteJobCategory = strings.Title(siteJobCategory)
 	var landingPages []string
 	devSkills, err := repo.GetDeveloperSkills()
 	if err != nil {
 		return landingPages, err
 	}
 	for _, skill := range devSkills {
-		devSkills = append(devSkills, fmt.Sprintf("Golang-%s-Developers", url.PathEscape(skill)))
+		devSkills = append(devSkills, fmt.Sprintf("%s-%s-Developers", siteJobCategory, url.PathEscape(skill)))
 	}
 
 	return landingPages, nil
 }
 
-func GenerateDevelopersLocationPages(conn *sql.DB) ([]string, error) {
+func GenerateDevelopersLocationPages(conn *sql.DB, siteJobCategory string) ([]string, error) {
+	siteJobCategory = strings.Title(siteJobCategory)
 	var landingPages []string
 	locs, err := database.GetSEOLocations(conn)
 	if err != nil {
 		return landingPages, err
 	}
 	for _, loc := range locs {
-		landingPages = append(landingPages, fmt.Sprintf("Golang-Developers-In-%s", url.PathEscape(loc.Name)))
+		landingPages = append(landingPages, fmt.Sprintf("%s-Developers-In-%s", siteJobCategory, url.PathEscape(loc.Name)))
 	}
 
 	return landingPages, nil
@@ -209,13 +215,13 @@ func GenerateCompanyProfileLandingPages(companyRepo *company.Repository) ([]stri
 	return landingPages, nil
 }
 
-func appendSearchSEOLandingPageForLocationAndSkill(seoLandingPages []database.SEOLandingPage, loc database.SEOLocation, skill database.SEOSkill) []database.SEOLandingPage {
-	templateBoth := `Golang-%s-Jobs-In-%s`
-	templateSkill := `Golang-%s-Jobs`
-	templateLoc := `Golang-Jobs-In-%s`
+func appendSearchSEOLandingPageForLocationAndSkill(siteJobCategory string, seoLandingPages []database.SEOLandingPage, loc database.SEOLocation, skill database.SEOSkill) []database.SEOLandingPage {
+	templateBoth := siteJobCategory + `-%s-Jobs-In-%s`
+	templateSkill := siteJobCategory + `-%s-Jobs`
+	templateLoc := siteJobCategory + `-Jobs-In-%s`
 
-	templateRemoteLoc := `Remote-Golang-Jobs`
-	templateRemoteBoth := `Remote-Golang-%s-Jobs`
+	templateRemoteLoc := `Remote-` + siteJobCategory + `-Jobs`
+	templateRemoteBoth := `Remote-` + siteJobCategory + `-%s-Jobs`
 	loc.Name = strings.ReplaceAll(loc.Name, " ", "-")
 	skill.Name = strings.ReplaceAll(skill.Name, " ", "-")
 

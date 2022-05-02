@@ -17,7 +17,7 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db}
 }
 
-// smart group by in golang to map lower/upper case to same map entry with many entries and pickup the upper case one
+// smart group by to map lower/upper case to same map entry with many entries and pickup the upper case one
 // smart group by to find typos
 func (r *Repository) InferCompaniesFromJobs(since time.Time) ([]Company, error) {
 	stmt := `SELECT   trim(from company), 
