@@ -1,6 +1,6 @@
 module github.com/golang-cafe/job-board
 
-go 1.13
+go 1.16
 
 require (
 	github.com/ChimeraCoder/anaconda v2.0.0+incompatible
