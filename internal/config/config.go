@@ -52,6 +52,7 @@ type Config struct {
 	SiteTelegramChannel          string
 	PrimaryColor                 string
 	SecondaryColor               string
+	SiteLogoImageID string
 }
 
 func LoadConfig() (Config, error) {
@@ -204,6 +205,10 @@ func LoadConfig() (Config, error) {
 	if secondaryColor == "" {
 		secondaryColor = "#0000c5"
 	}
+	siteLogoImageID := os.Getenv("SITE_LOGO_IMAGE_ID")
+	if siteLogoImageID == "" {
+		return Config{}, fmt.Errorf("SITE_LOGO_IMAGE_ID cannot be empty")
+	}
 
 	return Config{
 		Port:                         port,
@@ -245,6 +250,7 @@ func LoadConfig() (Config, error) {
 		SiteLinkedin:                 siteLinkedin,
 		PrimaryColor:                 primaryColor,
 		SecondaryColor:               secondaryColor,
+		SiteLogoImageID:              siteLogoImageID,
 		AvailableCurrencies:          []string{"USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN", "INR", "ZAR", "TRY", "BRL"},
 		AvailableSalaryBands:         []int{10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000, 240000, 250000},
 	}, nil

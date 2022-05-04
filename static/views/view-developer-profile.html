@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
 	  <title>{{ .DeveloperProfile.Name }} - {{ .SiteJobCategory }} Developer in {{ .MonthAndYear }} | {{ .SiteName }}</title>
-    <link href="/s/img/favicon.ico" rel="shortcut icon">
+    <link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css">
 body{background:#ffffff;}
@@ -239,16 +239,16 @@ background-color: #FF6600
     <meta name="description" content="{{ .DeveloperProfile.Name }} - {{ .SiteJobCategory }} Developer in {{ .MonthAndYear }} | {{ .SiteName }}" />
     <meta itemprop="name" content="{{ .DeveloperProfile.Name }}">
     <meta itemprop="description" content="{{ .DeveloperProfile.Name }} - {{ .SiteJobCategory }} Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
-    <meta itemprop="image" content="https://{{ .SiteHost }}/s/img/logo.png">
+    <meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
     <meta property="og:url" content="https://{{ .SiteHost }}/developer/{{ .DeveloperProfile.Slug }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ .DeveloperProfile.Name }} - {{ .SiteJobCategory }} Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
     <meta property="og:description" content="{{ .DeveloperProfile.Name }} - {{ .SiteJobCategory }} Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
-    <meta property="og:image" content="https://{{ .SiteHost }}/s/img/logo.png">
+    <meta property="og:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ .DeveloperProfile.Name }} - {{ .SiteJobCategory }} Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
     <meta name="twitter:description" content="{{ .DeveloperProfile.Name }} - {{ .SiteJobCategory }} Developer in {{ .MonthAndYear }} | {{ .SiteName }}">
-    <meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/logo.png">
+    <meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
     <meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
     <link rel="canonical" href="https://{{ .SiteHost }}/developer/{{ .DeveloperProfile.Slug }}" />
   </head>

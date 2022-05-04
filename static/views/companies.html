@@ -5,19 +5,19 @@
 		{{ if and .LocationFilter $isRemote }}
 		<meta name="yandex-verification" content="96b3163b8551fd06" />
 		<title>Remote Companies using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
-		<link href="/s/img/favicon.ico" rel="shortcut icon">
+		<link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="shortcut icon">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="title" content="Remote Companies using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
 		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} {{ .LocationFilter }} companies, companies using {{ .SiteJobCategory }}, {{ .SiteJobCategory }} companies, remote companies" />
 		<meta name="description" content="Remote Companies Using {{ .SiteJobCategory }} in production and hiring {{ .SiteJobCategory }} engineers in {{ .MonthAndYear }}{{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
 		<meta itemprop="name" content="Remote Companies using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
 		<meta itemprop="description" content="Remote Companies Using {{ .SiteJobCategory }} in production and hiring Go engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
-		<meta itemprop="image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
+		<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 		<meta property="og:url" content="https://{{ .SiteHost }}">
 		<meta property="og:type" content="website">
 		<meta name="og:title" content="Remote Companies Using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
 		<meta property="og:description" content="Remote Companies Using {{ .SiteJobCategory }} in production and hiring {{ .SiteJobCategory }} engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
-		<meta property="og:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
+		<meta property="og:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 		<meta name="twitter:card" content="summary_large_image">
 		<meta name="twitter:title" content="Remote Companies Using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
 		<meta name="twitter:description" content="Remote Companies Using {{ .SiteJobCategory }} in production and hiring {{ .SiteJobCategory }} engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
@@ -25,25 +25,25 @@
 		{{ else }}
 		<meta name="yandex-verification" content="96b3163b8551fd06" />
 		<title>Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
-		<link href="/s/img/favicon.ico" rel="shortcut icon">
+		<link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="shortcut icon">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="title" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
 		<meta name="keywords" content="{{ .SiteJobCategory }}{{ if .LocationFilter }}, {{ .SiteJobCategory }} companies in {{ .LocationFilter}} {{ end }}, companies using go, companies using {{ .SiteJobCategory }}, {{ .SiteJobCategory }} companies" />
 		<meta name="description" content="{{ .SiteJobCategory }} Companies using {{ .SiteJobCategory }} in production and hiring Go engineers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }}" />
 		<meta itemprop="name" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
 		<meta itemprop="description" content="Companies Using {{ .SiteJobCategory }} in production and hiring Go engineers{{ if .LocationFilter }} in {{.LocationFilter}}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
-		<meta itemprop="image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
+		<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 		<meta property="og:url" content="https://{{ .SiteHost }}">
 		<meta property="og:type" content="website">
 		<meta name="og:title" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
 		<meta property="og:description" content="Companies Using {{ .SiteJobCategory }} in production and hiring Go engineers{{ if .LocationFilter }} in {{.LocationFilter}}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
-		<meta property="og:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
+		<meta property="og:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 		<meta name="twitter:card" content="summary_large_image">
 		<meta name="twitter:title" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
 		<meta name="twitter:description" content="Companies Using {{ .SiteJobCategory }} in production and hiring Go engineers{{ if .LocationFilter }}{{.LocationFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<link rel="canonical" href="https://{{ .SiteHost }}/Companies-Using-{{ .SiteJobCategoryURLEncoded }}{{ if .LocationFilter }}-In-{{.LocationFilter}}{{ end }}" />
 		{{ end }}
-		<meta name="twitter:image" content="https://{{ .SiteHost }}/s/img/banner.jpg">
+		<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 		<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
 		<meta name="google-site-verification" content="CsoJdYDgMeIeUO0ylZtiDUb4-VZvb2tCpLTkq3GglVo" />
 		<meta name="msvalidate.01" content="E75D7CB7D078DD8E9C2FBA8C285CD656" />

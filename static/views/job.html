@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
 	<title>{{ .Job.JobTitle }} at {{ .Job.Company }} - {{ .MonthAndYear }}</title>
-    <link href="/s/img/favicon.ico" rel="shortcut icon">
+    <link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <style type="text/css">
 body{background:#ffffff;}
@@ -242,16 +242,16 @@ background-color: #FF6600
     <meta name="description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}" />
     <meta itemprop="name" content="{{ .Job.JobTitle }} at {{ .Job.Company }}">
     <meta itemprop="description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
-    <meta itemprop="image" content="{{ if .Job.CompanyIconID }}https://{{ .SiteHost }}/x/s/m/{{ .Job.CompanyIconID }}?w=200&h=200{{ else }}https://{{ .SiteHost }}/s/img/banner.jpg{{ end }}">
+    <meta itemprop="image" content="{{ if .Job.CompanyIconID }}https://{{ .SiteHost }}/x/s/m/{{ .Job.CompanyIconID }}?w=200&h=200{{ else }}https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}{{ end }}">
     <meta property="og:url" content="https://{{ .SiteHost }}/job/{{ .Job.Slug }}">
     <meta property="og:type" content="website">
     <meta property="og:title" content="{{ .Job.JobTitle }} at {{ .Job.Company }}">
     <meta property="og:description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
-    <meta property="og:image" content="{{ if .Job.CompanyIconID }}https://{{ .SiteHost }}/x/s/m/{{ .Job.CompanyIconID }}?w=200&h=200{{ else }}https://{{ .SiteHost }}/s/img/banner.jpg{{ end }}">
+    <meta property="og:image" content="{{ if .Job.CompanyIconID }}https://{{ .SiteHost }}/x/s/m/{{ .Job.CompanyIconID }}?w=200&h=200{{ else }}https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}{{ end }}">
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="{{ .Job.JobTitle }} at {{ .Job.Company }}">
     <meta name="twitter:description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
-    <meta name="twitter:image" content="{{ if .Job.CompanyIconID }}https://{{ .SiteHost }}/x/s/m/{{ .Job.CompanyIconID }}?w=200&h=200{{ else }}https://{{ .SiteHost }}/s/img/banner.jpg{{ end }}">
+    <meta name="twitter:image" content="{{ if .Job.CompanyIconID }}https://{{ .SiteHost }}/x/s/m/{{ .Job.CompanyIconID }}?w=200&h=200{{ else }}https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}{{ end }}">
     <meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
     <link rel="canonical" href="https://{{ .SiteHost }}/job/{{ .Job.Slug }}" />
   </head>

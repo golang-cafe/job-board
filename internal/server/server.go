@@ -1001,6 +1001,7 @@ func (s Server) Render(w http.ResponseWriter, status int, htmlView string, data 
 	dataMap["SiteTelegramChannel"] = s.GetConfig().SiteTelegramChannel
 	dataMap["PrimaryColor"] = s.GetConfig().PrimaryColor
 	dataMap["SecondaryColor"] = s.GetConfig().SecondaryColor
+	dataMap["SiteLogoImageID"] = s.GetConfig().SiteLogoImageID
 	dataMap["MonthAndYear"] = time.Now().UTC().Format("January 2006")
 
 	return s.tmpl.Render(w, status, htmlView, dataMap)
