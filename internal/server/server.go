@@ -917,20 +917,29 @@ func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		s.Log(err, "could not find ip address in x-forwarded-for, defaulting currency to USD")
 	}
+	var defaultJobPageviewsLast30Days = 25000
+	var defaultJobApplicantsLast30Days = 8000
+	var defaultPageviewsLast30Days = 100000
 	pageviewsLast30Days, err := database.GetWebsitePageViewsLast30Days(s.Conn)
 	if err != nil {
 		s.Log(err, "could not retrieve pageviews for last 30 days")
-		pageviewsLast30Days = 100000
+	}
+	if pageviewsLast30Days < defaultJobPageviewsLast30Days {
+		pageviewsLast30Days = defaultJobPageviewsLast30Days
 	}
 	jobPageviewsLast30Days, err := database.GetJobPageViewsLast30Days(s.Conn)
 	if err != nil {
 		s.Log(err, "could not retrieve job pageviews for last 30 days")
-		jobPageviewsLast30Days = 25000
+	}
+	if jobPageviewsLast30Days < defaultPageviewsLast30Days {
+		jobPageviewsLast30Days = defaultPageviewsLast30Days
 	}
 	jobApplicantsLast30Days, err := database.GetJobClickoutsLast30Days(s.Conn)
 	if err != nil {
 		s.Log(err, "could not retrieve job clickouts for last 30 days")
-		jobApplicantsLast30Days = 8000
+	}
+	if jobApplicantsLast30Days < defaultJobApplicantsLast30Days {
+		jobApplicantsLast30Days = defaultJobApplicantsLast30Days
 	}
 	featuredCompanies, err := companyRepo.FeaturedCompaniesPostAJob()
 	if err != nil {
