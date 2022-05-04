@@ -24,7 +24,6 @@ type Config struct {
 	Env                          string // either prod or dev, will disable https and few other bits
 	IPGeoLocationGeoliteFile     string
 	IPGeoLocationCurrencyMapFile string
-	SentryDSN                    string
 	JobsPerPage                  int // configures how many jobs are shown per page result
 	DevelopersPerPage            int // configures how many dev profiles are shown per page result
 	CompaniesPerPage             int // configures how many companies are shown per page result
@@ -115,10 +114,6 @@ func LoadConfig() (Config, error) {
 	supportEmail := os.Getenv("SUPPORT_EMAIL")
 	if supportEmail == "" {
 		return Config{}, fmt.Errorf("SUPPORT_EMAIL cannot be empty")
-	}
-	sentryDSN := os.Getenv("SENTRY_DSN")
-	if sentryDSN == "" {
-		return Config{}, fmt.Errorf("SENTRY_DSN cannot be empty")
 	}
 	twitterAccessToken := os.Getenv("TWITTER_ACCESS_TOKEN")
 	if twitterAccessToken == "" {
@@ -224,7 +219,6 @@ func LoadConfig() (Config, error) {
 		Env:                          env,
 		IPGeoLocationCurrencyMapFile: ipGeolocationCurrencyMapFile,
 		IPGeoLocationGeoliteFile:     ipGeolocationGeoliteFile,
-		SentryDSN:                    sentryDSN,
 		JobsPerPage:                  10,
 		DevelopersPerPage:            10,
 		CompaniesPerPage:             10,
