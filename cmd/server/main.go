@@ -357,22 +357,22 @@ func main() {
 
 	// Skill And Location Landing Page
 	svr.RegisterRoute(
-		fmt.Sprintf("/%s-{skill}-Jobs-In-{location}", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
-		[]string{"GET"},
-	)
-	svr.RegisterRoute(
-		fmt.Sprintf("/%s-{skill}-Jobs-in-{location}", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
-		[]string{"GET"},
-	)
-	svr.RegisterRoute(
 		fmt.Sprintf("/%s-{skill}-Jobs-In-{location}-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
 		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-{skill}-Jobs-in-{location}-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-{skill}-Jobs-In-{location}", strings.Title(cfg.SiteJobCategory)),
+		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/%s-{skill}-Jobs-in-{location}", strings.Title(cfg.SiteJobCategory)),
 		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
 		[]string{"GET"},
 	)
