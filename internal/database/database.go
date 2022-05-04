@@ -255,6 +255,9 @@ func CountEmailSubscribers(conn *sql.DB) (int, error) {
 	row := conn.QueryRow(`SELECT count(*) FROM email_subscribers WHERE confirmed_at IS NOT NULL`)
 	var count int
 	err := row.Scan(&count)
+	if count < 100 {
+		count = 100
+	}
 	return count, err
 }
 
