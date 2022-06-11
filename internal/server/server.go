@@ -919,7 +919,7 @@ func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request
 	}
 	var defaultJobPageviewsLast30Days = 25000
 	var defaultJobApplicantsLast30Days = 8000
-	var defaultPageviewsLast30Days = 100000
+	var defaultPageviewsLast30Days = 10000
 	pageviewsLast30Days, err := database.GetWebsitePageViewsLast30Days(s.Conn)
 	if err != nil {
 		s.Log(err, "could not retrieve pageviews for last 30 days")
