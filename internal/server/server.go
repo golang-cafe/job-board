@@ -917,9 +917,9 @@ func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request
 	if err != nil {
 		s.Log(err, "could not find ip address in x-forwarded-for, defaulting currency to USD")
 	}
-	var defaultJobPageviewsLast30Days = 25000
-	var defaultJobApplicantsLast30Days = 8000
-	var defaultPageviewsLast30Days = 10000
+	var defaultJobPageviewsLast30Days = 15000
+	var defaultJobApplicantsLast30Days = 1000
+	var defaultPageviewsLast30Days = 4000
 	pageviewsLast30Days, err := database.GetWebsitePageViewsLast30Days(s.Conn)
 	if err != nil {
 		s.Log(err, "could not retrieve pageviews for last 30 days")
