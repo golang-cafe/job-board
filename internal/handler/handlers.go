@@ -253,57 +253,67 @@ func TriggerFXRateUpdate(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobRepo *job.Repository, blogRepo *blog.Repository) http.HandlerFunc {
+func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobRepo *job.Repository, blogRepo *blog.Repository, companyRepo *company.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
+				fmt.Println("generating sitemap")
 				database.SaveSEOSkillFromCompany(svr.Conn)
 				landingPages, err := seo.GenerateSearchSEOLandingPages(svr.Conn, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GenerateSearchSEOLandingPages")
 					return
 				}
+				fmt.Println("generating post a job landing page")
 				postAJobLandingPages, err := seo.GeneratePostAJobSEOLandingPages(svr.Conn, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GeneratePostAJobSEOLandingPages")
 					return
 				}
+				fmt.Println("generating salary landing page")
 				salaryLandingPages, err := seo.GenerateSalarySEOLandingPages(svr.Conn, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GenerateSalarySEOLandingPages")
 					return
 				}
+				fmt.Println("generating companies landing page")
 				companyLandingPages, err := seo.GenerateCompaniesLandingPages(svr.Conn, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GenerateCompaniesLandingPages")
 					return
 				}
+				fmt.Println("generating dev skill landing pages")
 				developerSkillsPages, err := seo.GenerateDevelopersSkillLandingPages(devRepo, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersSkillLandingPages")
 					return
 				}
+				fmt.Println("generating dev profile landing pages")
 				developerProfilePages, err := seo.GenerateDevelopersProfileLandingPages(devRepo)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
 					return
 				}
-				companyProfilePages, err := seo.GenerateDevelopersProfileLandingPages(devRepo)
+				fmt.Println("generating company profile landing page")
+				companyProfilePages, err := seo.GenerateCompanyProfileLandingPages(companyRepo)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersProfileLandingPages")
 					return
 				}
+				fmt.Println("generating dev location pages")
 				developerLocationPages, err := seo.GenerateDevelopersLocationPages(svr.Conn, svr.GetConfig().SiteJobCategory)
 				if err != nil {
 					svr.Log(err, "seo.GenerateDevelopersLocationPages")
 					return
 				}
+				fmt.Println("generating blog pages")
 				blogPosts, err := seo.BlogPages(blogRepo)
 				if err != nil {
 					svr.Log(err, "seo.BlogPages")
 					return
 				}
+				fmt.Println("generating static pages")
 				pages := seo.StaticPages(svr.GetConfig().SiteJobCategory)
 				jobPosts, err := jobRepo.JobPostByCreatedAt()
 				if err != nil {
@@ -314,6 +324,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				database.CreateTmpSitemapTable(svr.Conn)
 				for _, j := range jobPosts {
+					fmt.Println("job post page generating...")
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
 						Loc:        fmt.Sprintf(`https://%s/job/%s`, svr.GetConfig().SiteHost, j.Slug),
 						LastMod:    time.Unix(j.CreatedAt, 0),
@@ -324,6 +335,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 				}
 
 				for _, b := range blogPosts {
+					fmt.Println("blog post page generating...")
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
 						Loc:        fmt.Sprintf(`https://%s/blog/%s`, svr.GetConfig().SiteHost, b.Path),
 						LastMod:    n,
@@ -334,6 +346,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 				}
 
 				for _, p := range pages {
+					fmt.Println("static page generating...")
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
 						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
@@ -343,7 +356,8 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 					}
 				}
 
-				for _, p := range postAJobLandingPages {
+				for i, p := range postAJobLandingPages {
+					fmt.Println("post a job landing page generating...", i, len(postAJobLandingPages))
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
 						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
@@ -353,7 +367,8 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 					}
 				}
 
-				for _, p := range salaryLandingPages {
+				for i, p := range salaryLandingPages {
+					fmt.Println("salary landing page generating...", i, len(salaryLandingPages))
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
 						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
@@ -363,7 +378,8 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 					}
 				}
 
-				for _, p := range landingPages {
+				for i, p := range landingPages {
+					fmt.Println("landing page generating...", i, len(landingPages))
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
 						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p.URI),
 						LastMod:    n,
@@ -421,6 +437,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 						svr.Log(err, fmt.Sprintf("database.SaveSitemapEntry: %s", p))
 					}
 				}
+				fmt.Println("swapping sitemap table")
 				if err := database.SwapSitemapTable(svr.Conn); err != nil {
 					svr.Log(err, "database.SwapSitemapTable")
 				}
