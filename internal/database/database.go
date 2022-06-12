@@ -811,7 +811,7 @@ func GetSitemapIndex(conn *sql.DB, siteHost string) ([]SitemapEntry, error) {
 		return entries, err
 	}
 	slots := math.Ceil(float64(count) / float64(SitemapSize))
-	for i := 0; i <= int(slots); i++ {
+	for i := 1; i <= int(slots); i++ {
 		entries = append(entries, SitemapEntry{
 			Loc:     fmt.Sprintf("https://%s/sitemap-%d.xml", siteHost, i),
 			LastMod: lastMod,
