@@ -407,8 +407,10 @@ header{padding:0 10px;width:780px;margin:auto;}
 			<h4 style="margin-left: 9px;">{{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs within {{ .CountryFromDB }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }}</h4>
 			<nav class="subnav">
 				<ul>
+					{{ $siteJobCatEnc := .SiteJobCategoryURLEncoded }}
+					{{ $siteJobCat := .SiteJobCategory }}
 					{{ range $i, $j := .RelatedLocations }}
-					<li><a href="/{{ .SiteJobCategoryURLEncoded }}-Jobs-In-{{ $j }}">{{ .SiteJobCategory }} Jobs in {{ $j }}</a></li>
+					<li><a href="/{{ $siteJobCatEnc }}-Jobs-In-{{ $j }}">{{ $siteJobCat }} Jobs in {{ $j }}</a></li>
 					{{ end }}
 				</ul>
 			</nav>
