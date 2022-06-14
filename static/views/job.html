@@ -376,6 +376,7 @@ background-color: #FF6600
         {{ if .RelevantJobs }}
 	<h3>Other {{ .SiteJobCategory }} Jobs</h3>
 	{{ end }}
+	  {{ $siteJobCatEnc := .SiteJobCategoryURLEnc }}
           {{ range $i, $j := .RelevantJobs }}
               <article class="line-item">
                   {{ if .CompanyIconID }}
@@ -383,7 +384,7 @@ background-color: #FF6600
                   {{ end }}
                   <div style="float: left;">
 			  <a href="/job/{{ .Slug }}" target="_blank"><b>{{ .JobTitle }}</b><br />
-				  <a style="font-size:12pt;" href="/{{ .SiteJobCategoryURLEncoded }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
+				  <a style="font-size:12pt;" href="/{{ $siteJobCatEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
 		  <b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
                   <br />
                   <small>{{ .TimeAgo }}</small>
