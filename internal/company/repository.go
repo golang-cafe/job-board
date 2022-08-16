@@ -190,9 +190,9 @@ func (r *Repository) CompanyExists(company string) (bool, error) {
 	return false, err
 }
 
-func (r *Repository) DeleteStaleImages() error {
-	stmt := `DELETE FROM image WHERE id NOT IN (SELECT company_icon_image_id FROM job WHERE company_icon_image_id IS NOT NULL) AND id NOT IN (SELECT icon_image_id FROM company) AND id NOT IN (SELECT image_id FROM developer_profile)`
-	_, err := r.db.Exec(stmt)
+func (r *Repository) DeleteStaleImages(logoID string) error {
+	stmt := `DELETE FROM image WHERE id NOT IN (SELECT company_icon_image_id FROM job WHERE company_icon_image_id IS NOT NULL) AND id NOT IN (SELECT icon_image_id FROM company) AND id NOT IN (SELECT image_id FROM developer_profile) AND id NOT IN ($1)`
+	_, err := r.db.Exec(stmt, logoID)
 	return err
 }
 

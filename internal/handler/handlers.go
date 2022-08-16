@@ -965,7 +965,7 @@ func TriggerCompanyUpdate(svr server.Server, companyRepo *company.Repository) ht
 					}
 					log.Println(c.Name)
 				}
-				if err := companyRepo.DeleteStaleImages(); err != nil {
+				if err := companyRepo.DeleteStaleImages(svr.GetConfig().SiteLogoImageID); err != nil {
 					svr.Log(err, "companyRepo.DeleteStaleImages")
 					return
 				}

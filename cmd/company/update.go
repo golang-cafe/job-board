@@ -133,7 +133,7 @@ func main() {
 		}
 		log.Println(c.Name)
 	}
-	if err := companyRepo.DeleteStaleImages(); err != nil {
+	if err := companyRepo.DeleteStaleImages(cfg.SiteLogoImageID); err != nil {
 		log.Fatal(err)
 	}
 }
