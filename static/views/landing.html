@@ -6,7 +6,7 @@
 		{{ $tagFilterNotSet := not .TagFilter }}
 		{{ if and .LocationFilter $isRemote }}
 		<title>Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter}} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
-		<link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="shortcut icon">
+		<link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="icon">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="title" content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}" />
 		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} {{ .LocationFilter }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} engineer, {{ .SiteJobCategory }} software engineer, remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }}{{ end }}" />
@@ -25,7 +25,7 @@
 		<link rel="canonical" href="https://{{ .SiteHost }}/Remote-{{ if .TagFilter }}{{.TagFilter}}-{{ end }}Jobs" />
 		{{ else }}
 		<title>{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}}{{ end }} Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
-		<link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="shortcut icon">
+		<link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="icon">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta name="title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter }}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}" />
 		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} {{ .LocationFilter }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} engineer, {{ .SiteJobCategory }} software engineer, {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}}{{ end }}" />
