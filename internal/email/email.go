@@ -30,13 +30,17 @@ type Address struct {
 }
 
 type EmailMessage struct {
-	Sender      Address     `json:"sender"`
-	To          []Address   `json:"to"`
-	Subject     string      `json:"subject"`
-	ReplyTo     Address     `json:"replyTo,omitempty"`
-	TextContent string      `json:"textContent,omitempty"`
-	HtmlContent string      `json:"htmlContent,omitempty"`
-	Attachment  *Attachment `json:"attachment,omitempty"`
+	Sender      Address   `json:"sender"`
+	To          []Address `json:"to"`
+	Subject     string    `json:"subject"`
+	ReplyTo     Address   `json:"replyTo,omitempty"`
+	TextContent string    `json:"textContent,omitempty"`
+	HtmlContent string    `json:"htmlContent,omitempty"`
+}
+
+type EmailMessageWithAttachment struct {
+	EmailMessage
+	Attachment []Attachment `json:"attachment,omitempty"`
 }
 
 func NewClient(apiKey, senderAddress, noReplyAddress, siteName string) (Client, error) {
@@ -102,16 +106,18 @@ func (e Client) SendHTMLEmail(from, to, replyTo Address, subject, text string) e
 }
 
 func (e Client) SendEmailWithPDFAttachment(from, to, replyTo Address, subject, text string, attachment []byte, fileName string) error {
-	msg := EmailMessage{
-		Sender:      from,
-		ReplyTo:     replyTo,
-		Subject:     subject,
-		To:          []Address{to},
-		HtmlContent: text,
-		Attachment: &Attachment{
+	msg := EmailMessageWithAttachment{
+		EmailMessage: EmailMessage{
+			Sender:      from,
+			ReplyTo:     replyTo,
+			Subject:     subject,
+			To:          []Address{to},
+			HtmlContent: text,
+		},
+		Attachment: []Attachment{{
 			Name:    fileName,
 			B64Data: base64.StdEncoding.EncodeToString(attachment),
-		},
+		}},
 	}
 	reqData, err := json.Marshal(msg)
 	if err != nil {
