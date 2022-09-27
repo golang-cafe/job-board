@@ -17,8 +17,10 @@ type Config struct {
 	StripeEndpointSecret         string // stripe endpoint webhook secret token
 	StripePublishableKey         string // stripe publishable API key
 	EmailAPIKey                  string // sparkpost email API Key
+	Email2APIKey                 string // sparkpost email API Key
 	AdminEmail                   string // used to log on to the management dashboard
 	SupportEmail                 string // displayed on the site for support queries
+	NoReplyEmail                 string // used for transactional emails
 	SessionKey                   []byte
 	JwtSigningKey                []byte
 	Env                          string // either prod or dev, will disable https and few other bits
@@ -52,7 +54,7 @@ type Config struct {
 	SiteTelegramChannel          string
 	PrimaryColor                 string
 	SecondaryColor               string
-	SiteLogoImageID string
+	SiteLogoImageID              string
 }
 
 func LoadConfig() (Config, error) {
@@ -79,6 +81,10 @@ func LoadConfig() (Config, error) {
 	emailAPIKey := os.Getenv("EMAIL_API_KEY")
 	if emailAPIKey == "" {
 		return Config{}, fmt.Errorf("EMAIL_API_KEY cannot be empty")
+	}
+	email2APIKey := os.Getenv("EMAIL2_API_KEY")
+	if email2APIKey == "" {
+		return Config{}, fmt.Errorf("EMAIL2_API_KEY cannot be empty")
 	}
 	env := strings.ToLower(os.Getenv("ENV"))
 	if env == "" {
@@ -115,6 +121,10 @@ func LoadConfig() (Config, error) {
 	supportEmail := os.Getenv("SUPPORT_EMAIL")
 	if supportEmail == "" {
 		return Config{}, fmt.Errorf("SUPPORT_EMAIL cannot be empty")
+	}
+	noReplyEmail := os.Getenv("NO_REPLY_EMAIL")
+	if noReplyEmail == "" {
+		return Config{}, fmt.Errorf("NO_REPLY_EMAIL cannot be empty")
 	}
 	twitterAccessToken := os.Getenv("TWITTER_ACCESS_TOKEN")
 	if twitterAccessToken == "" {
@@ -217,8 +227,10 @@ func LoadConfig() (Config, error) {
 		StripeEndpointSecret:         stripeEndpointSecret,
 		StripePublishableKey:         stripePublishableKey,
 		EmailAPIKey:                  emailAPIKey,
+		Email2APIKey:                 email2APIKey,
 		AdminEmail:                   adminEmail,
 		SupportEmail:                 supportEmail,
+		NoReplyEmail:                 noReplyEmail,
 		SessionKey:                   sessionKeyBytes,
 		JwtSigningKey:                jwtSigningKeyBytes,
 		Env:                          env,
