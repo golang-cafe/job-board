@@ -1,122 +1,138 @@
 package email
 
 import (
+	"bytes"
 	"encoding/base64"
+	"encoding/json"
+	"errors"
 	"fmt"
-
-	sp "github.com/SparkPost/gosparkpost"
+	"io/ioutil"
+	"net/http"
 )
 
 type Client struct {
-	client        sp.Client
-	senderAddress string
-	siteName      string
+	senderAddress  string
+	noReplyAddress string
+	siteName       string
+	client         http.Client
+	apiKey         string
+	baseURL        string
 }
 
-func NewClient(apiKey, senderAddress, siteName string) (Client, error) {
-	cfg := &sp.Config{
-		BaseUrl:    "https://api.eu.sparkpost.com",
-		ApiKey:     apiKey,
-		ApiVersion: 1,
-	}
-	var client sp.Client
-	err := client.Init(cfg)
-	if err != nil {
-		return Client{}, err
-	}
+type Attachment struct {
+	Name    string `json:"name"`
+	B64Data string `json:"content"`
+}
 
-	return Client{client: client, senderAddress: senderAddress, siteName: siteName}, nil
+type Address struct {
+	Name  string `json:"name,omitempty"`
+	Email string `json:"email,omitempty"`
+}
+
+type EmailMessage struct {
+	Sender      Address     `json:"sender"`
+	To          []Address   `json:"to"`
+	Subject     string      `json:"subject"`
+	ReplyTo     Address     `json:"replyTo,omitempty"`
+	TextContent string      `json:"textContent,omitempty"`
+	HtmlContent string      `json:"htmlContent,omitempty"`
+	Attachment  *Attachment `json:"attachment,omitempty"`
+}
+
+func NewClient(apiKey, senderAddress, noReplyAddress, siteName string) (Client, error) {
+	return Client{
+		client:         *http.DefaultClient,
+		apiKey:         apiKey,
+		senderAddress:  senderAddress,
+		siteName:       siteName,
+		noReplyAddress: noReplyAddress,
+		baseURL:        "https://api.sendinblue.com"}, nil
 }
 
 func (e Client) DefaultReplyTo() string {
 	return e.senderAddress
 }
 
-func (e Client) DefaultSender() string {
-	return fmt.Sprintf("%s <%s>", e.siteName, e.senderAddress)
+func (e Client) DefaultSenderName() string {
+	return e.siteName
+}
+
+func (e Client) SupportSenderAddress() string {
+	return e.senderAddress
+}
+
+func (e Client) NoReplySenderAddress() string {
+	return e.noReplyAddress
 }
 
 func (e Client) DefaultAdminAddress() string {
 	return e.senderAddress
 }
 
-func (e Client) SendEmail(from, to, replyTo, subject, text string) error {
-	if replyTo == "" {
-		replyTo = from
+func (e Client) SendHTMLEmail(from, to, replyTo Address, subject, text string) error {
+	msg := EmailMessage{
+		Sender:      from,
+		ReplyTo:     replyTo,
+		Subject:     subject,
+		To:          []Address{to},
+		HtmlContent: text,
 	}
-	tx := &sp.Transmission{
-		Recipients: []string{to},
-		Content: sp.Content{
-			Text:    text,
-			From:    from,
-			Subject: subject,
-			ReplyTo: replyTo,
-		},
-		Options: &sp.TxOptions{
-			TmplOptions: sp.TmplOptions{
-				ClickTracking: new(bool),
-				OpenTracking:  new(bool),
-			},
-		},
-	}
-	_, _, err := e.client.Send(tx)
+	reqData, err := json.Marshal(msg)
 	if err != nil {
 		return err
+	}
+	req, err := http.NewRequest(http.MethodPost, e.baseURL+"/v3/smtp/email", bytes.NewReader(reqData))
+	if err != nil {
+		return err
+	}
+	req.Header.Add("api-key", e.apiKey)
+	req.Header.Add("content-type", "application/json")
+	res, err := e.client.Do(req)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode >= http.StatusBadRequest {
+		errBody, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			errBody = []byte(`unable to read body`)
+		}
+		return errors.New(fmt.Sprintf("got status code %d when sending email: err %s", res.StatusCode, string(errBody)))
 	}
 	return nil
 }
 
-func (e Client) SendHTMLEmail(from, to, replyTo, subject, text string) error {
-	if replyTo == "" {
-		replyTo = from
-	}
-	tx := &sp.Transmission{
-		Recipients: []string{to},
-		Content: sp.Content{
-			HTML:    text,
-			From:    from,
-			Subject: subject,
-			ReplyTo: replyTo,
-		},
-		Options: &sp.TxOptions{
-			TmplOptions: sp.TmplOptions{
-				ClickTracking: new(bool),
-				OpenTracking:  new(bool),
-			},
+func (e Client) SendEmailWithPDFAttachment(from, to, replyTo Address, subject, text string, attachment []byte, fileName string) error {
+	msg := EmailMessage{
+		Sender:      from,
+		ReplyTo:     replyTo,
+		Subject:     subject,
+		To:          []Address{to},
+		HtmlContent: text,
+		Attachment: &Attachment{
+			Name:    fileName,
+			B64Data: base64.StdEncoding.EncodeToString(attachment),
 		},
 	}
-	_, _, err := e.client.Send(tx)
+	reqData, err := json.Marshal(msg)
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func (e Client) SendEmailWithPDFAttachment(from, to, replyTo, subject, text string, attachment []byte, fileName string) error {
-	a := sp.Attachment{
-		MIMEType: "application/pdf",
-		Filename: fileName,
-		B64Data:  base64.StdEncoding.EncodeToString(attachment),
-	}
-	tx := &sp.Transmission{
-		Recipients: []string{to},
-		Content: sp.Content{
-			Text:        text,
-			From:        from,
-			Subject:     subject,
-			ReplyTo:     replyTo,
-			Attachments: []sp.Attachment{a},
-		},
-		Options: &sp.TxOptions{
-			TmplOptions: sp.TmplOptions{
-				ClickTracking: new(bool),
-				OpenTracking:  new(bool),
-			},
-		},
-	}
-	_, _, err := e.client.Send(tx)
+	req, err := http.NewRequest(http.MethodPost, e.baseURL+"/v3/smtp/email", bytes.NewReader(reqData))
 	if err != nil {
 		return err
+	}
+	req.Header.Add("api-key", e.apiKey)
+	req.Header.Add("content-type", "application/json")
+	res, err := e.client.Do(req)
+	if err != nil {
+		return err
+	}
+	if res.StatusCode >= http.StatusBadRequest {
+		errBody, err := ioutil.ReadAll(res.Body)
+		if err != nil {
+			errBody = []byte(`unable to read body`)
+		}
+		return errors.New(fmt.Sprintf("got status code %d when sending email: err %s", res.StatusCode, string(errBody)))
 	}
 	return nil
 }

@@ -27,6 +27,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/database"
 	"github.com/golang-cafe/job-board/internal/developer"
+	"github.com/golang-cafe/job-board/internal/email"
 	"github.com/golang-cafe/job-board/internal/imagemeta"
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/middleware"
@@ -175,10 +176,10 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		err = svr.GetEmail().SendEmail(
-			svr.GetEmail().DefaultSender(),
-			req.Email,
-			svr.GetEmail().DefaultReplyTo(),
+		err = svr.GetEmail().SendHTMLEmail(
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: req.Email},
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 			fmt.Sprintf("Verify Your Developer Profile on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
 				"Verify Your Developer Profile on %s https://%s/x/auth/%s?next=%s",
@@ -691,9 +692,9 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 
 				for _, s := range subscribers {
 					err = svr.GetEmail().SendHTMLEmail(
-						svr.GetEmail().DefaultSender(),
-						s.Email,
-						svr.GetEmail().DefaultReplyTo(),
+						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+						email.Address{Email: s.Email},
+						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobPosts)),
 						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
 					)
@@ -795,10 +796,10 @@ func TriggerMonthlyHighlights(svr server.Server, jobRepo *job.Repository) http.H
 🌎 %s pageviews last month
 💼 %s jobs viewed last month
 `, newJobsLastMonthText, jobApplicantsLast30DaysText, pageviewsLast30DaysText, jobPageviewsLast30DaysText)
-				err = svr.GetEmail().SendEmail(
-					svr.GetEmail().DefaultSender(),
-					svr.GetEmail().DefaultAdminAddress(),
-					svr.GetEmail().DefaultReplyTo(),
+				err = svr.GetEmail().SendHTMLEmail(
+					email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+					email.Address{Email: svr.GetEmail().DefaultAdminAddress()},
+					email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 					fmt.Sprintf("%s Monthly Highlights", svr.GetConfig().SiteName),
 					highlights,
 				)
@@ -992,10 +993,10 @@ func TriggerAdsManager(svr server.Server, jobRepo *job.Repository) http.HandlerF
 						svr.Log(err, fmt.Sprintf("unable to retrieve token for job id %d and email %s", j.ID, j.CompanyEmail))
 						continue
 					} else {
-						err = svr.GetEmail().SendEmail(
-							svr.GetEmail().DefaultSender(),
-							j.CompanyEmail,
-							svr.GetEmail().DefaultReplyTo(),
+						err = svr.GetEmail().SendHTMLEmail(
+							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
+							email.Address{Email: j.CompanyEmail},
+							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 							fmt.Sprintf("Your Job Ad on %s Has Expired", svr.GetConfig().SiteName),
 							fmt.Sprintf(
 								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://%s/edit/%s?expired=1", svr.GetConfig().SiteHost, jobToken,
@@ -1022,10 +1023,10 @@ func TriggerAdsManager(svr server.Server, jobRepo *job.Repository) http.HandlerF
 						svr.Log(err, fmt.Sprintf("unable to retrieve toke for job id %d and email %s", j.ID, j.CompanyEmail))
 						continue
 					} else {
-						err = svr.GetEmail().SendEmail(
-							svr.GetEmail().DefaultSender(),
-							j.CompanyEmail,
-							svr.GetEmail().DefaultReplyTo(),
+						err = svr.GetEmail().SendHTMLEmail(
+							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
+							email.Address{Email: j.CompanyEmail},
+							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 							fmt.Sprintf("Your Job Ad on %s Has Expired", svr.GetConfig().SiteName),
 							fmt.Sprintf(
 								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://%s/edit/%s?expired=1", svr.GetConfig().SiteHost, jobToken,
@@ -1051,10 +1052,10 @@ func TriggerAdsManager(svr server.Server, jobRepo *job.Repository) http.HandlerF
 						svr.Log(err, fmt.Sprintf("unable to retrieve toke for job id %d and email %s", j.ID, j.CompanyEmail))
 						continue
 					} else {
-						err = svr.GetEmail().SendEmail(
-							svr.GetEmail().DefaultSender(),
-							j.CompanyEmail,
-							svr.GetEmail().DefaultReplyTo(),
+						err = svr.GetEmail().SendHTMLEmail(
+							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
+							email.Address{Email: j.CompanyEmail},
+							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 							fmt.Sprintf("Your Job Ad on %s Has Expired", svr.GetConfig().SiteName),
 							fmt.Sprintf(
 								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://%s/edit/%s?expired=1", svr.GetConfig().SiteHost, jobToken,
@@ -1221,8 +1222,8 @@ func RemoveEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
 
 func AddEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		email := strings.ToLower(r.URL.Query().Get("email"))
-		if !svr.IsEmail(email) {
+		emailStr := strings.ToLower(r.URL.Query().Get("email"))
+		if !svr.IsEmail(emailStr) {
 			svr.Log(errors.New("invalid email"), "request email is not a valid email")
 			svr.JSON(w, http.StatusBadRequest, "invalid email provided")
 			return
@@ -1233,16 +1234,16 @@ func AddEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = database.AddEmailSubscriber(svr.Conn, email, k.String())
+		err = database.AddEmailSubscriber(svr.Conn, emailStr, k.String())
 		if err != nil {
 			svr.Log(err, "unable to add email subscriber to db")
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		err = svr.GetEmail().SendEmail(
-			svr.GetEmail().DefaultSender(),
-			email,
-			svr.GetEmail().DefaultReplyTo(),
+		err = svr.GetEmail().SendHTMLEmail(
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: emailStr},
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 			fmt.Sprintf("Confirm Your Email Subscription on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
 				"Please click on the link below to confirm your subscription to receive weekly emails from %s\n\n%s\n\nIf this was not requested by you, please ignore this email.",
@@ -1305,10 +1306,10 @@ func SendMessageDeveloperProfileHandler(svr server.Server, devRepo *developer.Re
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		err = svr.GetEmail().SendEmail(
-			svr.GetEmail().DefaultSender(),
-			req.Email,
-			dev.Email,
+		err = svr.GetEmail().SendHTMLEmail(
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: req.Email},
+			email.Address{Email: dev.Email},
 			fmt.Sprintf("Confirm Your Message on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
 				"You have sent a message through %s: \n\nMessage: %s\n\nPlease follow this link to confirm and deliver your message: %s\n\nIf this was not requested by you, you can ignore this email.",
@@ -1359,15 +1360,15 @@ func DeliverMessageDeveloperProfileHandler(svr server.Server, devRepo *developer
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		messageID := vars["id"]
-		message, email, err := devRepo.MessageForDeliveryByID(messageID)
+		message, emailStr, err := devRepo.MessageForDeliveryByID(messageID)
 		if err != nil {
 			svr.JSON(w, http.StatusBadRequest, "Your link may be invalid or expired")
 			return
 		}
-		err = svr.GetEmail().SendEmail(
-			svr.GetEmail().DefaultSender(),
-			email,
-			message.Email,
+		err = svr.GetEmail().SendHTMLEmail(
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: emailStr},
+			email.Address{Email: message.Email},
 			fmt.Sprintf("New Message from %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
 				"You received a new message from %s: \n\nMessage: %s\n\nFrom: %s",
@@ -1580,10 +1581,10 @@ func SendFeedbackMessage(svr server.Server) http.HandlerFunc {
 		}
 		err := svr.
 			GetEmail().
-			SendEmail(
-				svr.GetEmail().DefaultSender(),
-				svr.GetEmail().DefaultAdminAddress(),
-				req.Email,
+			SendHTMLEmail(
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+				email.Address{Email: svr.GetEmail().DefaultAdminAddress()},
+				email.Address{Email: req.Email},
 				"New Feedback Message",
 				fmt.Sprintf("From: %s\nMessage: %s", req.Email, req.Message),
 			)
@@ -1626,10 +1627,10 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.Handl
 		if next != "" {
 			token += "?next=" + next
 		}
-		err = svr.GetEmail().SendEmail(
-			svr.GetEmail().DefaultSender(),
-			req.Email,
-			svr.GetEmail().DefaultReplyTo(),
+		err = svr.GetEmail().SendHTMLEmail(
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: req.Email},
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 			fmt.Sprintf("Sign On on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf("Sign On on %s https://%s/x/auth/%s", svr.GetConfig().SiteName, svr.GetConfig().SiteHost, token))
 		if err != nil {
@@ -1993,10 +1994,10 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 					svr.JSON(w, http.StatusBadRequest, nil)
 					return
 				}
-				err = svr.GetEmail().SendEmail(
-					svr.GetEmail().DefaultSender(),
-					purchaseEvent.Email,
-					svr.GetEmail().DefaultReplyTo(),
+				err = svr.GetEmail().SendHTMLEmail(
+					email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
+					email.Address{Email: purchaseEvent.Email},
+					email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 					fmt.Sprintf("Your Job Ad on %s", svr.GetConfig().SiteName),
 					fmt.Sprintf("Your Job Ad has been upgraded successfully and it's now pinned to the home page. You can edit the Job Ad at any time and check page views and clickouts by following this link https://%s/edit/%s", svr.GetConfig().SiteHost, jobToken))
 				if err != nil {
@@ -2222,7 +2223,22 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = svr.GetEmail().SendEmail(svr.GetEmail().DefaultSender(), emailAddr, svr.GetEmail().DefaultReplyTo(), fmt.Sprintf("Confirm your job application with %s", jobPost.Company), fmt.Sprintf("Thanks for applying for the position %s with %s - %s (https://%s/job/%s). You application request, your email and your CV will expire in 72 hours and will be permanently deleted from the system. Please confirm your application now by following this link https://%s/apply/%s", jobPost.JobTitle, jobPost.Company, jobPost.Location, svr.GetConfig().SiteHost, jobPost.Slug, svr.GetConfig().SiteHost, randomTokenStr))
+		err = svr.GetEmail().SendHTMLEmail(
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: emailAddr},
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			fmt.Sprintf("Confirm your job application with %s", jobPost.Company),
+			fmt.Sprintf(
+				"Thanks for applying for the position %s with %s - %s (https://%s/job/%s). Please confirm your application now by following this link https://%s/apply/%s",
+				jobPost.JobTitle,
+				jobPost.Company,
+				jobPost.Location,
+				svr.GetConfig().SiteHost,
+				jobPost.Slug,
+				svr.GetConfig().SiteHost,
+				randomTokenStr,
+			),
+		)
 		if err != nil {
 			svr.Log(err, "unable to send email while applying to job")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -2241,10 +2257,10 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 				svr.JSON(w, http.StatusInternalServerError, nil)
 				return
 			}
-			err = svr.GetEmail().SendEmail(
-				svr.GetEmail().DefaultSender(),
-				emailAddr,
-				svr.GetEmail().DefaultReplyTo(),
+			err = svr.GetEmail().SendHTMLEmail(
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+				email.Address{Email: emailAddr},
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 				fmt.Sprintf("Confirm Your Email Subscription on %s", svr.GetConfig().SiteName),
 				fmt.Sprintf(
 					"Please click on the link below to confirm your subscription to receive weekly emails from %s\n\n%s\n\nIf this was not requested by you, please ignore this email.",
@@ -2275,9 +2291,9 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 			return
 		}
 		err = svr.GetEmail().SendEmailWithPDFAttachment(
-			svr.GetEmail().DefaultSender(),
-			jobPost.HowToApply,
-			applicant.Email,
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: jobPost.HowToApply},
+			email.Address{Email: applicant.Email},
 			fmt.Sprintf("New Applicant from %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
 				"Hi, there is a new applicant for your position on %s: %s with %s - %s (https://%s/job/%s). Applicant's Email: %s. Please find applicant's CV attached below",
@@ -2313,7 +2329,7 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 			"Title": "Job Application Successfull",
 			"Description": svr.StringToHTML(
 				fmt.Sprintf(
-					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"https://%s/job/%s\">https://%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. If you have further questions please reach out to <code>%s</code>. Please note, your email and CV have been permanently deleted from our systems.",
+					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"https://%s/job/%s\">https://%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. If you have further questions please reach out to <code>%s</code>.",
 					jobPost.JobTitle,
 					jobPost.Company,
 					jobPost.Location,
@@ -2397,10 +2413,10 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 			svr.Log(err, "unable to create payment session")
 		}
 
-		err = svr.GetEmail().SendEmail(
-			svr.GetEmail().DefaultSender(),
-			svr.GetEmail().DefaultAdminAddress(),
-			jobRq.Email,
+		err = svr.GetEmail().SendHTMLEmail(
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: svr.GetEmail().DefaultAdminAddress()},
+			email.Address{Email: jobRq.Email},
 			fmt.Sprintf("New Upgrade on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
 				"Hey! There is a new ad upgrade on %s. Please check https://%s/manage/%s",
@@ -2503,10 +2519,10 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 		if err != nil {
 			svr.Log(err, "unable to create payment session")
 		}
-		err = svr.GetEmail().SendEmail(
-			svr.GetEmail().DefaultSender(),
-			svr.GetEmail().DefaultAdminAddress(),
-			jobRq.Email,
+		err = svr.GetEmail().SendHTMLEmail(
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: svr.GetEmail().DefaultAdminAddress()},
+			email.Address{Email: jobRq.Email},
 			fmt.Sprintf("New Job Ad on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
 				"Hey! There is a new Ad on %s. Please approve https://%s/manage/%s",
@@ -2897,10 +2913,10 @@ func ApproveJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Hand
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			err = svr.GetEmail().SendEmail(
-				svr.GetEmail().DefaultSender(),
-				jobRq.Email,
-				svr.GetEmail().DefaultReplyTo(),
+			err = svr.GetEmail().SendHTMLEmail(
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
+				email.Address{Email: jobRq.Email},
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 				fmt.Sprintf("Your Job Ad on %s", svr.GetConfig().SiteName),
 				fmt.Sprintf("Thanks for using %s,\n\nYour Job Ad has been approved and it's currently live on %s: https://%s.\n\nYour Job Dashboard: https://%s/edit/%s\n\nThe ad expires in 90 days and does not automatically renew. If you wish to sponsor or pin again the job ad you can do so by following the edit link.\n\nI am always available to answer any questions you may have,\n\nBest,\n\n%s\n%s", svr.GetConfig().SiteName, svr.GetConfig().SiteName, svr.GetConfig().SiteHost, svr.GetConfig().SiteHost, jobRq.Token, svr.GetConfig().SiteName, svr.GetConfig().AdminEmail),
 			)

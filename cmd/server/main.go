@@ -33,7 +33,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to connect to postgres: %v", err)
 	}
-	emailClient, err := email.NewClient(cfg.EmailAPIKey, cfg.AdminEmail, cfg.SiteName)
+	emailClient, err := email.NewClient(cfg.Email2APIKey, cfg.SupportEmail, cfg.NoReplyEmail, cfg.SiteName)
 	if err != nil {
 		log.Fatalf("unable to connect to sparkpost API: %v", err)
 	}
