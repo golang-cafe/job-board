@@ -20,3 +20,6 @@ CREATE TABLE IF NOT EXISTS edit_token (
   created_at TIMESTAMP NOT NULL
 );
 CREATE UNIQUE INDEX token_idx on edit_token (token);
+
+ALTER TABLE users ADD COLUMN user_type VARCHAR(20) DEFAULT 'developer';
+ALTER TABLE user_sign_on_token ADD COLUMN user_type VARCHAR(20) DEFAULT 'developer';

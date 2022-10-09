@@ -16,19 +16,20 @@ func NewRepository(db *sql.DB) *Repository {
 	return &Repository{db}
 }
 
-func (r *Repository) DeveloperProfileByID(id string) (Recruiter, error) {
-	row := r.db.QueryRow(`SELECT id, email, name, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM recruiter_profile WHERE id = $1`, id)
+func (r *Repository) RecruiterProfileByID(id string) (Recruiter, error) {
+	row := r.db.QueryRow(`SELECT id, email, name, company, company_url, slug, created_at, updated_at, title FROM recruiter_profile WHERE id = $1`, id)
 	obj := Recruiter{}
 	var nullTime sql.NullTime
 	err := row.Scan(
 		&obj.ID,
 		&obj.Email,
+		&obj.Name,
 		&obj.Company,
 		&obj.CompanyURL,
 		&obj.Slug,
 		&obj.CreatedAt,
 		&nullTime,
-		&obj.Name,
+		&obj.Title,
 	)
 	if nullTime.Valid {
 		obj.UpdatedAt = nullTime.Time
@@ -43,6 +44,36 @@ func (r *Repository) DeveloperProfileByID(id string) (Recruiter, error) {
 func (r *Repository) ActivateRecruiterProfile(email string) error {
 	_, err := r.db.Exec(`UPDATE recruiter_profile SET updated_at = NOW() WHERE email = $1`, email)
 	return err
+}
+
+func (r *Repository) RecruiterProfileByEmail(email string) (Recruiter, error) {
+	row := r.db.QueryRow(`SELECT id, email, name, company, company_url, slug, created_at, updated_at, title FROM recruiter_profile WHERE email = $1`, email)
+	obj := Recruiter{}
+	var nullTime sql.NullTime
+	err := row.Scan(
+		&obj.ID,
+		&obj.Email,
+		&obj.Name,
+		&obj.Company,
+		&obj.CompanyURL,
+		&obj.Slug,
+		&obj.CreatedAt,
+		&nullTime,
+		&obj.Title,
+	)
+	if nullTime.Valid {
+		obj.UpdatedAt = nullTime.Time
+	} else {
+		obj.UpdatedAt = obj.CreatedAt
+	}
+	if err == sql.ErrNoRows {
+		return obj, nil
+	}
+	if err != nil {
+		return obj, err
+	}
+
+	return obj, nil
 }
 
 func (r *Repository) SaveRecruiterProfile(dev Recruiter) error {

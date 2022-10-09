@@ -7,7 +7,6 @@ CREATE TABLE IF NOT EXISTS recruiter_profile (
   slug          VARCHAR(255) NOT NULL,
   created_at    TIMESTAMP NOT NULL,
   updated_at    TIMESTAMP DEFAULT NULL,
-  last_login_at TIMESTAMP DEFAULT NULL,
   PRIMARY KEY(id)
 );
 

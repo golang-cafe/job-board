@@ -289,13 +289,19 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 		<div id="feedback"><span style="color:#fff;">Feedback</span></div>
 		<header>
 			<nav class="menu-header">
-				<small>
-					<a href="/">Jobs</a>&bull;
-					<a style="text-decoration: underline;" href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
-					<a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a></a>&bull;
-				<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
-				<br>
-				</small>
+        <div style="float: left;">
+					<small>
+						<a href="/">Jobs</a>&bull;
+						<a style="text-decoration: underline;" href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
+						<a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
+						<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
+						<br>
+					</small>
+				</div>
+				<div style="float: right;">
+					{{ if .LoggedUser }}<a href="/profile/home">Your Profile</a>{{ else }}<a href="/auth">Login</a>{{ end }}
+				</div>
+				<div style="clear: both;"></div>
 			</nav>
 		</header>
 		<section style="margin: 30px auto;">

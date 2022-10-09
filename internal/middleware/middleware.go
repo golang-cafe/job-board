@@ -68,6 +68,7 @@ type UserJWT struct {
 	IsAdmin   bool      `json:"is_admin"`
 	UserID    string    `json:"user_id"`
 	Email     string    `json:"email"`
+	Type      string    `json:"type"`
 	CreatedAt time.Time `json:"created_at"`
 	jwt.StandardClaims
 }

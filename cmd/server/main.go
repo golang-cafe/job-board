@@ -17,6 +17,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/ipgeolocation"
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/payment"
+	"github.com/golang-cafe/job-board/internal/recruiter"
 	"github.com/golang-cafe/job-board/internal/server"
 	"github.com/golang-cafe/job-board/internal/template"
 	"github.com/golang-cafe/job-board/internal/user"
@@ -53,6 +54,7 @@ func main() {
 	}
 
 	devRepo := developer.NewRepository(conn)
+	recRepo := recruiter.NewRepository(conn)
 	blogRepo := blog.NewRepository(conn)
 	userRepo := user.NewRepository(conn)
 	companyRepo := company.NewRepository(conn)
@@ -128,6 +130,7 @@ func main() {
 		handler.SubmitDeveloperProfileHandler(svr, devRepo),
 		[]string{"GET"},
 	)
+	svr.RegisterRoute("/x/srp", handler.SaveRecruiterProfileHandler(svr, recRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/sdp", handler.SaveDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/udp", handler.UpdateDeveloperProfileHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/ddp", handler.DeleteDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
@@ -136,8 +139,8 @@ func main() {
 	svr.RegisterRoute("/x/auth/message/{id}", handler.DeliverMessageDeveloperProfileHandler(svr, devRepo), []string{"GET"})
 
 	// blog
-	svr.RegisterRoute("/profile/home", handler.ProfileHomepageHandler(svr, devRepo), []string{"GET"})
-	svr.RegisterRoute("/profile/{id}/edit", handler.EditDeveloperProfileHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute("/profile/home", handler.ProfileHomepageHandler(svr, devRepo, recRepo), []string{"GET"})
+	svr.RegisterRoute("/profile/{id}/edit", handler.EditProfileHandler(svr, devRepo, recRepo), []string{"GET"})
 	svr.RegisterRoute("/profile/blog/create", handler.CreateDraftBlogPostHandler(svr, blogRepo), []string{"GET"})
 	svr.RegisterRoute("/profile/blog/list", handler.GetUserBlogPostsHandler(svr, blogRepo), []string{"GET"})
 	svr.RegisterRoute("/profile/blog/{id}/edit", handler.EditBlogPostHandler(svr, blogRepo), []string{"GET"})
@@ -235,7 +238,7 @@ func main() {
 
 	// sign on email link
 	svr.RegisterRoute("/x/auth/link", handler.RequestTokenSignOn(svr, userRepo), []string{"POST"})
-	svr.RegisterRoute("/x/auth/{token}", handler.VerifyTokenSignOn(svr, userRepo, devRepo, cfg.AdminEmail), []string{"GET"})
+	svr.RegisterRoute("/x/auth/{token}", handler.VerifyTokenSignOn(svr, userRepo, devRepo, recRepo, cfg.AdminEmail), []string{"GET"})
 
 	//
 	// private routes

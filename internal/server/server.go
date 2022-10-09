@@ -197,7 +197,7 @@ func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, 
 		s.Log(err, "database.CountEmailSubscribers")
 	}
 
-	s.Render(w, http.StatusOK, "salary-explorer.html", map[string]interface{}{
+	s.Render(r, w, http.StatusOK, "salary-explorer.html", map[string]interface{}{
 		"Location":                 strings.ReplaceAll(location, "-", " "),
 		"LocationURLEncoded":       url.PathEscape(strings.ReplaceAll(location, "-", " ")),
 		"Currency":                 loc.Currency,
@@ -443,7 +443,7 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		s.Log(err, "database.CountEmailSubscribers")
 	}
 
-	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
+	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
 		"Jobs":                      jobsForPage,
 		"PinnedJobs":                pinnedJobs,
 		"JobsMinusOne":              len(jobsForPage) - 1,
@@ -581,7 +581,8 @@ func (s Server) RenderPageForDeveloperRegistration(w http.ResponseWriter, r *htt
 	if err != nil {
 		s.Log(err, "GetDeveloperProfilePageViewsLastMonth")
 	}
-	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
+
+	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
 		"TopDevelopers":                      topDevelopers,
 		"TopDeveloperNames":                  textifyGeneric(topDeveloperNames),
 		"TopDeveloperSkills":                 textifyGeneric(topDeveloperSkills),
@@ -683,7 +684,7 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		s.Log(err, "database.CountEmailSubscribers")
 	}
 
-	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
+	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
 		"Developers":                developersForPage,
 		"TopDeveloperNames":         textifyGeneric(topDeveloperNames),
 		"TopDeveloperSkills":        textifyGeneric(topDeveloperSkills),
@@ -786,7 +787,7 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, c
 		s.Log(err, "database.CountEmailSubscribers")
 	}
 
-	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
+	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
 		"Companies":                companiesForPage,
 		"CompaniesMinusOne":        len(companiesForPage) - 1,
 		"LocationFilter":           strings.Title(location),
@@ -810,7 +811,7 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, c
 	})
 }
 
-func (s Server) RenderPageForLocationAndTagAdmin(w http.ResponseWriter, jobRepo *job.Repository, location, tag, page, salary, currency, htmlView string) {
+func (s Server) RenderPageForLocationAndTagAdmin(r *http.Request, w http.ResponseWriter, jobRepo *job.Repository, location, tag, page, salary, currency, htmlView string) {
 	showPage := true
 	if page == "" {
 		page = "1"
@@ -895,7 +896,7 @@ func (s Server) RenderPageForLocationAndTagAdmin(w http.ResponseWriter, jobRepo 
 		}
 	}
 
-	s.Render(w, http.StatusOK, htmlView, map[string]interface{}{
+	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
 		"Jobs":                jobsForPage,
 		"PinnedJobs":          pinnedJobs,
 		"PendingJobs":         pendingJobs,
@@ -955,7 +956,7 @@ func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request
 		s.Log(err, "unable to retrieve new jobs last week last month")
 		newJobsLastWeek = 1
 	}
-	s.Render(w, http.StatusOK, "post-a-job.html", map[string]interface{}{
+	s.Render(r, w, http.StatusOK, "post-a-job.html", map[string]interface{}{
 		"Location":                 location,
 		"Currency":                 currency,
 		"PageviewsLastMonth":       humanize.Comma(int64(pageviewsLast30Days)),
@@ -984,11 +985,13 @@ func (s Server) GetCurrencyFromRequest(r *http.Request) (ipgeolocation.Currency,
 	return s.ipGeoLocation.GetCurrencyForIP(ip)
 }
 
-func (s Server) Render(w http.ResponseWriter, status int, htmlView string, data interface{}) error {
+func (s Server) Render(r *http.Request, w http.ResponseWriter, status int, htmlView string, data interface{}) error {
 	dataMap := make(map[string]interface{}, 0)
 	if data != nil {
 		dataMap = data.(map[string]interface{})
 	}
+	profile, _ := middleware.GetUserFromJWT(r, s.SessionStore, s.GetJWTSigningKey())
+	dataMap["LoggedUser"] = profile
 	dataMap["SiteName"] = s.GetConfig().SiteName
 	dataMap["SiteJobCategory"] = strings.Title(strings.ToLower(s.GetConfig().SiteJobCategory))
 	dataMap["SiteJobCategoryURLEncoded"] = strings.ReplaceAll(strings.Title(strings.ToLower(s.GetConfig().SiteJobCategory)), " ", "-")

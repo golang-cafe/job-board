@@ -806,7 +806,6 @@
                 <div style="width: 100%;">
                 <input type="email" name="email" id="email" class="email-subscribe-item"
                     style="border: 1px solid #d9d9d9;margin:10px auto;display:block;width:300px;" placeholder="Email Address">
-                <input type="hidden" name="next" id="next" value="{{ .Next }}"></div>
                 <div style="width:100%;">
                 <input type="submit" onclick="auth()" class="email-subscribe-item" value="Send Magic Link"
                     style="margin:0 auto;display:block;width:300px;" /></duv>
@@ -844,12 +843,7 @@
         };
         var post = function (body, cb) {
             var xhr = new XMLHttpRequest();
-            var next = document.getElementById("next").value;
-            if (empty(next)) {
-                xhr.open('POST', '/x/auth/link', true);
-            } else {
-                xhr.open('POST', '/x/auth/link?next=' + next, true);
-            }
+            xhr.open('POST', '/x/auth/link', true);
             xhr.setRequestHeader('Content-Type', 'application/json');
             xhr.send(JSON.stringify(body));
             xhr.onreadystatechange = function () {
@@ -872,7 +866,7 @@
                     alert("Check your inbox");
                     document.getElementById("email").value = "";
                 } else {
-                    alert('Oops, email or password are incorrect');
+                    alert('Oops, this email looks incorrect');
                 }
             });
         }

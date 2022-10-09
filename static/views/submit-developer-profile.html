@@ -999,31 +999,32 @@
 				<div id="current-location-suggestions" style="display:none;" class="search-suggestions">
 				</div>
 			</div>
+			<input type="hidden" id="detected-location-id" name="detected-location-id" />
 			<input type="text" class="recruiter-only" name="job-title" id="job-title" placeholder="Your Role or Job Title" style="width: 100%;" />
 			<input type="url" class="dev-only" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;" />
 			<input type="url" class="dev-only" name="github-url" id="github-url" placeholder="GitHub URL (Optional)"
 				style="width: 100%;" />
 			<input type="url" class="dev-only" name="twitter-url" id="twitter-url" placeholder="Twitter URL (Optional)"
 				style="width: 100%;" />
-			<select style="width:100%;" class="dev-only">
-				<option>Your Status</option>
-				<option>Actively Looking</option>
-				<option>Casually Looking</option>
-				<option>Not Available</option>
+			<select id="search-status" name="search-status" style="width:100%;" class="dev-only">
+				<option default value="">Your Status</option>
+				<option value="actively-applying">Actively Looking</option>
+				<option value="casually-looking">Casually Looking</option>
+				<option value="not-available">Not Available</option>
 			</select>
-			<select style="width:100%;" class="dev-only">
-				<option>Your Role Level</option>
-				<option>Junior</option>
-				<option>Mid-Level</option>
-				<option>Senior</option>
-				<option>Principal / Lead</option>
-				<option>C-Level</option>
+			<select id="role-level" name="role-level" style="width:100%;" class="dev-only">
+				<option default value="">Your Role Level</option>
+				<option value="junior">Junior</option>
+				<option value="mid-level">Mid-Level</option>
+				<option value="senior">Senior</option>
+				<option value="lead">Principal / Lead</option>
+				<option value="c-level">C-Level</option>
 			</select>
 			<div class="dev-only">
 				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-full-time" value="full-time" id="role-type-full-time"/> <span style="vertical-align: middle;">Full-Time</span></label>
 				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-part-time" value="part-time" id="role-type-part-time"/> <span style="vertical-align: middle;">Part-Time</span></label>
 				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-contract" value="contract" id="role-type-contract"/> <span style="vertical-align: middle;">Contract</span></label>
-				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-internship" value="internship" id="role-type-intership"/> <span style="vertical-align: middle;">Internship</span></label>
+				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-internship" value="internship" id="role-type-internship"/> <span style="vertical-align: middle;">Internship</span></label>
 			</div>
 			<input type="url" class="recruiter-only" name="company-url" id="company-url" placeholder="Company URL"
 				style="width: 100%;display:none;" />
@@ -1049,7 +1050,7 @@
 			<br />
 			<input type="submit" id="submit" value="Join The Community" onclick="post();" style="float: right;">
 			<p style="float:right;margin-bottom:0;margin-top:5px;margin-right:10px;"><small><a
-						href="/auth">Already a member?</a></small></p>
+				href="/auth">Already a member?</a></small></p>
 			<br />
 			</p>
 		</article>
@@ -1091,9 +1092,9 @@
 			var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 			return re.test(email);
 		}
-		var http = function (body, cb) {
+		var http = function (url, body, cb) {
 			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/x/sdp', true);
+			xhr.open('POST', url, true);
 			xhr.setRequestHeader('Content-Type', 'application/json');
 			xhr.send(JSON.stringify(body));
 			xhr.onreadystatechange = function () {
@@ -1144,8 +1145,24 @@
 				var email = document.getElementById("email").value;
 				var currentLocation = document.getElementById("current-location").value;
 				var tags = document.getElementById("tags").value;
-				if (empty(tags, fullName, linkedinURL, bio, email, currentLocation)) {
-					alert('You must fill all the mandatory forms in order to Hire {{ .SiteJobCategory }} Developers');
+				var searchStatus = document.getElementById("search-status").value;
+				var roleLevel = document.getElementById("role-level").value;
+				var detectedLocationId = document.getElementById('detected-location-id').value;
+				var roleTypes = [];
+				if (document.getElementById("role-type-full-time").checked) {
+					roleTypes.push('full-time');
+				}
+				if (document.getElementById("role-type-part-time").checked) {
+					roleTypes.push('part-time');
+				}
+				if (document.getElementById("role-type-contract").checked) {
+					roleTypes.push('contract');
+				}
+				if (document.getElementById("role-type-internship").checked) {
+					roleTypes.push('internship');
+				}
+				if (empty(tags, fullName, linkedinURL, bio, email, currentLocation, searchStatus, roleLevel)) {
+					alert('You must fill all the mandatory fields (Full Name, Email, Linkedin URL, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
 					return;
 				}
 				if (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL)) {
@@ -1200,7 +1217,11 @@
 							email: email,
 							tags: tags,
 							current_location: currentLocation,
-							profile_image_id: profileImageId
+							profile_image_id: profileImageId,
+							search_status: searchStatus,
+							role_level: roleLevel,
+							role_types: roleTypes,
+							detected_location_id: detectedLocationId,
 						};
 						if (!empty(twitterURL)) {
 							payload.twitter_url = twitterURL;
@@ -1209,6 +1230,7 @@
 							payload.github_url = githubURL;
 						}
 						http(
+							'/x/sdp',
 							payload,
 							function (success, body, statusCode) {
 								if (success) {
@@ -1230,8 +1252,48 @@
 				return;
 			}
 			if (profileType == 'recruiter') {
-				// 
-				alert('working on it');
+				var fullName = document.getElementById("full-name").value;
+				var jobTitle = document.getElementById("job-title").value;
+				var companyName = document.getElementById("company-name").value;
+				var companyUrl = document.getElementById("company-url").value;
+				var email = document.getElementById("email").value;
+				if (empty(fullName, jobTitle, email)) {
+					alert('You must fill all the mandatory fields (Full name, Email, Job Title) in order to join the community');
+					return;
+				}
+				if (!isEmail(email)) {
+					alert('Your email is not valid');
+					return;
+				}
+				if (!isURL(companyUrl)) {
+                	alert('Company website it\'s not a valid URL');
+                	return;
+            	}
+				var payload = {
+					fullname: fullName,
+					job_title: jobTitle,
+					company_name: companyName,
+					company_url: companyUrl,
+					email: email
+				};
+				http(
+					'/x/srp',
+					payload,
+					function (success, body, statusCode) {
+						if (success) {
+							document.getElementById("spinner-0").style.display = "none";
+							alert('Please check your email to confirm your profile.');
+							window.location.href = '/Submit-Developer-Profile';
+						} else {
+							document.getElementById("spinner-0").style.display = "none";
+							if (statusCode == 400) {
+								alert('There was a problem with your request. ' + body);
+							} else {
+								alert('There was a problem with your request, please try again later.');
+							}
+						}
+					}
+				);
 				return;
 			}
 		}
@@ -1333,14 +1395,15 @@
 									display += ', ' + item.country;
 								}
 								display += ' ' + item.emoji;
-								suggestions += '<div class="search-option" id="loc-option-' + item.name + '" data-val="' + item.name + '">' + display + '</div>';
+								suggestions += '<div class="search-option" id="loc-option-' + item.name + '" data-val="' + item.name + '" data-display="'+display+'">' + display + '</div>';
 							}
 							if (suggestions != '') {
 								document.getElementById('current-location-suggestions').innerHTML = suggestions;
 								for (var item of res) {
 									document.getElementById('loc-option-' + item.name).addEventListener('click', function (e) {
-										document.getElementById('current-location').value = e.target.getAttribute('data-val');
+										document.getElementById('current-location').value = e.target.getAttribute('data-display');
 										document.getElementById('current-location-suggestions').style.display = 'none';
+										document.getElementById('detected-location-id').value = e.target.getAttribute('data-val');
 									});
 								}
 								document.getElementById('current-location-suggestions').style.display = 'block';

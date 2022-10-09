@@ -1015,7 +1015,7 @@
 				</small>
 			</div>
 			<div style="float: right;">
-				<a href="/auth">Login</a>
+				{{ if .LoggedUser }}<a href="/profile/home">Your Profile</a>{{ else }}<a href="/auth">Login</a>{{ end }}
 			</div>
 			<div style="clear: both;"></div>
 		</nav>
