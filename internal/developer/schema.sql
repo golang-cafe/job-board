@@ -38,3 +38,8 @@ CREATE TABLE IF NOT EXISTS developer_profile_message (
     sent_at TIMESTAMP,
     PRIMARY KEY(id)
 );
+
+ALTER TABLE developer_profile ADD COLUMN role_level VARCHAR(20) NOT NULL DEFAULT 'mid-level';
+ALTER TABLE developer_profile ADD COLUMN search_status VARCHAR(20) NOT NULL DEFAULT 'casually-looking';
+ALTER TABLE developer_profile ADD COLUMN role_types VARCHAR(20) NOT NULL DEFAULT 'full-time';
+ALTER TABLE developer_profile ADD COLUMN detected_location_id VARCHAR(255) DEFAULT NULL;

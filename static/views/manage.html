@@ -26,14 +26,22 @@ body{background:#ffffff;}
   </head>
   <body>
     <header>
-      <nav class="menu-header">
-        <small>
-                  <a href="/profile/home">Profile Home</a> &bull;
-		  <a href="/" target="_blank">{{ .SiteName }}</a>
-          <br>
-        </small>
-      </nav>
-    </header>
+        <nav class="menu-header">
+          <div style="float: left;">
+            <small>
+              <a href="/">Jobs</a>&bull;
+              <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
+              <a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
+              <a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
+              <br>
+            </small>
+          </div>
+          <div style="float: right;">
+            {{ if .LoggedUser }}<a style="text-decoration: underline;" href="/profile/home">Your Profile</a>{{ else }}<a href="/auth">Login</a>{{ end }}
+          </div>
+          <div style="clear: both;"></div>
+        </nav>
+      </header>
         <div id="spinner-0">
             <div class="overlay-effect"></div>
             <div class="spinner-box"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
