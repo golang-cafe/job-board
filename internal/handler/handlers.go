@@ -1393,73 +1393,85 @@ func AddEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
 }
 
 func SendMessageDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		vars := mux.Vars(r)
-		profileID := vars["id"]
-		req := &struct {
-			Content string `json:"content"`
-			Email   string `json:"email"`
-		}{}
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			reqData, ioErr := ioutil.ReadAll(r.Body)
-			if ioErr != nil {
-				svr.Log(ioErr, "unable to read request body data for developer profile message")
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			vars := mux.Vars(r)
+			profileID := vars["id"]
+			sender, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusUnauthorized, "unauthorized")
+				return
 			}
-			svr.Log(err, fmt.Sprintf("unable to decode request body from developer profile message %+v", string(reqData)))
-			svr.JSON(w, http.StatusBadRequest, nil)
-			return
-		}
-		if !svr.IsEmail(req.Email) {
-			svr.Log(errors.New("invalid email"), "request email is not a valid email")
-			svr.JSON(w, http.StatusBadRequest, "invalid email provided")
-			return
-		}
-		dev, err := devRepo.DeveloperProfileByID(profileID)
-		if err != nil {
-			svr.Log(err, "unable to find developer profile by id "+profileID)
-			svr.JSON(w, http.StatusInternalServerError, nil)
-			return
-		}
-		k, err := ksuid.NewRandom()
-		if err != nil {
-			svr.Log(err, "unable to generate message ID")
-			svr.JSON(w, http.StatusBadRequest, nil)
-			return
-		}
-		message := developer.DeveloperMessage{
-			ID:        k.String(),
-			Email:     req.Email,
-			Content:   req.Content,
-			ProfileID: dev.ID,
-		}
-		err = devRepo.SendMessageDeveloperProfile(message)
-		if err != nil {
-			svr.Log(err, "unable to send message to developer profile")
-			svr.JSON(w, http.StatusInternalServerError, nil)
-			return
-		}
-		err = svr.GetEmail().SendHTMLEmail(
-			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-			email.Address{Email: req.Email},
-			email.Address{Email: dev.Email},
-			fmt.Sprintf("Confirm Your Message on %s", svr.GetConfig().SiteName),
-			fmt.Sprintf(
-				"You have sent a message through %s: \n\nMessage: %s\n\nPlease follow this link to confirm and deliver your message: %s\n\nIf this was not requested by you, you can ignore this email.",
-				svr.GetConfig().SiteName,
-				req.Content,
-				fmt.Sprintf("https://%s/x/auth/message/%s", svr.GetConfig().SiteHost, k.String()),
-			),
-		)
-		if err != nil {
-			svr.Log(err, "unable to send email while submitting message")
-			svr.JSON(w, http.StatusBadRequest, nil)
-			return
-		}
-		if err := devRepo.TrackDeveloperProfileMessageSent(dev); err != nil {
-			svr.Log(err, "unable to track message sent to developer profile")
-		}
-		svr.JSON(w, http.StatusOK, nil)
-	}
+			req := &struct {
+				Content string `json:"content"`
+				Email   string `json:"email"`
+			}{}
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				reqData, ioErr := ioutil.ReadAll(r.Body)
+				if ioErr != nil {
+					svr.Log(ioErr, "unable to read request body data for developer profile message")
+				}
+				svr.Log(err, fmt.Sprintf("unable to decode request body from developer profile message %+v", string(reqData)))
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			if !svr.IsEmail(req.Email) {
+				svr.Log(errors.New("invalid email"), "request email is not a valid email")
+				svr.JSON(w, http.StatusBadRequest, "invalid email provided")
+				return
+			}
+			dev, err := devRepo.DeveloperProfileByID(profileID)
+			if err != nil {
+				svr.Log(err, "unable to find developer profile by id "+profileID)
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			k, err := ksuid.NewRandom()
+			if err != nil {
+				svr.Log(err, "unable to generate message ID")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			message := developer.DeveloperMessage{
+				ID:        k.String(),
+				Email:     req.Email,
+				Content:   req.Content,
+				ProfileID: dev.ID,
+			}
+			err = devRepo.SendMessageDeveloperProfile(message, sender.UserID)
+			if err != nil {
+				svr.Log(err, "unable to send message to developer profile")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			if err := devRepo.TrackDeveloperProfileMessageSent(dev); err != nil {
+				svr.Log(err, "unable to track message sent to developer profile")
+			}
+			err = svr.GetEmail().SendHTMLEmail(
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+				email.Address{Email: dev.Email},
+				email.Address{Email: message.Email},
+				fmt.Sprintf("New Message from %s", svr.GetConfig().SiteName),
+				fmt.Sprintf(
+					"You received a new message from %s: \n\nMessage: %s\n\nFrom: %s",
+					svr.GetConfig().SiteName,
+					message.Content,
+					message.Email,
+				),
+			)
+			if err != nil {
+				svr.Log(err, "unable to send email to developer profile")
+				svr.JSON(w, http.StatusBadRequest, "There was a problem while sending the email")
+				return
+			}
+			if err := devRepo.MarkDeveloperMessageAsSent(message.ID); err != nil {
+				svr.Log(err, "unable to mark developer message as sent "+message.ID)
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		})
 }
 
 func AutocompleteLocation(svr server.Server) http.HandlerFunc {

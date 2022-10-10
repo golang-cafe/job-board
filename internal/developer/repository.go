@@ -109,13 +109,14 @@ func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 	return dev, nil
 }
 
-func (r *Repository) SendMessageDeveloperProfile(message DeveloperMessage) error {
+func (r *Repository) SendMessageDeveloperProfile(message DeveloperMessage, senderID string) error {
 	_, err := r.db.Exec(
-		`INSERT INTO developer_profile_message (id, email, content, profile_id, created_at) VALUES ($1, $2, $3, $4, NOW())`,
+		`INSERT INTO developer_profile_message (id, email, content, profile_id, created_at, sender_id) VALUES ($1, $2, $3, $4, NOW(), $5)`,
 		message.ID,
 		message.Email,
 		message.Content,
 		message.ProfileID,
+		senderID,
 	)
 	return err
 }

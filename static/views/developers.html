@@ -105,7 +105,7 @@ body{background:#ffffff;}
 	<div id="apply-box-container">
 	<p id="profile-info"></p>
         <input type="hidden" name="profile-id" id="profile-id" value="0" />
-        <input type="text" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;"/><br />
+        <input type="text" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;" value="{{ .LoggedUser.Email }}" disabled/><br />
 	<textarea name="message-content" id="message-content" placeholder="Your Message" style="width: 100%;resize:none;"></textarea><br />
         <br />
         <br />
@@ -310,7 +310,7 @@ body{background:#ffffff;}
 	    post('/x/smdp/'+profileID, {email: email, content: content}, function(status) {
                 closeApplyPopup();
                 if (status == 200) {
-                    alert('Message submitted. Please check your inbox and click the confirmation link to finalise the delivery.');
+                    alert('Message sent.');
 		    document.getElementById('message-content').value = "";
 		    document.getElementById('company-email').value = "";
                     return;
