@@ -30,15 +30,23 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 		<script src="https://js.stripe.com/v3/"></script>
 	</head>
 	<body>
-    <header>
-      <nav class="menu-header">
-        <small>
-                  <a href="/profile/home">Profile Home</a> &bull;
-		  <a href="/" target="_blank">{{ .SiteName }}</a>
-          <br>
-        </small>
-      </nav>
-    </header>
+		<header>
+			<nav class="menu-header">
+			  <div style="float: left;">
+				<small>
+				  <a href="/">Jobs</a>&bull;
+				  <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
+				  <a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
+				  <a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
+				  <br>
+				</small>
+			  </div>
+			  <div style="float: right;">
+				{{ if .LoggedUser }}<a style="text-decoration: underline;" href="/profile/home">Your Profile</a>{{ else }}<a href="/auth">Login</a>{{ end }}
+			  </div>
+			  <div style="clear: both;"></div>
+			</nav>
+		  </header>
 		<div id="spinner-0">
 			<div class="overlay-effect"></div>
 			<div class="spinner-box"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
@@ -72,13 +80,60 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<br />
 				<input type="hidden" name="profile-image-id" id="profile-image-id" value="{{ .DeveloperProfile.ImageID }}" />
 				<input type="text" name="skills" id="skills" placeholder="Skills (eg. MySQL, Go, HTML, CSS)" style="width: 100%;" value="{{ .DeveloperProfile.Skills }}"/><br />
-				<select name="available" id="available" style="height: 42px;">
-					{{ if .DeveloperProfile.Available }}
-					<option value="1" selected>Currently Available</option>
-					<option value="0">Currently Unavailable</option>
-					{{ else }}
-					<option value="1">Currently Available</option>
-					<option value="0" selected>Currently Unavailable</option>
+				<span>Search Status</span>
+				<select name="search-status" id="search-status" style="height: 42px;">
+					{{ if eq .DeveloperProfile.SearchStatus "actively-applying" }}
+					<option value="actively-applying" selected>Actively Applying</option>
+					<option value="casually-looking">Casually Looking</option>
+					<option value="not-available">Not Available</option>
+					{{ end }}
+					{{ if eq .DeveloperProfile.SearchStatus "casually-looking" }}
+					<option value="actively-applying">Actively Applying</option>
+					<option value="casually-looking" selected>Casually Looking</option>
+					<option value="not-available">Not Available</option>
+					{{ end }}
+					{{ if eq .DeveloperProfile.SearchStatus "not-available" }}
+					<option value="actively-applying">Actively Applying</option>
+					<option value="casually-looking">Casually Looking</option>
+					<option value="not-available" selected>Not Available</option>
+					{{ end }}
+				</select></br />
+				<span>Role Level</span>
+				<select name="role-level" id="role-level" style="height: 42px;">
+					{{ if eq .DeveloperProfile.RoleLevel "junior" }}
+					<option value="junior" selected>Junior</option>
+					<option value="mid-level">Mid-Level</option>
+					<option value="senior">Senior</option>
+					<option value="lead">Lead/Staff Engineer</option>
+					<option value="c-level">C-Level</option>
+					{{ end }}
+					{{ if eq .DeveloperProfile.RoleLevel "mid-level" }}
+					<option value="junior">Junior</option>
+					<option value="mid-level" selected>Mid-Level</option>
+					<option value="senior">Senior</option>
+					<option value="lead">Lead/Staff Engineer</option>
+					<option value="c-level">C-Level</option>
+					{{ end }}
+					{{ if eq .DeveloperProfile.RoleLevel "senior" }}
+					<option value="junior">Junior</option>
+					<option value="mid-level">Mid-Level</option>
+					<option value="senior" selected>Senior</option>
+					<option value="lead">Lead/Staff Engineer</option>
+					<option value="c-level">C-Level</option>
+					{{ end }}
+					{{ if eq .DeveloperProfile.RoleLevel "lead" }}
+					<option value="junior">Junior</option>
+					<option value="mid-level">Mid-Level</option>
+					<option value="senior">Senior</option>
+					<option value="lead" selected>Lead/Staff Engineer</option>
+					<option value="c-level">C-Level</option>
+					{{ end }}
+					{{ if eq .DeveloperProfile.RoleLevel "c-level" }}
+					<option value="junior">Junior</option>
+					<option value="mid-level">Mid-Level</option>
+					<option value="senior">Senior</option>
+					<option value="lead">Lead/Staff Engineer</option>
+					<option value="c-level" selected>C-Level</option>
 					{{ end }}
 				</select>
 				<textarea id="bio" placeholder="Short Bio" style="resize:none; width: 100%;overflow: hidden;min-height: 100px;" oninput="auto_grow(this);">{{ .DeveloperProfile.Bio }}</textarea><br />
@@ -127,12 +182,12 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			function sendReq(url, isDelete) {
 							var fullName = document.getElementById("full-name").value;
 							var currentLocation = document.getElementById("location").value;
-							var available = Boolean(document.getElementById("available").value);
 							var linkedinURL = document.getElementById("linkedin-url").value;
 							var skills = document.getElementById("skills").value;
 							var email = document.getElementById("email").value;
 							var bio = document.getElementById("bio").value;
-							var available = document.getElementById("available").value;
+							var searchStatus = document.getElementById("search-status").value;
+							var roleLevel = document.getElementById("role-level").value;
 							if (empty(fullName, currentLocation, linkedinURL, bio, skills, email)) {
 											alert('Please fill all the mandatory fields');
 											return;
@@ -169,7 +224,8 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 																			linkedin_url: linkedinURL,
 																			email: email,
 																			skills: skills,
-																			available: available == "1",
+																			search_status: searchStatus,
+																			role_level: roleLevel,
 																			profile_image_id: document.getElementById("profile-image-id").value
 																		},
 															function(bool) {
@@ -207,7 +263,8 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 																														linkedin_url: linkedinURL,
 																														email: email,
 																														skills: skills,
-																														available: available == "1",
+																														search_status: searchStatus,
+																														role_level: roleLevel,
 																														profile_image_id: document.getElementById("profile-image-id").value
 																													},
 																										function(bool) {

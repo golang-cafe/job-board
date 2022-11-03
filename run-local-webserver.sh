@@ -37,6 +37,7 @@ export SITE_TWITTER="golangcafe"
 export SITE_YOUTUBE="golangcafe"
 export SITE_LINKEDIN="golangcafe"
 export SITE_TELEGRAM="golangcafe"
+export SITE_LOGO_IMAGE_ID="2DUDLDHdnx04GK8C45o5d8jVZ0v"
 
 go build -o bin/server cmd/server/main.go
 

@@ -85,13 +85,19 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 		</div>
 		<header>
 			<nav class="menu-header">
-				<small>
-					<a href="/">Jobs</a>&bull;
-					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
-					<a style="text-decoration: underline;" href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
-					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
-					<br>
-				</small>
+				<div style="float: left;">
+					<small>
+						<a href="/">Jobs</a>&bull;
+						<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
+						<a style="text-decoration: underline;" href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
+						<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
+						<br>
+					</small>
+				</div>
+				<div style="float: right;">
+					{{ if .LoggedUser }}<a href="/profile/home">Your Profile</a>{{ else }}<a href="/auth">Login</a>{{ end }}
+				</div>
+				<div style="clear: both;"></div>
 			</nav>
 		</header>
 		<section style="padding: 0 10px;">

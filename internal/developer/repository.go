@@ -3,6 +3,7 @@ package developer
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gosimple/slug"
@@ -66,6 +67,8 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 	)
 	if nullUpdatedAt.Valid {
 		dev.UpdatedAt = nullUpdatedAt.Time
+	} else {
+		dev.UpdatedAt = dev.CreatedAt
 	}
 	if err == sql.ErrNoRows {
 		return dev, nil
@@ -78,14 +81,13 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 }
 
 func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE id = $1`, id)
+	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
 	var nullTime sql.NullTime
 	err := row.Scan(
 		&dev.ID,
 		&dev.Email,
 		&dev.Location,
-		&dev.Available,
 		&dev.LinkedinURL,
 		&dev.ImageID,
 		&dev.Slug,
@@ -94,6 +96,8 @@ func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 		&dev.Skills,
 		&dev.Name,
 		&dev.Bio,
+		&dev.SearchStatus,
+		&dev.RoleLevel,
 	)
 	if nullTime.Valid {
 		dev.UpdatedAt = nullTime.Time
@@ -105,13 +109,14 @@ func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 	return dev, nil
 }
 
-func (r *Repository) SendMessageDeveloperProfile(message DeveloperMessage) error {
+func (r *Repository) SendMessageDeveloperProfile(message DeveloperMessage, senderID string) error {
 	_, err := r.db.Exec(
-		`INSERT INTO developer_profile_message (id, email, content, profile_id, created_at) VALUES ($1, $2, $3, $4, NOW())`,
+		`INSERT INTO developer_profile_message (id, email, content, profile_id, created_at, sender_id) VALUES ($1, $2, $3, $4, NOW(), $5)`,
 		message.ID,
 		message.Email,
 		message.Content,
 		message.ProfileID,
+		senderID,
 	)
 	return err
 }
@@ -186,7 +191,7 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 }
 
 func (r *Repository) UpdateDeveloperProfile(dev Developer) error {
-	_, err := r.db.Exec(`UPDATE developer_profile SET name = $1, location = $2, linkedin_url = $3, bio = $4, available = $5, image_id = $6, updated_at = NOW(), skills = $7  WHERE id = $8`, dev.Name, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Skills, dev.ID)
+	_, err := r.db.Exec(`UPDATE developer_profile SET name = $1, location = $2, linkedin_url = $3, bio = $4, available = $5, image_id = $6, updated_at = NOW(), skills = $7, search_status = $8, role_level = $9  WHERE id = $10`, dev.Name, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Skills, dev.SearchStatus, dev.RoleLevel, dev.ID)
 	return err
 }
 
@@ -202,7 +207,7 @@ func (r *Repository) ActivateDeveloperProfile(email string) error {
 
 func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 	dev.Slug = slug.Make(fmt.Sprintf("%s %d", dev.Name, time.Now().UTC().Unix()))
-	_, err := r.db.Exec(`INSERT INTO developer_profile (email, location, linkedin_url, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8, $9, $10, $11, $12)`, dev.Email, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Slug, dev.Skills, dev.Name, dev.ID, dev.GithubURL, dev.TwitterURL)
+	_, err := r.db.Exec(`INSERT INTO developer_profile (email, location, linkedin_url, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url, role_types, role_level, search_status, detected_location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8, $9, $10, $11, $12, $13, $14, $15, $16)`, dev.Email, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Slug, dev.Skills, dev.Name, dev.ID, dev.GithubURL, dev.TwitterURL, strings.Join(dev.RoleTypes, ","), dev.RoleLevel, dev.SearchStatus, dev.DetectedLocationID)
 	return err
 }
 
