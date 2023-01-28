@@ -23,6 +23,7 @@ body{background:#ffffff;}
     <meta charset="utf-8">
     <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}" />
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
+    {{ template "google-analytics" }}
   </head>
   <body>
     <header>

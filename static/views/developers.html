@@ -38,30 +38,17 @@ body{background:#ffffff;}
     .clearfix::after {content: "";clear: both;display: table;}input[type="checkbox"]{-webkit-appearance: checkbox;-moz-appearance: checkbox;appearance: checkbox;}
     .apply-link {font-size: 18px;font-weight: 400;line-height: 29.7px;border-radius: 3.6px;background: {{ .PrimaryColor }};color: #fff;cursor: pointer;display: inline;margin-bottom: 18px;margin-right: 7.2px;padding: 6.525px 23.4px;text-align: center;}.apply-link:hover {text-decoration:none;background:{{ .SecondaryColor }};color:#ffffff;}
     .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
-    #feedback{border-radius: 5px;background: white;box-shadow: 0 6px 6px rgba(0,0,0,0.25) !important;position: fixed;bottom: 0;right: 0;margin: 0;font-size: 15px;text-align: center;padding-left: 10px;padding-right:10px;z-index: 9;border-radius: 3px;border-bottom-left-radius: 0;border-bottom-right-radius: 0;border-top-right-radius: 0;border-bottom: 0;border-right: 0;background: {{ .PrimaryColor }}}#feedback-box{display:none;border:1px solid #ccc;border-radius:5px;background:#fff;box-shadow: 0 6px 6px rgba(0,0,0,0.25) !important;position:fixed;bottom:0;right:0;width:180px;height:350px;}#feedback-text{width: 90%;font-size: 13px;padding-left: 10px;margin-bottom:10px;line-height:1rem;color:#555;}#feedback-email{width: 90%;border: 1px solid #ccc;font-size: 13px;padding: 1px;margin: auto;display: table;}#feedback:hover{cursor:pointer;}#feedback-title:hover{cursor:pointer;}#feedback-title{font-size:13px;font-weight:bold;padding-left:10px;}#feedback-message{height:130px;resize:none;font-size: 13px;border: 1px solid #ccc;min-width: 90%;padding:4px;max-width: 90%;display: table;margin: auto;margin-top: 10px;}#feedback-submit{font-size: 13px;padding: 4px;line-height: 1rem;float: right;margin-top: 10px;width: 50%;}
-#newsletter-banner{position: fixed;bottom: 0;left: 0;width: 100%;background: {{ .PrimaryColor }};color: #fff;text-align: center;z-index: 10;}@media only screen and (max-width: 768px) {#newsletter-banner{}}
-#newsletter-banner-input,#newsletter-banner-submit{margin-top: 15px; margin-bottom: 15px;border: 1px solid #fff;}
-#newsletter-banner-close{font-size: 1.5em;margin-left: .75em;margin-right: .5em;margin-top: 18px;float: right;cursor: pointer;z-index: 10;color: #fff;}
 .container{display: grid;grid-template-columns: 375px 375px;column-gap: 10px;row-gap: 10px;}.container .line-item {align-self: auto;}.send-message {float:left; margin-top:15px;}
   @media only screen and (max-width: 768px) {.container{grid-template-columns: 100%;}.line-item{margin:10px 0;}}
   .overflow{display: -webkit-box;max-width: 250px;-webkit-line-clamp: 4;-webkit-box-orient: vertical;overflow: hidden;}.overflow p {margin-bottom:0;}
     </style>
+    {{ template "newsletter-banner-css" . }}
+    {{ template "feedback-box-css" . }}
+    {{ template "google-analytics" }}
   </head>
   <body>
-    <div id="feedback-box">
-	<div id="feedback-title">Feedback</div>
-	<div id="feedback-text">Need help? Have any feedback, feature requests or bugs? Submit it here</div>
-	<input type="email" name="feedback-email" id="feedback-email" placeholder="Email"/>
-	<textarea placeholder="Message" id="feedback-message"></textarea>
-	<input type="submit" placeholder="Send" id="feedback-submit"/>
-    </div>
-    <div id="feedback"><span style="color:#fff;">Feedback</span></div>
-    <div id="newsletter-banner">
-	    Get a weekly email with all new {{ .SiteJobCategory }} jobs
-	<input id="newsletter-banner-input" type="text" placeholder="Your Email" />
-	<input id="newsletter-banner-submit" type="submit" value="Join {{ .EmailSubscribersCount }}+ others" />
-	<div id="newsletter-banner-close">x</div>
-    </div>
+    {{ template "feedback-box-html" . }}
+	{{ template "newsletter-banner-html" . }}
     <header>
         <nav class="menu-header">
             <div style="float: left;">

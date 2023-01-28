@@ -274,19 +274,13 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 	  stroke: rgba(0, 0, 0, 0.5);
   }
   footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
-  #feedback{border-radius: 5px;background: white;box-shadow: 0 6px 6px rgba(0,0,0,0.25) !important;position: fixed;bottom: 0;right: 0;margin: 0;font-size: 15px;text-align: center;padding-left: 10px;padding-right:10px;z-index: 9;border-radius: 3px;border-bottom-left-radius: 0;border-bottom-right-radius: 0;border-top-right-radius: 0;border-bottom: 0;border-right: 0;background: {{ .PrimaryColor }}}#feedback-box{display:none;border:1px solid #ccc;border-radius:5px;background:#fff;box-shadow: 0 6px 6px rgba(0,0,0,0.25) !important;position:fixed;bottom:0;right:0;width:180px;height:350px;}#feedback-text{width: 90%;font-size: 13px;padding-left: 10px;margin-bottom:10px;line-height:1rem;color:#555;}#feedback-email{width: 90%;border: 1px solid #ccc;font-size: 13px;padding: 1px;margin: auto;display: table;}#feedback:hover{cursor:pointer;}#feedback-title:hover{cursor:pointer;}#feedback-title{font-size:13px;font-weight:bold;padding-left:10px;}#feedback-message{height:130px;resize:none;font-size: 13px;border: 1px solid #ccc;min-width: 90%;padding:4px;max-width: 90%;display: table;margin: auto;margin-top: 10px;}#feedback-submit{font-size: 13px;padding: 4px;line-height: 1rem;float: right;margin-top: 10px;width: 50%;}
 		</style>
 		<script src="https://d3js.org/d3.v4.js"></script>
+    {{ template "feedback-box-css" . }}
+    {{ template "google-analytics" }}
 	</head>
 	<body>
-		<div id="feedback-box">
-			<div id="feedback-title">Feedback</div>
-			<div id="feedback-text">Need help? Have any feedback, feature requests or bugs? Submit it here</div>
-			<input type="email" name="feedback-email" id="feedback-email" placeholder="Email"/>
-			<textarea placeholder="Message" id="feedback-message"></textarea>
-			<input type="submit" placeholder="Send" id="feedback-submit"/>
-		</div>
-		<div id="feedback"><span style="color:#fff;">Feedback</span></div>
+		{{ template "feedback-box-html" . }}
 		<header>
 			<nav class="menu-header">
         <div style="float: left;">

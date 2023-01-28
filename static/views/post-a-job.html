@@ -15,8 +15,6 @@ body{background:#ffffff;}
         .lds-ring div:nth-child(1) {animation-delay: -0.45s;}.lds-ring div:nth-child(2) {animation-delay: -0.3s;}.lds-ring div:nth-child(3) {animation-delay: -0.15s;}
         @keyframes lds-ring {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}#spinner-0{display: none;}input[type="checkbox"]{-webkit-appearance: checkbox;-moz-appearance: checkbox;appearance: checkbox;}
         .clearfix::after {content: "";clear: both;display: table;}.line-item {background:#fff;padding:20px;margin:10px auto;}.job-icon{float: left; width: 60px; border-radius: 60px; margin-right: 10px;border: 1px solid #ccc;}
-    #feedback{border-radius: 5px;background: white;box-shadow: 0 6px 6px rgba(0,0,0,0.25) !important;position: fixed;bottom: 0;right: 0;margin: 0;font-size: 15px;text-align: center;padding-left: 10px;padding-right:10px;z-index: 9;border-radius: 3px;border-bottom-left-radius: 0;border-bottom-right-radius: 0;border-top-right-radius: 0;border-bottom: 0;border-right: 0;background: {{ .PrimaryColor }}}#feedback-box{display:none;border:1px solid #ccc;border-radius:5px;background:#fff;box-shadow: 0 6px 6px rgba(0,0,0,0.25) !important;position:fixed;bottom:0;right:0;width:180px;height:350px;}#feedback-text{width: 90%;font-size: 13px;padding-left: 10px;margin-bottom:10px;line-height:1rem;color:#555;}#feedback-email{width: 90%;border: 1px solid #ccc;font-size: 13px;padding: 1px;margin: auto;display: table;}#feedback:hover{cursor:pointer;}#feedback-title:hover{cursor:pointer;}#feedback-title{font-size:13px;font-weight:bold;padding-left:10px;}#feedback-message{height:130px;resize:none;font-size: 13px;border: 1px solid #ccc;min-width: 90%;padding:4px;max-width: 90%;display: table;margin: auto;margin-top: 10px;}#feedback-submit{font-size: 13px;padding: 4px;line-height: 1rem;float: right;margin-top: 10px;width: 50%;}
-//croppr
 	.croppr-container *{user-select:none;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;box-sizing:border-box;-webkit-box-sizing:border-box;-moz-box-sizing:border-box}.croppr-container img{vertical-align:middle;max-width:100%}.croppr{position:relative;display:inline-block}.croppr-handle,.croppr-imageClipped,.croppr-overlay,.croppr-region{position:absolute;top:0}.croppr-overlay{background:rgba(0,0,0,.5);right:0;bottom:0;left:0;z-index:1;cursor:crosshair}.croppr-region{border:1px dashed rgba(0,0,0,.5);z-index:3;cursor:move}.croppr-imageClipped{right:0;bottom:0;left:0;z-index:2;pointer-events:none}.croppr-handle{border:1px solid #000;background-color:#fff;width:10px;height:10px;z-index:4}
     footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
     </style>
@@ -86,16 +84,11 @@ body{background:#ffffff;}
     {{ end }}
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
+    {{ template "feedback-box-css" . }}
+    {{ template "google-analytics" }}
   </head>
   <body>
-    <div id="feedback-box">
-	<div id="feedback-title">Feedback</div>
-	<div id="feedback-text">Need help? Have any feedback, feature requests or bugs? Submit it here</div>
-	<input type="email" name="feedback-email" id="feedback-email" placeholder="Email"/>
-	<textarea placeholder="Message" id="feedback-message"></textarea>
-	<input type="submit" placeholder="Send" id="feedback-submit"/>
-    </div>
-    <div id="feedback"><span style="color:#fff;">Feedback</span></div>
+    {{ template "feedback-box-html" . }}
   <div id="spinner-0">
     <div class="overlay-effect"></div>
     <div class="spinner-box"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>

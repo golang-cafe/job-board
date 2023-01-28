@@ -38,6 +38,10 @@ export SITE_YOUTUBE="golangcafe"
 export SITE_LINKEDIN="golangcafe"
 export SITE_TELEGRAM="golangcafe"
 export SITE_LOGO_IMAGE_ID="2DUDLDHdnx04GK8C45o5d8jVZ0v"
+export EMAIL2_API_KEY="i"
+export NO_REPLY_EMAIL="no-reply@golang.cafe"
+export PRIMARY_COLOR="#25a79b"
+export SECONDARY_COLOR="#43D7C9"
 
 go build -o bin/server cmd/server/main.go
 
