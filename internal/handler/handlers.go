@@ -788,7 +788,7 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `</p>
 ` + jobsHTML + `
 	<p>Check out more jobs at <a title="` + svr.GetConfig().SiteName + `" href="https://` + svr.GetConfig().SiteHost + `">https://` + svr.GetConfig().SiteHost + `</a></p>
-	<p>Get companies apply to you, join the `+svr.GetConfig().SiteJobCategory+` Developer Community <a title="` + svr.GetConfig().SiteName + ` Community" href="https://` + svr.GetConfig().SiteHost + `/Join-`+svr.GetConfig().SiteJobCategory+`-Community">https://` + svr.GetConfig().SiteHost + `/Join-`+svr.GetConfig().SiteJobCategory+`-Community</a></p>
+	<p>Get companies apply to you, join the `+svr.GetConfig().SiteJobCategory+` Developer Community <a title="` + svr.GetConfig().SiteName + ` Community" href="https://` + svr.GetConfig().SiteHost + `/Join-`+strings.Title(svr.GetConfig().SiteJobCategory)+`-Community">https://` + svr.GetConfig().SiteHost + `/Join-`+strings.Title(svr.GetConfig().SiteJobCategory)+`-Community</a></p>
 	<p>` + svr.GetConfig().SiteName + `</p>
 	<hr />`
 				unsubscribeLink := `
@@ -2505,7 +2505,7 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 			"Title": "Job Application Successfull",
 			"Description": svr.StringToHTML(
 				fmt.Sprintf(
-					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"https://%s/job/%s\">https://%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. Consider joining our Golang Cafe Developer community where companies can apply to you! <a href=\"/Join-%s-Community\">Join Today</a>",
+					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"https://%s/job/%s\">https://%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. <br />Consider joining our Golang Cafe Developer community where companies can apply to you",
 					jobPost.JobTitle,
 					jobPost.Company,
 					jobPost.Location,
@@ -2513,7 +2513,6 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 					jobPost.Slug,
 					svr.GetConfig().SiteHost,
 					jobPost.Slug,
-					svr.GetConfig().SiteJobCategory,
 				),
 			),
 		})
