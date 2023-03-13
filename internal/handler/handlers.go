@@ -2405,12 +2405,10 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 			fmt.Sprintf("Confirm your job application with %s", jobPost.Company),
 			fmt.Sprintf(
-				"Thanks for applying for the position %s with %s - %s (https://%s/job/%s). Please confirm your application now by following this link https://%s/apply/%s",
+				"Thanks for applying for the position %s with %s - %s.<br />Please confirm your application now by following this link https://%s/apply/%s",
 				jobPost.JobTitle,
 				jobPost.Company,
 				jobPost.Location,
-				svr.GetConfig().SiteHost,
-				jobPost.Slug,
 				svr.GetConfig().SiteHost,
 				randomTokenStr,
 			),
