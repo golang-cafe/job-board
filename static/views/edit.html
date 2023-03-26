@@ -63,11 +63,11 @@ body{background:#ffffff;}
         <p>
             <h3>Your Job Ad Is No Longer Featured</h3>
             Receive more applicants by sponsoring and pinning your job ad to the homepage<br/><br />
-            <input type="checkbox" id="ad-type-3" style="margin-right: 8px; margin-bottom: 5px;" checked><label>Pinned to the Front Page for 7 days <b>{{ .Currency.Symbol }}59</b></label><br/>
-            <input type="checkbox" id="ad-type-2" style="margin-right: 8px; margin-bottom: 5px;"><label>Pinned to the Front Page for 30 days <b>{{ .Currency.Symbol }}129</b></label><br/>
+            <input type="checkbox" id="ad-type-3" style="margin-right: 8px; margin-bottom: 5px;" checked><label>Pinned to the Front Page for 7 days <b>$59</b></label><br/>
+            <input type="checkbox" id="ad-type-2" style="margin-right: 8px; margin-bottom: 5px;"><label>Pinned to the Front Page for 30 days <b>$129</b></label><br/>
             <br />
             <br />
-            <input type="submit" id="submit" value="Pin To The Homepage For {{ .Currency.Symbol }}59" onclick="pin();" style="float: right;">
+            <input type="submit" id="submit" value="Pin To The Homepage For $59" onclick="pin();" style="float: right;">
             <br />
         </p>
     </article>
@@ -90,7 +90,7 @@ body{background:#ffffff;}
                             {
                                 ad_type: adType,
                                 email: email,
-                                currency_code: '{{ .Currency.Code }}',
+                                currency_code: 'USD',
                                 token: '{{ .Token }}'
                             },
                             function(success, body) {
@@ -121,19 +121,19 @@ body{background:#ffffff;}
       document.getElementById("ad-type-2").addEventListener('change', function() {
             if (this.checked) {
                 document.getElementById("ad-type-3").checked = false;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}129';
+                document.getElementById("submit").value = 'Pin To The Homepage For $129';
             } else {
                 document.getElementById("ad-type-3").checked = true;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}59';
+                document.getElementById("submit").value = 'Pin To The Homepage For $59';
             }
         });
         document.getElementById("ad-type-3").addEventListener('change', function() {
             if (this.checked) {
                 document.getElementById("ad-type-2").checked = false;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}59';
+                document.getElementById("submit").value = 'Pin To The Homepage For $59';
             } else {
                 document.getElementById("ad-type-2").checked = true;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}129';
+                document.getElementById("submit").value = 'Pin To The Homepage For $129';
             }
         });
     </script>
@@ -185,11 +185,11 @@ body{background:#ffffff;}
         <p>
             <h3>Sponsor Your Job Ad</h3>
             Receive more applicants by sponsoring and pinning your job ad to the homepage<br/><br />
-            <input type="checkbox" id="ad-type-3" style="margin-right: 8px; margin-bottom: 5px;" checked><label>Pinned to the Front Page for 7 days <b>{{ .Currency.Symbol }}59</b></label><br/>
-            <input type="checkbox" id="ad-type-2" style="margin-right: 8px; margin-bottom: 5px;"><label>Pinned to the Front Page for 30 days <b>{{ .Currency.Symbol }}129</b></label><br/>
+            <input type="checkbox" id="ad-type-3" style="margin-right: 8px; margin-bottom: 5px;" checked><label>Pinned to the Front Page for 7 days <b>$59</b></label><br/>
+            <input type="checkbox" id="ad-type-2" style="margin-right: 8px; margin-bottom: 5px;"><label>Pinned to the Front Page for 30 days <b>$129</b></label><br/>
             <br />
             <br />
-            <input type="submit" id="submit" value="Pin To The Homepage For {{ .Currency.Symbol }}59" onclick="pin();" style="float: right;">
+            <input type="submit" id="submit" value="Pin To The Homepage For $59" onclick="pin();" style="float: right;">
             <br />
         </p>
     </article>
@@ -212,7 +212,7 @@ body{background:#ffffff;}
                             {
                                 ad_type: adType,
                                 email: email,
-                                currency_code: '{{ .Currency.Code }}',
+                                currency_code: 'USD',
                                 token: '{{ .Token }}'
                             },
                             function(success, body) {
@@ -243,19 +243,19 @@ body{background:#ffffff;}
       document.getElementById("ad-type-2").addEventListener('change', function() {
             if (this.checked) {
                 document.getElementById("ad-type-3").checked = false;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}129';
+                document.getElementById("submit").value = 'Pin To The Homepage For $129';
             } else {
                 document.getElementById("ad-type-3").checked = true;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}59';
+                document.getElementById("submit").value = 'Pin To The Homepage For $59';
             }
         });
         document.getElementById("ad-type-3").addEventListener('change', function() {
             if (this.checked) {
                 document.getElementById("ad-type-2").checked = false;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}59';
+                document.getElementById("submit").value = 'Pin To The Homepage For $59';
             } else {
                 document.getElementById("ad-type-2").checked = true;
-                document.getElementById("submit").value = 'Pin To The Homepage For {{ .Currency.Symbol }}129';
+                document.getElementById("submit").value = 'Pin To The Homepage For $129';
             }
         });
     </script>

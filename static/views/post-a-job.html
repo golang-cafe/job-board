@@ -172,17 +172,17 @@ body{background:#ffffff;}
                     <div class="clearfix"></div>
                 </article>
                 <h4>Choose Your Package</h4>
-                <input type="checkbox" disabled name="ad-type-0" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-0" checked><label>Standard Submission <b>{{ .Currency.Symbol }}39</b></label><br/>
+                <input type="checkbox" disabled name="ad-type-0" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-0" checked><label>Standard Submission <b>$39</b></label><br/>
 		<input type="checkbox" disabled style="margin-right: 8px; margin-bottom: 5px;" checked><label>👤 Get Matched with {{ .SiteJobCategory }} developers from the directory <b>Included</b></label><br/>
                 <input type="checkbox" disabled style="margin-right: 8px; margin-bottom: 5px;" checked><label>✉️  Share job on the weekly newsletter <b>Included</b></label><br/>
-                <input type="checkbox" name="ad-type-4" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-4" checked><label>🖼 Add Company Logo besides Job Post <b>{{ .Currency.Symbol }}49</b></label><br/>
+                <input type="checkbox" name="ad-type-4" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-4" checked><label>🖼 Add Company Logo besides Job Post <b>$49</b></label><br/>
                 <h4>Get 2x More Views</h4>
-                <input type="checkbox" name="ad-type-3" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-3" checked><label>📌 Pinned to the Front Page for 7 days <b>{{ .Currency.Symbol }}59</b></label><br/>
-                <input type="checkbox" name="ad-type-2" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-2"><label>📌 Pinned to the Front Page for 30 days <b>{{ .Currency.Symbol }}129</b>  (save 48%)</label><br/>
-                <input type="checkbox" name="ad-type-5" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-5"><label>📌 Pinned to the Front Page for 60 days <b>{{ .Currency.Symbol }}199</b>  (save 60%)</label><br/>
+                <input type="checkbox" name="ad-type-3" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-3" checked><label>📌 Pinned to the Front Page for 7 days <b>$59</b></label><br/>
+                <input type="checkbox" name="ad-type-2" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-2"><label>📌 Pinned to the Front Page for 30 days <b>$129</b>  (save 48%)</label><br/>
+                <input type="checkbox" name="ad-type-5" style="margin-right: 8px; margin-bottom: 5px;" id="ad-type-5"><label>📌 Pinned to the Front Page for 60 days <b>$199</b>  (save 60%)</label><br/>
                 <br />
                 <br />
-		<input type="submit" id="submit" value="Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}59" onclick="post();" style="float: right;margin-right:0px;margin-bottom:0px;">
+		<input type="submit" id="submit" value="Hire {{ .SiteJobCategory }} Developers $59" onclick="post();" style="float: right;margin-right:0px;margin-bottom:0px;">
                 <div class="clearfix"></div>
 		<p style="line-height:1rem;float:right;width:50%;text-align:right;font-size:9pt;margin-bottom:0px;margin-top:10px;">This is not a subscription. You will only be charged once. By continuing you accept the <a href="/terms-of-service" target="_blank">Terms of Service</a></p>
                 <div class="clearfix"></div>
@@ -271,12 +271,12 @@ body{background:#ffffff;}
                 document.getElementById("ad-type-4").checked = true;
                 document.getElementById("ad-type-3").checked = false;
                 document.getElementById("ad-type-2").checked = false;
-		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}199';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers $199';
             } else {
                 document.getElementById("ad-type-4").checked = true;
                 document.getElementById("ad-type-3").checked = false;
                 document.getElementById("ad-type-2").checked = false;
-		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}49';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers $49';
             }
             updateJobPreviewImg();
             updateSponsoredJobPreview();
@@ -286,25 +286,25 @@ body{background:#ffffff;}
                 document.getElementById("ad-type-4").checked = true;
                 document.getElementById("ad-type-3").checked = false;
                 document.getElementById("ad-type-5").checked = false;
-		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}129';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers $129';
             } else {
                 document.getElementById("ad-type-4").checked = true;
                 document.getElementById("ad-type-3").checked = false;
                 document.getElementById("ad-type-5").checked = false;
-		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}49';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers $49';
             }
             updateJobPreviewImg();
             updateSponsoredJobPreview();
         });
         document.getElementById("ad-type-4").addEventListener('change', function() {
             if (this.checked) {
-		    document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}49';
+		    document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers $49';
             } else {
                 if (confirm("You are about to remove your company logo from you Ad. Are you sure?")) {
                     document.getElementById("ad-type-2").checked = false;
                     document.getElementById("ad-type-3").checked = false;
                     document.getElementById("ad-type-5").checked = false;
-		    document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}39';
+		    document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers $39';
                 } else {
                     this.checked = true;
                 }
@@ -317,12 +317,12 @@ body{background:#ffffff;}
                 document.getElementById("ad-type-4").checked = true;
                 document.getElementById("ad-type-2").checked = false;
                 document.getElementById("ad-type-5").checked = false;
-		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}59';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers $59';
             } else {
                 document.getElementById("ad-type-3").checked = false;
                 document.getElementById("ad-type-2").checked = false;
                 document.getElementById("ad-type-5").checked = false;
-		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers {{ .Currency.Symbol }}49';
+		document.getElementById("submit").value = 'Hire {{ .SiteJobCategory }} Developers $49';
             }
             updateJobPreviewImg();
             updateSponsoredJobPreview();
@@ -451,7 +451,7 @@ body{background:#ffffff;}
                                 how_to_apply: howToApply,
                                 company_email: companyEmail,
                                 ad_type: adType,
-                                currency_code: '{{ .Currency.Code }}',
+                                currency_code: 'USD',
                                 company_icon_id: companyIconId,
 				visa_sponsorship: visaSponsorship
                             },
@@ -496,7 +496,7 @@ body{background:#ffffff;}
                         how_to_apply: howToApply,
                         company_email: companyEmail,
                         ad_type: adType,
-                        currency_code: '{{ .Currency.Code }}',
+                        currency_code: 'USD',
 			visa_sponsorship: visaSponsorship
                     },
                     function(success, body) {

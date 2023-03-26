@@ -1705,7 +1705,6 @@ func ShowPaymentPage(svr server.Server) http.HandlerFunc {
 		}
 		curSymb := map[string]string{"USD": "$", "GBP": "£", "EUR": "€"}
 		svr.Render(r, w, http.StatusOK, "payment.html", map[string]interface{}{
-			"Currency":             currency,
 			"CurrencySymbol":       curSymb[currency],
 			"StripePublishableKey": svr.GetConfig().StripePublishableKey,
 			"Email":                email,
@@ -3220,10 +3219,6 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to marshal stats for job id %d", jobID))
 		}
-		currency, err := svr.GetCurrencyFromRequest(r)
-		if err != nil {
-			svr.Log(err, "could not find ip address in x-forwarded-for, defaulting currency to USD")
-		}
 		svr.Render(r, w, http.StatusOK, "edit.html", map[string]interface{}{
 			"Job":                        jobPost,
 			"Stats":                      string(statsSet),
@@ -3238,7 +3233,6 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			"IsCallback":                 isCallback,
 			"PaymentSuccess":             paymentSuccess,
 			"IsUpsell":                   len(expiredUpsell) > 0,
-			"Currency":                   currency,
 			"StripePublishableKey":       svr.GetConfig().StripePublishableKey,
 			"IsUnpinned":                 jobPost.AdType < 1,
 		})

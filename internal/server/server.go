@@ -914,10 +914,6 @@ func (s Server) RenderPageForLocationAndTagAdmin(r *http.Request, w http.Respons
 }
 
 func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request, companyRepo *company.Repository, jobRepo *job.Repository, location string) {
-	currency, err := s.GetCurrencyFromRequest(r)
-	if err != nil {
-		s.Log(err, "could not find ip address in x-forwarded-for, defaulting currency to USD")
-	}
 	var defaultJobPageviewsLast30Days = 15000
 	var defaultJobApplicantsLast30Days = 1000
 	var defaultPageviewsLast30Days = 4000
@@ -958,7 +954,6 @@ func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request
 	}
 	s.Render(r, w, http.StatusOK, "post-a-job.html", map[string]interface{}{
 		"Location":                 location,
-		"Currency":                 currency,
 		"PageviewsLastMonth":       humanize.Comma(int64(pageviewsLast30Days)),
 		"JobPageviewsLastMonth":    humanize.Comma(int64(jobPageviewsLast30Days)),
 		"JobApplicantsLastMonth":   humanize.Comma(int64(jobApplicantsLast30Days)),
