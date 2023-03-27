@@ -126,6 +126,11 @@ func main() {
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
+		"/community",
+		handler.PermanentRedirectHandler(svr, fmt.Sprintf("/Join-%s-Community", strings.Title(cfg.SiteJobCategory))),
+		[]string{"GET"},
+	)
+	svr.RegisterRoute(
 		fmt.Sprintf("/Join-%s-Community", strings.Title(cfg.SiteJobCategory)),
 		handler.SubmitDeveloperProfileHandler(svr, devRepo),
 		[]string{"GET"},
