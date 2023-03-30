@@ -826,6 +826,7 @@
 	<script src="https://js.stripe.com/v3/"></script>
 	{{ template "feedback-box-css" . }}
 	{{ template "google-analytics" }}
+	{{ template "bing-analytics" }}
 </head>
 
 <body>
@@ -1007,6 +1008,10 @@
 				}
 			}
 		};
+		function uet_report_conversion() {
+			window.uetq = window.uetq || [];
+			window.uetq.push("event", "submit_lead_form", {"revenue_value":"5","currency":"USD"});
+		}
 		function empty() {
 			var isThere = true;
 			for (var i = 0; i < arguments.length; i++) {
@@ -1141,6 +1146,7 @@
 									document.getElementById("spinner-0").style.display = "none";
 									alert('Please check your email to confirm your profile.');
   									gtag('event', 'conversion', {'send_to': 'AW-10970937211/yqjWCKDl64sYEPvurO8o'});
+									uet_report_conversion();
 									window.location.href = '/Submit-Developer-Profile';
 								} else {
 									document.getElementById("spinner-0").style.display = "none";
