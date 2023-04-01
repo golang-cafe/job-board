@@ -177,7 +177,7 @@ body{background:#ffffff;}
                 return;
             }
             var hasFile = document.getElementById('company-icon-file').files.length > 0;
-            if (hasFile) {
+            if (!hasFile) {
                 alert('Please add company logo');
                 return;
             }
