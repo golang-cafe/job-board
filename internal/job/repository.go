@@ -2,6 +2,7 @@ package job
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -58,51 +59,18 @@ func (r *Repository) GetJobByExternalID(externalID string) (JobPost, error) {
 	return job, nil
 }
 
-func (r *Repository) GetJobsOlderThan(since time.Time, adType JobAdType) ([]JobPost, error) {
-	var jobs []JobPost
-	rows, err := r.db.Query(`SELECT id, job_title, company, company_url, company_email, salary_range, location, how_to_apply, slug, external_id, approved_at FROM job j WHERE approved_at <= $1 AND ad_type = $2`, since, adType)
-	if err == sql.ErrNoRows {
-		return jobs, nil
-	}
-	for rows.Next() {
-		var job JobPost
-		var approvedAt sql.NullTime
-		err := rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.CompanyEmail, &job.SalaryRange, &job.Location, &job.HowToApply, &job.Slug, &job.ExternalID, &approvedAt)
-		if err != nil {
-			return jobs, err
-		}
-		if approvedAt.Valid {
-			job.ApprovedAt = &approvedAt.Time
-		}
-		jobs = append(jobs, job)
-	}
-
-	return jobs, nil
-}
-
-func (r *Repository) DemoteJobAdsOlderThan(since time.Time, jobAdType JobAdType) (int, error) {
-	res := r.db.QueryRow(`WITH rows AS (UPDATE job SET ad_type = $1 WHERE ad_type = $2 AND approved_at <= $3 RETURNING 1) SELECT count(*) as c FROM rows;`, JobAdBasic, jobAdType, since)
-	var affected int
-	err := res.Scan(&affected)
-	if err != nil {
-		return 0, err
-	}
-	return affected, nil
-}
-
 func (r *Repository) SaveDraft(job *JobRq) (int, error) {
 	externalID, err := ksuid.NewRandom()
 	if err != nil {
 		return 0, err
 	}
-	sqlStatement := `
-			INSERT INTO job (job_title, company, company_url, salary_range, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, company_email, ad_type, external_id, salary_period, salary_currency_iso, visa_sponsorship)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, 'year', $19, $20) RETURNING id`
-	if job.CompanyIconID != "" {
-		sqlStatement = `
-			INSERT INTO job (job_title, company, company_url, salary_range, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, company_email, ad_type, company_icon_image_id, external_id, salary_period, salary_currency_iso, visa_sponsorship)
-			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, $19, 'year', $20, $21) RETURNING id`
+	expiration, err := r.PlanTypeAndDurationToExpirations(job.PlanType, job.PlanDuration)
+	if err != nil {
+		return 0, err
 	}
+	sqlStatement := `
+			INSERT INTO job (job_title, company, company_url, salary_range, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, company_email, company_icon_image_id, external_id, salary_period, salary_currency_iso, visa_sponsorship, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at)
+			VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, 'year', $19, $20, $21, $22, $23, $24, $25, $26, $27, $28) RETURNING id`
 	slugTitle := slug.Make(fmt.Sprintf("%s %s %d", job.JobTitle, job.Company, time.Now().UTC().Unix()))
 	createdAt := time.Now().UTC().Unix()
 	salaryMinInt, err := strconv.Atoi(strings.TrimSpace(job.SalaryMin))
@@ -115,14 +83,39 @@ func (r *Repository) SaveDraft(job *JobRq) (int, error) {
 	}
 	salaryRange := salaryToSalaryRangeString(salaryMinInt, salaryMaxInt, job.SalaryCurrency)
 	var lastInsertID int
-	var res *sql.Row
-	if job.CompanyIconID != "" {
-		res = r.db.QueryRow(sqlStatement, job.JobTitle, job.Company, job.CompanyURL, salaryRange, job.SalaryMin, job.SalaryMax, job.SalaryCurrency, job.Location, job.Description, job.Perks, job.InterviewProcess, job.HowToApply, time.Unix(createdAt, 0), createdAt, slugTitle, job.Email, job.AdType, job.CompanyIconID, externalID, job.SalaryCurrencyISO, job.VisaSponsorship)
-	} else {
-		res = r.db.QueryRow(sqlStatement, job.JobTitle, job.Company, job.CompanyURL, salaryRange, job.SalaryMin, job.SalaryMax, job.SalaryCurrency, job.Location, job.Description, job.Perks, job.InterviewProcess, job.HowToApply, time.Unix(createdAt, 0), createdAt, slugTitle, job.Email, job.AdType, externalID, job.SalaryCurrencyISO, job.VisaSponsorship)
-	}
-	res.Scan(&lastInsertID)
-	if err != nil {
+	res := r.db.QueryRow(
+		sqlStatement,
+		job.JobTitle,
+		job.Company,
+		job.CompanyURL,
+		salaryRange,
+		job.SalaryMin,
+		job.SalaryMax,
+		job.SalaryCurrency,
+		job.Location,
+		job.Description,
+		job.Perks,
+		job.InterviewProcess,
+		job.HowToApply,
+		time.Unix(createdAt, 0),
+		createdAt,
+		slugTitle,
+		job.Email,
+		job.CompanyIconID,
+		externalID,
+		job.SalaryCurrencyISO,
+		job.VisaSponsorship,
+		job.PlanType,
+		job.PlanDuration,
+		expiration.BlogEligibilityExpiredAt,
+		expiration.CompanyPageEligibilityExpiredAt,
+		expiration.FrontPageEligibilityExpiredAt,
+		expiration.NewsletterEligibilityExpiredAt,
+		expiration.PlanExpiredAt,
+		expiration.SocialMediaEligibilityExpiredAt,
+	)
+
+	if err := res.Scan(&lastInsertID); err != nil {
 		return 0, err
 	}
 	return int(lastInsertID), err
@@ -194,10 +187,29 @@ func (r *Repository) GetViewCountForJob(jobID int) (int, error) {
 }
 
 func (r *Repository) GetJobByStripeSessionID(sessionID string) (JobPost, error) {
-	res := r.db.QueryRow(`SELECT j.id, j.job_title, j.company, j.company_url, j.salary_range, j.location, j.how_to_apply, j.slug, j.external_id, j.approved_at FROM purchase_event p LEFT JOIN job j ON p.job_id = j.id WHERE p.stripe_session_id = $1`, sessionID)
+	res := r.db.QueryRow(`SELECT j.id, j.job_title, j.company, j.company_url, j.salary_range, j.location, j.how_to_apply, j.slug, j.external_id, j.approved_at, j.plan_type, j.plan_duration, j.blog_eligibility_expired_at, j.company_page_eligibility_expired_at, j.front_page_eligibility_expired_at, j.newsletter_eligibility_expired_at, j.plan_expired_at, j.social_media_eligibility_expired_at FROM purchase_event p LEFT JOIN job j ON p.job_id = j.id WHERE p.stripe_session_id = $1`, sessionID)
 	var job JobPost
 	var approvedAt sql.NullTime
-	err := res.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.HowToApply, &job.Slug, &job.ExternalID, &approvedAt)
+	err := res.Scan(
+		&job.ID,
+		&job.JobTitle,
+		&job.Company,
+		&job.CompanyURL,
+		&job.SalaryRange,
+		&job.Location,
+		&job.HowToApply,
+		&job.Slug,
+		&job.ExternalID,
+		&approvedAt,
+		&job.PlanType,
+		&job.PlanDuration,
+		&job.BlogEligibilityExpiredAt,
+		&job.CompanyPageEligibilityExpiredAt,
+		&job.FrontPageEligibilityExpiredAt,
+		&job.NewsletterEligibilityExpiredAt,
+		&job.PlanExpiredAt,
+		&job.SocialMediaEligibilityExpiredAt,
+	)
 	if err != nil {
 		return job, err
 	}
@@ -232,7 +244,7 @@ func (r *Repository) JobPostByCreatedAt() ([]*JobPost, error) {
 	jobs := []*JobPost{}
 	var rows *sql.Rows
 	rows, err := r.db.Query(
-		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 		FROM job
 		WHERE approved_at IS NOT NULL
 		ORDER BY created_at DESC`)
@@ -243,7 +255,7 @@ func (r *Repository) JobPostByCreatedAt() ([]*JobPost, error) {
 		job := &JobPost{}
 		var createdAt time.Time
 		var perks, interview, companyIcon sql.NullString
-		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired, &job.LastWeekClickouts)
+		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired, &job.LastWeekClickouts)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}
@@ -270,7 +282,7 @@ func (r *Repository) TopNJobsByCurrencyAndLocation(currency, location string, ma
 	jobs := []*JobPost{}
 	var rows *sql.Rows
 	rows, err := r.db.Query(
-		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period
+		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period
 		FROM job
 		WHERE salary_currency = $1
 		AND location ILIKE '%' || $2 || '%'
@@ -283,7 +295,7 @@ func (r *Repository) TopNJobsByCurrencyAndLocation(currency, location string, ma
 		job := &JobPost{}
 		var createdAt time.Time
 		var perks, interview, companyIcon sql.NullString
-		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod)
+		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}
@@ -309,13 +321,13 @@ func (r *Repository) TopNJobsByCurrencyAndLocation(currency, location string, ma
 func (r *Repository) JobPostBySlug(slug string) (*JobPost, error) {
 	job := &JobPost{}
 	row := r.db.QueryRow(
-		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 		FROM job
 		WHERE approved_at IS NOT NULL
 		AND slug = $1`, slug)
 	var createdAt time.Time
 	var perks, interview, companyIcon sql.NullString
-	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired, &job.LastWeekClickouts)
+	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired, &job.LastWeekClickouts)
 	if companyIcon.Valid {
 		job.CompanyIconID = companyIcon.String
 	}
@@ -335,12 +347,12 @@ func (r *Repository) JobPostBySlug(slug string) (*JobPost, error) {
 func (r *Repository) JobPostBySlugAdmin(slug string) (*JobPost, error) {
 	job := &JobPost{}
 	row := r.db.QueryRow(
-		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period
+		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period
 		FROM job
 		WHERE slug = $1`, slug)
 	var createdAt time.Time
 	var perks, interview, companyIcon sql.NullString
-	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod)
+	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod)
 	if companyIcon.Valid {
 		job.CompanyIconID = companyIcon.String
 	}
@@ -360,11 +372,41 @@ func (r *Repository) JobPostBySlugAdmin(slug string) (*JobPost, error) {
 func (r *Repository) JobPostByIDForEdit(jobID int) (*JobPostForEdit, error) {
 	job := &JobPostForEdit{}
 	row := r.db.QueryRow(
-		`SELECT job_title, company, company_email, company_url, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, slug, approved_at, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period
+		`SELECT job_title, company, company_email, company_url, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, slug, approved_at, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at
 		FROM job
 		WHERE id = $1`, jobID)
 	var perks, interview, companyURL, companyIconID sql.NullString
-	err := row.Scan(&job.JobTitle, &job.Company, &job.CompanyEmail, &companyURL, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &job.CreatedAt, &job.Slug, &job.ApprovedAt, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIconID, &job.ExternalID, &job.SalaryPeriod)
+	err := row.Scan(
+		&job.JobTitle,
+		&job.Company,
+		&job.CompanyEmail,
+		&companyURL,
+		&job.SalaryMin,
+		&job.SalaryMax,
+		&job.SalaryCurrency,
+		&job.Location,
+		&job.JobDescription,
+		&perks,
+		&interview,
+		&job.HowToApply,
+		&job.CreatedAt,
+		&job.Slug,
+		&job.ApprovedAt,
+		&job.SalaryMin,
+		&job.SalaryMax,
+		&job.SalaryCurrency,
+		&companyIconID,
+		&job.ExternalID,
+		&job.SalaryPeriod,
+		&job.PlanType,
+		&job.PlanDuration,
+		&job.BlogEligibilityExpiredAt,
+		&job.CompanyPageEligibilityExpiredAt,
+		&job.FrontPageEligibilityExpiredAt,
+		&job.NewsletterEligibilityExpiredAt,
+		&job.PlanExpiredAt,
+		&job.SocialMediaEligibilityExpiredAt,
+	)
 	if err != nil {
 		return job, err
 	}
@@ -388,11 +430,11 @@ func (r *Repository) JobPostByIDForEdit(jobID int) (*JobPostForEdit, error) {
 func (r *Repository) JobPostByExternalIDForEdit(externalID string) (*JobPostForEdit, error) {
 	job := &JobPostForEdit{}
 	row := r.db.QueryRow(
-		`SELECT id, job_title, company, company_email, company_url, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, slug, approved_at, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period
+		`SELECT id, job_title, company, company_email, company_url, salary_min, salary_max, salary_currency, location, description, perks, interview_process, how_to_apply, created_at, slug, approved_at, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period
 		FROM job
 		WHERE external_id = $1`, externalID)
 	var perks, interview, companyURL, companyIconID sql.NullString
-	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyEmail, &companyURL, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &job.CreatedAt, &job.Slug, &job.ApprovedAt, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIconID, &job.ExternalID, &job.SalaryPeriod)
+	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyEmail, &companyURL, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &job.CreatedAt, &job.Slug, &job.ApprovedAt, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIconID, &job.ExternalID, &job.SalaryPeriod)
 	if err != nil {
 		return job, err
 	}
@@ -416,13 +458,13 @@ func (r *Repository) JobPostByExternalIDForEdit(externalID string) (*JobPostForE
 func (r *Repository) JobPostByURLID(URLID int64) (*JobPost, error) {
 	job := &JobPost{}
 	row := r.db.QueryRow(
-		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+		`SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
 		FROM job
 		WHERE approved_at IS NOT NULL
 		AND url_id = $1`, URLID)
 	var createdAt time.Time
 	var perks, interview, companyIcon sql.NullString
-	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired, &job.LastWeekClickouts)
+	err := row.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired, &job.LastWeekClickouts)
 	if err != nil {
 		return job, err
 	}
@@ -483,7 +525,7 @@ func (r *Repository) GetPendingJobs() ([]*JobPost, error) {
 	jobs := []*JobPost{}
 	var rows *sql.Rows
 	rows, err := r.db.Query(`
-	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period
+	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period
 		FROM job WHERE approved_at IS NULL`)
 	if err == sql.ErrNoRows {
 		return jobs, nil
@@ -496,7 +538,7 @@ func (r *Repository) GetPendingJobs() ([]*JobPost, error) {
 		job := &JobPost{}
 		var createdAt time.Time
 		var perks, interview, companyIcon sql.NullString
-		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod)
+		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}
@@ -524,8 +566,8 @@ func (r *Repository) GetCompanyJobs(companyName string, limit int) ([]*JobPost, 
 	jobs := []*JobPost{}
 	var rows *sql.Rows
 	rows, err := r.db.Query(`
-	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, last_week_clickouts
-		FROM job WHERE approved_at IS NOT NULL AND expired IS FALSE AND company = $1 ORDER BY ad_type DESC, approved_at DESC LIMIT $2`, companyName, limit)
+	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, last_week_clickouts
+		FROM job WHERE approved_at IS NOT NULL AND expired IS FALSE AND company = $1 ORDER BY created_at DESC, approved_at DESC LIMIT $2`, companyName, limit)
 	if err != nil {
 		return jobs, err
 	}
@@ -534,7 +576,7 @@ func (r *Repository) GetCompanyJobs(companyName string, limit int) ([]*JobPost, 
 		job := &JobPost{}
 		var createdAt time.Time
 		var perks, interview, companyIcon sql.NullString
-		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.LastWeekClickouts)
+		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.LastWeekClickouts)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}
@@ -562,8 +604,8 @@ func (r *Repository) GetRelevantJobs(location string, jobID int, limit int) ([]*
 	jobs := []*JobPost{}
 	var rows *sql.Rows
 	rows, err := r.db.Query(`
-	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, last_week_clickouts
-		FROM job WHERE approved_at IS NOT NULL AND id != $1 AND expired IS FALSE ORDER BY ad_type DESC, approved_at DESC, word_similarity($2, location) LIMIT $3`, jobID, location, limit)
+	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, last_week_clickouts
+		FROM job WHERE approved_at IS NOT NULL AND id != $1 AND expired IS FALSE ORDER BY created_at DESC, approved_at DESC, word_similarity($2, location) LIMIT $3`, jobID, location, limit)
 	if err != nil {
 		return jobs, err
 	}
@@ -572,7 +614,7 @@ func (r *Repository) GetRelevantJobs(location string, jobID int, limit int) ([]*
 		job := &JobPost{}
 		var createdAt time.Time
 		var perks, interview, companyIcon sql.NullString
-		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.LastWeekClickouts)
+		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.LastWeekClickouts)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}
@@ -599,8 +641,8 @@ func (r *Repository) GetPinnedJobs() ([]*JobPost, error) {
 	jobs := []*JobPost{}
 	var rows *sql.Rows
 	rows, err := r.db.Query(`
-	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, last_week_clickouts
-		FROM job WHERE approved_at IS NOT NULL AND ad_type IN (2, 3, 5) ORDER BY approved_at DESC`)
+	SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, last_week_clickouts
+		FROM job WHERE approved_at IS NOT NULL AND front_page_eligibility_expired_at > NOW() ORDER BY approved_at DESC`)
 	if err != nil {
 		return jobs, err
 	}
@@ -609,7 +651,7 @@ func (r *Repository) GetPinnedJobs() ([]*JobPost, error) {
 		job := &JobPost{}
 		var createdAt time.Time
 		var perks, interview, companyIcon sql.NullString
-		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.LastWeekClickouts)
+		err = rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.LastWeekClickouts)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}
@@ -650,7 +692,38 @@ func (r *Repository) JobsByQuery(location, tag string, pageId, salary int, curre
 		job := &JobPost{}
 		var createdAt time.Time
 		var perks, interview, companyIcon sql.NullString
-		err = rows.Scan(&fullRowsCount, &job.ID, &job.JobTitle, &job.Company, &job.CompanyURL, &job.SalaryRange, &job.Location, &job.JobDescription, &perks, &interview, &job.HowToApply, &createdAt, &job.CreatedAt, &job.Slug, &job.AdType, &job.SalaryMin, &job.SalaryMax, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod, &job.Expired, &job.LastWeekClickouts)
+		err = rows.Scan(
+			&fullRowsCount,
+			&job.ID,
+			&job.JobTitle,
+			&job.Company,
+			&job.CompanyURL,
+			&job.SalaryRange,
+			&job.Location,
+			&job.JobDescription,
+			&perks,
+			&interview,
+			&job.HowToApply,
+			&createdAt,
+			&job.CreatedAt,
+			&job.Slug,
+			&job.SalaryMin,
+			&job.SalaryMax,
+			&job.SalaryCurrency,
+			&companyIcon,
+			&job.ExternalID,
+			&job.SalaryPeriod,
+			&job.Expired,
+			&job.LastWeekClickouts,
+			&job.PlanType,
+			&job.PlanDuration,
+			&job.BlogEligibilityExpiredAt,
+			&job.CompanyPageEligibilityExpiredAt,
+			&job.FrontPageEligibilityExpiredAt,
+			&job.NewsletterEligibilityExpiredAt,
+			&job.PlanExpiredAt,
+			&job.SocialMediaEligibilityExpiredAt,
+		)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}
@@ -788,8 +861,95 @@ func (r *Repository) GetJobApplyURLs() ([]JobApplyURL, error) {
 	return jobURLs, nil
 }
 
-func (r *Repository) UpdateJobAdType(adType int, jobID int) error {
-	_, err := r.db.Exec(`UPDATE job SET ad_type = $1, approved_at = NOW() WHERE id = $2`, adType, jobID)
+type JobExpirationEntity struct {
+	NewsletterEligibilityExpiredAt  time.Time
+	BlogEligibilityExpiredAt        time.Time
+	SocialMediaEligibilityExpiredAt time.Time
+	FrontPageEligibilityExpiredAt   time.Time
+	CompanyPageEligibilityExpiredAt time.Time
+	PlanExpiredAt                   time.Time
+}
+
+func (r *Repository) PlanTypeAndDurationToExpirations(planType string, planDuration int) (JobExpirationEntity, error) {
+	maps := map[string]JobExpirationEntity{
+		JobPlanTypeBasic: {
+			NewsletterEligibilityExpiredAt:  time.Now().AddDate(0, 0, 0),
+			BlogEligibilityExpiredAt:        time.Now().AddDate(0, 0, 0),
+			SocialMediaEligibilityExpiredAt: time.Now().AddDate(0, 0, 0),
+			FrontPageEligibilityExpiredAt:   time.Now().AddDate(0, 0, 0),
+			CompanyPageEligibilityExpiredAt: time.Now().AddDate(0, 0, 0),
+			PlanExpiredAt:                   time.Now().AddDate(0, 0, 30*planDuration),
+		},
+		JobPlanTypePro: {
+			NewsletterEligibilityExpiredAt:  time.Now().AddDate(0, 0, 30*planDuration),
+			BlogEligibilityExpiredAt:        time.Now().AddDate(0, 0, 0),
+			SocialMediaEligibilityExpiredAt: time.Now().AddDate(0, 0, 30*planDuration),
+			FrontPageEligibilityExpiredAt:   time.Now().AddDate(0, 0, 14*planDuration),
+			CompanyPageEligibilityExpiredAt: time.Now().AddDate(0, 0, 0),
+			PlanExpiredAt:                   time.Now().AddDate(0, 0, 30*planDuration),
+		},
+		JobPlanTypePlatinum: {
+			NewsletterEligibilityExpiredAt:  time.Now().AddDate(0, 0, 30*planDuration),
+			BlogEligibilityExpiredAt:        time.Now().AddDate(0, 0, 30*planDuration),
+			SocialMediaEligibilityExpiredAt: time.Now().AddDate(0, 0, 30*planDuration),
+			FrontPageEligibilityExpiredAt:   time.Now().AddDate(0, 0, 30*planDuration),
+			CompanyPageEligibilityExpiredAt: time.Now().AddDate(0, 0, 30*planDuration),
+			PlanExpiredAt:                   time.Now().AddDate(0, 0, 30*planDuration),
+		},
+	}
+	val, ok := maps[planType]
+	if !ok {
+		return JobExpirationEntity{}, errors.New("invalid plan type")
+	}
+	return val, nil
+}
+
+func (r *Repository) PlanTypeAndDurationToExpirationsFromExistingExpirations(expiration JobExpirationEntity, planType string, planDuration int) (JobExpirationEntity, error) {
+	maps := map[string]JobExpirationEntity{
+		JobPlanTypeBasic: {
+			NewsletterEligibilityExpiredAt:  expiration.NewsletterEligibilityExpiredAt.AddDate(0, 0, 0),
+			BlogEligibilityExpiredAt:        expiration.BlogEligibilityExpiredAt.AddDate(0, 0, 0),
+			SocialMediaEligibilityExpiredAt: expiration.SocialMediaEligibilityExpiredAt.AddDate(0, 0, 0),
+			FrontPageEligibilityExpiredAt:   expiration.FrontPageEligibilityExpiredAt.AddDate(0, 0, 0),
+			CompanyPageEligibilityExpiredAt: expiration.CompanyPageEligibilityExpiredAt.AddDate(0, 0, 0),
+			PlanExpiredAt:                   expiration.PlanExpiredAt.AddDate(0, 0, 30*planDuration),
+		},
+		JobPlanTypePro: {
+			NewsletterEligibilityExpiredAt:  expiration.NewsletterEligibilityExpiredAt.AddDate(0, 0, 30*planDuration),
+			BlogEligibilityExpiredAt:        expiration.BlogEligibilityExpiredAt.AddDate(0, 0, 0),
+			SocialMediaEligibilityExpiredAt: expiration.SocialMediaEligibilityExpiredAt.AddDate(0, 0, 30*planDuration),
+			FrontPageEligibilityExpiredAt:   expiration.FrontPageEligibilityExpiredAt.AddDate(0, 0, 14*planDuration),
+			CompanyPageEligibilityExpiredAt: expiration.CompanyPageEligibilityExpiredAt.AddDate(0, 0, 0),
+			PlanExpiredAt:                   expiration.PlanExpiredAt.AddDate(0, 0, 30*planDuration),
+		},
+		JobPlanTypePlatinum: {
+			NewsletterEligibilityExpiredAt:  expiration.NewsletterEligibilityExpiredAt.AddDate(0, 0, 30*planDuration),
+			BlogEligibilityExpiredAt:        expiration.BlogEligibilityExpiredAt.AddDate(0, 0, 30*planDuration),
+			SocialMediaEligibilityExpiredAt: expiration.SocialMediaEligibilityExpiredAt.AddDate(0, 0, 30*planDuration),
+			FrontPageEligibilityExpiredAt:   expiration.FrontPageEligibilityExpiredAt.AddDate(0, 0, 30*planDuration),
+			CompanyPageEligibilityExpiredAt: expiration.CompanyPageEligibilityExpiredAt.AddDate(0, 0, 30*planDuration),
+			PlanExpiredAt:                   expiration.PlanExpiredAt.AddDate(0, 0, 30*planDuration),
+		},
+	}
+	val, ok := maps[planType]
+	if !ok {
+		return JobExpirationEntity{}, errors.New("invalid plan type")
+	}
+	return val, nil
+}
+
+func (r *Repository) UpdateJobPlan(jobID int, planType string, planDuration int, expiration JobExpirationEntity) error {
+	_, err := r.db.Exec(
+		`UPDATE job SET plan_type = $1, plan_duration = $2, newsletter_eligibility_expired_at = $3, blog_eligibility_expired_at = $4, social_media_eligibility_expired_at = $5, front_page_eligibility_expired_at = $6, company_page_eligibility_expired_at = $7, plan_expired_at = $8, approved_at = NOW() WHERE id = $9`,
+		planType,
+		planDuration,
+		expiration.NewsletterEligibilityExpiredAt,
+		expiration.BlogEligibilityExpiredAt,
+		expiration.SocialMediaEligibilityExpiredAt,
+		expiration.FrontPageEligibilityExpiredAt,
+		expiration.CompanyPageEligibilityExpiredAt,
+		expiration.PlanExpiredAt,
+		jobID)
 	return err
 }
 
@@ -880,41 +1040,41 @@ func salaryToSalaryRangeString(salaryMin, salaryMax int, currency string) string
 }
 
 func getQueryForArgs(conn *sql.DB, location, tag string, salary int, currency string, offset, max int, includePinnedJobs bool) (*sql.Rows, error) {
-	adTypeFilter := "AND ad_type NOT IN (2, 3, 5)"
+	planTypeFilter := "AND front_page_eligibility_expired_at < NOW()"
 	if includePinnedJobs {
-		adTypeFilter = "AND 1=1"
+		planTypeFilter = "AND 1=1"
 	}
 	if tag == "" && location == "" && salary == 0 {
 		return conn.Query(`
-		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at
 		FROM job
-		WHERE approved_at IS NOT NULL `+adTypeFilter+` ORDER BY created_at DESC LIMIT $2 OFFSET $1`, offset, max)
+		WHERE approved_at IS NOT NULL `+planTypeFilter+` ORDER BY created_at DESC LIMIT $2 OFFSET $1`, offset, max)
 	}
 	if tag == "" && location != "" && salary == 0 {
 		return conn.Query(`
-		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts 
+		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at 
 		FROM job
-		WHERE approved_at IS NOT NULL `+adTypeFilter+` AND location ILIKE '%' || $1 || '%'
+		WHERE approved_at IS NOT NULL `+planTypeFilter+` AND location ILIKE '%' || $1 || '%'
 		ORDER BY created_at DESC LIMIT $3 OFFSET $2`, location, offset, max)
 	}
 	if tag != "" && location == "" && salary == 0 {
 		return conn.Query(`
-	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at
 	FROM
 	(
-		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
-		FROM job WHERE approved_at IS NOT NULL `+adTypeFilter+`
+		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
+		FROM job WHERE approved_at IS NOT NULL `+planTypeFilter+`
 	) AS job_
 	WHERE job_.doc @@ to_tsquery($1)
 	ORDER BY ts_rank(job_.doc, to_tsquery($1)) DESC, created_at DESC LIMIT $3 OFFSET $2`, tag, offset, max)
 	}
 	if tag != "" && location != "" && salary == 0 {
 		return conn.Query(`
-	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at
 	FROM
 	(
-		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
-		FROM job WHERE approved_at IS NOT NULL `+adTypeFilter+`
+		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
+		FROM job WHERE approved_at IS NOT NULL `+planTypeFilter+`
 	) AS job_
 	WHERE job_.doc @@ to_tsquery($1)
 	AND location ILIKE '%' || $2 || '%'
@@ -922,35 +1082,35 @@ func getQueryForArgs(conn *sql.DB, location, tag string, salary int, currency st
 	}
 	if tag == "" && location == "" && salary != 0 {
 		return conn.Query(`
-		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at
 		FROM job FULL JOIN fx_rate ON fx_rate.base = job.salary_currency_iso AND fx_rate.target = $4
-		WHERE approved_at IS NOT NULL `+adTypeFilter+` AND (COALESCE(fx_rate.value, 1)*job.salary_max) >= $3 ORDER BY created_at DESC LIMIT $2 OFFSET $1`, offset, max, salary, currency)
+		WHERE approved_at IS NOT NULL `+planTypeFilter+` AND (COALESCE(fx_rate.value, 1)*job.salary_max) >= $3 ORDER BY created_at DESC LIMIT $2 OFFSET $1`, offset, max, salary, currency)
 	}
 	if tag == "" && location != "" && salary != 0 {
 		return conn.Query(`
-		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts 
+		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at 
 		FROM job FULL JOIN fx_rate ON fx_rate.base = job.salary_currency_iso AND fx_rate.target = $5
-		WHERE approved_at IS NOT NULL `+adTypeFilter+` AND location ILIKE '%' || $1 || '%' AND (COALESCE(fx_rate.value, 1)*job.salary_max) >= $4
+		WHERE approved_at IS NOT NULL `+planTypeFilter+` AND location ILIKE '%' || $1 || '%' AND (COALESCE(fx_rate.value, 1)*job.salary_max) >= $4
 		ORDER BY created_at DESC LIMIT $3 OFFSET $2`, location, offset, max, salary, currency)
 	}
 	if tag != "" && location == "" && salary != 0 {
 		return conn.Query(`
-	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at
 	FROM
 	(
-		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
-		FROM job FULL JOIN fx_rate ON fx_rate.base = job.salary_currency_iso AND fx_rate.target = $5 WHERE approved_at IS NOT NULL `+adTypeFilter+` AND (COALESCE(fx_rate.value, 1)*job.salary_max) >= $4
+		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
+		FROM job FULL JOIN fx_rate ON fx_rate.base = job.salary_currency_iso AND fx_rate.target = $5 WHERE approved_at IS NOT NULL `+planTypeFilter+` AND (COALESCE(fx_rate.value, 1)*job.salary_max) >= $4
 	) AS job_
 	WHERE job_.doc @@ to_tsquery($1)
 	ORDER BY ts_rank(job_.doc, to_tsquery($1)) DESC, created_at DESC LIMIT $3 OFFSET $2`, tag, offset, max, salary, currency)
 	}
 
 	return conn.Query(`
-	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts
+	SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at
 	FROM
 	(
-		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, ad_type, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
-		FROM job FULL JOIN fx_rate ON fx_rate.base = job.salary_currency_iso AND fx_rate.target = $6 WHERE approved_at IS NOT NULL `+adTypeFilter+` AND (COALESCE(fx_rate.value, 1)*job.salary_max) >= $5
+		SELECT id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at, to_tsvector(job_title) || to_tsvector(company) || to_tsvector(description) AS doc
+		FROM job FULL JOIN fx_rate ON fx_rate.base = job.salary_currency_iso AND fx_rate.target = $6 WHERE approved_at IS NOT NULL `+planTypeFilter+` AND (COALESCE(fx_rate.value, 1)*job.salary_max) >= $5
 	) AS job_
 	WHERE job_.doc @@ to_tsquery($1)
 	AND location ILIKE '%' || $2 || '%'

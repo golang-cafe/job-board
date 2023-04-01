@@ -581,14 +581,15 @@ type PurchaseEvent struct {
 	Amount          int
 	Currency        string
 	Description     string
-	AdType          int
 	Email           string
 	JobID           int
+	PlanType        string
+	PlanDuration    int
 }
 
 func GetPurchaseEvents(conn *sql.DB, jobID int) ([]PurchaseEvent, error) {
 	var purchases []PurchaseEvent
-	rows, err := conn.Query(`SELECT stripe_session_id, created_at, completed_at, amount/100 as amount, currency, description, job_id FROM purchase_event WHERE job_id = $1 AND completed_at IS NOT NULL`, jobID)
+	rows, err := conn.Query(`SELECT stripe_session_id, created_at, completed_at, amount/100 as amount, currency, description, plan_type, plan_duration, job_id FROM purchase_event WHERE job_id = $1 AND completed_at IS NOT NULL`, jobID)
 	if err == sql.ErrNoRows {
 		return purchases, nil
 	}
@@ -597,7 +598,7 @@ func GetPurchaseEvents(conn *sql.DB, jobID int) ([]PurchaseEvent, error) {
 	}
 	for rows.Next() {
 		var p PurchaseEvent
-		if err := rows.Scan(&p.StripeSessionID, &p.CreatedAt, &p.CompletedAt, &p.Amount, &p.Currency, &p.Description, &p.JobID); err != nil {
+		if err := rows.Scan(&p.StripeSessionID, &p.CreatedAt, &p.CompletedAt, &p.Amount, &p.Currency, &p.Description,&p.PlanType, &p.PlanDuration, &p.JobID); err != nil {
 			return purchases, err
 		}
 		purchases = append(purchases, p)
@@ -606,9 +607,9 @@ func GetPurchaseEvents(conn *sql.DB, jobID int) ([]PurchaseEvent, error) {
 	return purchases, nil
 }
 
-func InitiatePaymentEvent(conn *sql.DB, sessionID string, amount int64, currency string, description string, adType int64, email string, jobID int) error {
-	stmt := `INSERT INTO purchase_event (stripe_session_id, amount, currency, description, ad_type, email, job_id, created_at) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW())`
-	_, err := conn.Exec(stmt, sessionID, amount, currency, description, adType, email, jobID)
+func InitiatePaymentEvent(conn *sql.DB, sessionID string, amount int64, currency string, description string, email string, jobID int, planType string, planDuration int64) error {
+	stmt := `INSERT INTO purchase_event (stripe_session_id, amount, currency, description, ad_type, email, job_id, created_at, plan_type, plan_duration) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9)`
+	_, err := conn.Exec(stmt, sessionID, amount, currency, description, 0, email, jobID, planType, planDuration)
 	return err
 }
 
@@ -623,9 +624,9 @@ func SaveSuccessfulPayment(conn *sql.DB, sessionID string) (int, error) {
 }
 
 func GetPurchaseEventBySessionID(conn *sql.DB, sessionID string) (PurchaseEvent, error) {
-	res := conn.QueryRow(`SELECT stripe_session_id, created_at, completed_at, email, amount, currency, description, ad_type FROM purchase_event WHERE stripe_session_id = $1`, sessionID)
+	res := conn.QueryRow(`SELECT stripe_session_id, created_at, completed_at, email, amount, currency, description, plan_type, plan_duration FROM purchase_event WHERE stripe_session_id = $1`, sessionID)
 	var p PurchaseEvent
-	err := res.Scan(&p.StripeSessionID, &p.CreatedAt, &p.CompletedAt, &p.Email, &p.Amount, &p.Currency, &p.Description, &p.AdType)
+	err := res.Scan(&p.StripeSessionID, &p.CreatedAt, &p.CompletedAt, &p.Email, &p.Amount, &p.Currency, &p.Description, &p.PlanType, &p.PlanDuration)
 	if err != nil {
 		return p, err
 	}

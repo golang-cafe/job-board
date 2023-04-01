@@ -55,6 +55,9 @@ type Config struct {
 	PrimaryColor                 string
 	SecondaryColor               string
 	SiteLogoImageID              string
+	PlanID1Price                 int // price in cents
+	PlanID2Price                 int // price in cents
+	PlanID3Price                 int // price in cents
 }
 
 func LoadConfig() (Config, error) {
@@ -219,6 +222,30 @@ func LoadConfig() (Config, error) {
 	if siteLogoImageID == "" {
 		return Config{}, fmt.Errorf("SITE_LOGO_IMAGE_ID cannot be empty")
 	}
+	planID1PriceStr := os.Getenv("PLAN_ID_1_PRICE")
+	if planID1PriceStr == "" {
+		return Config{}, fmt.Errorf("PLAN_ID_1_PRICE cannot be empty")
+	}
+	planID1Price, err := strconv.Atoi(planID1PriceStr)
+	if err != nil {
+		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
+	}
+	planID2PriceStr := os.Getenv("PLAN_ID_2_PRICE")
+	if planID2PriceStr == "" {
+		return Config{}, fmt.Errorf("PLAN_ID_2_PRICE cannot be empty")
+	}
+	planID2Price, err := strconv.Atoi(planID2PriceStr)
+	if err != nil {
+		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
+	}
+	planID3PriceStr := os.Getenv("PLAN_ID_3_PRICE")
+	if planID3PriceStr == "" {
+		return Config{}, fmt.Errorf("PLAN_ID_3_PRICE cannot be empty")
+	}
+	planID3Price, err := strconv.Atoi(planID3PriceStr)
+	if err != nil {
+		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
+	}
 
 	return Config{
 		Port:                         port,
@@ -265,5 +292,8 @@ func LoadConfig() (Config, error) {
 		SiteLogoImageID:              siteLogoImageID,
 		AvailableCurrencies:          []string{"USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN", "INR", "ZAR", "TRY", "BRL"},
 		AvailableSalaryBands:         []int{10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000, 240000, 250000},
+		PlanID1Price:                 planID1Price,
+		PlanID2Price:                 planID2Price,
+		PlanID3Price:                 planID3Price,
 	}, nil
 }

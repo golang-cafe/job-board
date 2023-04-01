@@ -84,6 +84,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			{{ if .CompanyJobs }}
 			<h3>Company {{ .SiteJobCategory }} Job Openings</h3>
 			{{ end }}
+			{{ $siteJobCatUrlEnc := .SiteJobCategoryURLEncoded }}
 			{{ range $i, $j := .CompanyJobs }}
 			<article class="line-item">
 				{{ if .CompanyIconID }}
@@ -91,7 +92,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				{{ end }}
 				<div style="float: left;">
 					<a href="/job/{{ .Slug }}" target="_blank"><b>{{ .JobTitle }}</b><br />
-						<a style="font-size:12pt;" href="/{{ .SiteJobCategoryURLEncoded }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
+						<a style="font-size:12pt;" href="/{{ $siteJobCatUrlEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
 						<b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
 						<br />
 						<small>{{ .TimeAgo }}</small>

@@ -788,7 +788,7 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `</p>
 ` + jobsHTML + `
 	<p>Check out more jobs at <a title="` + svr.GetConfig().SiteName + `" href="https://` + svr.GetConfig().SiteHost + `">https://` + svr.GetConfig().SiteHost + `</a></p>
-	<p>Get companies apply to you, join the `+svr.GetConfig().SiteJobCategory+` Developer Community <a title="` + svr.GetConfig().SiteName + ` Community" href="https://` + svr.GetConfig().SiteHost + `/Join-`+strings.Title(svr.GetConfig().SiteJobCategory)+`-Community">https://` + svr.GetConfig().SiteHost + `/Join-`+strings.Title(svr.GetConfig().SiteJobCategory)+`-Community</a></p>
+	<p>Get companies apply to you, join the ` + svr.GetConfig().SiteJobCategory + ` Developer Community <a title="` + svr.GetConfig().SiteName + ` Community" href="https://` + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community">https://` + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community</a></p>
 	<p>` + svr.GetConfig().SiteName + `</p>
 	<hr />`
 				unsubscribeLink := `
@@ -1084,96 +1084,7 @@ func TriggerAdsManager(svr server.Server, jobRepo *job.Repository) http.HandlerF
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
-			go func() {
-				log.Printf("attempting to demote expired sponsored 30days pinned job ads\n")
-				jobPosts, err := jobRepo.GetJobsOlderThan(time.Now().AddDate(0, 0, -30), job.JobAdSponsoredPinnedFor30Days)
-				if err != nil {
-					svr.Log(err, "unable to demote expired sponsored 30 days pinned job ads")
-					return
-				}
-				for _, j := range jobPosts {
-					jobToken, err := jobRepo.TokenByJobID(j.ID)
-					if err != nil {
-						svr.Log(err, fmt.Sprintf("unable to retrieve token for job id %d and email %s", j.ID, j.CompanyEmail))
-						continue
-					} else {
-						err = svr.GetEmail().SendHTMLEmail(
-							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
-							email.Address{Email: j.CompanyEmail},
-							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
-							fmt.Sprintf("Your Job Ad on %s Has Expired", svr.GetConfig().SiteName),
-							fmt.Sprintf(
-								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://%s/edit/%s?expired=1", svr.GetConfig().SiteHost, jobToken,
-							),
-						)
-						if err != nil {
-							svr.Log(err, fmt.Sprintf("unable to send email while updating job ad type for job id %d", j.ID))
-							continue
-						}
-					}
-					jobRepo.UpdateJobAdType(job.JobAdBasic, j.ID)
-					log.Printf("demoted job id %d expired sponsored 30days pinned job ads\n", j.ID)
-				}
-
-				log.Printf("attempting to demote expired sponsored 7days pinned job ads\n")
-				jobPosts2, err := jobRepo.GetJobsOlderThan(time.Now().AddDate(0, 0, -7), job.JobAdSponsoredPinnedFor7Days)
-				if err != nil {
-					svr.Log(err, "unable to demote expired sponsored 7 days pinned job ads")
-					return
-				}
-				for _, j := range jobPosts2 {
-					jobToken, err := jobRepo.TokenByJobID(j.ID)
-					if err != nil {
-						svr.Log(err, fmt.Sprintf("unable to retrieve toke for job id %d and email %s", j.ID, j.CompanyEmail))
-						continue
-					} else {
-						err = svr.GetEmail().SendHTMLEmail(
-							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
-							email.Address{Email: j.CompanyEmail},
-							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
-							fmt.Sprintf("Your Job Ad on %s Has Expired", svr.GetConfig().SiteName),
-							fmt.Sprintf(
-								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://%s/edit/%s?expired=1", svr.GetConfig().SiteHost, jobToken,
-							),
-						)
-						if err != nil {
-							svr.Log(err, fmt.Sprintf("unable to send email while updating job ad type for job id %d", j.ID))
-							continue
-						}
-					}
-					jobRepo.UpdateJobAdType(job.JobAdBasic, j.ID)
-					log.Printf("demoted job id %d expired sponsored 7days pinned job ads\n", j.ID)
-				}
-				log.Printf("attempting to demote expired sponsored 60days pinned job ads\n")
-				jobPosts3, err := jobRepo.GetJobsOlderThan(time.Now().AddDate(0, 0, -60), job.JobAdSponsoredPinnedFor60Days)
-				if err != nil {
-					svr.Log(err, "unable to demote expired sponsored 7 days pinned job ads")
-					return
-				}
-				for _, j := range jobPosts3 {
-					jobToken, err := jobRepo.TokenByJobID(j.ID)
-					if err != nil {
-						svr.Log(err, fmt.Sprintf("unable to retrieve toke for job id %d and email %s", j.ID, j.CompanyEmail))
-						continue
-					} else {
-						err = svr.GetEmail().SendHTMLEmail(
-							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
-							email.Address{Email: j.CompanyEmail},
-							email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
-							fmt.Sprintf("Your Job Ad on %s Has Expired", svr.GetConfig().SiteName),
-							fmt.Sprintf(
-								"Your Premium Job Ad has expired and it's no longer pinned to the front-page. If you want to keep your Job Ad on the front-page you can upgrade in a few clicks on the Job Edit Page by following this link https://%s/edit/%s?expired=1", svr.GetConfig().SiteHost, jobToken,
-							),
-						)
-						if err != nil {
-							svr.Log(err, fmt.Sprintf("unable to send email while updating job ad type for job id %d", j.ID))
-							continue
-						}
-					}
-					jobRepo.UpdateJobAdType(job.JobAdBasic, j.ID)
-					log.Printf("demoted job id %d expired sponsored 60days pinned job ads\n", j.ID)
-				}
-			}()
+			// TODO: add column to jobs and send emails
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
 	)
@@ -1997,6 +1908,7 @@ func CompanyBySlugPageHandler(svr server.Server, companyRepo *company.Repository
 			companyJobs[i].JobDescription = string(svr.MarkdownToHTML(j.JobDescription))
 			companyJobs[i].Perks = string(svr.MarkdownToHTML(j.Perks))
 			companyJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
+			companyJobs[i].SalaryPeriod = j.SalaryPeriod
 			companyJobs[i].InterviewProcess = string(svr.MarkdownToHTML(j.InterviewProcess))
 			if svr.IsEmail(j.HowToApply) {
 				companyJobs[i].IsQuickApply = true
@@ -2162,25 +2074,32 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			if jobPost.ApprovedAt != nil && jobPost.AdType != job.JobAdSponsoredPinnedFor30Days && jobPost.AdType != job.JobAdSponsoredPinnedFor7Days && (purchaseEvent.AdType == job.JobAdSponsoredPinnedFor7Days || jobPost.AdType != job.JobAdSponsoredPinnedFor30Days) {
-				err := jobRepo.UpdateJobAdType(purchaseEvent.AdType, jobPost.ID)
-				if err != nil {
-					svr.Log(errors.New("unable to update job to new ad type"), fmt.Sprintf("unable to update job id %d to new ad type %d for session id %s", jobPost.ID, purchaseEvent.AdType, sess.ID))
-					svr.JSON(w, http.StatusBadRequest, nil)
-					return
-				}
-				err = svr.GetEmail().SendHTMLEmail(
-					email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
-					email.Address{Email: purchaseEvent.Email},
-					email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
-					fmt.Sprintf("Your Job Ad on %s", svr.GetConfig().SiteName),
-					fmt.Sprintf("Your Job Ad has been upgraded successfully and it's now pinned to the home page. You can edit the Job Ad at any time and check page views and clickouts by following this link https://%s/edit/%s", svr.GetConfig().SiteHost, jobToken))
-				if err != nil {
-					svr.Log(err, "unable to send email while upgrading job ad")
-				}
-				if err := svr.CacheDelete(server.CacheKeyPinnedJobs); err != nil {
-					svr.Log(err, "unable to cleanup cache after approving job")
-				}
+
+			expiration, err := jobRepo.PlanTypeAndDurationToExpirations(
+				purchaseEvent.PlanType,
+				purchaseEvent.PlanDuration,
+			)
+			if err != nil {
+				svr.Log(errors.New("unable to get expiration for plan type and duration"), fmt.Sprintf("unable to get expiration for plan type %s and duration %d for session id %s", purchaseEvent.PlanType, purchaseEvent.PlanDuration, sess.ID))
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			if err := jobRepo.UpdateJobPlan(jobPost.ID, purchaseEvent.PlanType, purchaseEvent.PlanDuration, expiration); err != nil {
+				svr.Log(errors.New("unable to update job to new ad type"), fmt.Sprintf("unable to update job id %d to new ad type %s and duration %d for session id %s", jobPost.ID, purchaseEvent.PlanType, purchaseEvent.PlanDuration, sess.ID))
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			err = svr.GetEmail().SendHTMLEmail(
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
+				email.Address{Email: purchaseEvent.Email},
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
+				fmt.Sprintf("Your Job Ad on %s", svr.GetConfig().SiteName),
+				fmt.Sprintf("Your Job Ad has been upgraded successfully and it's now pinned to the home page. You can edit the Job Ad at any time and check page views and clickouts by following this link https://%s/edit/%s", svr.GetConfig().SiteHost, jobToken))
+			if err != nil {
+				svr.Log(err, "unable to send email while upgrading job ad")
+			}
+			if err := svr.CacheDelete(server.CacheKeyPinnedJobs); err != nil {
+				svr.Log(err, "unable to cleanup cache after approving job")
 			}
 			svr.JSON(w, http.StatusOK, nil)
 			return
@@ -2558,7 +2477,6 @@ func SubmitJobPostWithoutPaymentHandler(svr server.Server, jobRepo *job.Reposito
 				return
 			}
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"token": randomTokenStr})
-			return
 		},
 	)
 }
@@ -2568,19 +2486,43 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 		decoder := json.NewDecoder(r.Body)
 		jobRq := &job.JobRqUpsell{}
 		if err := decoder.Decode(&jobRq); err != nil {
+			svr.Log(err, "unable to decode request")
+			svr.JSON(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		planDuration, err := strconv.Atoi(jobRq.PlanDurationStr)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to convert duration to int %s", jobRq.PlanDurationStr))
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		// validate currency
-		if jobRq.CurrencyCode != "USD" && jobRq.CurrencyCode != "EUR" && jobRq.CurrencyCode != "GBP" {
-			jobRq.CurrencyCode = "USD"
-		}
+		jobRq.PlanDuration = planDuration
 		jobID, err := jobRepo.JobPostIDByToken(jobRq.Token)
 		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to find job by token %s", jobRq.Token))
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		sess, err := paymentRepo.CreateSession(&job.JobRq{AdType: jobRq.AdType, CurrencyCode: jobRq.CurrencyCode, Email: jobRq.Email}, jobRq.Token)
+		monthlyAmount := 59
+		switch jobRq.PlanType {
+		case job.JobPlanTypeBasic:
+			monthlyAmount = svr.GetConfig().PlanID1Price
+		case job.JobPlanTypePro:
+			monthlyAmount = svr.GetConfig().PlanID2Price
+		case job.JobPlanTypePlatinum:
+			monthlyAmount = svr.GetConfig().PlanID3Price
+		}
+		sess, err := paymentRepo.CreateSession(
+			&job.JobRq{
+				PlanType:     jobRq.PlanType,
+				PlanDuration: jobRq.PlanDuration,
+				CurrencyCode: "USD",
+				Email:        jobRq.Email,
+			},
+			jobRq.Token,
+			int64(monthlyAmount),
+			int64(jobRq.PlanDuration),
+		)
 		if err != nil {
 			svr.Log(err, "unable to create payment session")
 		}
@@ -2600,16 +2542,35 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 		if err != nil {
 			svr.Log(err, "unable to send email to admin while upgrading job ad")
 		}
-		if sess != nil {
-			err = database.InitiatePaymentEvent(svr.Conn, sess.ID, payment.AdTypeToAmount(jobRq.AdType), jobRq.CurrencyCode, payment.AdTypeToDescription(jobRq.AdType), jobRq.AdType, jobRq.Email, jobID)
-			if err != nil {
-				svr.Log(err, "unable to save payment initiated event")
-			}
-			svr.JSON(w, http.StatusOK, map[string]string{"s_id": sess.ID})
+		if sess == nil {
+			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		svr.JSON(w, http.StatusOK, nil)
-		return
+		err = database.InitiatePaymentEvent(
+			svr.Conn,
+			sess.ID,
+			payment.PlanTypeAndDurationToAmount(
+				jobRq.PlanType,
+				int64(jobRq.PlanDuration),
+				int64(svr.GetConfig().PlanID1Price),
+				int64(svr.GetConfig().PlanID1Price),
+				int64(svr.GetConfig().PlanID1Price),
+			),
+			"USD",
+			payment.PlanTypeAndDurationToDescription(
+				jobRq.PlanType,
+				int64(jobRq.PlanDuration),
+			),
+			jobRq.Email,
+			jobID,
+			jobRq.PlanType,
+			int64(jobRq.PlanDuration),
+		)
+		if err != nil {
+			svr.Log(err, "unable to save payment initiated event")
+		}
+		svr.JSON(w, http.StatusOK, map[string]string{"s_id": sess.ID})
+
 	}
 }
 
@@ -2653,41 +2614,69 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		// validate currency
-		if jobRq.CurrencyCode != "USD" && jobRq.CurrencyCode != "EUR" && jobRq.CurrencyCode != "GBP" {
-			jobRq.CurrencyCode = "USD"
+		planDurationInt, err := strconv.Atoi(jobRq.PlanDurationStr)
+		if err != nil {
+			svr.Log(fmt.Errorf("invalid plan duration: unable to save job request: %#v", jobRq), "unable to save job request")
+			svr.JSON(w, http.StatusBadRequest, "invalid plan duration")
+			return
+		}
+		jobRq.PlanDuration = planDurationInt
+		jobRq.CurrencyCode = "USD"
+		if jobRq.PlanType != job.JobPlanTypeBasic && jobRq.PlanType != job.JobPlanTypePro && jobRq.PlanType != job.JobPlanTypePlatinum {
+			svr.Log(fmt.Errorf("invalid plan type: unable to save job request: %#v", jobRq), "unable to save job request")
+			svr.JSON(w, http.StatusBadRequest, "invalid plan type")
+			return
+		}
+		if jobRq.PlanDuration > 6 || jobRq.PlanDuration < 1 {
+			svr.Log(fmt.Errorf("invalid plan duration: unable to save job request: %#v", jobRq), "unable to save job request")
+			svr.JSON(w, http.StatusBadRequest, "invalid plan duration")
+			return
 		}
 		jobID, err := jobRepo.SaveDraft(jobRq)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to save job request: %#v", jobRq))
-			svr.JSON(w, http.StatusBadRequest, nil)
+			svr.JSON(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		if jobID == 0 {
+			svr.Log(err, fmt.Sprintf("unable to save job request: %#v", jobRq))
+			svr.JSON(w, http.StatusBadRequest, "unable to save job request invalid job returned")
 			return
 		}
 		k, err := ksuid.NewRandom()
 		if err != nil {
 			svr.Log(err, "unable to generate unique token")
-			svr.JSON(w, http.StatusBadRequest, nil)
+			svr.JSON(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		randomToken, err := k.Value()
 		if err != nil {
 			svr.Log(err, "unable to get token value")
-			svr.JSON(w, http.StatusBadRequest, nil)
+			svr.JSON(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		randomTokenStr, ok := randomToken.(string)
 		if !ok {
 			svr.Log(err, "unbale to assert token value as string")
-			svr.JSON(w, http.StatusBadRequest, nil)
+			svr.JSON(w, http.StatusBadRequest, "unbale to assert token value as string")
 			return
 		}
 		err = jobRepo.SaveTokenForJob(randomTokenStr, jobID)
 		if err != nil {
 			svr.Log(err, "unbale to generate token")
-			svr.JSON(w, http.StatusBadRequest, nil)
+			svr.JSON(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		sess, err := paymentRepo.CreateSession(jobRq, randomTokenStr)
+		monthlyAmount := 59
+		switch jobRq.PlanType {
+		case job.JobPlanTypeBasic:
+			monthlyAmount = svr.GetConfig().PlanID1Price
+		case job.JobPlanTypePro:
+			monthlyAmount = svr.GetConfig().PlanID2Price
+		case job.JobPlanTypePlatinum:
+			monthlyAmount = svr.GetConfig().PlanID3Price
+		}
+		sess, err := paymentRepo.CreateSession(jobRq, randomTokenStr, int64(monthlyAmount), int64(jobRq.PlanDuration))
 		if err != nil {
 			svr.Log(err, "unable to create payment session")
 		}
@@ -2707,7 +2696,26 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 			svr.Log(err, "unable to send email to admin while posting job ad")
 		}
 		if sess != nil {
-			err = database.InitiatePaymentEvent(svr.Conn, sess.ID, payment.AdTypeToAmount(jobRq.AdType), jobRq.CurrencyCode, payment.AdTypeToDescription(jobRq.AdType), jobRq.AdType, jobRq.Email, jobID)
+			err = database.InitiatePaymentEvent(
+				svr.Conn,
+				sess.ID,
+				payment.PlanTypeAndDurationToAmount(
+					jobRq.PlanType,
+					int64(jobRq.PlanDuration),
+					int64(svr.GetConfig().PlanID1Price),
+					int64(svr.GetConfig().PlanID2Price),
+					int64(svr.GetConfig().PlanID3Price),
+				),
+				jobRq.CurrencyCode,
+				payment.PlanTypeAndDurationToDescription(
+					jobRq.PlanType,
+					int64(jobRq.PlanDuration),
+				),
+				jobRq.Email,
+				jobID,
+				jobRq.PlanType,
+				int64(jobRq.PlanDuration),
+			)
 			if err != nil {
 				svr.Log(err, "unable to save payment initiated event")
 			}
@@ -3182,7 +3190,6 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 		token := vars["token"]
 		isCallback := r.URL.Query().Get("callback")
 		paymentSuccess := r.URL.Query().Get("payment")
-		expiredUpsell := r.URL.Query().Get("expired")
 		jobID, err := jobRepo.JobPostIDByToken(token)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to find job post ID by token: %s", token))
@@ -3232,9 +3239,7 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			"ConversionRate":             conversionRate,
 			"IsCallback":                 isCallback,
 			"PaymentSuccess":             paymentSuccess,
-			"IsUpsell":                   len(expiredUpsell) > 0,
 			"StripePublishableKey":       svr.GetConfig().StripePublishableKey,
-			"IsUnpinned":                 jobPost.AdType < 1,
 		})
 	}
 }

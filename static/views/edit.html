@@ -13,6 +13,7 @@ body{background:#ffffff;}
         .spinner-box {z-index: 999999;width: 124px; padding: 30px; height: auto;position: fixed;margin: 5% auto; top: 40px; left: 0; right: 0;background: #fff;}
         .lds-ring {display: inline-block; position: relative; width: 64px; height: 64px;}.lds-ring div {box-sizing: border-box; display: block; position: absolute; width: 51px; height: 51px; margin: 6px; border: 6px solid #000; border-radius: 50%; animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite; border-color: #000 transparent transparent transparent;}
         .lds-ring div:nth-child(1) {animation-delay: -0.45s;}.lds-ring div:nth-child(2) {animation-delay: -0.3s;}.lds-ring div:nth-child(3) {animation-delay: -0.15s;}
+        .clearfix::after {content: "";clear: both;display: table;}
         @keyframes lds-ring {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}#spinner-0{display: none;}input[type="checkbox"]{-webkit-appearance: checkbox;-moz-appearance: checkbox;appearance: checkbox;}
         .line {
           fill: none;
@@ -58,39 +59,126 @@ body{background:#ffffff;}
 	  <a href="/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers">Post a Job</a> 
         </small>
     </p>
-    {{ if and .IsUnpinned .IsUpsell }}
+    {{ if .IsCallback }}
     <article style="margin-bottom: 30px;">
-        <p>
-            <h3>Your Job Ad Is No Longer Featured</h3>
-            Receive more applicants by sponsoring and pinning your job ad to the homepage<br/><br />
-            <input type="checkbox" id="ad-type-3" style="margin-right: 8px; margin-bottom: 5px;" checked><label>Pinned to the Front Page for 7 days <b>$59</b></label><br/>
-            <input type="checkbox" id="ad-type-2" style="margin-right: 8px; margin-bottom: 5px;"><label>Pinned to the Front Page for 30 days <b>$129</b></label><br/>
-            <br />
-            <br />
-            <input type="submit" id="submit" value="Pin To The Homepage For $59" onclick="pin();" style="float: right;">
-            <br />
-        </p>
+    <p>
+        <h3>Thank you</h3>
+        {{ if .PaymentSuccess }}
+    Thanks for renewing your job on {{ .SiteName }}. The payment is currently processing and your Job Ad will be live within the next few hours. Any questions please don't hesitate to contact us <code>{{ .SupportEmail }}</code>
+        {{ else }}
+            Oops, there was a problem with your payment. Don't worry your job ad has been saved
+        {{ end }}
+    </p>
     </article>
+{{ end }}
+    {{ if isTimeBeforeNow .Job.PlanExpiredAt }}
+    <article style="margin-bottom: 30px;">
+            <h3>Your Job Ad has expired</h3>
+            Your Job Ad has expired on {{ .Job.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}. Renew your Job Ad with an easy click. Proceed with payment below and your ad will be automatically approved<br/><br />
+        <h4>Choose Your Package</h4>
+                <p>Please choose one of the following options based on your criteria and budget. All our packags run for 30 days. They vary based on the level of reach you require. You can also make a purchase for multiple months by using the options below.</p>
+                <h4>Duration</h4>
+                <select id="duration-field-select">
+                    <option class="duration-field" id="duration-field-1" default value="1">1 month</option>
+                    <option class="duration-field" id="duration-field-2" value="2">2 months</option>
+                    <option class="duration-field" id="duration-field-3" value="3">3 months</option>
+                    <option class="duration-field" id="duration-field-4" value="4">4 months</option>
+                    <option class="duration-field" id="duration-field-5" value="5">5 months</option>
+                    <option class="duration-field" id="duration-field-6" value="6">6 months</option>
+                </select>
+                <br />
+                <h4>Plan</h4>
+                <div style="width:100%;margin-bottom: 30px;">
+                    <article style="padding:20px 10px;width: 28%;height: auto;margin-right:5%;float:left;">
+                        <h2 style="margin-top:0;text-align:center;">Basic Plan</h2>
+                        <input type="hidden" id="plan-1-item-price" value="{{ .Plan1IDPrice }}" />
+                        <input type="hidden" id="plan-1-total-price" value="{{ .Plan1IDPrice }}" />
+                        <input type="hidden" id="plan-1-live-days-base" value="30" />
+                        <p style="font-size:9pt;line-height:1rem;text-align:center;">
+                            The Basic plan is ideal if you are just starting out and you want to try out {{ .SiteName }}.</p>
+                        <h4 id="plan-1-label-price" style="text-align:center;margin-top:10px;font-size:20pt;">US${{ .Plan1IDPrice }}</h4>
+                        <input type="submit" id="submit" value="Buy Now" onclick="renew('basic');" style="width:100%;">
+                        <ul style="margin-top:20px;font-size: 10pt;">
+                            <li>Live for <span id="plan-1-live-days">30</span> days</li>
+                            <li>Standard ad</li>
+                            <li>Company Icon</li>
+                        </ul>
+                    </article>
+                    <article style="padding:20px 10px;width: 28%;height: auto;margin-right:5%;float:left;">
+                        <h2 style="margin-top:0;text-align:center;">Pro Plan</h2>
+                        <input type="hidden" id="plan-2-item-price" value="{{ .Plan2IDPrice }}" />
+                        <input type="hidden" id="plan-2-total-price" value="{{ .Plan2IDPrice }}" />
+                        <input type="hidden" id="plan-2-featured-days-base" value="14" />
+                        <input type="hidden" id="plan-2-live-days-base" value="30" />
+                        <p style="font-size:9pt;line-height:1rem;text-align:center;">
+                            The Pro plan it's the most popular chosen by companies on {{ .SiteName }}.</p>
+                        <h4 id="plan-2-label-price" style="text-align:center;margin-top:10px;font-size:20pt;">US${{ .Plan2IDPrice }}</h4>
+                        <input type="submit" id="submit" value="Buy Now" onclick="renew('pro');" style="width:100%;">
+                        <ul style="margin-top:20px;font-size: 10pt;">
+                            <li>Live for <span id="plan-2-live-days">30</span> days</li>
+                            <li>Included in our weekly newsletter</li>
+                            <li>Shared across our media channels</li>
+                            <li>Pinned to the front-page for <b><span id="plan-2-featured-days">14</span> days</b></li>
+                        </ul>
+                    </article>
+                    <article style="padding:20px 10px;width: 28%;height: auto;margin-right:5%;float:left;">
+                        <h2 style="margin-top:0;text-align:center;">Platinum Plan</h2>
+                        <input type="hidden" id="plan-3-item-price" value="{{ .Plan3IDPrice }}" />
+                        <input type="hidden" id="plan-3-total-price" value="{{ .Plan3IDPrice }}" />
+                        <input type="hidden" id="plan-3-featured-days-base" value="30" />
+                        <input type="hidden" id="plan-3-live-days-base" value="30" />
+                        <p style="font-size:9pt;line-height:1rem;text-align:center;">
+                            The Platinum plan it's the best plan if you need to reach a lot of applicants very quickly</p>
+                        <h4 id="plan-3-label-price" style="text-align:center;margin-top:10px;font-size:20pt;">US${{ .Plan3IDPrice }}</h4>
+                        <input type="submit" id="submit" value="Buy Now" onclick="renew('platinum');" style="width:100%;">
+                        <ul style="margin-top:20px;font-size: 10pt;">
+                            <li>Live for <span id="plan-3-live-days">30</span> days</li>
+                            <li>Included in our weekly newsletter</li>
+                            <li>Shared across our media channels</li>
+                            <li>Pinned to the front-page for <b><span id="plan-3-featured-days">30</span> days</b></li>
+                            <li>Shared across our <a href="/blog" target="_blank">blog properties</a> for extra reach</li>
+                            <li>Your company is featured in the <a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}" target="_blank">Companies page</a></li>
+                        </ul>
+                    </article>
+                </div>
+                <div class="clearfix"></div>
+		<p style="line-height:1rem;float:left;width:50%;text-align:left;font-size:9pt;margin-bottom:0px;margin-top:10px;">This is not a subscription. You will only be charged once. By continuing you accept the <a href="/terms-of-service" target="_blank">Terms of Service</a></p>
+                <div class="clearfix"></div>
+    </article>
+    {{ end }}
     <script>
-      function pin() {
-        document.getElementById("spinner-0").style.display = "block";
-            var adType = 0;
-            if (document.getElementById("ad-type-3").checked) {
-                adType = 3;
-            }
-            if (document.getElementById("ad-type-2").checked) {
-                adType = 2;
-            }
-            var email = document.getElementById("company-email").value;
+        var durations = document.getElementById("duration-field-select");
+        durations.addEventListener("change", function() {
+            var baseVal = document.getElementById("plan-1-item-price").value;
+            document.getElementById("plan-1-total-price").value = baseVal*durations.value;
+            document.getElementById("plan-1-label-price").innerText = "US$"+baseVal*durations.value;
+            document.getElementById("plan-1-live-days").innerText = parseInt(document.getElementById("plan-1-live-days-base").value)*durations.value;
+
+            var baseVal = document.getElementById("plan-2-item-price").value;
+            document.getElementById("plan-2-total-price").value = baseVal*durations.value;
+            document.getElementById("plan-2-label-price").innerText = "US$"+baseVal*durations.value;
+            document.getElementById("plan-2-featured-days").innerText = parseInt(document.getElementById("plan-2-featured-days-base").value)*durations.value;
+            document.getElementById("plan-2-live-days").innerText = parseInt(document.getElementById("plan-2-live-days-base").value)*durations.value;
+
+            var baseVal = document.getElementById("plan-3-item-price").value;
+            document.getElementById("plan-3-total-price").value = baseVal*durations.value;
+            document.getElementById("plan-3-label-price").innerText = "US$"+baseVal*durations.value;
+            document.getElementById("plan-3-featured-days").innerText = parseInt(document.getElementById("plan-3-featured-days-base").value)*durations.value;
+            document.getElementById("plan-3-live-days").innerText = parseInt(document.getElementById("plan-3-live-days-base").value)*durations.value;
+        });
+      function renew(planType) {
+        var planDuration = document.getElementById("duration-field-select").value;
+        var email = document.getElementById("company-email").value;
             if (!isEmail(email)) {
                 alert('You must provide a valid email address.');
                 return;
             }
+        document.getElementById("spinner-0").style.display = "block";
         httpReq('/x/s/upsell',
                             {
-                                ad_type: adType,
+                                plan_type: planType,
+                                plan_duration: planDuration,
                                 email: email,
-                                currency_code: 'USD',
                                 token: '{{ .Token }}'
                             },
                             function(success, body) {
@@ -118,38 +206,7 @@ body{background:#ffffff;}
                             }
                         );
       }
-      document.getElementById("ad-type-2").addEventListener('change', function() {
-            if (this.checked) {
-                document.getElementById("ad-type-3").checked = false;
-                document.getElementById("submit").value = 'Pin To The Homepage For $129';
-            } else {
-                document.getElementById("ad-type-3").checked = true;
-                document.getElementById("submit").value = 'Pin To The Homepage For $59';
-            }
-        });
-        document.getElementById("ad-type-3").addEventListener('change', function() {
-            if (this.checked) {
-                document.getElementById("ad-type-2").checked = false;
-                document.getElementById("submit").value = 'Pin To The Homepage For $59';
-            } else {
-                document.getElementById("ad-type-2").checked = true;
-                document.getElementById("submit").value = 'Pin To The Homepage For $129';
-            }
-        });
     </script>
-    {{ end }}
-    {{ if .IsCallback }}
-        <article style="margin-bottom: 30px;">
-        <p>
-            <h3>Thank you</h3>
-            {{ if .PaymentSuccess }}
-	    Thanks for submitting your job on {{ .SiteName }}. The Job is currently being reviewed and will be approved within the next few hours. Any questions please don't hesitate to contact us <code>{{ .SupportEmail }}</code>
-            {{ else }}
-                Oops, there was a problem with your payment. Don't worry your job ad has been saved
-            {{ end }}
-        </p>
-        </article>
-    {{ end }}
     <article>
         <p>
             <h3>Job Dashboard</h3>
@@ -179,87 +236,6 @@ body{background:#ffffff;}
             {{ end }}
         </p>
     </article>
-    {{ $notUpsell := not .IsUpsell }}
-    {{ if and .IsUnpinned $notUpsell }}
-    <article style="margin-top: 30px;">
-        <p>
-            <h3>Sponsor Your Job Ad</h3>
-            Receive more applicants by sponsoring and pinning your job ad to the homepage<br/><br />
-            <input type="checkbox" id="ad-type-3" style="margin-right: 8px; margin-bottom: 5px;" checked><label>Pinned to the Front Page for 7 days <b>$59</b></label><br/>
-            <input type="checkbox" id="ad-type-2" style="margin-right: 8px; margin-bottom: 5px;"><label>Pinned to the Front Page for 30 days <b>$129</b></label><br/>
-            <br />
-            <br />
-            <input type="submit" id="submit" value="Pin To The Homepage For $59" onclick="pin();" style="float: right;">
-            <br />
-        </p>
-    </article>
-    <script>
-      function pin() {
-        document.getElementById("spinner-0").style.display = "block";
-            var adType = 0;
-            if (document.getElementById("ad-type-3").checked) {
-                adType = 3;
-            }
-            if (document.getElementById("ad-type-2").checked) {
-                adType = 2;
-            }
-            var email = document.getElementById("company-email").value;
-            if (!isEmail(email)) {
-                alert('You must provide a valid email address.');
-                return;
-            }
-        httpReq('/x/s/upsell',
-                            {
-                                ad_type: adType,
-                                email: email,
-                                currency_code: 'USD',
-                                token: '{{ .Token }}'
-                            },
-                            function(success, body) {
-                                if (success) {
-                                    try {
-                                        var res = JSON.parse(body);
-                                        stripe.redirectToCheckout({
-                                            sessionId: res.s_id
-                                        }).then(function (result) {
-                                            document.getElementById("spinner-0").style.display = "none";
-                                            if (result.error) {
-                                                console.log(result.error);
-                                                alert('Oops, there was a problem with your payment. Please try again later');
-                                            }
-                                        });
-                                    } catch (err) {
-                                        document.getElementById("spinner-0").style.display = "none";
-                                        console.log(err);
-                                        alert('Oops, there was a problem with your payment. Please try again later');
-                                    }
-                                } else {
-                                    document.getElementById("spinner-0").style.display = "none";
-                                    window.location.href = "/x/j/p/0";
-                                }
-                            }
-                        );
-      }
-      document.getElementById("ad-type-2").addEventListener('change', function() {
-            if (this.checked) {
-                document.getElementById("ad-type-3").checked = false;
-                document.getElementById("submit").value = 'Pin To The Homepage For $129';
-            } else {
-                document.getElementById("ad-type-3").checked = true;
-                document.getElementById("submit").value = 'Pin To The Homepage For $59';
-            }
-        });
-        document.getElementById("ad-type-3").addEventListener('change', function() {
-            if (this.checked) {
-                document.getElementById("ad-type-2").checked = false;
-                document.getElementById("submit").value = 'Pin To The Homepage For $59';
-            } else {
-                document.getElementById("ad-type-2").checked = true;
-                document.getElementById("submit").value = 'Pin To The Homepage For $129';
-            }
-        });
-    </script>
-    {{ end }}
     <article style="margin-top: 30px;">
         <p>
             <h3>Edit your Job Ad</h3>

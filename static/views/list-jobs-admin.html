@@ -49,7 +49,7 @@ body{background:#ffffff;}
     {{ $tagFilter := .TagFilter }}
     <small>Jobs Pending Approval</small>
     {{ range $i, $j := .PendingJobs }}
-        {{ if eq .AdType 1 }}
+        {{ if isTimeAfterNow .FrontPageEligibilityExpiredAt }}
         <article class="line-item line-item-sponsored-1">
             {{ if .CompanyIconID }}
             <img src="/x/s/m/{{ .CompanyIconID }}" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
@@ -114,7 +114,7 @@ body{background:#ffffff;}
 	  <small>Standard Approved Jobs: {{ len .Jobs }} of {{ .TotalJobCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}jobs found {{ if .LocationFilter }}in <b>{{ .LocationFilter }}</b>{{ end }}</small><br />
           {{ end }}
           {{ range $i, $j := .Jobs }}
-              {{ if eq .AdType 1 }}
+              {{ if isTimeAfterNow .FrontPageEligibilityExpiredAt }}
               <article class="line-item line-item-sponsored-1">
                   {{ if .CompanyIconID }}
                     <img src="/x/s/m/{{ .CompanyIconID }}" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />

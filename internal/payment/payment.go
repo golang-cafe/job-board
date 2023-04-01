@@ -27,46 +27,30 @@ func NewRepository(stripeKey, siteName, siteHost string) *Repository {
 	}
 }
 
-func AdTypeToAmount(adType int64) int64 {
-	switch adType {
-	case job.JobAdBasic:
-		return 3900
-	case job.JobAdSponsoredBackground:
-		return 3900
-	case job.JobAdSponsoredPinnedFor30Days:
-		return 12900
-	case job.JobAdSponsoredPinnedFor7Days:
-		return 5900
-	case job.JobAdWithCompanyLogo:
-		return 4900
-	case job.JobAdSponsoredPinnedFor60Days:
-		return 19900
+func PlanTypeAndDurationToAmount(planType string, planDuration int64, p1, p2, p3 int64) int64 {
+	switch planType {
+	case job.JobPlanTypeBasic:
+		return p1*planDuration
+	case job.JobPlanTypePro:
+		return p2*planDuration
+	case job.JobPlanTypePlatinum:
+		return p3*planDuration
 	}
 
 	return 0
 }
 
-func AdTypeToDescription(adType int64) string {
-	switch adType {
-	case job.JobAdBasic:
-		return "Standard Ad"
-	case job.JobAdSponsoredBackground:
-		return "Sponsored Ad Highlighted Background"
-	case job.JobAdSponsoredPinnedFor30Days:
-		return "Sponsored Ad Pinned For 30 Days"
-	case job.JobAdSponsoredPinnedFor7Days:
-		return "Sponsored Ad Pinned For 7 Days"
-	case job.JobAdWithCompanyLogo:
-		return "Standard Ad With Company Logo"
-	case job.JobAdSponsoredPinnedFor60Days:
-		return "Sponsored Ad Pinned For 60 Days"
+func PlanTypeAndDurationToDescription(planType string, planDuration int64) string {
+	switch planType {
+	case job.JobPlanTypeBasic:
+		return fmt.Sprintf("Basic Plan x %d months", planDuration)
+	case job.JobPlanTypePro:
+		return fmt.Sprintf("Pro Plan x %d months", planDuration)
+	case job.JobPlanTypePlatinum:
+		return fmt.Sprintf("Platinum Plan x %d months", planDuration)
 	}
 
 	return ""
-}
-
-func isApplicable(jobRq *job.JobRq) bool {
-	return jobRq.AdType >= 0 && jobRq.AdType <= 5
 }
 
 func (r Repository) CreateGenericSession(email, currency string, amount int) (*stripe.CheckoutSession, error) {
@@ -97,10 +81,7 @@ func (r Repository) CreateGenericSession(email, currency string, amount int) (*s
 	return session, nil
 }
 
-func (r Repository) CreateSession(jobRq *job.JobRq, jobToken string) (*stripe.CheckoutSession, error) {
-	if !isApplicable(jobRq) {
-		return nil, nil
-	}
+func (r Repository) CreateSession(jobRq *job.JobRq, jobToken string, monthlyAmount int64, numMonths int64) (*stripe.CheckoutSession, error) {
 	stripe.Key = r.stripeKey
 	params := &stripe.CheckoutSessionParams{
 		BillingAddressCollection: stripe.String("required"),
@@ -109,10 +90,10 @@ func (r Repository) CreateSession(jobRq *job.JobRq, jobToken string) (*stripe.Ch
 		}),
 		LineItems: []*stripe.CheckoutSessionLineItemParams{
 			{
-				Name:     stripe.String(fmt.Sprintf("%s Sponsored Ad", r.siteName)),
-				Amount:   stripe.Int64(AdTypeToAmount(jobRq.AdType)),
+				Name:     stripe.String(fmt.Sprintf("%s Job Ad %s Plan", r.siteName, strings.Title(jobRq.PlanType))),
+				Amount:   stripe.Int64(monthlyAmount),
 				Currency: stripe.String(strings.ToLower(jobRq.CurrencyCode)),
-				Quantity: stripe.Int64(1),
+				Quantity: stripe.Int64(numMonths),
 			},
 		},
 		SuccessURL:    stripe.String(fmt.Sprintf("https://%s/edit/%s?payment=1&callback=1", r.siteHost, jobToken)),

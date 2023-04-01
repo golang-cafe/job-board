@@ -784,3 +784,15 @@ CREATE TABLE IF NOT EXISTS public.blog_post (
 );
 
  CREATE UNIQUE INDEX blog_post_slug_idx on public.blog_post (slug);
+
+ ALTER TABLE ONLY public.job ADD COLUMN plan_type VARCHAR(255) NOT NULL DEFAULT 'basic';
+ ALTER TABLE ONLY public.job ADD COLUMN plan_duration INTEGER NOT NULL DEFAULT 1;
+ ALTER TABLE ONLY public.job ADD COLUMN newsletter_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
+ ALTER TABLE ONLY public.job ADD COLUMN social_media_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
+ ALTER TABLE ONLY public.job ADD COLUMN blog_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
+ ALTER TABLE ONLY public.job ADD COLUMN front_page_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
+ ALTER TABLE ONLY public.job ADD COLUMN company_page_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
+ ALTER TABLE ONLY public.job ADD COLUMN plan_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
+ ALTER TABLE ONLY public.purchase_event ADD COLUMN plan_type VARCHAR(255) NOT NULL DEFAULT 'legacy';
+ ALTER TABLE ONLY public.purchase_event ADD COLUMN plan_duration INTEGER NOT NULL DEFAULT 1;
+ ALTER TABLE ONLY public.company ADD COLUMN company_page_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';

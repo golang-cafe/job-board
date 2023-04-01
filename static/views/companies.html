@@ -88,6 +88,8 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 			</nav>
 		</header>
 		<section style="padding: 0 10px;">
+			<input type="submit" value="Post a Job" id="post-btn"
+			onclick="window.location.href='/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers';">
 			<p>
 			{{ if and .LocationFilter $isRemote }}
 			<h1 class="main-title">Remote Companies Using {{ .SiteJobCategory }}</h1><br/>
@@ -132,10 +134,10 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 		{{ end }}
 		{{ $siteJobCat := .SiteJobCategory }}
 		{{ range $i, $j := .Companies }}
-		<article class="line-item">
+		<article class="line-item"{{ if isTimeAfterNow .CompanyPageEligibilityExpiredAt }}style="background-color: #FFF8C7;"{{ end }}>
 			<img loading="lazy" width="60" height="60" src="/x/s/m/{{ .IconImageID }}?w=100&h=100" class="job-icon" alt="{{ .Name }} Logo" title="{{ .Name }} Logo" />
 			<div style="float: left;">
-				<a href="/company/{{ .Slug }}" title="{{ .Name }} is Hiring {{ $siteJobCat }} Engineers"><b>{{ .Name }}</b></a><br />
+				<a href="/company/{{ .Slug }}" title="{{ .Name }} is Hiring {{ $siteJobCat }} Engineers"><b>{{ .Name }}</b></a>{{ if isTimeAfterNow .CompanyPageEligibilityExpiredAt }} &bull; <small>Sponsored</small>{{ end }}<br />
 				<b>{{ .Locations }}</b>
 				<br />
 				<small><b>Last Job Posted:</b> {{ humantime .LastJobCreatedAt }}</small><br/>

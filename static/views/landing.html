@@ -1016,66 +1016,15 @@
 		{{ else }}
 		No {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}jobs {{ if .LocationFilter }}in <b>{{ .LocationFilterWithCountry }}</b>{{ end }} {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} found. <b>Try removing some filters and expanding your search</b><br />
 		{{ end }}
+		
 		{{ range $i, $j := .Jobs }}
-		{{ if eq .AdType 1 }}
-		<article class="line-item line-item-sponsored-1">
-			{{ if .CompanyIconID }}
-			<img loading="lazy" width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon"
-				alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
-			{{ end }}
-			<div style="float: left;">
-				<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a> &bull; <small>Sponsored</small><br />
-				<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
-				<b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
-				<br />
-				<small>{{ .TimeAgo }}</small>
-				{{ if gt .LastWeekClickouts 0 }}
-				<br />
-				<small>{{ .LastWeekClickouts }} Applicants This Week</small>
-				{{ end }}
-			</div>
-			<div class="job-desc" id="{{ .Slug }}" data-toggle="off">
-				{{ if .Expired }}
-				<code
-					style="width: 100%;text-align: center;font-size: 14pt;padding: 10px;color: black;background: #e9e9e9;line-height: 1.5rem;">This job posting is no longer available</code>
-				{{ end }}
-				<h3>Job Description</h3>
-				{{ .JobDescription }}
-				<br />
-				{{ if .Perks }}
-				<h3>Perks & Benefits</h3>
-				{{ .Perks }}
-				{{ end }}
-				{{ if .InterviewProcess }}
-				<h3>Interview Process</h3>
-				{{ .InterviewProcess }}
-				{{ end }}
-				{{ if not .Expired }}
-				{{ if .IsQuickApply }}
-				<input type="submit" style="float:right;" class="apply-btn" value="Quick Apply"
-					onclick="apply('{{ .HowToApply }}', '{{ .ExternalID }}');">
-				{{ else }}
-				<a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow"
-					class="apply-link">Apply</a>
-				{{ end }}
-				{{ else }}
-				<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
-				{{ end }}
-				<a class="copy-to-clipboard" data-link="https://{{ $siteHost }}/job/{{ .Slug }}"
-					style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398; Copy Link</a>
-				<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank"
-					style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2197; Visit Link</a>
-			</div>
-			<div class="clearfix"></div>
-		</article>
-		{{ else }}
 		<article class="line-item">
 			{{ if .CompanyIconID }}
 			<img loading="lazy" width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon"
 				alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
 			{{ end }}
 			<div style="float: left;">
-				<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a>{{ if or (eq .AdType 2) (eq .AdType 3) (eq .AdType 5) }} &bull; <small>Sponsored</small>{{ end }}<br />
+				<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a>{{ if isTimeAfterNow .FrontPageEligibilityExpiredAt }} &bull; <small>Sponsored</small>{{ end }}<br />
 				<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
 				<b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
 				<br />
@@ -1119,7 +1068,6 @@
 			</div>
 			<div class="clearfix"></div>
 		</article>
-		{{ end }}
 		{{ end }}
 		<article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
 			<div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;"

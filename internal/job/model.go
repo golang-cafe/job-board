@@ -21,27 +21,34 @@ const (
 	JobAdSponsoredPinnedFor7Days
 	JobAdWithCompanyLogo
 	JobAdSponsoredPinnedFor60Days
+	JobAdSponsoredPinnedFor90Days
 )
 
-type JobAdType int
-
 type Job struct {
-	CreatedAt         int64
-	JobTitle          string
-	Company           string
-	SalaryMin         string
-	SalaryMax         string
-	SalaryCurrency    string
-	SalaryPeriod      string
-	SalaryRange       string
-	Location          string
-	Description       string
-	Perks             string
-	InterviewProcess  string
-	HowToApply        string
-	Email             string
-	Expired           bool
-	LastWeekClickouts int
+	CreatedAt                       int64
+	JobTitle                        string
+	Company                         string
+	SalaryMin                       string
+	SalaryMax                       string
+	SalaryCurrency                  string
+	SalaryPeriod                    string
+	SalaryRange                     string
+	Location                        string
+	Description                     string
+	Perks                           string
+	InterviewProcess                string
+	HowToApply                      string
+	Email                           string
+	Expired                         bool
+	LastWeekClickouts               int
+	PlanType                        string
+	PlanDuration                    int
+	NewsletterEligibilityExpiredAt  time.Time
+	BlogEligibilityExpiredAt        time.Time
+	SocialMediaEligibilityExpiredAt time.Time
+	FrontPageEligibilityExpiredAt   time.Time
+	CompanyPageEligibilityExpiredAt time.Time
+	PlanExpiredAt                   time.Time
 }
 
 type JobRq struct {
@@ -58,19 +65,28 @@ type JobRq struct {
 	InterviewProcess  string `json:"interview_process,omitempty"`
 	Email             string `json:"company_email"`
 	StripeToken       string `json:"stripe_token,omitempty"`
-	AdType            int64  `json:"ad_type"`
+	PlanType          string `json:"plan_type"`
+	PlanDurationStr   string `json:"plan_duration"`
+	PlanDuration      int
 	CurrencyCode      string `json:"currency_code"`
 	CompanyIconID     string `json:"company_icon_id,omitempty"`
 	SalaryCurrencyISO string `json:"salary_currency_iso"`
 	VisaSponsorship   bool   `json:"visa_sponsorship,omitempty"`
 }
 
+const (
+	JobPlanTypeBasic    = "basic"
+	JobPlanTypePro      = "pro"
+	JobPlanTypePlatinum = "platinum"
+)
+
 type JobRqUpsell struct {
-	Token        string `json:"token"`
-	Email        string `json:"email"`
-	StripeToken  string `json:"stripe_token,omitempty"`
-	AdType       int64  `json:"ad_type"`
-	CurrencyCode string `json:"currency_code"`
+	Token           string `json:"token"`
+	Email           string `json:"email"`
+	StripeToken     string `json:"stripe_token,omitempty"`
+	PlanType        string `json:"plan_type"`
+	PlanDuration    int
+	PlanDurationStr string `json:"plan_duration"`
 }
 
 type JobRqUpdate struct {
@@ -92,32 +108,39 @@ type JobRqUpdate struct {
 }
 
 type JobPost struct {
-	ID                int
-	CreatedAt         int64
-	TimeAgo           string
-	JobTitle          string
-	Company           string
-	CompanyURL        string
-	SalaryRange       string
-	Location          string
-	JobDescription    string
-	Perks             string
-	InterviewProcess  string
-	HowToApply        string
-	Slug              string
-	SalaryCurrency    string
-	AdType            int64
-	SalaryMin         int64
-	SalaryMax         int64
-	CompanyIconID     string
-	ExternalID        string
-	IsQuickApply      bool
-	ApprovedAt        *time.Time
-	CompanyEmail      string
-	SalaryPeriod      string
-	CompanyURLEnc     string
-	Expired           bool
-	LastWeekClickouts int
+	ID                              int
+	CreatedAt                       int64
+	TimeAgo                         string
+	JobTitle                        string
+	Company                         string
+	CompanyURL                      string
+	SalaryRange                     string
+	Location                        string
+	JobDescription                  string
+	Perks                           string
+	InterviewProcess                string
+	HowToApply                      string
+	Slug                            string
+	SalaryCurrency                  string
+	SalaryMin                       int64
+	SalaryMax                       int64
+	CompanyIconID                   string
+	ExternalID                      string
+	IsQuickApply                    bool
+	ApprovedAt                      *time.Time
+	CompanyEmail                    string
+	SalaryPeriod                    string
+	CompanyURLEnc                   string
+	Expired                         bool
+	LastWeekClickouts               int
+	PlanType                        string
+	PlanDuration                    int
+	NewsletterEligibilityExpiredAt  time.Time
+	BlogEligibilityExpiredAt        time.Time
+	SocialMediaEligibilityExpiredAt time.Time
+	FrontPageEligibilityExpiredAt   time.Time
+	CompanyPageEligibilityExpiredAt time.Time
+	PlanExpiredAt                   time.Time
 }
 
 type JobPostForEdit struct {
@@ -127,10 +150,17 @@ type JobPostForEdit struct {
 	SalaryCurrency, JobDescription, Perks, InterviewProcess, HowToApply, Slug string
 	CreatedAt                                                                 time.Time
 	ApprovedAt                                                                pq.NullTime
-	AdType                                                                    int64
 	CompanyIconID                                                             string
 	ExternalID                                                                string
 	SalaryPeriod                                                              string
+	PlanType                                                                  string
+	PlanDuration                                                              int
+	NewsletterEligibilityExpiredAt                                            time.Time
+	BlogEligibilityExpiredAt                                                  time.Time
+	SocialMediaEligibilityExpiredAt                                           time.Time
+	FrontPageEligibilityExpiredAt                                             time.Time
+	CompanyPageEligibilityExpiredAt                                           time.Time
+	PlanExpiredAt                                                             time.Time
 }
 
 type JobStat struct {

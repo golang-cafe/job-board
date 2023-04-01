@@ -26,7 +26,8 @@ func (r *Repository) InferCompaniesFromJobs(since time.Time) ([]Company, error) 
          max(company_icon_image_id)     AS company_icon_id, 
          max(created_at)                AS last_job_created_at, 
          count(id)                      AS job_count, 
-         count(approved_at IS NOT NULL) AS live_jobs_count 
+         count(approved_at IS NOT NULL) AS live_jobs_count,
+		 max(company_page_eligibility_expired_at) AS company_page_eligibility_expired_at
 FROM     job 
 WHERE    company_icon_image_id IS NOT NULL 
 AND      created_at > $1
@@ -51,6 +52,7 @@ ORDER BY trim(FROM company)`
 			&c.LastJobCreatedAt,
 			&c.TotalJobCount,
 			&c.ActiveJobCount,
+			&c.CompanyPageEligibilityExpiredAt,
 		); err != nil {
 			return res, err
 		}
@@ -61,13 +63,32 @@ ORDER BY trim(FROM company)`
 }
 
 func (r *Repository) SaveCompany(c Company) error {
+	if c.CompanyPageEligibilityExpiredAt.Before(time.Now()) {
+		c.CompanyPageEligibilityExpiredAt = time.Date(1970, 1, 1, 0, 0, 0, 0, time.UTC)
+	}
 	var err error
-	stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count, description, slug, twitter, linkedin, github)
-	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13) 
+	stmt := `INSERT INTO company (id, name, url, locations, icon_image_id, last_job_created_at, total_job_count, active_job_count, description, slug, twitter, linkedin, github, company_page_eligibility_expired_at)
+	VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14) 
 	ON CONFLICT (name) 
-	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8, slug = $10`
+	DO UPDATE SET url = $3, locations = $4, icon_image_id = $5, last_job_created_at = $6, total_job_count = $7, active_job_count = $8, slug = $10, company_page_eligibility_expired_at = $14`
 
-	_, err = r.db.Exec(stmt, c.ID, c.Name, c.URL, c.Locations, c.IconImageID, c.LastJobCreatedAt, c.TotalJobCount, c.ActiveJobCount, c.Description, c.Slug, c.Twitter, c.Linkedin, c.Github)
+	_, err = r.db.Exec(
+		stmt,
+		c.ID,
+		c.Name,
+		c.URL,
+		c.Locations,
+		c.IconImageID,
+		c.LastJobCreatedAt,
+		c.TotalJobCount,
+		c.ActiveJobCount,
+		c.Description,
+		c.Slug,
+		c.Twitter,
+		c.Linkedin,
+		c.Github,
+		c.CompanyPageEligibilityExpiredAt,
+	)
 
 	return err
 }
@@ -116,7 +137,11 @@ func (r *Repository) CompaniesByQuery(location string, pageID, companiesPerPage 
 			&twitter,
 			&github,
 			&linkedin,
+			&c.CompanyPageEligibilityExpiredAt,
 		)
+		if err != nil {
+			return companies, fullRowsCount, err
+		}
 		if description.Valid {
 			c.Description = &description.String
 		}
@@ -151,6 +176,9 @@ func (r *Repository) FeaturedCompaniesPostAJob() ([]Company, error) {
 			&c.Name,
 			&c.IconImageID,
 		)
+		if err != nil {
+			return companies, err
+		}
 		companies = append(companies, c)
 	}
 	err = rows.Err()
@@ -213,9 +241,10 @@ func getCompanyQueryForArgs(conn *sql.DB, location string, offset, max int) (*sq
        slug,
        twitter,
        github,
-       linkedin
+       linkedin,
+	   company_page_eligibility_expired_at
 FROM   company
-ORDER  BY last_job_created_at DESC
+ORDER  BY company_page_eligibility_expired_at DESC, last_job_created_at DESC
 LIMIT $2 OFFSET $1`, offset, max)
 	}
 
@@ -234,9 +263,10 @@ LIMIT $2 OFFSET $1`, offset, max)
        slug,
        twitter,
        github,
-       linkedin
+       linkedin,
+	   company_page_eligibility_expired_at
 FROM   company
 WHERE locations ILIKE '%' || $1 || '%'
-ORDER  BY last_job_created_at DESC
+ORDER  BY company_page_eligibility_expired_at DESC, last_job_created_at DESC
 LIMIT $3 OFFSET $2`, location, offset, max)
 }
