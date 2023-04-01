@@ -767,6 +767,7 @@
 			width: 780px;
 			margin: auto;
 		}
+        .hover-pointer{cursor: pointer;}
     </style>
     {{ template "google-analytics" }}
 </head>
@@ -785,8 +786,8 @@
     </div>
     <header>
         <nav class="menu-header">
-            <div style="float: left;">
-                <small>
+            <img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+            <small style="display:block;float:left;margin-bottom:10px;">
                     <a href="/">Jobs</a>&bull;
                     <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
                     <a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;

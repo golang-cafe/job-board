@@ -61,7 +61,7 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 .overlay-effect {display: none;width: 100%; height: 100%; position: fixed; top: 0; left: 0;background: rgba(0, 0, 0,0.5);z-index: 1}.upload-file-label:hover{cursor: pointer;}
 .clearfix::after {content: "";clear: both;display: table;}input[type="checkbox"]{-webkit-appearance: checkbox;-moz-appearance: checkbox;appearance: checkbox;}
 .apply-link {font-size: 18px;font-weight: 400;line-height: 29.7px;border-radius: 3.6px;background: {{ .PrimaryColor }};color: #fff;cursor: pointer;display: inline;margin-bottom: 18px;margin-right: 7.2px;padding: 6.525px 23.4px;text-align: center;}.apply-link:hover {text-decoration:none;background:{{ .SecondaryColor }};color:#ffffff;}
-.menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
+.menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}.hover-pointer{cursor:pointer;}
 		</style>
 		{{ template "feedback-box-css" . }}
 		{{ template "newsletter-banner-css" . }}
@@ -72,8 +72,8 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 		{{ template "newsletter-banner-html" . }}
 		<header>
 			<nav class="menu-header">
-				<div style="float: left;">
-					<small>
+				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+				<small style="display:block;float:left;margin-bottom:10px;">
 						<a href="/">Jobs</a>&bull;
 						<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
 						<a style="text-decoration: underline;" href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;

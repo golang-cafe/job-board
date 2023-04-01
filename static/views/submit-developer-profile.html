@@ -802,6 +802,7 @@
 			background: #d9d9d9;
 			cursor: pointer;
 		}
+		.hover-pointer{cursor: pointer;}
 	</style>
 	<meta charset="utf-8">
 	<title>Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}</title>
@@ -819,7 +820,6 @@
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:title" content="Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}">
 	<meta name="twitter:description" content="Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}">
-
 	<meta name="twitter:site" content="@{{ .SiteTwitter }}" />
 	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers" />
 	<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
@@ -843,8 +843,8 @@
 	</div>
 	<header>
 		<nav class="menu-header">
-			<div style="float: left;">
-				<small>
+			<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+			<small style="display:block;float:left;margin-bottom:10px;">
 					<a href="/">Jobs</a>&bull;
 					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
 					<a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;

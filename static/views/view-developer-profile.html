@@ -231,7 +231,7 @@ background-color: #FF6600
 
 .resp-sharing-button--telegram:hover {
   background-color: #4B97D1;}
-  .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
+  .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}.hover-pointer{cursor: pointer;}
     </style>
     <meta charset="utf-8">
     <meta name="title" content="{{ .DeveloperProfile.Name }} - {{ .SiteJobCategory }} Developer in {{ .MonthAndYear }} | {{ .SiteName }}" />
@@ -256,8 +256,8 @@ background-color: #FF6600
   <body>
     <header>
       <nav class="menu-header">
-        <div style="float: left;">
-    <small>
+				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+				<small style="display:block;float:left;margin-bottom:10px;">
       <a href="/">Jobs</a>&bull;
       <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
       <a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
