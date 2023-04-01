@@ -1085,6 +1085,7 @@ func TriggerAdsManager(svr server.Server, jobRepo *job.Repository) http.HandlerF
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			// TODO: add column to jobs and send emails
+			// get jobs if plan_expired_at is less than now and last_email_sent is between 2 weeks ago and now
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
 	)
@@ -1455,7 +1456,7 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
 			if err != nil {
 				svr.Log(err, "unable to get email from JWT")
-				svr.JSON(w, http.StatusUnauthorized, "unauthorized")
+				http.Redirect(w, r, "/auth", http.StatusUnauthorized)
 				return
 			}
 			// todo: allow admin to edit any profile type
@@ -1465,11 +1466,11 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 				dev, err := devRepo.DeveloperProfileByID(profileID)
 				if err != nil {
 					svr.Log(err, "unable to find developer profile")
-					svr.JSON(w, http.StatusNotFound, nil)
+					http.Redirect(w, r, "/auth", http.StatusUnauthorized)
 					return
 				}
 				if dev.Email != profile.Email && !profile.IsAdmin {
-					svr.JSON(w, http.StatusForbidden, "forbidden")
+					http.Redirect(w, r, "/auth", http.StatusUnauthorized)
 					return
 				}
 				svr.Render(r, w, http.StatusOK, "edit-developer-profile.html", map[string]interface{}{
@@ -1479,7 +1480,7 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 				rec, err := recRepo.RecruiterProfileByID(profileID)
 				if err != nil {
 					svr.Log(err, "unable to find recruiter profile")
-					svr.JSON(w, http.StatusNotFound, nil)
+					http.Redirect(w, r, "/auth", http.StatusUnauthorized)
 					return
 				}
 				svr.Render(r, w, http.StatusOK, "edit-recruiter-profile.html", map[string]interface{}{
@@ -1487,7 +1488,7 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 				})
 			case user.UserTypeAdmin:
 				svr.Log(err, "admin does not have profile to edit yet")
-				svr.JSON(w, http.StatusNotFound, nil)
+				http.Redirect(w, r, "/auth", http.StatusUnauthorized)
 				return
 			}
 		},
@@ -2094,7 +2095,7 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 				email.Address{Email: purchaseEvent.Email},
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 				fmt.Sprintf("Your Job Ad on %s", svr.GetConfig().SiteName),
-				fmt.Sprintf("Your Job Ad has been upgraded successfully and it's now pinned to the home page. You can edit the Job Ad at any time and check page views and clickouts by following this link https://%s/edit/%s", svr.GetConfig().SiteHost, jobToken))
+				fmt.Sprintf("Your Job Ad has been approved and it's now live. You can edit the Job Ad at any time and check page views and clickouts by following this link https://%s/edit/%s", svr.GetConfig().SiteHost, jobToken))
 			if err != nil {
 				svr.Log(err, "unable to send email while upgrading job ad")
 			}
