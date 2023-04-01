@@ -2094,7 +2094,7 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 				email.Address{Email: purchaseEvent.Email},
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
-				fmt.Sprintf("Your Job Ad on %s", svr.GetConfig().SiteName),
+				fmt.Sprintf("Your Job Ad is live on %s", svr.GetConfig().SiteName),
 				fmt.Sprintf("Your Job Ad has been approved and it's now live. You can edit the Job Ad at any time and check page views and clickouts by following this link https://%s/edit/%s", svr.GetConfig().SiteHost, jobToken))
 			if err != nil {
 				svr.Log(err, "unable to send email while upgrading job ad")
