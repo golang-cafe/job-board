@@ -2447,6 +2447,8 @@ func SubmitJobPostWithoutPaymentHandler(svr server.Server, jobRepo *job.Reposito
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
+			jobRq.PlanType = job.JobPlanTypeBasic
+			jobRq.PlanDuration = 1
 			jobID, err := jobRepo.SaveDraft(jobRq)
 			if err != nil {
 				svr.Log(err, fmt.Sprintf("unable to save job request: %#v", jobRq))

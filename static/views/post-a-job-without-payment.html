@@ -176,9 +176,12 @@ body{background:#ffffff;}
                 alert('Your email is not valid');
                 return;
             }
-            document.getElementById("spinner-0").style.display = "block";
             var hasFile = document.getElementById('company-icon-file').files.length > 0;
             if (hasFile) {
+                alert('Please add company logo');
+                return;
+            }
+            document.getElementById("spinner-0").style.display = "block";
                 var mediaFile = document.getElementById('company-icon-file').files[0];
 		var cropValues = cropInstance.getValue();
                 var formData = new FormData();
@@ -210,7 +213,7 @@ body{background:#ffffff;}
                                 how_to_apply: howToApply,
                                 company_email: companyEmail,
                                 company_icon_id: companyIconId,
-				visa_sponsorship: visaSponsorship
+				                visa_sponsorship: visaSponsorship
                             },
                             function(success, body) {
                                 document.getElementById("spinner-0").style.display = "none";
@@ -226,35 +229,6 @@ body{background:#ffffff;}
                         );
                     }
                 }
-            } else {
-                http(
-                    {
-                        job_title: jobTitle,
-                        job_location: jobLocation,
-                        salary_min: salaryMin,
-                        salary_max: salaryMax,
-                        salary_currency: salaryCurrencySymbol,
-                        salary_currency_iso: salaryCurrencyISO,
-                        company_name: companyName,
-                        company_url: companyWebsite,
-                        job_description: jobDescription,
-                        how_to_apply: howToApply,
-                        company_email: companyEmail,
-			visa_sponsorship: visaSponsorship
-                    },
-                    function(success, body) {
-                        document.getElementById("spinner-0").style.display = "none";
-                        if (success) {
-                            var res = JSON.parse(body);
-                            window.location.href = "/manage/"+res.token;
-                        } else {
-                            console.log("unable to post job without payment");
-                            console.log(body);
-                            window.location.href = "/x/j/p/0";
-                        }
-                    }
-                );
-            }
         }
         var http = function(body, cb) {
             var xhr = new XMLHttpRequest();
