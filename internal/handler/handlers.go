@@ -95,7 +95,13 @@ func DevelopersHandler(svr server.Server, devRepo *developer.Repository) http.Ha
 
 func SubmitDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForDeveloperRegistration(w, r, devRepo, "submit-developer-profile.html")
+		svr.RenderPageForProfileRegistration(w, r, devRepo, "submit-developer-profile.html")
+	}
+}
+
+func SubmitRecruiterProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		svr.RenderPageForProfileRegistration(w, r, devRepo, "submit-recruiter-profile.html")
 	}
 }
 

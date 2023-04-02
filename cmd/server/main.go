@@ -136,6 +136,11 @@ func main() {
 		handler.SubmitDeveloperProfileHandler(svr, devRepo),
 		[]string{"GET"},
 	)
+	svr.RegisterRoute(
+		fmt.Sprintf("/Hire-From-%s-Community", strings.Title(cfg.SiteJobCategory)),
+		handler.SubmitRecruiterProfileHandler(svr, devRepo),
+		[]string{"GET"},
+	)
 	svr.RegisterRoute("/x/srp", handler.SaveRecruiterProfileHandler(svr, recRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/sdp", handler.SaveDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/udp", handler.UpdateDeveloperProfileHandler(svr, devRepo), []string{"POST"})

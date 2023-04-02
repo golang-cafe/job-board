@@ -861,16 +861,15 @@
 	<section>
 		<article>
 			<p>
-			<h1 style="margin-top:20px;">Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}</h1>
+			<h1 style="margin-top:20px;">Start Hiring on the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}</h1>
 			<div style="height: 70px; margin: 50px auto; width: 50%;">
-				<div id="profile-developer" class="active-profile profile-type"
-					style="border-radius: 5px 0 0 5px; border-right: none;"><a style="color: #fff;" href="/Join-{{ .SiteJobCategory }}-Community">I am a developer</a></div>
-				<div id="profile-recruiter" class="profile-type" style="border-radius: 0 5px 5px 0; border-left: none;"><a href="/Hire-From-{{ .SiteJobCategory }}-Community">I am a recruiter</a></div>
+				<div id="profile-developer" class="profile-type"
+					style="border-radius: 5px 0 0 5px; border-right: none;"><a href="/Join-{{ .SiteJobCategory }}-Community">I am a developer</a></div>
+				<div id="profile-recruiter" class="active-profile profile-type" style="border-radius: 0 5px 5px 0; border-left: none;"><a style="color:#fff;" href="/Hire-From-{{ .SiteJobCategory }}-Community">I am a recruiter</a></div>
 			</div>
 			<p style="font-size: 18px;">
-				Register your free profile on {{ .SiteName }}. There are <a
-					href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}" target="_blank">hundreds of companies</a>
-				and <a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">{{ .SiteJobCategory }} developers</a> from all over the world on the {{ .SiteName }}
+				Start hiring and sourcing great developers on {{ .SiteName }}. There are hundreds
+				of <a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">{{ .SiteJobCategory }} developers</a> from all over the world on the {{ .SiteName }}
 				Community.<br /><br /> Developers like <b>{{ .TopDeveloperNames }}</b> experienced in <b>{{ .TopDeveloperSkills }}</b> have joined {{ .SiteName }} recently.
 			</p>
 			<div style="margin-bottom: 20px; text-align: center;">
@@ -894,64 +893,19 @@
 				<li>Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></li>
 			</ul>
 
-			<h3>Join the community</h3>
+			<h3>Start Hiring</h3>
 			<input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" />
-			<div id="current-location-container" style="border-bottom:18px;">
-				<input autocomplete="off" type="text" name="current-location" class="dev-only"
-					placeholder="Your Current Location" id="current-location" style="width:100%;" />
-				<div id="current-location-suggestions" style="display:none;" class="search-suggestions">
-				</div>
-			</div>
 			<input type="hidden" id="detected-location-id" name="detected-location-id" />
 			<input type="text" class="recruiter-only" name="job-title" id="job-title" placeholder="Your Role or Job Title" style="width: 100%;" />
-			<input type="url" class="dev-only" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;" />
-			<input type="url" class="dev-only" name="github-url" id="github-url" placeholder="GitHub URL (Optional)"
+			<input type="url" class="recruiter-only" name="company-url" id="company-url" placeholder="Company URL"
 				style="width: 100%;" />
-			<input type="url" class="dev-only" name="twitter-url" id="twitter-url" placeholder="Twitter URL (Optional)"
+			<input type="text" class="recruiter-only" name="company-name" id="company-name" placeholder="Company Name"
 				style="width: 100%;" />
-			<select id="search-status" name="search-status" style="width:100%;" class="dev-only">
-				<option default value="">Your Status</option>
-				<option value="actively-applying">Actively Looking</option>
-				<option value="casually-looking">Casually Looking</option>
-				<option value="not-available">Not Available</option>
-			</select>
-			<select id="role-level" name="role-level" style="width:100%;" class="dev-only">
-				<option default value="">Your Role Level</option>
-				<option value="junior">Junior</option>
-				<option value="mid-level">Mid-Level</option>
-				<option value="senior">Senior</option>
-				<option value="lead">Principal / Lead</option>
-				<option value="c-level">C-Level</option>
-			</select>
-			<div class="dev-only">
-				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-full-time" value="full-time" id="role-type-full-time"/> <span style="vertical-align: middle;">Full-Time</span></label>
-				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-part-time" value="part-time" id="role-type-part-time"/> <span style="vertical-align: middle;">Part-Time</span></label>
-				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-contract" value="contract" id="role-type-contract"/> <span style="vertical-align: middle;">Contract</span></label>
-				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-internship" value="internship" id="role-type-internship"/> <span style="vertical-align: middle;">Internship</span></label>
-			</div>
-			<div class="dev-only">
-				<label for="profile-image"
-					style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload
-					Profile Image</label>
-				<div style="float:left; width:100%;">
-					<img id="profile-image-preview" src=""
-						style="max-width:100%;cursor: pointer;display: none; float: left;" />
-				</div>
-				<input type="file" name="profile-image" id="profile-image" placeholder="Your Avatar"
-					style="visibility: hidden; width: 0; height: 0;" />
-				<div class="clearfix"></div>
-			</div>
-			<input type="hidden" name="profile-type" id="profile-type" value="developer" />
-			<input type="text" class="dev-only" name="tags" id="tags" style="width:100%;"
-				placeholder="Your Skills (eg. MySQL, Go, HTML, CSS, JavaScript)" />
-			<textarea id="bio" class="dev-only" placeholder="Short Bio" style="resize:none; width: 100%;"></textarea>
+			<input type="hidden" name="profile-type" id="profile-type" value="recruiter" />
 			<input type="email" name="email" id="email" placeholder="Your Email" style="width: 100%;" />
 			<br />
-			<input type="submit" id="submit" value="Join The Community" onclick="post();" style="float: right;">
-			<p style="float:right;margin-bottom:0;margin-top:5px;margin-right:10px;"><small><a
-				href="/auth">Already a member?</a></small></p>
-			<br />
-			</p>
+			<input type="submit" id="submit" value="Start Hiring" onclick="post();" style="float: right;">
+            <br />
 		</article>
 	</section>
 	<footer>
@@ -1009,148 +963,49 @@
 			}
 			return !isThere;
 		};
-		var cropInstance;
-		document.getElementById("profile-image").addEventListener("change", function () {
-			if (this.files && this.files[0]) {
-				if (['png', 'jpg', 'jpeg'].indexOf(this.files[0].name.split('.').pop()) === -1) {
-					alert('Only PNG, JPEG or JPG files are allowed');
-					return;
-				}
-				if (this.files[0].size > 5 * 1024 * 1024) {
-					alert('Max file size for company logo is 5MB');
-					return;
-				}
-				var imgSrc = URL.createObjectURL(this.files[0]);
-				if (cropInstance) {
-					cropInstance.destroy();
-				}
-				var img = document.getElementById("profile-image-preview");
-				img.style.display = "block";
-				img.src = imgSrc;
-				cropInstance = new Croppr('#profile-image-preview', {
-					startSize: [100, 100, '%'],
-					aspectRatio: 1,
-				});
-			}
-		});
 		function post() {
-			var fullName = document.getElementById("full-name").value;
-			var linkedinURL = document.getElementById("linkedin-url").value;
-			var githubURL = document.getElementById("github-url").value;
-			var twitterURL = document.getElementById("twitter-url").value;
-			var bio = document.getElementById("bio").value;
-			var email = document.getElementById("email").value;
-			var currentLocation = document.getElementById("current-location").value;
-			var tags = document.getElementById("tags").value;
-			var searchStatus = document.getElementById("search-status").value;
-			var roleLevel = document.getElementById("role-level").value;
-			var detectedLocationId = document.getElementById('detected-location-id').value;
-			var roleTypes = [];
-			if (document.getElementById("role-type-full-time").checked) {
-				roleTypes.push('full-time');
-			}
-			if (document.getElementById("role-type-part-time").checked) {
-				roleTypes.push('part-time');
-			}
-			if (document.getElementById("role-type-contract").checked) {
-				roleTypes.push('contract');
-			}
-			if (document.getElementById("role-type-internship").checked) {
-				roleTypes.push('internship');
-			}
-			if (empty(tags, fullName, linkedinURL, bio, email, currentLocation, searchStatus, roleLevel)) {
-				alert('You must fill all the mandatory fields (Full Name, Email, Linkedin URL, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
-				return;
-			}
-			if (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL)) {
-				alert('Linkedin URL it\'s not a valid URL');
-				return;
-			}
-			if (!isEmail(email)) {
-				alert('Your email is not valid');
-				return;
-			}
-			if (!validSkills(tags)) {
-				alert('Skills is too long. Please use 10 skills or less');
-				return;
-			}
-			if (!empty(githubURL) && !isURL(githubURL)) {
-				alert('GitHub URL must be a valid url');
-				return;
-			}
-			if (!empty(twitterURL) && !isURL(twitterURL)) {
-				alert('Twitter URL must be a valid url');
-				return;
-			}
-			if (detectedLocationId == '') {
-				alert('Please select a valid location from the dropdown. If you can\'t find your City, please just use the Country where you are currently located.');
-				return;
-			}
-			document.getElementById("spinner-0").style.display = "block";
-			var hasFile = document.getElementById('profile-image').files.length > 0;
-			if (!hasFile) {
-				document.getElementById("spinner-0").style.display = "none";
-				alert('Please add a profile image');
-				return;
-			}
-			var cropValues = cropInstance.getValue();
-			var mediaFile = document.getElementById('profile-image').files[0];
-			var formData = new FormData();
-			formData.append('image', mediaFile);
-			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/x/s/m?x=' + cropValues.x + '&y=' + cropValues.y + '&w=' + cropValues.width + '&h=' + cropValues.height, true);
-			xhr.send(formData);
-			xhr.onreadystatechange = function () {
-				if (xhr.readyState === 4) {
-					var companyIconId = "";
-					if (xhr.status !== 200) {
-						document.getElementById("spinner-0").style.display = "none";
-						document.getElementById('profile-image').value = '';
-						alert('There was an error while uploading your profile image. Please make sure the image is under 5MB and it\'s JPG,JPEG or PNG format.');
-						return;
-					}
-					var res = JSON.parse(xhr.response);
-					profileImageId = res.id;
-					var payload = {
-						fullname: fullName,
-						linkedin_url: linkedinURL,
-						bio: bio,
-						email: email,
-						tags: tags,
-						current_location: currentLocation,
-						profile_image_id: profileImageId,
-						search_status: searchStatus,
-						role_level: roleLevel,
-						role_types: roleTypes,
-						detected_location_id: detectedLocationId,
-					};
-					if (!empty(twitterURL)) {
-						payload.twitter_url = twitterURL;
-					}
-					if (!empty(githubURL)) {
-						payload.github_url = githubURL;
-					}
-					http(
-						'/x/sdp',
-						payload,
-						function (success, body, statusCode) {
-							if (success) {
-								document.getElementById("spinner-0").style.display = "none";
-								alert('Please check your email to confirm your profile.');
-								gtag('event', 'conversion', {'send_to': 'AW-10970937211/yqjWCKDl64sYEPvurO8o'});
-								window.location.href = '/Submit-Developer-Profile';
-							} else {
-								document.getElementById("spinner-0").style.display = "none";
-								if (statusCode == 400) {
-									alert('There was a problem with your request. ' + body);
-								} else {
-									alert('There was a problem with your request, please try again later.');
-								}
-							}
-						}
-					);
-				}
-			}
+            var fullName = document.getElementById("full-name").value;
+            var jobTitle = document.getElementById("job-title").value;
+            var companyName = document.getElementById("company-name").value;
+            var companyUrl = document.getElementById("company-url").value;
+            var email = document.getElementById("email").value;
+            if (empty(fullName, jobTitle, email)) {
+                alert('You must fill all the mandatory fields (Full name, Email, Job Title) in order to join the community');
+                return;
+            }
+            if (!isEmail(email)) {
+                alert('Your email is not valid');
+                return;
+            }
+            if (!isURL(companyUrl)) {
+                alert('Company website it\'s not a valid URL');
+                return;
+            }
+            var payload = {
+                fullname: fullName,
+                job_title: jobTitle,
+                company_name: companyName,
+                company_url: companyUrl,
+                email: email
+            };
+            http(
+                '/x/srp',
+                payload,
+                function (success, body, statusCode) {
+                    if (success) {
+                        document.getElementById("spinner-0").style.display = "none";
+                        alert('Please check your email to confirm your profile.');
+                        window.location.href = '/Submit-Developer-Profile';
+                    } else {
+                        document.getElementById("spinner-0").style.display = "none";
+                        if (statusCode == 400) {
+                            alert('There was a problem with your request. ' + body);
+                        } else {
+                            alert('There was a problem with your request, please try again later.');
+                        }
+                    }
+                }
+            );
 		}
 		var postMessage = function (body, cb) {
 			var xhr = new XMLHttpRequest();
@@ -1204,49 +1059,6 @@
 					cb(xhr.status, JSON.parse(xhr.responseText));
 				}
 			}
-		};
-		document
-			.getElementById('current-location')
-			.addEventListener('keyup', function (event) {
-				event.preventDefault();
-				if (event.keyCode !== 13) {
-					document.getElementById('current-location-suggestions').style.display = 'none';
-					getJSON('/x/loc/autocomplete?k=' + document.getElementById('current-location').value.trim(), function (status, res) {
-						if (status == 200 && typeof res != 'undefined') {
-							var suggestions = '';
-							for (var item of res) {
-								var display = item.name;
-								if (item.country) {
-									display += ', ' + item.country;
-								}
-								loc = item.name;
-								if (item.country) {
-									loc = item.country;
-								}
-								display += ' ' + item.emoji;
-								suggestions += '<div class="search-option" id="loc-option-' + item.name + '" data-val="' + loc + '" data-display="'+display+'">' + display + '</div>';
-							}
-							if (suggestions != '') {
-								document.getElementById('current-location-suggestions').innerHTML = suggestions;
-								for (var item of res) {
-									document.getElementById('loc-option-' + item.name).addEventListener('click', function (e) {
-										document.getElementById('current-location').value = e.target.getAttribute('data-display');
-										document.getElementById('current-location-suggestions').style.display = 'none';
-										document.getElementById('detected-location-id').value = e.target.getAttribute('data-val');
-									});
-								}
-								document.getElementById('current-location-suggestions').style.display = 'block';
-							}
-						}
-					})
-					return;
-				}
-			});
-		window.onload = function () {
-			document.getElementById('current-location-suggestions').style.width = document.getElementById('current-location').offsetWidth + 'px';
-		}
-		window.onresize = function(event) {
-			document.getElementById('current-location-suggestions').style.width = document.getElementById('current-location').offsetWidth + 'px';
 		};
 	</script>
 </body>

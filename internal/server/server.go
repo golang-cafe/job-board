@@ -552,7 +552,7 @@ func textifyJobTitles(jobs []*job.JobPost) string {
 	return ""
 }
 
-func (s Server) RenderPageForDeveloperRegistration(w http.ResponseWriter, r *http.Request, devRepo *developer.Repository, htmlView string) {
+func (s Server) RenderPageForProfileRegistration(w http.ResponseWriter, r *http.Request, devRepo *developer.Repository, htmlView string) {
 	topDevelopers, err := devRepo.GetTopDevelopers(10)
 	if err != nil {
 		s.Log(err, "unable to get top developers")
