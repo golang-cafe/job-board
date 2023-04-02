@@ -117,11 +117,12 @@ body{background:#ffffff;}
 	  <small>{{ len .Developers }} of {{ .TotalDevelopersCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Developers for hire found {{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}&bull; Sort by <b>Last Updated</b></small><br />
 	  {{ end }}
     <div class="container">
+        {{ $isLoggedUser := .LoggedUser }}
 	    {{ range $i, $j := .Developers }}
               <article class="line-item">
 		  <img loading="lazy" width="120" height="120" src="/x/s/m/{{ .ImageID }}?w=100&h=100" class="job-icon" alt="{{ .Name }}" title="{{ .Name }}" />
                   <div style="float: left;">
-			  <a href="/developer/{{ .Slug }}"target="_blank"><b>{{ .Name }}</b></a><br />
+			  <a href="/developer/{{ .Slug }}"target="_blank"><b>{{ if $isLoggedUser }}{{ .Name }}{{ else }}{{ truncateName .Name }}{{ end }}</b></a><br />
 		  Currently in <b id="location-{{ .ID }}">{{ .Location }}</b><br/>
 		  <span id="skills-{{ .ID }}">
 		  {{ range $x, $y := .SkillsArray }}

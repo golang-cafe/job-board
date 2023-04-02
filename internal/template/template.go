@@ -2,6 +2,7 @@ package template
 
 import (
 	"net/http"
+	"strings"
 	"time"
 
 	stdtemplate "html/template"
@@ -40,6 +41,10 @@ func NewTemplate() *Template {
 		},
 		"isTimeAfterNow": func(t time.Time) bool {
 			return t.After(time.Now())
+		},
+		"truncateName": func(s string) string {
+			parts := strings.Split(s, " ")
+			return parts[0]
 		},
 		"currencysymbol": func(currency string) string {
 			symbols := map[string]string{
