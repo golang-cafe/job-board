@@ -1093,6 +1093,10 @@
 					alert('Twitter URL must be a valid url');
 					return;
 				}
+				if (detectedLocationId == '') {
+					alert('Please select a valid location from the dropdown. If you can\'t find your City, please just use the Country where you are currently located.');
+					return;
+				}
 				document.getElementById("spinner-0").style.display = "block";
 				var hasFile = document.getElementById('profile-image').files.length > 0;
 				if (!hasFile) {
@@ -1303,8 +1307,12 @@
 								if (item.country) {
 									display += ', ' + item.country;
 								}
+								loc = item.name;
+								if (item.country) {
+									loc = item.country;
+								}
 								display += ' ' + item.emoji;
-								suggestions += '<div class="search-option" id="loc-option-' + item.name + '" data-val="' + item.name + '" data-display="'+display+'">' + display + '</div>';
+								suggestions += '<div class="search-option" id="loc-option-' + item.name + '" data-val="' + loc + '" data-display="'+display+'">' + display + '</div>';
 							}
 							if (suggestions != '') {
 								document.getElementById('current-location-suggestions').innerHTML = suggestions;
