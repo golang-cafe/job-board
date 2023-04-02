@@ -286,6 +286,12 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
+		err = database.AddEmailSubscriber(svr.Conn, req.Email, k.String())
+		if err != nil {
+			svr.Log(err, "unable to add email subscriber to db")
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
 		err = svr.GetEmail().SendHTMLEmail(
 			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 			email.Address{Email: req.Email},
@@ -1778,6 +1784,9 @@ func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *de
 					svr.JSON(w, http.StatusInternalServerError, nil)
 					return
 				}
+			}
+			if err := database.ConfirmEmailSubscriber(svr.Conn, token); err != nil {
+				svr.Log(err, "unable to confirm subscriber using token "+token)
 			}
 			svr.Redirect(w, r, http.StatusMovedPermanently, "/profile/home")
 			return
