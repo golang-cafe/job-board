@@ -71,10 +71,17 @@ body{background:#ffffff;}
     </p>
     </article>
 {{ end }}
-    {{ if isTimeBeforeNow .Job.PlanExpiredAt }}
+    {{ $notApproved := not .Job.ApprovedAt.Valid }}
+    {{ $planExpired := isTimeBeforeNow .Job.PlanExpiredAt }}
+    {{ if or $planExpired $notApproved }}
     <article style="margin-bottom: 30px;">
+            {{ if $planExpired }}
             <h3>Your Job Ad has expired</h3>
             Your Job Ad has expired on {{ .Job.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}. Renew your Job Ad with an easy click. Proceed with payment below and your ad will be automatically approved<br/><br />
+            {{ else }}
+            <h3>Your Job Ad is pending</h3>
+            Your Job Ad is pending approval. This means your payment may have not been received yet. Proceed with payment below and your ad will be automatically approved<br/><br />
+            {{ end }}
         <h4>Choose Your Package</h4>
                 <p>Please choose one of the following options based on your criteria and budget. All our packags run for 30 days. They vary based on the level of reach you require. You can also make a purchase for multiple months by using the options below.</p>
                 <h4>Duration</h4>
