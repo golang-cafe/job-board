@@ -706,6 +706,8 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		"LastDevCreatedAt":          lastDevCreatedAt,
 		"LastDevCreatedAtHumanized": lastDevCreatedAtHumanized,
 		"EmailSubscribersCount":     humanize.Comma(int64(emailSubscribersCount)),
+		"DevelopersBannerLink":      s.GetConfig().DevelopersBannerLink,
+		"DevelopersBannerText":      s.GetConfig().DevelopersBannerText,
 	})
 
 }
@@ -1000,9 +1002,9 @@ func (s Server) Render(r *http.Request, w http.ResponseWriter, status int, htmlV
 	dataMap["PrimaryColor"] = s.GetConfig().PrimaryColor
 	dataMap["SecondaryColor"] = s.GetConfig().SecondaryColor
 	dataMap["SiteLogoImageID"] = s.GetConfig().SiteLogoImageID
-	dataMap["Plan1IDPrice"] = s.GetConfig().PlanID1Price/100
-	dataMap["Plan2IDPrice"] = s.GetConfig().PlanID2Price/100
-	dataMap["Plan3IDPrice"] = s.GetConfig().PlanID3Price/100
+	dataMap["Plan1IDPrice"] = s.GetConfig().PlanID1Price / 100
+	dataMap["Plan2IDPrice"] = s.GetConfig().PlanID2Price / 100
+	dataMap["Plan3IDPrice"] = s.GetConfig().PlanID3Price / 100
 	dataMap["MonthAndYear"] = time.Now().UTC().Format("January 2006")
 
 	return s.tmpl.Render(w, status, htmlView, dataMap)

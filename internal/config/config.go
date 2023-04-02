@@ -58,6 +58,8 @@ type Config struct {
 	PlanID1Price                 int // price in cents
 	PlanID2Price                 int // price in cents
 	PlanID3Price                 int // price in cents
+	DevelopersBannerLink         string
+	DevelopersBannerText         string
 }
 
 func LoadConfig() (Config, error) {
@@ -246,6 +248,8 @@ func LoadConfig() (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
 	}
+	developersBannerLink := os.Getenv("DEVELOPERS_BANNER_LINK")
+	developersBannerText := os.Getenv("DEVELOPERS_BANNER_TEXT")
 
 	return Config{
 		Port:                         port,
@@ -295,5 +299,7 @@ func LoadConfig() (Config, error) {
 		PlanID1Price:                 planID1Price,
 		PlanID2Price:                 planID2Price,
 		PlanID3Price:                 planID3Price,
+		DevelopersBannerLink:         developersBannerLink,
+		DevelopersBannerText:         developersBannerText,
 	}, nil
 }
