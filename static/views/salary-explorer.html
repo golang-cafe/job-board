@@ -30,7 +30,7 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 .svg-content {display: inline-block;position: absolute;top: 0;left: 0;}      #salary-distribution, #salary-trends {width: 100%;height: 400px;margin-bottom: 20px;}
 #search-location{margin-bottom: 1px;border: 1px solid #d9d9d9;width:100%;}#search-salary-btn{width: 30%;float: right;margin-right: 0;}#search-location-container,#search-tag-container{position:relative;width:65%;display:inline-block;}.search-suggestions{z-index:1;width:100%;border:1px solid #d9d9d9;position:absolute;background:#fff;border-radius:3.6px;}.search-option{padding:5px 10px;}.search-option:hover{background:#d9d9d9;cursor:pointer;}@media only screen and (max-width:768px) {#search-salary-btn{width:100%;margin-right:0;margin-bottom:20px;float:initial;}#search-location-container,#search-tag-container{width:100%;}}
 #salary-trends svg {font-size: 14px;}
-.main-title{font-weight: bold;margin: 0 0 auto;width:80%;color:{{ .PrimaryColor }};}
+.main-title{font-weight: bold;margin: 0 0 auto;width:60%;color:{{ .PrimaryColor }};}
 .resp-sharing-button__link,.resp-sharing-button__icon {display: inline-block}
 .resp-sharing-button__link {text-decoration: none;color: #fff;margin: 0.5em}
 .resp-sharing-button {border-radius: 5px;transition: 25ms ease-out;padding: 0.5em 0.75em;font-family: Helvetica Neue,Helvetica,Arial,sans-serif}
@@ -273,7 +273,7 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 	  fill: rgba(0, 0, 0, 0.5);
 	  stroke: rgba(0, 0, 0, 0.5);
   }
-  .hover-pointer{cursor:pointer;}
+  .hover-pointer{cursor:pointer;}#post-btn{width:auto;float:right;margin-right:0;padding-right:25px;padding-left: 25px;}
   footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
 		</style>
 		<script src="https://d3js.org/d3.v4.js"></script>
@@ -301,6 +301,7 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 		</header>
 		<section style="margin: 30px auto;">
 			<p>
+        <input type="submit" value="Join the Community" id="post-btn" onclick="window.location.href='/Join-{{ .SiteJobCategoryURLEncoded }}-Community';">  
 			<h1 class="main-title">{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}</h1><br/>
 			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Explore {{ .SiteJobCategory }} salaries in {{ .Location }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b> in {{ .MonthAndYear }} at companies like <b>{{ .TextCompanies }}</b> working as a <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
 			</p>
