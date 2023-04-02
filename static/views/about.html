@@ -38,13 +38,19 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 		{{ template "feedback-box-html" . }}
 		<header>
 			<nav class="menu-header">
-				<small>
-					<a href="/">Jobs</a>&bull;
-					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
-					<a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
-					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
-					<br>
-				</small>
+				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+				<small style="display:block;float:left;margin-bottom:10px;">
+						<a href="/">Jobs</a>&bull;
+						<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
+						<a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
+						<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
+						<br>
+					</small>
+				</div>
+				<div style="float: right;">
+					{{ if .LoggedUser }}<a href="/profile/home">Your Profile</a>{{ else }}<a href="/auth">Login</a>{{ end }}
+				</div>
+				<div style="clear: both;"></div>
 			</nav>
 		</header>
 		<section style="margin: 30px auto;">
@@ -69,9 +75,6 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<h3>Open Source</h3>
 				{{ .SiteName }} is <a href="https://github.com/{{ .SiteGithub }}" target="_blank" rel="noopener noreferrer">open source</a> and licensed under BSD 3-Clause. It's written entirely in <b><a href="https://golang.org" target="_blank" rel="noreferrer nofollow">Go</a>/HTML/CSS/JavaScript</b>.
 				As of today the app is using <a href="https://www.postgresql.org" target="_blank" rel="noreferrer nofollow">PostgreSQL</a> as primary data store and it's being hosted on <a href="https://m.do.co/c/1a2d92c7bce8" target="_blank" rel="noreferrer nofollow">DigitalOcean</a>.
-
-				<h3>No abusive JavaScript Tracking or Ads</h3>
-				We do not use any tracking tool (Google Analytics, et al) and there is minimal anonymous reporting for job statistics.
 
 				<h3>{{ .SiteName }} Socials</h3>
 				<ul>
