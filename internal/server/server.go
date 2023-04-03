@@ -673,7 +673,7 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 	}
 	for i, j := range developersForPage {
 		developersForPage[i].CreatedAtHumanized = humanize.Time(j.CreatedAt.UTC())
-		developersForPage[i].UpdatedAtHumanized = j.CreatedAt.UTC().Format("January 2006")
+		developersForPage[i].UpdatedAtHumanized = j.UpdatedAt.UTC().Format("January 2006")
 		developersForPage[i].SkillsArray = strings.Split(j.Skills, ",")
 	}
 	ua := r.Header.Get("user-agent")
