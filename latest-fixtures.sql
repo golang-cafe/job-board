@@ -15,10 +15,10 @@ INSERT INTO email_subscribers (email, token, confirmed_at, created_at) VALUES ('
 INSERT INTO email_subscribers (email, token, confirmed_at, created_at) VALUES ('10@example.com', '25LAw8Yzc5SxsMi5DlHIgMoNbVL', '2021-01-01', '2021-01-01');
 INSERT INTO email_subscribers (email, token, confirmed_at, created_at) VALUES ('11@example.com', '25LAw8Yzc5SxsMi5DlHIgMoNbVM', '2021-01-01', '2021-01-01');
 INSERT INTO email_subscribers (email, token, confirmed_at, created_at) VALUES ('12@example.com', '25LAw8Yzc5SxsMi5DlHIgMoNbVN', '2021-01-01', '2021-01-01');
-INSERT INTO seo_location (name, currency, country, emoji) VALUES ('United States', '$', 'United States', ':-)');
-INSERT INTO seo_location (name, currency, country, emoji) VALUES ('United Kingdom', '£', 'United Kingdom', ':-)');
-INSERT INTO seo_location (name, currency, country, emoji) VALUES ('Germany', '€', 'Germany', ':-)');
-INSERT INTO seo_location (name, currency, country, emoji) VALUES ('China', '¥', 'China', ':-)');
-INSERT INTO seo_location (name, currency, country, emoji) VALUES ('Japan', 'JP¥', 'Japan', ':-)');
+INSERT INTO seo_location (name, currency, country, emoji) VALUES ('United States', '$', 'United States', '🇺🇸');
+INSERT INTO seo_location (name, currency, country, emoji) VALUES ('United Kingdom', '£', 'United Kingdom', '🇬🇧');
+INSERT INTO seo_location (name, currency, country, emoji) VALUES ('Germany', '€', 'Germany', '🇩🇪');
+INSERT INTO seo_location (name, currency, country, emoji) VALUES ('China', '¥', 'China', '🇨🇳');
+INSERT INTO seo_location (name, currency, country, emoji) VALUES ('Japan', 'JP¥', 'Japan', '🇯🇵');
 INSERT INTO seo_location (name, currency, country, emoji) VALUES ('India', '₹', 'India', ':-)');
-INSERT INTO seo_location (name, currency, country, emoji) VALUES ('France', '€', 'France', ':-)');
+INSERT INTO seo_location (name, currency, country, emoji) VALUES ('France', '€', 'France', '🇫🇷');
