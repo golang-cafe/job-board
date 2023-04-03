@@ -533,10 +533,10 @@ func GetLocation(conn *sql.DB, location string) (Location, error) {
 	return loc, nil
 }
 
-func GetRandomLocationsForCountry(conn *sql.DB, country string, howMany int) ([]string, error) {
+func GetRandomLocationsForCountry(conn *sql.DB, country string, howMany int, excludeLoc string) ([]string, error) {
 	locs := make([]string, 0)
 	var rows *sql.Rows
-	rows, err := conn.Query(`select name from seo_location where country = $1 order by random() limit $2`, country, howMany)
+	rows, err := conn.Query(`select name from seo_location where country = $1 and name != $2 order by population desc limit $3`, country, excludeLoc, howMany)
 	if err != nil {
 		return locs, err
 	}

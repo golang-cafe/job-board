@@ -456,7 +456,7 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		if locFromDB.Region != "" {
 			locationWithCountry = fmt.Sprintf("%s, %s, %s", locFromDB.Name, locFromDB.Region, locFromDB.Country)
 		}
-		relatedLocations, err = database.GetRandomLocationsForCountry(s.Conn, locFromDB.Country, 6)
+		relatedLocations, err = database.GetRandomLocationsForCountry(s.Conn, locFromDB.Country, 6, strings.Title(location))
 		if err != nil {
 			s.Log(err, fmt.Sprintf("unable to get random locations for country %s", locFromDB.Country))
 		}
