@@ -24,8 +24,9 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE slug = $1`, slug)
+	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE slug = $1`, slug)
 	dev := Developer{}
+	var roleTypes string
 	err := row.Scan(
 		&dev.ID,
 		&dev.Email,
@@ -39,7 +40,13 @@ func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 		&dev.Skills,
 		&dev.Name,
 		&dev.Bio,
+		&dev.GithubURL,
+		&dev.TwitterURL,
+		&dev.SearchStatus,
+		&dev.RoleLevel,
+		&roleTypes,
 	)
+	dev.RoleTypes = strings.Split(roleTypes, ",")
 	if err != nil {
 		return dev, err
 	}
