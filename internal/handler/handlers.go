@@ -109,8 +109,6 @@ func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repositor
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
 			Fullname    string `json:"fullname"`
-			JobTitle    string `json:"job_title"`
-			CompanyName string `json:"company_name"`
 			CompanyURL  string `json:"company_url"`
 			Email       string `json:"email"`
 		}{}
@@ -143,8 +141,6 @@ func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repositor
 		rec := recruiter.Recruiter{
 			ID:         k.String(),
 			Name:       req.Fullname,
-			Title:      req.JobTitle,
-			Company:    req.CompanyName,
 			CompanyURL: req.CompanyURL,
 			CreatedAt:  t,
 			UpdatedAt:  t,

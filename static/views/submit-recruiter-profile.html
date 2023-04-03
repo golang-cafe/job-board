@@ -896,13 +896,10 @@
 			<h3>Start Hiring</h3>
 			<input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" />
 			<input type="hidden" id="detected-location-id" name="detected-location-id" />
-			<input type="text" class="recruiter-only" name="job-title" id="job-title" placeholder="Your Role or Job Title" style="width: 100%;" />
-			<input type="url" class="recruiter-only" name="company-url" id="company-url" placeholder="Company URL"
-				style="width: 100%;" />
-			<input type="text" class="recruiter-only" name="company-name" id="company-name" placeholder="Company Name"
+			<input type="url" class="recruiter-only" name="company-url" id="company-url" placeholder="Company Website"
 				style="width: 100%;" />
 			<input type="hidden" name="profile-type" id="profile-type" value="recruiter" />
-			<input type="email" name="email" id="email" placeholder="Your Email" style="width: 100%;" />
+			<input type="email" name="email" id="email" placeholder="Company Email" style="width: 100%;" />
 			<br />
 			<input type="submit" id="submit" value="Start Hiring" onclick="post();" style="float: right;">
             <br />
@@ -965,8 +962,6 @@
 		};
 		function post() {
             var fullName = document.getElementById("full-name").value;
-            var jobTitle = document.getElementById("job-title").value;
-            var companyName = document.getElementById("company-name").value;
             var companyUrl = document.getElementById("company-url").value;
             var email = document.getElementById("email").value;
             if (empty(fullName, jobTitle, email)) {
@@ -983,8 +978,6 @@
             }
             var payload = {
                 fullname: fullName,
-                job_title: jobTitle,
-                company_name: companyName,
                 company_url: companyUrl,
                 email: email
             };
