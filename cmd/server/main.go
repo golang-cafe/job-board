@@ -394,13 +394,13 @@ func main() {
 	// Salary for location
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-Developer-Salary-{location}", strings.Title(cfg.SiteJobCategory)),
-		handler.SalaryLandingPageLocationPlaceholderHandler(svr, jobRepo),
+		handler.SalaryLandingPageLocationPlaceholderHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 	// Salary for remote
 	svr.RegisterRoute(
 		fmt.Sprintf("/Remote-%s-Developer-Salary", strings.Title(cfg.SiteJobCategory)),
-		handler.SalaryLandingPageLocationHandler(svr, jobRepo, "Remote"),
+		handler.SalaryLandingPageLocationHandler(svr, jobRepo, devRepo, "Remote"),
 		[]string{"GET"},
 	)
 

@@ -106,7 +106,7 @@ func (s Server) GetConfig() config.Config {
 	return s.cfg
 }
 
-func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, jobRepo *job.Repository, location string) {
+func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, jobRepo *job.Repository, devRepo *developer.Repository, location string) {
 	loc, err := database.GetLocation(s.Conn, location)
 	complimentaryRemote := false
 	if err != nil {
@@ -196,36 +196,72 @@ func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, 
 	if err != nil {
 		s.Log(err, "database.CountEmailSubscribers")
 	}
+	topDevelopers, err := devRepo.GetTopDevelopers(10)
+	if err != nil {
+		s.Log(err, "unable to get top developers")
+	}
+	topDeveloperSkills, err := devRepo.GetTopDeveloperSkills(7)
+	if err != nil {
+		s.Log(err, "unable to get top developer skills")
+	}
+	lastDevUpdatedAt, err := devRepo.GetLastDevUpdatedAt()
+	if err != nil {
+		s.Log(err, "unable to retrieve last developer joined at")
+	}
+	topDeveloperNames := make([]string, 0, len(topDevelopers))
+	for _, d := range topDevelopers {
+		topDeveloperNames = append(topDeveloperNames, strings.Split(d.Name, " ")[0])
+	}
+	messagesSentLastMonth, err := devRepo.GetDeveloperMessagesSentLastMonth()
+	if err != nil {
+		s.Log(err, "GetDeveloperMessagesSentLastMonth")
+	}
+	devsRegisteredLastMonth, err := devRepo.GetDevelopersRegisteredLastMonth()
+	if err != nil {
+		s.Log(err, "GetDevelopersRegisteredLastMonth")
+	}
+	devPageViewsLastMonth, err := devRepo.GetDeveloperProfilePageViewsLastMonth()
+	if err != nil {
+		s.Log(err, "GetDeveloperProfilePageViewsLastMonth")
+	}
 
 	s.Render(r, w, http.StatusOK, "salary-explorer.html", map[string]interface{}{
-		"Location":                 strings.ReplaceAll(location, "-", " "),
-		"LocationURLEncoded":       url.PathEscape(strings.ReplaceAll(location, "-", " ")),
-		"Currency":                 loc.Currency,
-		"DataSet":                  string(jsonRes),
-		"DataSetTrends":            string(jsonTrendRes),
-		"TextCompanies":            textifyCompanies(loc.Name, jobPosts, jobPosts),
-		"TextJobTitles":            textifyJobTitles(jobPosts),
-		"P10Max":                   humanize.Comma(int64(math.Round(sampleMax.Quantile(0.1)))),
-		"P10Min":                   humanize.Comma(int64(math.Round(sampleMin.Quantile(0.1)))),
-		"P50Max":                   humanize.Comma(int64(math.Round(sampleMax.Quantile(0.5)))),
-		"P50Min":                   humanize.Comma(int64(math.Round(sampleMin.Quantile(0.5)))),
-		"P90Max":                   humanize.Comma(int64(math.Round(sampleMax.Quantile(0.9)))),
-		"P90Min":                   humanize.Comma(int64(math.Round(sampleMin.Quantile(0.9)))),
-		"MeanMin":                  humanize.Comma(int64(math.Round(sampleMin.Mean()))),
-		"MeanMax":                  humanize.Comma(int64(math.Round(sampleMax.Mean()))),
-		"StdDevMin":                humanize.Comma(int64(math.Round(sampleMin.StdDev()))),
-		"StdDevMax":                humanize.Comma(int64(math.Round(sampleMax.StdDev()))),
-		"Count":                    len(set),
-		"Country":                  loc.Country,
-		"Region":                   loc.Region,
-		"Population":               loc.Population,
-		"Min":                      int64(math.Round(min)),
-		"Max":                      int64(math.Round(max)),
-		"ComplimentaryRemote":      complimentaryRemote,
-		"LastJobPostedAt":          lastJobPosted.Format(time.RFC3339),
-		"LastJobPostedAtHumanized": humanize.Time(lastJobPosted),
-		"MonthAndYear":             time.Now().UTC().Format("January 2006"),
-		"EmailSubscribersCount":    humanize.Comma(int64(emailSubscribersCount)),
+		"Location":                           strings.ReplaceAll(location, "-", " "),
+		"LocationURLEncoded":                 url.PathEscape(strings.ReplaceAll(location, "-", " ")),
+		"Currency":                           loc.Currency,
+		"DataSet":                            string(jsonRes),
+		"DataSetTrends":                      string(jsonTrendRes),
+		"TextCompanies":                      textifyCompanies(loc.Name, jobPosts, jobPosts),
+		"TextJobTitles":                      textifyJobTitles(jobPosts),
+		"P10Max":                             humanize.Comma(int64(math.Round(sampleMax.Quantile(0.1)))),
+		"P10Min":                             humanize.Comma(int64(math.Round(sampleMin.Quantile(0.1)))),
+		"P50Max":                             humanize.Comma(int64(math.Round(sampleMax.Quantile(0.5)))),
+		"P50Min":                             humanize.Comma(int64(math.Round(sampleMin.Quantile(0.5)))),
+		"P90Max":                             humanize.Comma(int64(math.Round(sampleMax.Quantile(0.9)))),
+		"P90Min":                             humanize.Comma(int64(math.Round(sampleMin.Quantile(0.9)))),
+		"MeanMin":                            humanize.Comma(int64(math.Round(sampleMin.Mean()))),
+		"MeanMax":                            humanize.Comma(int64(math.Round(sampleMax.Mean()))),
+		"StdDevMin":                          humanize.Comma(int64(math.Round(sampleMin.StdDev()))),
+		"StdDevMax":                          humanize.Comma(int64(math.Round(sampleMax.StdDev()))),
+		"Count":                              len(set),
+		"Country":                            loc.Country,
+		"Region":                             loc.Region,
+		"Population":                         loc.Population,
+		"Min":                                int64(math.Round(min)),
+		"Max":                                int64(math.Round(max)),
+		"ComplimentaryRemote":                complimentaryRemote,
+		"LastJobPostedAt":                    lastJobPosted.Format(time.RFC3339),
+		"LastJobPostedAtHumanized":           humanize.Time(lastJobPosted),
+		"MonthAndYear":                       time.Now().UTC().Format("January 2006"),
+		"EmailSubscribersCount":              humanize.Comma(int64(emailSubscribersCount)),
+		"TopDevelopers":                      topDevelopers,
+		"TopDeveloperNames":                  textifyGeneric(topDeveloperNames),
+		"TopDeveloperSkills":                 textifyGeneric(topDeveloperSkills),
+		"DeveloperMessagesSentLastMonth":     messagesSentLastMonth,
+		"DevelopersRegisteredLastMonth":      devsRegisteredLastMonth,
+		"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
+		"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
+		"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
 	})
 }
 

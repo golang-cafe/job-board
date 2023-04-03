@@ -2211,17 +2211,17 @@ func TermsOfServicePageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func SalaryLandingPageLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func SalaryLandingPageLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		location := strings.ReplaceAll(vars["location"], "-", " ")
-		svr.RenderSalaryForLocation(w, r, jobRepo, location)
+		svr.RenderSalaryForLocation(w, r, jobRepo, devRepo, location)
 	}
 }
 
-func SalaryLandingPageLocationHandler(svr server.Server, jobRepo *job.Repository, location string) http.HandlerFunc {
+func SalaryLandingPageLocationHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderSalaryForLocation(w, r, jobRepo, location)
+		svr.RenderSalaryForLocation(w, r, jobRepo, devRepo, location)
 	}
 }
 
