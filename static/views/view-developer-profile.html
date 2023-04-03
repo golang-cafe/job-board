@@ -302,7 +302,7 @@ background-color: #FF6600
 	    <h1>{{ if .LoggedUser }}{{ .DeveloperProfile.Name }}{{ else }}{{ truncateName .DeveloperProfile.Name }}{{ end }}</h1>
 		<img {{ if not .LoggedUser }}style="filter:blur(5px);border-radius:50px;border:1px solid #ccc;" onclick="sendMessage('{{ .DeveloperProfile.ID }}', '{{ truncateName .DeveloperProfile.Name }}');" class="hover-pointer"{{ else }}style="border-radius:50px;border:1px solid #ccc;"{{ end }} src="/x/s/m/{{ .DeveloperProfile.ImageID }}?w=100&h=100" width="100" height="100" title="{{ .DeveloperProfile.Name }}" alt="{{ .DeveloperProfile.Name }}"/><br />
 		Current Location <b id="location-{{ .DeveloperProfile.ID }}">{{ .DeveloperProfile.Location }}</b><br />
-    <small>{{ if .DeveloperProfile.Available }}<span style="display: inline-block; width: 10px; height: 10px; background: #00ab6f; border-radius: 10px; margin-right: 5px;"></span>Currently Available{{ else }}<span style="display: inline-block; width: 10px; height: 10px; background: #ab3300; border-radius: 10px; margin-left: 5px;"></span>Currently Unavailable{{ end }}</small><br />
+    <small>{{ if .DeveloperProfile.Available }}<span style="display: inline-block; width: 10px; height: 10px; background: #00ab6f; border-radius: 10px; margin-right: 5px;"></span>Currently Available{{ else }}<span style="display: inline-block; width: 10px; height: 10px; background: #ab3300; border-radius: 10px; margin-right: 5px;"></span>Currently Unavailable{{ end }}</small><br />
 		Last Updated <b>{{ .DeveloperProfile.UpdatedAtHumanized }}</b><br />
 		<p id="skills-{{ .DeveloperProfile.ID }}">
 		  {{ range $x, $y := .DeveloperProfile.SkillsArray }}
