@@ -142,11 +142,13 @@ body{background:#ffffff;}
               </article>
 	      {{ end }}
 	      </div>
+          {{ if not .LoggedUser }}
           <article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
 		  <div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:5px auto 20px auto;" id="email-subscribe-item-text">Get a weekly email with all new {{ .SiteJobCategory }} jobs</div>
                 <input type="email" name="job-email-subscription" id="job-email-subscription" style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
 		<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;"/>
             </article>
+          {{ end }}
           {{ if .ComplementaryRemote }}
 	  <small><b>No {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers</b> found in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }} &bull; Showing {{ len .Developers }} of {{ .TotalDevelopersCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Developers for hire available <b>Remotely</b> &bull; Sort by <b>Last Updated</b></small><br />
 	  {{ else }}

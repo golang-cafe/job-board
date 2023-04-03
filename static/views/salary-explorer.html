@@ -281,9 +281,11 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 		<script src="https://d3js.org/d3.v4.js"></script>
     {{ template "feedback-box-css" . }}
     {{ template "google-analytics" }}
+    {{ template "newsletter-banner-css" . }}
 	</head>
 	<body>
 		{{ template "feedback-box-html" . }}
+    {{ template "newsletter-banner-html" . }}
 		<header>
 			<nav class="menu-header">
 				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
