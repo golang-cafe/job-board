@@ -125,6 +125,7 @@ body{background:#ffffff;}
                   <div style="float: left;">
 			  <a href="/developer/{{ .Slug }}" target="_blank"><b>{{ if $isLoggedUser }}{{ .Name }}{{ else }}{{ truncateName .Name }}{{ end }}</b></a><br />
 		  Currently in <b id="location-{{ .ID }}">{{ .Location }}</b><br/>
+          <small>{{ if .Available }}<span style="display: inline-block; width: 10px; height: 10px; background: #00ab6f; border-radius: 10px; margin-right: 5px;"></span>Currently Available{{ else }}<span style="display: inline-block; width: 10px; height: 10px; background: #ab3300; border-radius: 10px; margin-left: 5px;"></span>Currently Unavailable{{ end }}</small><br />
 		  <span id="skills-{{ .ID }}">
 		  {{ range $x, $y := .SkillsArray }}
 		  	<span style="display: inline-block;margin-top:10px;background: #dbdbdb;font-size:medium;padding: 4px 10px;border-radius:5px;">{{ $y }}</span>
@@ -135,7 +136,6 @@ body{background:#ffffff;}
 		  <div class="overflow"><p {{ if not $isLoggedUser }}style="filter:blur(5px);" class="hover-pointer" onclick="sendMessage('{{ .ID }}', '{{ .Name }}');"{{ end }}>{{ .Bio }}</p></div>
 		  <br />
 		  <small>Last Updated {{ .UpdatedAtHumanized }}</small><br/>
-		  <small>{{ if .Available }}Currently Available{{ else }}Currently Unavailable{{ end }}</small>
                   </div>
 		  <input class="send-message" type="submit" {{ if not .Available }}disabled {{ else }}onclick="sendMessage('{{ .ID }}', '{{ .Name }}');" {{ end }}value="Send Message" />
                 <div class="clearfix"></div>
