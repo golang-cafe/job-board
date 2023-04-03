@@ -152,13 +152,13 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 	var developers []Developer
 	switch {
 	case tag != "" && loc != "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND skills ILIKE '%' || $2 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $3 OFFSET $4`, loc, tag, pageSize, offset)
+		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND skills ILIKE '%' || $2 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $3 OFFSET $4`, loc, tag, pageSize, offset)
 	case tag != "" && loc == "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE skills ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, tag, pageSize, offset)
+		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE skills ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, tag, pageSize, offset)
 	case tag == "" && loc != "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, loc, pageSize, offset)
+		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, loc, pageSize, offset)
 	default:
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE created_at != updated_at ORDER BY updated_at DESC LIMIT $1 OFFSET $2`, pageSize, offset)
+		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE created_at != updated_at ORDER BY updated_at DESC LIMIT $1 OFFSET $2`, pageSize, offset)
 	}
 	if err == sql.ErrNoRows {
 		return developers, 0, nil
@@ -166,6 +166,7 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 	var fullRowsCount int
 	for rows.Next() {
 		var dev Developer
+		var roleTypes string
 		err := rows.Scan(
 			&fullRowsCount,
 			&dev.ID,
@@ -180,7 +181,13 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 			&dev.Skills,
 			&dev.Name,
 			&dev.Bio,
+			&dev.GithubURL,
+			&dev.TwitterURL,
+			&dev.SearchStatus,
+			&dev.RoleLevel,
+			&roleTypes,
 		)
+		dev.RoleTypes = strings.Split(roleTypes, ",")
 		if err != nil {
 			return developers, fullRowsCount, err
 		}

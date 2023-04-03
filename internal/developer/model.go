@@ -1,6 +1,9 @@
 package developer
 
-import "time"
+import (
+	"strings"
+	"time"
+)
 
 const (
 	SearchStatusNotAvailable     = "not-available"
@@ -52,6 +55,10 @@ type Developer struct {
 	SkillsArray        []string
 	CreatedAtHumanized string
 	UpdatedAtHumanized string
+}
+
+func (d Developer) RoleTypeAsString() string {
+	return strings.Join(d.RoleTypes, ", ")
 }
 
 type DeveloperMessage struct {

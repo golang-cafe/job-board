@@ -124,8 +124,10 @@ body{background:#ffffff;}
 		  <img {{ if not $isLoggedUser }}style="filter:blur(5px);" onclick="sendMessage('{{ .ID }}', '{{ truncateName .Name }}');" class="job-icon hover-pointer"{{ else }}class="job-icon"{{ end }}loading="lazy" width="120" height="120" src="/x/s/m/{{ .ImageID }}?w=100&h=100" alt="{{ .Name }}" title="{{ .Name }}" />
                   <div style="float: left;">
 			  <a href="/developer/{{ .Slug }}" target="_blank"><b>{{ if $isLoggedUser }}{{ .Name }}{{ else }}{{ truncateName .Name }}{{ end }}</b></a><br />
-		  Currently in <b id="location-{{ .ID }}">{{ .Location }}</b><br/>
-          <small>{{ if .Available }}<span style="display: inline-block; width: 10px; height: 10px; background: #00ab6f; border-radius: 10px; margin-right: 5px;"></span>Currently Available{{ else }}<span style="display: inline-block; width: 10px; height: 10px; background: #ab3300; border-radius: 10px; margin-right: 5px;"></span>Currently Unavailable{{ end }}</small><br />
+              <small>{{ if .Available }}<span style="display: inline-block; width: 10px; height: 10px; background: #00ab6f; border-radius: 10px; margin-right: 5px;"></span>Currently Available{{ else }}<span style="display: inline-block; width: 10px; height: 10px; background: #ab3300; border-radius: 10px; margin-right: 5px;"></span>Currently Unavailable{{ end }}</small><br />
+		  <b id="location-{{ .ID }}">{{ .Location }}</b><br/>
+          <small>Experience Level: <b>{{ stringTitle .RoleLevel }}</b></small><br />
+          <small>Work Preference: <b>{{ .RoleTypeAsString }}</b></small><br />
 		  <span id="skills-{{ .ID }}">
 		  {{ range $x, $y := .SkillsArray }}
 		  	<span style="display: inline-block;margin-top:10px;background: #dbdbdb;font-size:medium;padding: 4px 10px;border-radius:5px;">{{ $y }}</span>

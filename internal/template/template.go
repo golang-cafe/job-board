@@ -46,6 +46,12 @@ func NewTemplate() *Template {
 			parts := strings.Split(s, " ")
 			return parts[0]
 		},
+		"stringTitle": func(s string) string {
+			return strings.Title(s)
+		},
+		"replaceDash": func(s string) string {
+			return strings.ReplaceAll(s, "-", " ")
+		},
 		"currencysymbol": func(currency string) string {
 			symbols := map[string]string{
 				"USD": "$",
