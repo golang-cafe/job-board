@@ -20,5 +20,5 @@ INSERT INTO seo_location (name, currency, country, emoji) VALUES ('United Kingdo
 INSERT INTO seo_location (name, currency, country, emoji) VALUES ('Germany', '€', 'Germany', '🇩🇪');
 INSERT INTO seo_location (name, currency, country, emoji) VALUES ('China', '¥', 'China', '🇨🇳');
 INSERT INTO seo_location (name, currency, country, emoji) VALUES ('Japan', 'JP¥', 'Japan', '🇯🇵');
-INSERT INTO seo_location (name, currency, country, emoji) VALUES ('India', '₹', 'India', ':-)');
+INSERT INTO seo_location (name, currency, country, emoji) VALUES ('India', '₹', 'India', '🇮🇳');
 INSERT INTO seo_location (name, currency, country, emoji) VALUES ('France', '€', 'France', '🇫🇷');
