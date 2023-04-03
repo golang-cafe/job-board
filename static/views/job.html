@@ -286,7 +286,7 @@ background-color: #FF6600
             </ol>
         </p>
         <input type="hidden" name="apply-job-id" id="apply-job-id" value="0" />
-        <input type="text" name="apply-email" id="apply-email" {{ if .LoggedUser }}disabled {{ end }}placeholder="Your Email" value="{{ .LoggedUser.Email }}" style="width: 100%;"/><br />
+        <input type="text" name="apply-email" id="apply-email" {{ if .LoggedUser }}disabled {{ end }}placeholder="Your Email" {{ if .LoggedUser }}value="{{ .LoggedUser.Email }}"{{ end }} style="width: 100%;"/><br />
         <input type="file" name="apply-cv" id="apply-cv" style="display: none;" onchange="showname()"/>
         <label class="upload-file-label" id="apply-cv-label" style="width:100%;border: 1px solid #595959; border-radius: 3.6px;border-style:dashed;padding: 5.4px 6.3px;" for="apply-cv">Upload Your CV (PDF file only, max 5MB)</label><br />
         {{ if not .LoggedUser }}<input type="checkbox" id="apply-notify-jobs" name="apply-notify-jobs" checked style="margin: 0 10px 0 0;"><small><label for="apply-notify-jobs">Notify me about new job openings</label></small><br />{{ end }}
