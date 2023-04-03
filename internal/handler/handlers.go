@@ -108,9 +108,9 @@ func SubmitRecruiterProfileHandler(svr server.Server, devRepo *developer.Reposit
 func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repository, userRepo tokenSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
-			Fullname    string `json:"fullname"`
-			CompanyURL  string `json:"company_url"`
-			Email       string `json:"email"`
+			Fullname   string `json:"fullname"`
+			CompanyURL string `json:"company_url"`
+			Email      string `json:"email"`
 		}{}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			svr.JSON(w, http.StatusBadRequest, "request is invalid")
@@ -2323,62 +2323,136 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = jobRepo.ApplyToJob(jobPost.ID, fileBytes, emailAddr, randomTokenStr)
-		if err != nil {
-			svr.Log(err, "unable to apply for job while saving to db")
-			svr.JSON(w, http.StatusBadRequest, nil)
-			return
-		}
-		err = svr.GetEmail().SendHTMLEmail(
-			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-			email.Address{Email: emailAddr},
-			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-			fmt.Sprintf("Confirm your job application with %s", jobPost.Company),
-			fmt.Sprintf(
-				"Thanks for applying for the position %s with %s - %s.<br />Please confirm your application now by following this link https://%s/apply/%s",
-				jobPost.JobTitle,
-				jobPost.Company,
-				jobPost.Location,
-				svr.GetConfig().SiteHost,
-				randomTokenStr,
-			),
-		)
-		if err != nil {
-			svr.Log(err, "unable to send email while applying to job")
-			svr.JSON(w, http.StatusBadRequest, nil)
-			return
-		}
-		if r.FormValue("notify-jobs") == "true" {
-			k, err := ksuid.NewRandom()
+		profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		// user is not logged in
+		// standard flow to confirm application
+		if profile == nil {
+			err = jobRepo.ApplyToJob(jobPost.ID, fileBytes, emailAddr, randomTokenStr)
 			if err != nil {
-				svr.Log(err, "unable to generate email subscriber token")
+				svr.Log(err, "unable to apply for job while saving to db")
 				svr.JSON(w, http.StatusBadRequest, nil)
-				return
-			}
-			err = database.AddEmailSubscriber(svr.Conn, emailAddr, k.String())
-			if err != nil {
-				svr.Log(err, "unable to add email subscriber to db")
-				svr.JSON(w, http.StatusInternalServerError, nil)
 				return
 			}
 			err = svr.GetEmail().SendHTMLEmail(
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 				email.Address{Email: emailAddr},
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-				fmt.Sprintf("Confirm Your Email Subscription on %s", svr.GetConfig().SiteName),
+				fmt.Sprintf("Confirm your job application with %s", jobPost.Company),
 				fmt.Sprintf(
-					"Please click on the link below to confirm your subscription to receive weekly emails from %s\n\n%s\n\nIf this was not requested by you, please ignore this email.",
-					svr.GetConfig().SiteName,
-					fmt.Sprintf("https://%s/x/email/confirm/%s", svr.GetConfig().SiteHost, k.String()),
+					"Thanks for applying for the position %s with %s - %s.<br />Please confirm your application now by following this link https://%s/apply/%s",
+					jobPost.JobTitle,
+					jobPost.Company,
+					jobPost.Location,
+					svr.GetConfig().SiteHost,
+					randomTokenStr,
 				),
 			)
 			if err != nil {
-				svr.Log(err, "unable to send email while submitting message")
+				svr.Log(err, "unable to send email while applying to job")
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
+			if r.FormValue("notify-jobs") == "true" {
+				k, err := ksuid.NewRandom()
+				if err != nil {
+					svr.Log(err, "unable to generate email subscriber token")
+					svr.JSON(w, http.StatusBadRequest, nil)
+					return
+				}
+				err = database.AddEmailSubscriber(svr.Conn, emailAddr, k.String())
+				if err != nil {
+					svr.Log(err, "unable to add email subscriber to db")
+					svr.JSON(w, http.StatusInternalServerError, nil)
+					return
+				}
+				err = svr.GetEmail().SendHTMLEmail(
+					email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+					email.Address{Email: emailAddr},
+					email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+					fmt.Sprintf("Confirm Your Email Subscription on %s", svr.GetConfig().SiteName),
+					fmt.Sprintf(
+						"Please click on the link below to confirm your subscription to receive weekly emails from %s\n\n%s\n\nIf this was not requested by you, please ignore this email.",
+						svr.GetConfig().SiteName,
+						fmt.Sprintf("https://%s/x/email/confirm/%s", svr.GetConfig().SiteHost, k.String()),
+					),
+				)
+				if err != nil {
+					svr.Log(err, "unable to send email while submitting message")
+					svr.JSON(w, http.StatusBadRequest, nil)
+					return
+				}
+			}
+			svr.JSON(w, http.StatusOK, nil)
+			return
 		}
-		svr.JSON(w, http.StatusOK, nil)
+		if profile.Email != emailAddr {
+			svr.JSON(w, http.StatusBadRequest, "Please use the same email address you have registered on your profile.")
+			return
+		}
+		err = jobRepo.ApplyToJob(jobPost.ID, fileBytes, emailAddr, randomTokenStr)
+		if err != nil {
+			svr.Log(err, "unable to apply for job while saving to db")
+			svr.JSON(w, http.StatusBadRequest, nil)
+			return
+		}
+		retrievedJobPost, applicant, err := jobRepo.GetJobByApplyToken(randomTokenStr)
+		if err != nil {
+			svr.Render(r, w, http.StatusBadRequest, "apply-message.html", map[string]interface{}{
+				"Title":       "Invalid Job Application",
+				"Description": "Oops, seems like the application you are trying to complete is no longer valid. Your application request may be expired or simply the company may not be longer accepting applications.",
+			})
+			return
+		}
+		err = svr.GetEmail().SendEmailWithPDFAttachment(
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: retrievedJobPost.HowToApply},
+			email.Address{Email: applicant.Email},
+			fmt.Sprintf("New Applicant from %s", svr.GetConfig().SiteName),
+			fmt.Sprintf(
+				"Hi, there is a new applicant for your position on %s: %s with %s - %s (https://%s/job/%s). Applicant's Email: %s. Please find applicant's CV attached below",
+				svr.GetConfig().SiteName,
+				retrievedJobPost.JobTitle,
+				retrievedJobPost.Company,
+				retrievedJobPost.Location,
+				svr.GetConfig().SiteHost,
+				retrievedJobPost.Slug,
+				applicant.Email,
+			),
+			applicant.Cv,
+			"cv.pdf",
+		)
+		if err != nil {
+			svr.Log(err, "unable to send email while applying to job")
+			svr.Render(r, w, http.StatusBadRequest, "apply-message.html", map[string]interface{}{
+				"Title":       "Job Application Failure",
+				"Description": fmt.Sprintf("Oops, there was a problem while completing yuor application. Please try again later. If the problem persists, please contact %s", svr.GetConfig().SupportEmail),
+			})
+			return
+		}
+		err = jobRepo.ConfirmApplyToJob(randomTokenStr)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to update apply_token with successfull application for token %s", randomTokenStr))
+			svr.Render(r, w, http.StatusBadRequest, "apply-message.html", map[string]interface{}{
+				"Title":       "Job Application Failure",
+				"Description": fmt.Sprintf("Oops, there was a problem while completing yuor application. Please try again later. If the problem persists, please contact %s", svr.GetConfig().SupportEmail),
+			})
+			return
+		}
+		svr.Render(r, w, http.StatusOK, "apply-message.html", map[string]interface{}{
+			"Title": "Job Application Successfull",
+			"Description": svr.StringToHTML(
+				fmt.Sprintf(
+					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"https://%s/job/%s\">https://%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. <br />Consider joining our Golang Cafe Developer community where companies can apply to you",
+					retrievedJobPost.JobTitle,
+					retrievedJobPost.Company,
+					retrievedJobPost.Location,
+					svr.GetConfig().SiteHost,
+					retrievedJobPost.Slug,
+					svr.GetConfig().SiteHost,
+					retrievedJobPost.Slug,
+				),
+			),
+		})
 	}
 }
 
