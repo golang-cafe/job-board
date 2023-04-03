@@ -15,7 +15,6 @@ import (
 	"github.com/golang-cafe/job-board/internal/developer"
 	"github.com/golang-cafe/job-board/internal/email"
 	"github.com/golang-cafe/job-board/internal/handler"
-	"github.com/golang-cafe/job-board/internal/ipgeolocation"
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/payment"
 	"github.com/golang-cafe/job-board/internal/recruiter"
@@ -39,11 +38,6 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to connect to sparkpost API: %v", err)
 	}
-	ipGeolocation, err := ipgeolocation.NewIPGeoLocation(cfg.IPGeoLocationGeoliteFile, cfg.IPGeoLocationCurrencyMapFile)
-	if err != nil {
-		log.Fatalf("unable to load ipgeolocation")
-	}
-	defer ipGeolocation.Close()
 	sessionStore := sessions.NewCookieStore(cfg.SessionKey)
 	robotsTxtContent, err := os.ReadFile("./static/robots.txt")
 	if err != nil {
@@ -68,7 +62,6 @@ func main() {
 		mux.NewRouter(),
 		template.NewTemplate(),
 		emailClient,
-		ipGeolocation,
 		sessionStore,
 	)
 

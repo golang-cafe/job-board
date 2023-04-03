@@ -24,8 +24,6 @@ type Config struct {
 	SessionKey                   []byte
 	JwtSigningKey                []byte
 	Env                          string // either prod or dev, will disable https and few other bits
-	IPGeoLocationGeoliteFile     string
-	IPGeoLocationCurrencyMapFile string
 	JobsPerPage                  int // configures how many jobs are shown per page result
 	DevelopersPerPage            int // configures how many dev profiles are shown per page result
 	CompaniesPerPage             int // configures how many companies are shown per page result
@@ -110,14 +108,6 @@ func LoadConfig() (Config, error) {
 	jwtSigningKeyBytes, err := base64.StdEncoding.DecodeString(jwtSigningKey)
 	if err != nil {
 		return Config{}, errors.Wrapf(err, "unable to decode session key to bytes")
-	}
-	ipGeolocationCurrencyMapFile := os.Getenv("IP_GEOLOCATION_CURRENCY_MAPPING_FILE")
-	if ipGeolocationCurrencyMapFile == "" {
-		return Config{}, fmt.Errorf("IP_GEOLOCATION_CURRENCY_MAPPING_FILE cannot be empty")
-	}
-	ipGeolocationGeoliteFile := os.Getenv("IP_GEOLOCATION_GEOLITE_DB_FILE")
-	if ipGeolocationGeoliteFile == "" {
-		return Config{}, fmt.Errorf("IP_GEOLOCATION_GEOLITE_DB_FILE cannot be empty")
 	}
 	adminEmail := os.Getenv("ADMIN_EMAIL")
 	if adminEmail == "" {
@@ -265,8 +255,6 @@ func LoadConfig() (Config, error) {
 		SessionKey:                   sessionKeyBytes,
 		JwtSigningKey:                jwtSigningKeyBytes,
 		Env:                          env,
-		IPGeoLocationCurrencyMapFile: ipGeolocationCurrencyMapFile,
-		IPGeoLocationGeoliteFile:     ipGeolocationGeoliteFile,
 		JobsPerPage:                  10,
 		DevelopersPerPage:            10,
 		CompaniesPerPage:             10,

@@ -26,7 +26,6 @@ import (
 	"github.com/golang-cafe/job-board/internal/database"
 	"github.com/golang-cafe/job-board/internal/developer"
 	"github.com/golang-cafe/job-board/internal/email"
-	"github.com/golang-cafe/job-board/internal/ipgeolocation"
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/middleware"
 	"github.com/golang-cafe/job-board/internal/template"
@@ -48,7 +47,6 @@ type Server struct {
 	router        *mux.Router
 	tmpl          *template.Template
 	emailClient   email.Client
-	ipGeoLocation ipgeolocation.IPGeoLocation
 	SessionStore  *sessions.CookieStore
 	bigCache      *bigcache.BigCache
 	emailRe       *regexp.Regexp
@@ -60,7 +58,6 @@ func NewServer(
 	r *mux.Router,
 	t *template.Template,
 	emailClient email.Client,
-	ipGeoLocation ipgeolocation.IPGeoLocation,
 	sessionStore *sessions.CookieStore,
 ) Server {
 	bigCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(12 * time.Hour))
@@ -70,7 +67,6 @@ func NewServer(
 		router:        r,
 		tmpl:          t,
 		emailClient:   emailClient,
-		ipGeoLocation: ipGeoLocation,
 		SessionStore:  sessionStore,
 		bigCache:      bigCache,
 		emailRe:       regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
@@ -1003,19 +999,6 @@ func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request
 		"NewJobsLastMonth":         newJobsLastMonth,
 		"StripePublishableKey":     s.GetConfig().StripePublishableKey,
 	})
-}
-
-func (s Server) GetCurrencyFromRequest(r *http.Request) (ipgeolocation.Currency, error) {
-	currency := ipgeolocation.Currency{ipgeolocation.CurrencyUSD, "$"}
-	ip, err := ipgeolocation.GetIPFromRequest(r)
-	if err != nil {
-		return currency, err
-	}
-	currency, err = s.ipGeoLocation.GetCurrencyForIP(ip)
-	if err != nil {
-		s.Log(err, fmt.Sprintf("unable to retrieve currency for ip addr %+v", ip))
-	}
-	return s.ipGeoLocation.GetCurrencyForIP(ip)
 }
 
 func (s Server) Render(r *http.Request, w http.ResponseWriter, status int, htmlView string, data interface{}) error {
