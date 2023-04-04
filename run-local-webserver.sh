@@ -42,7 +42,9 @@ export EMAIL2_API_KEY="i"
 export NO_REPLY_EMAIL="no-reply@golang.cafe"
 export PRIMARY_COLOR="#25a79b"
 export SECONDARY_COLOR="#43D7C9"
-
+export PLAN_ID_1_PRICE="1"
+export PLAN_ID_2_PRICE="2"
+export PLAN_ID_3_PRICE="3"
 go build -o bin/server cmd/server/main.go
 
 ./bin/server
