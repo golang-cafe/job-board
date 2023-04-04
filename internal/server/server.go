@@ -692,7 +692,7 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		loc.Name = "Remote"
 		loc.Currency = "$"
 	}
-	topDevelopers, err := devRepo.GetTopDevelopers(5)
+	topDevelopers, err := devRepo.GetTopDevelopers(10)
 	if err != nil {
 		s.Log(err, "unable to get top developer names")
 	}
