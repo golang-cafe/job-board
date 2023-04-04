@@ -42,14 +42,14 @@ const (
 )
 
 type Server struct {
-	cfg           config.Config
-	Conn          *sql.DB
-	router        *mux.Router
-	tmpl          *template.Template
-	emailClient   email.Client
-	SessionStore  *sessions.CookieStore
-	bigCache      *bigcache.BigCache
-	emailRe       *regexp.Regexp
+	cfg          config.Config
+	Conn         *sql.DB
+	router       *mux.Router
+	tmpl         *template.Template
+	emailClient  email.Client
+	SessionStore *sessions.CookieStore
+	bigCache     *bigcache.BigCache
+	emailRe      *regexp.Regexp
 }
 
 func NewServer(
@@ -62,14 +62,14 @@ func NewServer(
 ) Server {
 	bigCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(12 * time.Hour))
 	svr := Server{
-		cfg:           cfg,
-		Conn:          conn,
-		router:        r,
-		tmpl:          t,
-		emailClient:   emailClient,
-		SessionStore:  sessionStore,
-		bigCache:      bigCache,
-		emailRe:       regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
+		cfg:          cfg,
+		Conn:         conn,
+		router:       r,
+		tmpl:         t,
+		emailClient:  emailClient,
+		SessionStore: sessionStore,
+		bigCache:     bigCache,
+		emailRe:      regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
 	}
 	if err != nil {
 		svr.Log(err, "unable to initialise big cache")
@@ -705,41 +705,55 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		topDeveloperNames = append(topDeveloperNames, strings.Split(d.Name, " ")[0])
 	}
 
-	var lastDevCreatedAt, lastDevCreatedAtHumanized string
-	if len(developersForPage) > 0 {
-		lastDevCreatedAt = developersForPage[0].UpdatedAt.Format(time.RFC3339)
-		lastDevCreatedAtHumanized = humanize.Time(developersForPage[0].UpdatedAt)
-	}
-
 	emailSubscribersCount, err := database.CountEmailSubscribers(s.Conn)
 	if err != nil {
 		s.Log(err, "database.CountEmailSubscribers")
 	}
+	lastDevUpdatedAt, err := devRepo.GetLastDevUpdatedAt()
+	if err != nil {
+		s.Log(err, "unable to retrieve last developer joined at")
+	}
+	messagesSentLastMonth, err := devRepo.GetDeveloperMessagesSentLastMonth()
+	if err != nil {
+		s.Log(err, "GetDeveloperMessagesSentLastMonth")
+	}
+	devsRegisteredLastMonth, err := devRepo.GetDevelopersRegisteredLastMonth()
+	if err != nil {
+		s.Log(err, "GetDevelopersRegisteredLastMonth")
+	}
+	devPageViewsLastMonth, err := devRepo.GetDeveloperProfilePageViewsLastMonth()
+	if err != nil {
+		s.Log(err, "GetDeveloperProfilePageViewsLastMonth")
+	}
 
 	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
-		"Developers":                developersForPage,
-		"TopDeveloperNames":         textifyGeneric(topDeveloperNames),
-		"TopDeveloperSkills":        textifyGeneric(topDeveloperSkills),
-		"DevelopersMinusOne":        len(developersForPage) - 1,
-		"LocationFilter":            strings.Title(location),
-		"LocationURLEncoded":        url.PathEscape(strings.ReplaceAll(location, "-", " ")),
-		"TextCount":                 textifyJobCount(totalDevelopersCount),
-		"TagFilter":                 tag,
-		"TagFilterURLEncoded":       url.PathEscape(tag),
-		"CurrentPage":               pageID,
-		"ShowPage":                  showPage,
-		"PageSize":                  s.cfg.DevelopersPerPage,
-		"Country":                   loc.Country,
-		"Region":                    loc.Region,
-		"PageIndexes":               pages,
-		"TotalDevelopersCount":      totalDevelopersCount,
-		"ComplementaryRemote":       complementaryRemote,
-		"MonthAndYear":              time.Now().UTC().Format("January 2006"),
-		"LastDevCreatedAt":          lastDevCreatedAt,
-		"LastDevCreatedAtHumanized": lastDevCreatedAtHumanized,
-		"EmailSubscribersCount":     humanize.Comma(int64(emailSubscribersCount)),
-		"DevelopersBannerLink":      s.GetConfig().DevelopersBannerLink,
-		"DevelopersBannerText":      s.GetConfig().DevelopersBannerText,
+		"Developers":                         developersForPage,
+		"TopDeveloperSkills":                 textifyGeneric(topDeveloperSkills),
+		"DevelopersMinusOne":                 len(developersForPage) - 1,
+		"LocationFilter":                     strings.Title(location),
+		"LocationURLEncoded":                 url.PathEscape(strings.ReplaceAll(location, "-", " ")),
+		"TextCount":                          textifyJobCount(totalDevelopersCount),
+		"TagFilter":                          tag,
+		"TagFilterURLEncoded":                url.PathEscape(tag),
+		"CurrentPage":                        pageID,
+		"ShowPage":                           showPage,
+		"PageSize":                           s.cfg.DevelopersPerPage,
+		"Country":                            loc.Country,
+		"Region":                             loc.Region,
+		"PageIndexes":                        pages,
+		"TotalDevelopersCount":               totalDevelopersCount,
+		"ComplementaryRemote":                complementaryRemote,
+		"MonthAndYear":                       time.Now().UTC().Format("January 2006"),
+		"EmailSubscribersCount":              humanize.Comma(int64(emailSubscribersCount)),
+		"DevelopersBannerLink":               s.GetConfig().DevelopersBannerLink,
+		"DevelopersBannerText":               s.GetConfig().DevelopersBannerText,
+		"TopDevelopers":                      topDevelopers,
+		"TopDeveloperNames":                  textifyGeneric(topDeveloperNames),
+		"DeveloperMessagesSentLastMonth":     messagesSentLastMonth,
+		"DevelopersRegisteredLastMonth":      devsRegisteredLastMonth,
+		"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
+		"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
+		"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
 	})
 
 }
@@ -850,26 +864,26 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, c
 	}
 
 	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
-		"Companies":                companiesForPage,
-		"CompaniesMinusOne":        len(companiesForPage) - 1,
-		"LocationFilter":           strings.Title(location),
-		"LocationURLEncoded":       url.PathEscape(strings.ReplaceAll(location, "-", " ")),
-		"TextCompanies":            textifyCompanies(loc.Name, jobPosts, jobPosts),
-		"TextJobTitles":            textifyJobTitles(jobPosts),
-		"TextJobCount":             textifyJobCount(totalCompaniesCount),
-		"CurrentPage":              pageID,
-		"ShowPage":                 showPage,
-		"PageSize":                 s.cfg.CompaniesPerPage,
-		"PageIndexes":              pages,
-		"TotalCompaniesCount":      totalCompaniesCount,
-		"ComplementaryRemote":      complementaryRemote,
-		"MonthAndYear":             time.Now().UTC().Format("January 2006"),
-		"Country":                  loc.Country,
-		"Region":                   loc.Region,
-		"Population":               loc.Population,
-		"LastJobPostedAt":          lastJobPostedAt,
-		"LastJobPostedAtHumanized": lastJobPostedAtHumanized,
-		"EmailSubscribersCount":    humanize.Comma(int64(emailSubscribersCount)),
+		"Companies":                          companiesForPage,
+		"CompaniesMinusOne":                  len(companiesForPage) - 1,
+		"LocationFilter":                     strings.Title(location),
+		"LocationURLEncoded":                 url.PathEscape(strings.ReplaceAll(location, "-", " ")),
+		"TextCompanies":                      textifyCompanies(loc.Name, jobPosts, jobPosts),
+		"TextJobTitles":                      textifyJobTitles(jobPosts),
+		"TextJobCount":                       textifyJobCount(totalCompaniesCount),
+		"CurrentPage":                        pageID,
+		"ShowPage":                           showPage,
+		"PageSize":                           s.cfg.CompaniesPerPage,
+		"PageIndexes":                        pages,
+		"TotalCompaniesCount":                totalCompaniesCount,
+		"ComplementaryRemote":                complementaryRemote,
+		"MonthAndYear":                       time.Now().UTC().Format("January 2006"),
+		"Country":                            loc.Country,
+		"Region":                             loc.Region,
+		"Population":                         loc.Population,
+		"LastJobPostedAt":                    lastJobPostedAt,
+		"LastJobPostedAtHumanized":           lastJobPostedAtHumanized,
+		"EmailSubscribersCount":              humanize.Comma(int64(emailSubscribersCount)),
 		"TopDevelopers":                      topDevelopers,
 		"TopDeveloperNames":                  textifyGeneric(topDeveloperNames),
 		"TopDeveloperSkills":                 textifyGeneric(topDeveloperSkills),
