@@ -771,6 +771,9 @@ document
   .addEventListener('keyup', function(event) {
       event.preventDefault();
       if (event.keyCode !== 13) {
+        {{ if not .LoggedUser }}
+        showPopup();
+        {{ else }}
 		document.getElementById('search-location-suggestions').style.display = 'none';
 		getJSON('/x/loc/autocomplete?k='+document.getElementById('search-location').value.trim(), function(status, res) {
 			if (status == 200 && typeof res != 'undefined') {
@@ -795,6 +798,7 @@ document
 				}
 			}
 		})
+    {{ end }}
           return;
       }
       if (document.getElementById('search-location').value.trim() === '') {

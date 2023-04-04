@@ -98,6 +98,36 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 			{{ end }}
 			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Explore <b>{{ .TextJobCount }} companies</b> hiring {{ .SiteJobCategory }} developers {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }} like <b>{{ .TextCompanies }}</b> hiring <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
 			</p>
+			<div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
+      <article class="apply-box" id="apply-box-0">
+          <h3 id="apply-box-title" style="margin-top: 10px;">Create your free profile to continue</h3>
+        <div id="apply-box-container">
+        <p id="profile-info"></p>
+        <div style="margin-bottom: 20px; text-align: center;">
+          {{ range $i, $j := .TopDevelopers }}
+          <img width="50" height="50" style="margin-left:-20px;border-radius: 50px; border: 1px solid #aaa;"
+            src="/x/s/m/{{ .ImageID }}?w=50&h=50" title="{{ .Name }}" alt="{{ .Name }}" />
+          {{ end }}
+        </div>
+        <ul>
+          {{ if .DeveloperMessagesSentLastMonth }}
+          <li><b>{{ .DeveloperMessagesSentLastMonth }}</b> direct messages sent by companies to developers on {{ .SiteName }} in the last 30 days</li>
+          {{ end }}
+          {{ if .DevelopersRegisteredLastMonth }}
+          <li><b>{{ .DevelopersRegisteredLastMonth }}</b> developers joined {{ .SiteName }} in the last 30 days
+          </li>
+          {{ end }}
+          {{ if .DeveloperProfilePageViewsLastMonth }}
+          <li><b>{{ humannumber .DeveloperProfilePageViewsLastMonth }}</b> developer profiles page views in the
+            last 30 days</li>
+          {{ end }}
+          <li>Get access to our <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote" target="_blank">Salary Explorer</a></li>
+          <li>Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></li>
+        </ul>
+              <br />
+              <input type="submit" id="apply-submit" value="Create Free Profile" onclick="window.location.href='/Join-{{ .SiteJobCategory }}-Community';" style="float: right;">
+        </div>
+          </article>
 			<div style="margin-bottom:10px;">
 				<div id="search-location-container">
 					<input autocomplete="off" type="text" value="{{ .LocationFilter }}" placeholder="City, Country" id="search-location"/>
@@ -105,27 +135,8 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 						<div class="search-option">Rome</div>
 					</div>
 				</div>
-				<input type="submit" value="Find Companies" id="search-btn"/>
+				<input type="submit" {{ if .LoggedUser }}onclick="search();"{{ else }}onclick="showPopup();"{{ end }} value="Find Companies" id="search-btn"/>
 			</div>
-			<div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
-			<article class="apply-box" id="apply-box-0">
-				<h3 style="margin-top: 10px;">2-Click Apply</h3>
-				<p>
-				<ol>
-					<li>Upload Your CV</li>
-					<li>Go to your Inbox &amp; Confirm Your Application</li>
-				</ol>
-				</p>
-				<input type="hidden" name="apply-job-id" id="apply-job-id" value="0" />
-				<input type="text" name="apply-email" id="apply-email" placeholder="Your Email" style="width: 100%;"/><br />
-				<input type="file" name="apply-cv" id="apply-cv" style="display: none;" onchange="showname()"/>
-				<label class="upload-file-label" id="apply-cv-label" style="width:100%;border: 1px solid #595959; border-radius: 3.6px;border-style:dashed;padding: 5.4px 6.3px;" for="apply-cv">Upload Your CV (PDF file only, max 5MB)</label><br />
-				<input type="checkbox" id="apply-notify-jobs" name="apply-notify-jobs" checked style="margin: 0 10px 0 0;"><small><label for="apply-notify-jobs">Notify me about new job openings</label></small><br />
-				<small>For any enquiries on this job please contact the job poster <code><span id="apply-email-poster">{{ .SupportEmail }}</span></code></small>
-				<br />
-				<br />
-				<input type="submit" id="apply-submit" value="Apply" onclick="uploadCV();" style="float: right;">
-			</article>
 			{{ if .ComplementaryRemote }}
 			<small><b>No Companies</b> Using {{ .SiteJobCategory }} Found{{ if .LocationFilter }}in <b>{{ .LocationFilter }}</b>{{ end }}</b></small><br /><br />
 		<small>Showing {{ len .Companies }} of {{ .TotalCompaniesCount }} <b>Remote</b> Companies Using {{ .SiteJobCategory }} available instead</small><br />
@@ -276,6 +287,14 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
             var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
             return re.test(email);
         }
+		function closeApplyPopup() {
+			document.getElementById('apply-box-0').style.display = 'none';
+			document.getElementById('overlay-0').style.display = 'none';
+		}
+		function showPopup() {
+			document.getElementById('apply-box-0').style.display = 'block';
+			document.getElementById('overlay-0').style.display = 'block';
+		}
         var getJSON = function(uri, cb) {
             var xhr = new XMLHttpRequest();
             xhr.open('GET', uri, true);
@@ -340,6 +359,9 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
         .addEventListener('keyup', function(event) {
             event.preventDefault();
             if (event.keyCode !== 13) {
+				{{ if not .LoggedUser }}
+				showPopup();
+				{{ else}}
 		document.getElementById('search-location-suggestions').style.display = 'none';
 		getJSON('/x/loc/autocomplete?k='+document.getElementById('search-location').value.trim(), function(status, res) {
 			if (status == 200 && typeof res != 'undefined') {
@@ -364,6 +386,7 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 				}
 			}
 		})
+		    {{ end }}
                 return;
             }
             if (document.getElementById('search-location').value.trim() === '') {
@@ -373,6 +396,7 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 				window.location.href = '/Companies-Using-{{ .SiteJobCategoryURLEncoded }}-In-'+encodeURIComponent(document.getElementById('search-location').value);
             }
         });
+	function search() {
     document
         .getElementById('search-btn')
         .addEventListener('click', function() {
@@ -383,6 +407,7 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 				window.location.href = '/Companies-Using-{{ .SiteJobCategoryURLEncoded }}-In-'+encodeURIComponent(document.getElementById('search-location').value);
             }
         });
+	}
     function hideEmailBanner() {
             document.getElementById('email-subscribe-banner').style.display = 'none';
 	    document.getElementById('newsletter-banner').style.display = 'none';

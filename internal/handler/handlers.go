@@ -74,12 +74,12 @@ func GetAuthPageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func CompaniesHandler(svr server.Server, companyRepo *company.Repository, jobRepo *job.Repository) http.HandlerFunc {
+func CompaniesHandler(svr server.Server, companyRepo *company.Repository, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		location := vars["location"]
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForCompanies(w, r, companyRepo, jobRepo, location, page, "companies.html")
+		svr.RenderPageForCompanies(w, r, companyRepo, jobRepo, devRepo, location, page, "companies.html")
 	}
 }
 
@@ -1525,10 +1525,10 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 	}
 }
 
-func CompaniesForLocationHandler(svr server.Server, companyRepo *company.Repository, jobRepo *job.Repository, loc string) http.HandlerFunc {
+func CompaniesForLocationHandler(svr server.Server, companyRepo *company.Repository, jobRepo *job.Repository, devRepo *developer.Repository, loc string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForCompanies(w, r, companyRepo, jobRepo, loc, page, "companies.html")
+		svr.RenderPageForCompanies(w, r, companyRepo, jobRepo, devRepo, loc, page, "companies.html")
 	}
 }
 

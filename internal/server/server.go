@@ -744,7 +744,7 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 
 }
 
-func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, companyRepo *company.Repository, jobRepo *job.Repository, location, page, htmlView string) {
+func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, companyRepo *company.Repository, jobRepo *job.Repository, devRepo *developer.Repository, location, page, htmlView string) {
 	showPage := true
 	if page == "" {
 		page = "1"
@@ -820,6 +820,34 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, c
 	if err != nil {
 		s.Log(err, "database.CountEmailSubscribers")
 	}
+	topDevelopers, err := devRepo.GetTopDevelopers(10)
+	if err != nil {
+		s.Log(err, "unable to get top developers")
+	}
+	topDeveloperSkills, err := devRepo.GetTopDeveloperSkills(7)
+	if err != nil {
+		s.Log(err, "unable to get top developer skills")
+	}
+	lastDevUpdatedAt, err := devRepo.GetLastDevUpdatedAt()
+	if err != nil {
+		s.Log(err, "unable to retrieve last developer joined at")
+	}
+	topDeveloperNames := make([]string, 0, len(topDevelopers))
+	for _, d := range topDevelopers {
+		topDeveloperNames = append(topDeveloperNames, strings.Split(d.Name, " ")[0])
+	}
+	messagesSentLastMonth, err := devRepo.GetDeveloperMessagesSentLastMonth()
+	if err != nil {
+		s.Log(err, "GetDeveloperMessagesSentLastMonth")
+	}
+	devsRegisteredLastMonth, err := devRepo.GetDevelopersRegisteredLastMonth()
+	if err != nil {
+		s.Log(err, "GetDevelopersRegisteredLastMonth")
+	}
+	devPageViewsLastMonth, err := devRepo.GetDeveloperProfilePageViewsLastMonth()
+	if err != nil {
+		s.Log(err, "GetDeveloperProfilePageViewsLastMonth")
+	}
 
 	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
 		"Companies":                companiesForPage,
@@ -842,6 +870,14 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, c
 		"LastJobPostedAt":          lastJobPostedAt,
 		"LastJobPostedAtHumanized": lastJobPostedAtHumanized,
 		"EmailSubscribersCount":    humanize.Comma(int64(emailSubscribersCount)),
+		"TopDevelopers":                      topDevelopers,
+		"TopDeveloperNames":                  textifyGeneric(topDeveloperNames),
+		"TopDeveloperSkills":                 textifyGeneric(topDeveloperSkills),
+		"DeveloperMessagesSentLastMonth":     messagesSentLastMonth,
+		"DevelopersRegisteredLastMonth":      devsRegisteredLastMonth,
+		"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
+		"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
+		"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
 	})
 }
 

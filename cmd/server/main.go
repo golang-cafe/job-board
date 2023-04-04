@@ -79,17 +79,17 @@ func main() {
 	svr.RegisterRoute("/", handler.IndexPageHandler(svr, jobRepo), []string{"GET"})
 	svr.RegisterRoute(
 		fmt.Sprintf("/Companies-Using-%s", strings.Title(cfg.SiteJobCategory)),
-		handler.CompaniesHandler(svr, companyRepo, jobRepo),
+		handler.CompaniesHandler(svr, companyRepo, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/Remote-Companies-Using-%s", strings.Title(cfg.SiteJobCategory)),
-		handler.CompaniesForLocationHandler(svr, companyRepo, jobRepo, "Remote"),
+		handler.CompaniesForLocationHandler(svr, companyRepo, jobRepo, devRepo, "Remote"),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/Companies-Using-%s-In-{location}", strings.Title(cfg.SiteJobCategory)),
-		handler.CompaniesHandler(svr, companyRepo, jobRepo),
+		handler.CompaniesHandler(svr, companyRepo, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 
