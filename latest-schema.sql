@@ -801,3 +801,4 @@ CREATE TABLE IF NOT EXISTS public.blog_post (
  ALTER TABLE ONLY public.developer_profile ADD COLUMN search_status VARCHAR(20) NOT NULL DEFAULT 'casually-looking';
  ALTER TABLE ONLY public.developer_profile ADD COLUMN role_types VARCHAR(60) NOT NULL DEFAULT 'full-time';
  ALTER TABLE ONLY public.developer_profile ADD COLUMN detected_location_id VARCHAR(255) DEFAULT NULL;
+ ALTER TABLE ONLY public.users ADD COLUMN user_type VARCHAR(20) DEFAULT 'developer';
