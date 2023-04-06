@@ -57,6 +57,10 @@ Once this command is successful you can now start the application
 ./run-local-webserver.sh
 ```
 
+### Telegram Group OSS discussions
+
+https://t.me/+VloraT7W9yA1YTI8
+
 ### Feedback?
 
 Feel free to open an issue on GitHub
