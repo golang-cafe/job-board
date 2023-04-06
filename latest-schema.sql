@@ -796,3 +796,4 @@ CREATE TABLE IF NOT EXISTS public.blog_post (
  ALTER TABLE ONLY public.purchase_event ADD COLUMN plan_type VARCHAR(255) NOT NULL DEFAULT 'legacy';
  ALTER TABLE ONLY public.purchase_event ADD COLUMN plan_duration INTEGER NOT NULL DEFAULT 1;
  ALTER TABLE ONLY public.company ADD COLUMN company_page_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
+ ALTER TABLE ONLY public.user_sign_on_token ADD COLUMN user_type VARCHAR(20) DEFAULT 'developer';
