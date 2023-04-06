@@ -11,53 +11,54 @@ import (
 )
 
 type Config struct {
-	Port                         string
-	DatabaseURL                  string
-	StripeKey                    string // stripe secret API Key
-	StripeEndpointSecret         string // stripe endpoint webhook secret token
-	StripePublishableKey         string // stripe publishable API key
-	EmailAPIKey                  string // sparkpost email API Key
-	Email2APIKey                 string // sparkpost email API Key
-	AdminEmail                   string // used to log on to the management dashboard
-	SupportEmail                 string // displayed on the site for support queries
-	NoReplyEmail                 string // used for transactional emails
-	SessionKey                   []byte
-	JwtSigningKey                []byte
-	Env                          string // either prod or dev, will disable https and few other bits
-	JobsPerPage                  int // configures how many jobs are shown per page result
-	DevelopersPerPage            int // configures how many dev profiles are shown per page result
-	CompaniesPerPage             int // configures how many companies are shown per page result
-	TwitterJobsToPost            int // max number of jobs to post each day
-	TwitterAccessToken           string
-	TwitterAccessTokenSecret     string
-	TwitterClientKey             string
-	TwitterClientSecret          string
-	NewsletterJobsToSend         int
-	CloudflareAPIToken           string
-	CloudflareZoneTag            string
-	CloudflareAPIEndpoint        string
-	MachineToken                 string
-	TelegramAPIToken             string   // Telegram API Token used to integrate with site's Telegram channel
-	TelegramChannelID            int64    // Telegram Channel ID used to integrate with site's Telegram channel
-	FXAPIKey                     string   // FX rate api API Key to access recent FX data
-	AvailableCurrencies          []string // currencies used throughout the site for salary compensation (post a job, salary filter FX, etc)
-	AvailableSalaryBands         []int    // salary upper limits used in search to filter job by minimum salary
-	SiteName                     string   // Job site name
-	SiteJobCategory              string   // Job site category
-	SiteHost                     string   // Job site hostname
-	SiteGithub                   string   // job site github project url (username+repository name)
-	SiteTwitter                  string   // job site twitter account username
-	SiteLinkedin                 string
-	SiteYoutube                  string
-	SiteTelegramChannel          string
-	PrimaryColor                 string
-	SecondaryColor               string
-	SiteLogoImageID              string
-	PlanID1Price                 int // price in cents
-	PlanID2Price                 int // price in cents
-	PlanID3Price                 int // price in cents
-	DevelopersBannerLink         string
-	DevelopersBannerText         string
+	Port                     string
+	DatabaseURL              string
+	StripeKey                string // stripe secret API Key
+	StripeEndpointSecret     string // stripe endpoint webhook secret token
+	StripePublishableKey     string // stripe publishable API key
+	EmailAPIKey              string // sparkpost email API Key
+	Email2APIKey             string // sparkpost email API Key
+	AdminEmail               string // used to log on to the management dashboard
+	SupportEmail             string // displayed on the site for support queries
+	NoReplyEmail             string // used for transactional emails
+	SessionKey               []byte
+	JwtSigningKey            []byte
+	Env                      string // either prod or dev, will disable https and few other bits
+	JobsPerPage              int    // configures how many jobs are shown per page result
+	DevelopersPerPage        int    // configures how many dev profiles are shown per page result
+	CompaniesPerPage         int    // configures how many companies are shown per page result
+	TwitterJobsToPost        int    // max number of jobs to post each day
+	TwitterAccessToken       string
+	TwitterAccessTokenSecret string
+	TwitterClientKey         string
+	TwitterClientSecret      string
+	NewsletterJobsToSend     int
+	CloudflareAPIToken       string
+	CloudflareZoneTag        string
+	CloudflareAPIEndpoint    string
+	MachineToken             string
+	TelegramAPIToken         string   // Telegram API Token used to integrate with site's Telegram channel
+	TelegramChannelID        int64    // Telegram Channel ID used to integrate with site's Telegram channel
+	FXAPIKey                 string   // FX rate api API Key to access recent FX data
+	AvailableCurrencies      []string // currencies used throughout the site for salary compensation (post a job, salary filter FX, etc)
+	AvailableSalaryBands     []int    // salary upper limits used in search to filter job by minimum salary
+	SiteName                 string   // Job site name
+	SiteJobCategory          string   // Job site category
+	SiteHost                 string   // Job site hostname
+	SiteGithub               string   // job site github project url (username+repository name)
+	SiteTwitter              string   // job site twitter account username
+	SiteLinkedin             string
+	SiteYoutube              string
+	SiteTelegramChannel      string
+	PrimaryColor             string
+	SecondaryColor           string
+	SiteLogoImageID          string
+	PlanID1Price             int // price in cents
+	PlanID2Price             int // price in cents
+	PlanID3Price             int // price in cents
+	DevelopersBannerLink     string
+	DevelopersBannerText     string
+	IsLocal                  bool
 }
 
 func LoadConfig() (Config, error) {
@@ -240,54 +241,60 @@ func LoadConfig() (Config, error) {
 	}
 	developersBannerLink := os.Getenv("DEVELOPERS_BANNER_LINK")
 	developersBannerText := os.Getenv("DEVELOPERS_BANNER_TEXT")
+	var isLocalBool bool
+	isLocal := os.Getenv("IS_LOCAL")
+	if isLocal != "" {
+		isLocalBool = true
+	}
 
 	return Config{
-		Port:                         port,
-		DatabaseURL:                  databaseURL,
-		StripeKey:                    stripeKey,
-		StripeEndpointSecret:         stripeEndpointSecret,
-		StripePublishableKey:         stripePublishableKey,
-		EmailAPIKey:                  emailAPIKey,
-		Email2APIKey:                 email2APIKey,
-		AdminEmail:                   adminEmail,
-		SupportEmail:                 supportEmail,
-		NoReplyEmail:                 noReplyEmail,
-		SessionKey:                   sessionKeyBytes,
-		JwtSigningKey:                jwtSigningKeyBytes,
-		Env:                          env,
-		JobsPerPage:                  10,
-		DevelopersPerPage:            10,
-		CompaniesPerPage:             10,
-		TwitterJobsToPost:            twitterJobsToPost,
-		TwitterAccessToken:           twitterAccessToken,
-		TwitterAccessTokenSecret:     twitterAccessTokenSecret,
-		TwitterClientSecret:          twitterClientSecret,
-		TwitterClientKey:             twitterClientKey,
-		NewsletterJobsToSend:         newsletterJobsToSend,
-		CloudflareAPIToken:           cloudflareAPIToken,
-		CloudflareZoneTag:            cloudflareZoneTag,
-		CloudflareAPIEndpoint:        cloudflareAPIEndpoint,
-		MachineToken:                 machineToken,
-		TelegramAPIToken:             telegramAPIToken,
-		TelegramChannelID:            int64(telegramChannelID),
-		FXAPIKey:                     fxAPIKey,
-		SiteName:                     siteName,
-		SiteJobCategory:              siteJobCategory,
-		SiteHost:                     siteHost,
-		SiteGithub:                   siteGithub,
-		SiteTwitter:                  siteTwitter,
-		SiteYoutube:                  siteYoutube,
-		SiteTelegramChannel:          siteTelegramChannel,
-		SiteLinkedin:                 siteLinkedin,
-		PrimaryColor:                 primaryColor,
-		SecondaryColor:               secondaryColor,
-		SiteLogoImageID:              siteLogoImageID,
-		AvailableCurrencies:          []string{"USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN", "INR", "ZAR", "TRY", "BRL"},
-		AvailableSalaryBands:         []int{10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000, 240000, 250000},
-		PlanID1Price:                 planID1Price,
-		PlanID2Price:                 planID2Price,
-		PlanID3Price:                 planID3Price,
-		DevelopersBannerLink:         developersBannerLink,
-		DevelopersBannerText:         developersBannerText,
+		Port:                     port,
+		DatabaseURL:              databaseURL,
+		StripeKey:                stripeKey,
+		StripeEndpointSecret:     stripeEndpointSecret,
+		StripePublishableKey:     stripePublishableKey,
+		EmailAPIKey:              emailAPIKey,
+		Email2APIKey:             email2APIKey,
+		AdminEmail:               adminEmail,
+		SupportEmail:             supportEmail,
+		NoReplyEmail:             noReplyEmail,
+		SessionKey:               sessionKeyBytes,
+		JwtSigningKey:            jwtSigningKeyBytes,
+		Env:                      env,
+		JobsPerPage:              10,
+		DevelopersPerPage:        10,
+		CompaniesPerPage:         10,
+		TwitterJobsToPost:        twitterJobsToPost,
+		TwitterAccessToken:       twitterAccessToken,
+		TwitterAccessTokenSecret: twitterAccessTokenSecret,
+		TwitterClientSecret:      twitterClientSecret,
+		TwitterClientKey:         twitterClientKey,
+		NewsletterJobsToSend:     newsletterJobsToSend,
+		CloudflareAPIToken:       cloudflareAPIToken,
+		CloudflareZoneTag:        cloudflareZoneTag,
+		CloudflareAPIEndpoint:    cloudflareAPIEndpoint,
+		MachineToken:             machineToken,
+		TelegramAPIToken:         telegramAPIToken,
+		TelegramChannelID:        int64(telegramChannelID),
+		FXAPIKey:                 fxAPIKey,
+		SiteName:                 siteName,
+		SiteJobCategory:          siteJobCategory,
+		SiteHost:                 siteHost,
+		SiteGithub:               siteGithub,
+		SiteTwitter:              siteTwitter,
+		SiteYoutube:              siteYoutube,
+		SiteTelegramChannel:      siteTelegramChannel,
+		SiteLinkedin:             siteLinkedin,
+		PrimaryColor:             primaryColor,
+		SecondaryColor:           secondaryColor,
+		SiteLogoImageID:          siteLogoImageID,
+		AvailableCurrencies:      []string{"USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN", "INR", "ZAR", "TRY", "BRL"},
+		AvailableSalaryBands:     []int{10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000, 240000, 250000},
+		PlanID1Price:             planID1Price,
+		PlanID2Price:             planID2Price,
+		PlanID3Price:             planID3Price,
+		DevelopersBannerLink:     developersBannerLink,
+		DevelopersBannerText:     developersBannerText,
+		IsLocal:                  isLocalBool,
 	}, nil
 }

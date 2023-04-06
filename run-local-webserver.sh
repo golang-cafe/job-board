@@ -45,6 +45,7 @@ export SECONDARY_COLOR="#43D7C9"
 export PLAN_ID_1_PRICE="5"  
 export PLAN_ID_2_PRICE="10"  
 export PLAN_ID_3_PRICE="15"
+export IS_LOCAL=true
 
 go build -o bin/server cmd/server/main.go
 

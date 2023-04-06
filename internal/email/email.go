@@ -7,6 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -17,6 +18,7 @@ type Client struct {
 	client         http.Client
 	apiKey         string
 	baseURL        string
+	isLocal        bool
 }
 
 type Attachment struct {
@@ -43,13 +45,14 @@ type EmailMessageWithAttachment struct {
 	Attachment []Attachment `json:"attachment,omitempty"`
 }
 
-func NewClient(apiKey, senderAddress, noReplyAddress, siteName string) (Client, error) {
+func NewClient(apiKey, senderAddress, noReplyAddress, siteName string, isLocal bool) (Client, error) {
 	return Client{
 		client:         *http.DefaultClient,
 		apiKey:         apiKey,
 		senderAddress:  senderAddress,
 		siteName:       siteName,
 		noReplyAddress: noReplyAddress,
+		isLocal:        isLocal,
 		baseURL:        "https://api.sendinblue.com"}, nil
 }
 
@@ -74,6 +77,17 @@ func (e Client) DefaultAdminAddress() string {
 }
 
 func (e Client) SendHTMLEmail(from, to, replyTo Address, subject, text string) error {
+	if e.isLocal {
+		log.Printf(
+			"SendHTMLEmail: from: %v, to: %s, replyTo: %v, subject: %s, text: %s",
+			from,
+			to,
+			replyTo,
+			subject,
+			text,
+		)
+		return nil
+	}
 	msg := EmailMessage{
 		Sender:      from,
 		ReplyTo:     replyTo,
@@ -106,6 +120,19 @@ func (e Client) SendHTMLEmail(from, to, replyTo Address, subject, text string) e
 }
 
 func (e Client) SendEmailWithPDFAttachment(from, to, replyTo Address, subject, text string, attachment []byte, fileName string) error {
+	if e.isLocal {
+		log.Printf(
+			"EmailWithPDF: from: %v, to: %s, replyTo: %v, subject: %s, text: %s, attachment: len=%d, fileName: %s",
+			from,
+			to,
+			replyTo,
+			subject,
+			text,
+			len(attachment),
+			fileName,
+		)
+		return nil
+	}
 	msg := EmailMessageWithAttachment{
 		EmailMessage: EmailMessage{
 			Sender:      from,
