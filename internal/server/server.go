@@ -1058,9 +1058,11 @@ func (s Server) Render(r *http.Request, w http.ResponseWriter, status int, htmlV
 	}
 	profile, _ := middleware.GetUserFromJWT(r, s.SessionStore, s.GetJWTSigningKey())
 	dataMap["LoggedUser"] = profile
-	dataMap["IsUserRecruiter"] = profile.IsRecruiter
-	dataMap["IsUserDeveloper"] = profile.IsDeveloper
-	dataMap["IsUserAdmin"] = profile.IsAdmin
+	if profile != nil {
+		dataMap["IsUserRecruiter"] = profile.IsRecruiter
+		dataMap["IsUserDeveloper"] = profile.IsDeveloper
+		dataMap["IsUserAdmin"] = profile.IsAdmin
+	}
 	dataMap["SiteName"] = s.GetConfig().SiteName
 	dataMap["SiteJobCategory"] = strings.Title(strings.ToLower(s.GetConfig().SiteJobCategory))
 	dataMap["SiteJobCategoryURLEncoded"] = strings.ReplaceAll(strings.Title(strings.ToLower(s.GetConfig().SiteJobCategory)), " ", "-")
