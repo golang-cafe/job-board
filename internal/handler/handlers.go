@@ -249,7 +249,9 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 		t := time.Now().UTC()
 		detectedLocationID := &req.DetectedLocationID
 		if req.DetectedLocationID == "" {
-			detectedLocationID = nil
+			svr.Log(err, "detected location should be set")
+			svr.JSON(w, http.StatusBadRequest, "detected_location_id should be set")
+			return
 		}
 		dev := developer.Developer{
 			ID:                 k.String(),
