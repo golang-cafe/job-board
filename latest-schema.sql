@@ -166,6 +166,7 @@ CREATE TABLE public.developer_profile (
     id character(27) NOT NULL,
     email character varying(255) NOT NULL,
     location character varying(255) NOT NULL,
+    hourly_rate integer DEFAULT 0,
     available boolean NOT NULL,
     linkedin_url character varying(255) NOT NULL,
     image_id character(27) NOT NULL,
