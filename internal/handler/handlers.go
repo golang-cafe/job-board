@@ -255,7 +255,6 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			return
 		}
 		hourlyRate, err := strconv.ParseInt(req.HourlyRate, 10, 64)
-
 		if err != nil {
 			svr.Log(err, "unable to parse string to int")
 			svr.JSON(w, http.StatusInternalServerError, nil)
