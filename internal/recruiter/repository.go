@@ -79,7 +79,7 @@ func (r *Repository) RecruiterProfileByEmail(email string) (Recruiter, error) {
 func (r *Repository) SaveRecruiterProfile(dev Recruiter) error {
 	dev.Slug = slug.Make(fmt.Sprintf("%s %d", dev.Name, time.Now().UTC().Unix()))
 	_, err := r.db.Exec(
-		`INSERT INTO recruiter_profile (id, email, name, title, company, company_url, slug, created_at, updated_at) VALUES ($1, $2, $3, 'title', 'company', $6, $7, NOW(), NOW())`,
+		`INSERT INTO recruiter_profile (id, email, name, title, company, company_url, slug, created_at, updated_at) VALUES ($1, $2, $3, 'title', 'company', $4, $5, NOW(), NOW())`,
 		dev.ID,
 		dev.Email,
 		dev.Name,
