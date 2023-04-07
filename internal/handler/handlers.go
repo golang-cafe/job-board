@@ -261,6 +261,12 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			return
 		}
 
+		if hourlyRate > 1000 && hourlyRate < 0 {
+			svr.Log(err, "Hourly rate cannot be more than 1000 or less than 0")
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+
 		dev := developer.Developer{
 			ID:                 k.String(),
 			Name:               req.Fullname,

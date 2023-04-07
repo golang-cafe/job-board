@@ -159,6 +159,7 @@ body{background:#ffffff;}
 			  <a href="/developer/{{ .Slug }}" target="_blank"><b>{{ if $isLoggedUser }}{{ .Name }}{{ else }}{{ truncateName .Name }}{{ end }}</b></a><br />
               <small>{{ if .Available }}<span style="display: inline-block; width: 10px; height: 10px; background: #00ab6f; border-radius: 10px; margin-right: 5px;"></span>Currently Available{{ else }}<span style="display: inline-block; width: 10px; height: 10px; background: #ab3300; border-radius: 10px; margin-right: 5px;"></span>Currently Unavailable{{ end }}</small><br />
 		  <b id="location-{{ .ID }}">{{ .Location }}</b><br/>
+          <small>{{ if and .IsUserRecruiter (ne .DeveloperProfile.HourlyRate 0) }}{{ .DeveloperProfile.HourlyRate }}USD/hour{{ end }}</small><br />
           <small>Experience Level: <b>{{ stringTitle .RoleLevel }}</b></small><br />
           <small>Work Preference: <b>{{ .RoleTypeAsString }}</b></small><br />
 		  <span id="skills-{{ .ID }}">
