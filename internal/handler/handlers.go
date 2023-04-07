@@ -120,6 +120,12 @@ func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repositor
 			svr.JSON(w, http.StatusBadRequest, "email is invalid")
 			return
 		}
+		for _, e := range []string{"gmail.com", "outlook.com", "live.com", "yahoo.com", "icloud.com"} {
+			if strings.Contains(req.Email, e) {
+				svr.JSON(w, http.StatusBadRequest, "email must be a valid company email")
+				return
+			}
+		}
 		req.Fullname = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.Fullname)))
 		existingRec, err := recRepo.RecruiterProfileByEmail(req.Email)
 		if err != nil {
@@ -903,7 +909,7 @@ func TriggerMonthlyHighlights(svr server.Server, jobRepo *job.Repository) http.H
 				jobPageviewsLast30DaysText := humanize.Comma(int64(jobPageviewsLast30Days))
 				jobApplicantsLast30DaysText := humanize.Comma(int64(jobApplicantsLast30Days))
 				newJobsLastMonthText := humanize.Comma(int64(newJobsLastMonth))
-				highlights := fmt.Sprintf(`This months highlight ✨ 
+				highlights := fmt.Sprintf(`This months highlight ✨
 
 📣 %s new jobs posted last month
 ✉️  %s applicants last month

@@ -973,6 +973,10 @@
                 alert('Your email is not valid');
                 return;
             }
+            if (["gmail.com", "outlook.com", "live.com", "yahoo.com", "icloud.com"].some(e => email.includes(e))) {
+              alert('Please use a valid company email');
+              return;
+            }
             if (!isURL(companyUrl)) {
                 alert('Company website it\'s not a valid URL');
                 return;
