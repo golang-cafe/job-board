@@ -1131,7 +1131,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				DetectedLocationID string   `json:"detected_location_id"`
 			}{}
 			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-				svr.Log(errors.New("invalid search status 11111111111"), "invalid search status 11111111111")
+				svr.Log(errors.New("invalid search status"), "invalid search status")
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
