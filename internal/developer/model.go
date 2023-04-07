@@ -38,6 +38,7 @@ type Developer struct {
 	LinkedinURL        string
 	Email              string
 	Location           string
+	HourlyRate         int64
 	Available          bool
 	ImageID            string
 	Slug               string

@@ -183,6 +183,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
 			Fullname           string   `json:"fullname"`
+			HourlyRate         string   `json:"hourly_rate"`
 			LinkedinURL        string   `json:"linkedin_url"`
 			CurrentLocation    string   `json:"current_location"`
 			GithubURL          *string  `json:"github_url,omitempty"`
@@ -253,10 +254,19 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			svr.JSON(w, http.StatusBadRequest, "detected_location_id should be set")
 			return
 		}
+		hourlyRate, err := strconv.ParseInt(req.HourlyRate, 10, 64)
+
+		if err != nil {
+			svr.Log(err, "unable to parse string to int")
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+
 		dev := developer.Developer{
 			ID:                 k.String(),
 			Name:               req.Fullname,
 			Location:           req.CurrentLocation,
+			HourlyRate:         hourlyRate,
 			LinkedinURL:        req.LinkedinURL,
 			GithubURL:          req.GithubURL,
 			TwitterURL:         req.TwitterURL,
@@ -903,7 +913,7 @@ func TriggerMonthlyHighlights(svr server.Server, jobRepo *job.Repository) http.H
 				jobPageviewsLast30DaysText := humanize.Comma(int64(jobPageviewsLast30Days))
 				jobApplicantsLast30DaysText := humanize.Comma(int64(jobApplicantsLast30Days))
 				newJobsLastMonthText := humanize.Comma(int64(newJobsLastMonth))
-				highlights := fmt.Sprintf(`This months highlight ✨ 
+				highlights := fmt.Sprintf(`This months highlight ✨
 
 📣 %s new jobs posted last month
 ✉️  %s applicants last month
@@ -1109,6 +1119,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 			req := &struct {
 				ID                 string   `json:"id"`
 				Fullname           string   `json:"fullname"`
+				HourlyRate         string   `json:"hourly_rate"`
 				LinkedinURL        string   `json:"linkedin_url"`
 				Bio                string   `json:"bio"`
 				CurrentLocation    string   `json:"current_location"`
@@ -1121,7 +1132,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				DetectedLocationID string   `json:"detected_location_id"`
 			}{}
 			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-				svr.Log(errors.New("invalid search status"), "invalid search status")
+				svr.Log(errors.New("invalid search status 11111111111"), "invalid search status 11111111111")
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
@@ -1176,10 +1187,19 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 			if req.SearchStatus == developer.SearchStatusNotAvailable {
 				avail = false
 			}
+			hourlyRate, err := strconv.ParseInt(req.HourlyRate, 10, 64)
+
+			if err != nil {
+				svr.Log(err, "unable to parse string to int")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+
 			dev := developer.Developer{
 				ID:           req.ID,
 				Name:         req.Fullname,
 				Location:     req.CurrentLocation,
+				HourlyRate:   hourlyRate,
 				LinkedinURL:  req.LinkedinURL,
 				Bio:          req.Bio,
 				Email:        req.Email,

@@ -24,7 +24,7 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE slug = $1`, slug)
+	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE slug = $1`, slug)
 	dev := Developer{}
 	var roleTypes string
 	err := row.Scan(
@@ -33,6 +33,7 @@ func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 		&dev.Location,
 		&dev.Available,
 		&dev.LinkedinURL,
+		&dev.HourlyRate,
 		&dev.ImageID,
 		&dev.Slug,
 		&dev.CreatedAt,
@@ -55,7 +56,7 @@ func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 }
 
 func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE lower(email) = lower($1)`, email)
+	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE lower(email) = lower($1)`, email)
 	dev := Developer{}
 	var nullUpdatedAt sql.NullTime
 	err := row.Scan(
@@ -64,6 +65,7 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 		&dev.Location,
 		&dev.Available,
 		&dev.LinkedinURL,
+		&dev.HourlyRate,
 		&dev.ImageID,
 		&dev.Slug,
 		&dev.CreatedAt,
@@ -88,7 +90,7 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 }
 
 func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level FROM developer_profile WHERE id = $1`, id)
+	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
 	var nullTime sql.NullTime
 	err := row.Scan(
@@ -96,6 +98,7 @@ func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 		&dev.Email,
 		&dev.Location,
 		&dev.LinkedinURL,
+		&dev.HourlyRate,
 		&dev.ImageID,
 		&dev.Slug,
 		&dev.CreatedAt,
@@ -159,13 +162,13 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 	var developers []Developer
 	switch {
 	case tag != "" && loc != "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND skills ILIKE '%' || $2 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $3 OFFSET $4`, loc, tag, pageSize, offset)
+		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND skills ILIKE '%' || $2 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $3 OFFSET $4`, loc, tag, pageSize, offset)
 	case tag != "" && loc == "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE skills ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, tag, pageSize, offset)
+		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE skills ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, tag, pageSize, offset)
 	case tag == "" && loc != "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, loc, pageSize, offset)
+		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, loc, pageSize, offset)
 	default:
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE created_at != updated_at ORDER BY updated_at DESC LIMIT $1 OFFSET $2`, pageSize, offset)
+		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE created_at != updated_at ORDER BY updated_at DESC LIMIT $1 OFFSET $2`, pageSize, offset)
 	}
 	if err == sql.ErrNoRows {
 		return developers, 0, nil
@@ -181,6 +184,7 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 			&dev.Location,
 			&dev.Available,
 			&dev.LinkedinURL,
+			&dev.HourlyRate,
 			&dev.ImageID,
 			&dev.Slug,
 			&dev.CreatedAt,
@@ -205,7 +209,7 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 }
 
 func (r *Repository) UpdateDeveloperProfile(dev Developer) error {
-	_, err := r.db.Exec(`UPDATE developer_profile SET name = $1, location = $2, linkedin_url = $3, bio = $4, available = $5, image_id = $6, updated_at = NOW(), skills = $7, search_status = $8, role_level = $9  WHERE id = $10`, dev.Name, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Skills, dev.SearchStatus, dev.RoleLevel, dev.ID)
+	_, err := r.db.Exec(`UPDATE developer_profile SET name = $1, location = $2, linkedin_url = $3, hourly_rate = $4, bio = $5, available = $6, image_id = $7, updated_at = NOW(), skills = $8, search_status = $9, role_level = $10  WHERE id = $11`, dev.Name, dev.Location, dev.LinkedinURL, dev.HourlyRate, dev.Bio, dev.Available, dev.ImageID, dev.Skills, dev.SearchStatus, dev.RoleLevel, dev.ID)
 	return err
 }
 
@@ -221,7 +225,7 @@ func (r *Repository) ActivateDeveloperProfile(email string) error {
 
 func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 	dev.Slug = slug.Make(fmt.Sprintf("%s %d", dev.Name, time.Now().UTC().Unix()))
-	_, err := r.db.Exec(`INSERT INTO developer_profile (email, location, linkedin_url, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url, role_types, role_level, search_status, detected_location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), NOW(), $8, $9, $10, $11, $12, $13, $14, $15, $16)`, dev.Email, dev.Location, dev.LinkedinURL, dev.Bio, dev.Available, dev.ImageID, dev.Slug, dev.Skills, dev.Name, dev.ID, dev.GithubURL, dev.TwitterURL, strings.Join(dev.RoleTypes, ","), dev.RoleLevel, dev.SearchStatus, dev.DetectedLocationID)
+	_, err := r.db.Exec(`INSERT INTO developer_profile (email, location, linkedin_url, hourly_rate, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url, role_types, role_level, search_status, detected_location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9, $10, $11, $12, $13, $14, $15, $16)`, dev.Email, dev.Location, dev.LinkedinURL, dev.HourlyRate, dev.Bio, dev.Available, dev.ImageID, dev.Slug, dev.Skills, dev.Name, dev.ID, dev.GithubURL, dev.TwitterURL, strings.Join(dev.RoleTypes, ","), dev.RoleLevel, dev.SearchStatus, dev.DetectedLocationID)
 	return err
 }
 
