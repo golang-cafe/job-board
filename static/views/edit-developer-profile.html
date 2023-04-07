@@ -69,7 +69,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<input type="hidden" name="profile-id" id="profile-id" value="{{ .DeveloperProfile.ID }}"/><br />
 				<input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" value="{{ .DeveloperProfile.Name }}"/><br />
 				<input type="text" name="location" id="location" placeholder="Job Location" style="width: 100%;" value="{{ .DeveloperProfile.Location }}"/><br />
-				<input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate" style="width: 100%;" value="{{ .DeveloperProfile.HourlyRate }}"/><br />
+				<input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate in USD" style="width: 100%;" value="{{ .DeveloperProfile.HourlyRate }}"/><br />
 				<input type="url" name="linkedin-url" id="linkedin-url" placeholder="Linkedin URL" style="width: 100%;" value="{{ .DeveloperProfile.LinkedinURL }}"/><br />
 				<div>
 					<label for="profile-image" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload Profile Image</label>
