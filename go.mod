@@ -32,15 +32,15 @@ require (
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
 	github.com/oschwald/maxminddb-golang v1.6.0
 	github.com/pkg/errors v0.8.1
-	github.com/pkg/profile v1.7.0
 	github.com/rainycape/unidecode v0.0.0-20150907023854-cb7f23ec59be // indirect
 	github.com/rs/zerolog v1.20.0
 	github.com/segmentio/ksuid v1.0.2
 	github.com/shurcooL/sanitized_anchor_name v0.0.0-20170918181015-86672fcb3f95 // indirect
 	github.com/snabb/diagio v0.0.0-20170305182244-0ef68e3dbf01 // indirect
 	github.com/snabb/sitemap v0.0.0-20171225173334-36baa8b39ef4
+	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/stripe/stripe-go v62.10.0+incompatible
-	golang.org/x/image v0.0.0-20200430140353-33d19683fad8 // indirect
+	golang.org/x/image v0.5.0 // indirect
 	gopkg.in/russross/blackfriday.v2 v2.0.0
 	gopkg.in/stretchr/testify.v1 v1.2.2 // indirect
 )
