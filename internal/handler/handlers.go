@@ -218,6 +218,8 @@ func SaveDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposito
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
 			}
+			req.Title = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.Title)))
+			req.Description = bluemonday.StrictPolicy().Sanitize(req.Description)
 			devMetadata := developer.DeveloperMetadata{
 				DeveloperProfileID: req.DeveloperProfileID,
 				MetadataType:       req.MetadataType,
@@ -261,6 +263,9 @@ func UpdateDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposi
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
 			}
+			req.Title = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.Title)))
+			req.Description = bluemonday.StrictPolicy().Sanitize(req.Description)
+
 			devMetadata := developer.DeveloperMetadata{
 				ID:                 req.ID,
 				DeveloperProfileID: req.DeveloperProfileID,
