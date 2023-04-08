@@ -200,11 +200,11 @@ func SaveDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposito
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			req := &struct {
-				DeveloperProfileID string   `json:"developer_profile_id"`
-				MetadataType       string   `json:"metadata_type"`
-				Title              string   `json:"title"`
-				Description        string   `json:"description"`
-				Link               *string  `json:"link,omitempty"`
+				DeveloperProfileID string  `json:"developer_profile_id"`
+				MetadataType       string  `json:"metadata_type"`
+				Title              string  `json:"title"`
+				Description        string  `json:"description"`
+				Link               *string `json:"link,omitempty"`
 			}{}
 
 			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -244,12 +244,12 @@ func UpdateDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposi
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			req := &struct {
-				ID                 *int     `json:"id,omitempty"`
-				DeveloperProfileID string   `json:"developer_profile_id"`
-				MetadataType       string   `json:"metadata_type"`
-				Title              string   `json:"title"`
-				Description        string   `json:"description"`
-				Link               *string  `json:"link,omitempty"`
+				ID                 *int    `json:"id,omitempty"`
+				DeveloperProfileID string  `json:"developer_profile_id"`
+				MetadataType       string  `json:"metadata_type"`
+				Title              string  `json:"title"`
+				Description        string  `json:"description"`
+				Link               *string `json:"link,omitempty"`
 			}{}
 
 			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -1624,7 +1624,7 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 					return
 				}
 				svr.Render(r, w, http.StatusOK, "edit-developer-profile.html", map[string]interface{}{
-					"DeveloperProfile": dev,
+					"DeveloperProfile":    dev,
 					"DeveloperExperience": devExp,
 				})
 			case user.UserTypeRecruiter:

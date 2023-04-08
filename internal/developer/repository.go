@@ -89,7 +89,6 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 	return dev, nil
 }
 
-
 func (r *Repository) DeveloperExperienceByProfileID(profile_id string) (DeveloperExperience, error) {
 	row := r.db.QueryRow(`SELECT id, title, description, link from developer_metadata WHERE developer_profile_id = $1`, profile_id)
 	devExp := DeveloperExperience{}
@@ -277,7 +276,6 @@ func (r *Repository) UpdateDeveloperMetadata(devMetadata DeveloperMetadata) erro
 	_, err := r.db.Exec(`UPDATE developer_metadata SET title = $1, description = $2, link = $3 WHERE id = $4`, devMetadata.Title, devMetadata.Description, devMetadata.Link, devMetadata.ID)
 	return err
 }
-
 
 func (r *Repository) GetTopDevelopers(limit int) ([]Developer, error) {
 	devs := make([]Developer, 0, limit)

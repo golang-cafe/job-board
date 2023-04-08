@@ -59,10 +59,10 @@ type Developer struct {
 }
 
 type DeveloperExperience struct {
-	Title              string
-	Description        string
-	Link               *string
-	ID                 int
+	Title       string
+	Description string
+	Link        *string
+	ID          int
 }
 
 func (d Developer) RoleTypeAsString() string {
@@ -78,12 +78,11 @@ type DeveloperMessage struct {
 	SentAt    time.Time
 }
 
-
 type DeveloperMetadata struct {
-	ID                  *int
-	DeveloperProfileID  string
-	MetadataType        string
-	Title               string
-	Description         string
-	Link                *string
+	ID                 *int
+	DeveloperProfileID string
+	MetadataType       string
+	Title              string
+	Description        string
+	Link               *string
 }
