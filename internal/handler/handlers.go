@@ -254,6 +254,9 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			svr.JSON(w, http.StatusBadRequest, "detected_location_id should be set")
 			return
 		}
+		if req.HourlyRate == "" {
+			req.HourlyRate = "0"
+		}
 		hourlyRate, err := strconv.ParseInt(req.HourlyRate, 10, 64)
 		if err != nil {
 			svr.Log(err, "unable to parse string to int")
@@ -1169,6 +1172,10 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 					return
 				}
 			}
+			if req.HourlyRate == "" || req.HourlyRate == "0" {
+				svr.JSON(w, http.StatusBadRequest, "please specify hourly rate")
+				return
+			}
 			req.Bio = bluemonday.StrictPolicy().Sanitize(req.Bio)
 			req.Fullname = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.Fullname)))
 			req.CurrentLocation = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.CurrentLocation)))
@@ -1193,7 +1200,6 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				avail = false
 			}
 			hourlyRate, err := strconv.ParseInt(req.HourlyRate, 10, 64)
-
 			if err != nil {
 				svr.Log(err, "unable to parse string to int")
 				svr.JSON(w, http.StatusInternalServerError, nil)

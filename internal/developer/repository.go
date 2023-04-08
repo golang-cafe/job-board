@@ -225,7 +225,26 @@ func (r *Repository) ActivateDeveloperProfile(email string) error {
 
 func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 	dev.Slug = slug.Make(fmt.Sprintf("%s %d", dev.Name, time.Now().UTC().Unix()))
-	_, err := r.db.Exec(`INSERT INTO developer_profile (email, location, linkedin_url, hourly_rate, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url, role_types, role_level, search_status, detected_location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9, $10, $11, $12, $13, $14, $15, $16)`, dev.Email, dev.Location, dev.LinkedinURL, dev.HourlyRate, dev.Bio, dev.Available, dev.ImageID, dev.Slug, dev.Skills, dev.Name, dev.ID, dev.GithubURL, dev.TwitterURL, strings.Join(dev.RoleTypes, ","), dev.RoleLevel, dev.SearchStatus, dev.DetectedLocationID)
+	_, err := r.db.Exec(
+		`INSERT INTO developer_profile (email, location, linkedin_url, hourly_rate, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url, role_types, role_level, search_status, detected_location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
+		dev.Email,
+		dev.Location,
+		dev.LinkedinURL,
+		dev.HourlyRate,
+		dev.Bio,
+		dev.Available,
+		dev.ImageID,
+		dev.Slug,
+		dev.Skills,
+		dev.Name,
+		dev.ID,
+		dev.GithubURL,
+		dev.TwitterURL,
+		strings.Join(dev.RoleTypes, ","),
+		dev.RoleLevel,
+		dev.SearchStatus,
+		dev.DetectedLocationID,
+	)
 	return err
 }
 
