@@ -784,6 +784,19 @@ CREATE TABLE IF NOT EXISTS public.blog_post (
 );
 
  CREATE UNIQUE INDEX blog_post_slug_idx on public.blog_post (slug);
+ 
+ CREATE TABLE "public"."recruiter_profile" (
+    "id" bpchar(27) NOT NULL,
+    "email" varchar(255) NOT NULL,
+    "title" varchar(255) NOT NULL,
+    "company" varchar(255) NOT NULL,
+    "company_url" varchar(255) NOT NULL,
+    "slug" varchar(255) NOT NULL,
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp,
+    "name" varchar(255),
+    PRIMARY KEY ("id")
+);
 
  ALTER TABLE ONLY public.job ADD COLUMN plan_type VARCHAR(255) NOT NULL DEFAULT 'basic';
  ALTER TABLE ONLY public.job ADD COLUMN plan_duration INTEGER NOT NULL DEFAULT 1;

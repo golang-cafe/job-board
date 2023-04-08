@@ -198,6 +198,7 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 			&dev.RoleLevel,
 			&roleTypes,
 		)
+		fmt.Printf("found dev %s and hourly rate %d\n", dev.ID, dev.HourlyRate)
 		dev.RoleTypes = strings.Split(roleTypes, ",")
 		if err != nil {
 			return developers, fullRowsCount, err
