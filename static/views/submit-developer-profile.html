@@ -803,6 +803,27 @@
 			cursor: pointer;
 		}
 		.hover-pointer{cursor: pointer;}
+		.tooltip {
+            position: relative;
+            display: inline-block;
+            border-bottom: 1px dotted black;
+        }
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 500px;
+            background-color: black;
+            color: #fff;
+            text-align: center;
+            border-radius: 6px;
+            padding: 5px 0;
+            position: absolute;
+            z-index: 1;
+            font-size: 10pt;
+            line-height: 1rem;
+        }
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+        }
 	</style>
 	<meta charset="utf-8">
 	<title>Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}</title>
@@ -904,18 +925,19 @@
 				</div>
 			</div>
 			<input type="hidden" id="detected-location-id" name="detected-location-id" />
-			<input type="url" class="dev-only" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;" />
-			<input type="url" class="dev-only" name="github-url" id="github-url" placeholder="GitHub URL (Optional)"
+			<input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate" style="width: 30%;" /> <div class="tooltip">USD/hour<span class="tooltiptext">Your hourly rate is only visible to recruiters who are logged-in.</span></div>
+			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;" />
+			<input type="url" name="github-url" id="github-url" placeholder="GitHub URL (Optional)"
 				style="width: 100%;" />
-			<input type="url" class="dev-only" name="twitter-url" id="twitter-url" placeholder="Twitter URL (Optional)"
+			<input type="url" name="twitter-url" id="twitter-url" placeholder="Twitter URL (Optional)"
 				style="width: 100%;" />
-			<select id="search-status" name="search-status" style="width:100%;" class="dev-only">
+			<select id="search-status" name="search-status" style="width:100%;">
 				<option default value="">Your Status</option>
 				<option value="actively-applying">Actively Looking</option>
 				<option value="casually-looking">Casually Looking</option>
 				<option value="not-available">Not Available</option>
 			</select>
-			<select id="role-level" name="role-level" style="width:100%;" class="dev-only">
+			<select id="role-level" name="role-level" style="width:100%;">
 				<option default value="">Your Role Level</option>
 				<option value="junior">Junior</option>
 				<option value="mid-level">Mid-Level</option>
@@ -923,13 +945,13 @@
 				<option value="lead">Principal / Lead</option>
 				<option value="c-level">C-Level</option>
 			</select>
-			<div class="dev-only">
+			<div>
 				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-full-time" value="full-time" id="role-type-full-time"/> <span style="vertical-align: middle;">Full-Time</span></label>
 				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-part-time" value="part-time" id="role-type-part-time"/> <span style="vertical-align: middle;">Part-Time</span></label>
 				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-contract" value="contract" id="role-type-contract"/> <span style="vertical-align: middle;">Contract</span></label>
 				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-internship" value="internship" id="role-type-internship"/> <span style="vertical-align: middle;">Internship</span></label>
 			</div>
-			<div class="dev-only">
+			<div>
 				<label for="profile-image"
 					style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload
 					Profile Image</label>
@@ -942,7 +964,7 @@
 				<div class="clearfix"></div>
 			</div>
 			<input type="hidden" name="profile-type" id="profile-type" value="developer" />
-			<input type="text" class="dev-only" name="tags" id="tags" style="width:100%;"
+			<input type="text" name="tags" id="tags" style="width:100%;"
 				placeholder="Your Skills (eg. MySQL, Go, HTML, CSS, JavaScript)" />
 			<textarea id="bio" class="dev-only" placeholder="Short Bio" style="resize:none; width: 100%;"></textarea>
 			<input type="email" name="email" id="email" placeholder="Your Email" style="width: 100%;" />
@@ -1041,6 +1063,7 @@
 			var bio = document.getElementById("bio").value;
 			var email = document.getElementById("email").value;
 			var currentLocation = document.getElementById("current-location").value;
+			var hourlyRate = document.getElementById("hourly-rate").value;
 			var tags = document.getElementById("tags").value;
 			var searchStatus = document.getElementById("search-status").value;
 			var roleLevel = document.getElementById("role-level").value;
@@ -1058,7 +1081,7 @@
 			if (document.getElementById("role-type-internship").checked) {
 				roleTypes.push('internship');
 			}
-			if (empty(tags, fullName, linkedinURL, bio, email, currentLocation, searchStatus, roleLevel)) {
+			if (empty(tags, fullName, linkedinURL, bio, email, currentLocation, searchStatus, roleLevel, hourlyRate)) {
 				alert('You must fill all the mandatory fields (Full Name, Email, Linkedin URL, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
 				return;
 			}
@@ -1122,6 +1145,7 @@
 						search_status: searchStatus,
 						role_level: roleLevel,
 						role_types: roleTypes,
+						hourly_rate: hourlyRate,
 						detected_location_id: detectedLocationId,
 					};
 					if (!empty(twitterURL)) {

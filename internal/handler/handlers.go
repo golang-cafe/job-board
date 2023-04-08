@@ -260,8 +260,9 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			svr.JSON(w, http.StatusBadRequest, "detected_location_id should be set")
 			return
 		}
-		if req.HourlyRate == "" {
-			req.HourlyRate = "0"
+		if req.HourlyRate == "" || req.HourlyRate == "0" {
+			svr.JSON(w, http.StatusBadRequest, "Please specify hourly rate")
+			return
 		}
 		hourlyRate, err := strconv.ParseInt(req.HourlyRate, 10, 64)
 		if err != nil {
