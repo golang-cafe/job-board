@@ -1791,7 +1791,7 @@ func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *de
 		claims := middleware.UserJWT{
 			UserID:         u.ID,
 			Email:          u.Email,
-			IsAdmin:        u.Email == user.UserTypeAdmin,
+			IsAdmin:        u.Type == user.UserTypeAdmin,
 			IsRecruiter:    u.Type == user.UserTypeRecruiter,
 			IsDeveloper:    u.Type == user.UserTypeDeveloper,
 			CreatedAt:      u.CreatedAt,
