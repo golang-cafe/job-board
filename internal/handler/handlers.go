@@ -194,6 +194,92 @@ func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repositor
 	}
 }
 
+func SaveDeveloperMetadataHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			req := &struct {
+				DeveloperProfileID string   `json:"developer_profile_id"`
+				MetadataType       string   `json:"metadata_type"`
+				Title              string   `json:"title"`
+				Description        string   `json:"description"`
+				Link               *string  `json:"link,omitempty"`
+			}{}
+
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				svr.Log(errors.New("invalid developer metadata"), "invalid developer metadata")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			_, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			devMetadata := developer.DeveloperMetadata{
+				DeveloperProfileID: req.DeveloperProfileID,
+				MetadataType:       req.MetadataType,
+				Title:              req.Title,
+				Description:        req.Description,
+				Link:               req.Link,
+			}
+			err = devRepo.SaveDeveloperMetadata(devMetadata)
+			if err != nil {
+				svr.Log(err, "unable to save developer metadata")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
+func UpdateDeveloperMetadataHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			req := &struct {
+				ID                 *int     `json:"id,omitempty"`
+				DeveloperProfileID string   `json:"developer_profile_id"`
+				MetadataType       string   `json:"metadata_type"`
+				Title              string   `json:"title"`
+				Description        string   `json:"description"`
+				Link               *string  `json:"link,omitempty"`
+			}{}
+
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				svr.Log(errors.New("invalid developer metadata"), "invalid developer metadata")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			_, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			devMetadata := developer.DeveloperMetadata{
+				ID:                 req.ID,
+				DeveloperProfileID: req.DeveloperProfileID,
+				MetadataType:       req.MetadataType,
+				Title:              req.Title,
+				Description:        req.Description,
+				Link:               req.Link,
+			}
+			err = devRepo.UpdateDeveloperMetadata(devMetadata)
+			if err != nil {
+				svr.Log(err, "unable to save developer metadata")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
 func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRepo tokenSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
@@ -1522,6 +1608,7 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 			switch profile.Type {
 			case user.UserTypeDeveloper:
 				dev, err := devRepo.DeveloperProfileByID(profileID)
+				devExp, err := devRepo.DeveloperExperienceByProfileID(profileID)
 				if err != nil {
 					svr.Log(err, "unable to find developer profile")
 					http.Redirect(w, r, "/auth", http.StatusUnauthorized)
@@ -1533,6 +1620,7 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 				}
 				svr.Render(r, w, http.StatusOK, "edit-developer-profile.html", map[string]interface{}{
 					"DeveloperProfile": dev,
+					"DeveloperExperience": devExp,
 				})
 			case user.UserTypeRecruiter:
 				rec, err := recRepo.RecruiterProfileByID(profileID)

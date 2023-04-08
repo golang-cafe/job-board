@@ -89,6 +89,23 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 	return dev, nil
 }
 
+
+func (r *Repository) DeveloperExperienceByProfileID(profile_id string) (DeveloperExperience, error) {
+	row := r.db.QueryRow(`SELECT id, title, description, link from developer_metadata WHERE developer_profile_id = $1`, profile_id)
+	devExp := DeveloperExperience{}
+	err := row.Scan(
+		&devExp.ID,
+		&devExp.Title,
+		&devExp.Description,
+		&devExp.Link,
+	)
+	if err != nil {
+		return devExp, err
+	}
+
+	return devExp, nil
+}
+
 func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
@@ -250,6 +267,17 @@ func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 	)
 	return err
 }
+
+func (r *Repository) SaveDeveloperMetadata(devMetadata DeveloperMetadata) error {
+	_, err := r.db.Exec(`INSERT INTO developer_metadata (developer_profile_id, type, title, description, link) VALUES ($1, $2, $3, $4, $5)`, devMetadata.DeveloperProfileID, devMetadata.MetadataType, devMetadata.Title, devMetadata.Description, devMetadata.Link)
+	return err
+}
+
+func (r *Repository) UpdateDeveloperMetadata(devMetadata DeveloperMetadata) error {
+	_, err := r.db.Exec(`UPDATE developer_metadata SET title = $1, description = $2, link = $3 WHERE id = $4`, devMetadata.Title, devMetadata.Description, devMetadata.Link, devMetadata.ID)
+	return err
+}
+
 
 func (r *Repository) GetTopDevelopers(limit int) ([]Developer, error) {
 	devs := make([]Developer, 0, limit)

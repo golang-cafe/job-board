@@ -58,6 +58,13 @@ type Developer struct {
 	UpdatedAtHumanized string
 }
 
+type DeveloperExperience struct {
+	Title              string
+	Description        string
+	Link               *string
+	ID                 int
+}
+
 func (d Developer) RoleTypeAsString() string {
 	return strings.Join(d.RoleTypes, ", ")
 }
@@ -69,4 +76,14 @@ type DeveloperMessage struct {
 	ProfileID string
 	CreatedAt time.Time
 	SentAt    time.Time
+}
+
+
+type DeveloperMetadata struct {
+	ID                  *int
+	DeveloperProfileID  string
+	MetadataType        string
+	Title               string
+	Description         string
+	Link                *string
 }
