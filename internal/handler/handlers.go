@@ -1613,7 +1613,7 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 			switch profile.Type {
 			case user.UserTypeDeveloper:
 				dev, err := devRepo.DeveloperProfileByID(profileID)
-				devExp, err := devRepo.DeveloperExperienceByProfileID(profileID)
+				devExps, err := devRepo.DeveloperExperienceByProfileID(profileID)
 				if err != nil {
 					svr.Log(err, "unable to find developer profile")
 					http.Redirect(w, r, "/auth", http.StatusUnauthorized)
@@ -1625,7 +1625,7 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 				}
 				svr.Render(r, w, http.StatusOK, "edit-developer-profile.html", map[string]interface{}{
 					"DeveloperProfile":    dev,
-					"DeveloperExperience": devExp,
+					"DeveloperExperiences": devExps,
 				})
 			case user.UserTypeRecruiter:
 				rec, err := recRepo.RecruiterProfileByID(profileID)

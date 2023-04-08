@@ -194,7 +194,11 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<textarea id="bio" placeholder="Short Bio" style="resize:none; width: 100%;overflow: hidden;min-height: 100px;" oninput="auto_grow(this);">{{ .DeveloperProfile.Bio }}</textarea><br />
 				<input type="email" name="email" disabled id="email" placeholder="Your Email" style="width: 100%;" value="{{ .DeveloperProfile.Email }}"/><br />
 				<span>Experience <i onclick="openDeveloperMetadataModal();" style="float:right" class="fa fa-plus"></i></span> <br />
-				<div> {{ .DeveloperExperience.Title }} {{ .DeveloperExperience.Description }} {{ .DeveloperExperience.Link }} <i onclick="openDeveloperMetadataModal(`{{ .DeveloperExperience.Title }}`, `{{ .DeveloperExperience.Description }}`, `{{ .DeveloperExperience.Link }}`, `{{ .DeveloperExperience.ID }}`);" style="float:right" class="fa fa-edit"></i></div>
+				<ul>
+				{{ range .DeveloperExperiences}}
+					<li><div> {{ .Title }} {{ .Description }} {{ .Link }} <i onclick="openDeveloperMetadataModal(`{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right" class="fa fa-edit"></i></div></li>
+				{{ end }}
+				</ul>
 				<div id="developerMetadataModal" class="modal">
 				  <div class="modal-content">
 				    <span onclick="closeModal()" class="close">&times;</span>

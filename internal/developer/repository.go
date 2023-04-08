@@ -89,20 +89,26 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 	return dev, nil
 }
 
-func (r *Repository) DeveloperExperienceByProfileID(profile_id string) (DeveloperExperience, error) {
-	row := r.db.QueryRow(`SELECT id, title, description, link from developer_metadata WHERE developer_profile_id = $1`, profile_id)
-	devExp := DeveloperExperience{}
-	err := row.Scan(
-		&devExp.ID,
-		&devExp.Title,
-		&devExp.Description,
-		&devExp.Link,
-	)
-	if err != nil {
-		return devExp, err
+func (r *Repository) DeveloperExperienceByProfileID(profile_id string) ([]DeveloperExperience, error) {
+	rows, err := r.db.Query(`SELECT id, title, description, link from developer_metadata WHERE developer_profile_id = $1`, profile_id)
+	devExps := []DeveloperExperience{}
+	if err == sql.ErrNoRows {
+		return devExps, nil
 	}
-
-	return devExp, nil
+	for rows.Next() {
+		var devExp DeveloperExperience
+		err := rows.Scan(
+			&devExp.ID,
+			&devExp.Title,
+			&devExp.Description,
+			&devExp.Link,
+		)
+		if err != nil {
+			return devExps, err
+		}
+		devExps = append(devExps, devExp)
+	}
+	return devExps, nil
 }
 
 func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
