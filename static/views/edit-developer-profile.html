@@ -196,16 +196,29 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<span>Experience <i onclick="openDeveloperMetadataModal();" style="float:right" class="fa fa-plus"></i></span> <br />
 				<ul>
 				{{ range .DeveloperExperiences}}
-					<li><div> {{ .Title }} {{ .Description }} {{ .Link }} <i onclick="openDeveloperMetadataModal(`{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right" class="fa fa-edit"></i></div></li>
+					<li><div> {{ .Title }} {{ .Description }} {{ .Link }} <i onclick="openDeveloperMetadataModal('experience', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right" class="fa fa-edit"></i></div></li>
+				{{ end }}
+				</ul>
+				<span>Education <i onclick="openDeveloperMetadataModal();" style="float:right" class="fa fa-plus"></i></span> <br />
+				<ul>
+				{{ range .DeveloperEducation}}
+					<li><div> {{ .Title }} {{ .Description }} {{ .Link }} <i onclick="openDeveloperMetadataModal('education', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right" class="fa fa-edit"></i></div></li>
+				{{ end }}
+				</ul>
+				<span>Github Projects <i onclick="openDeveloperMetadataModal();" style="float:right" class="fa fa-plus"></i></span> <br />
+				<ul>
+				{{ range .DeveloperGithubProjects}}
+					<li><div> {{ .Title }} {{ .Description }} {{ .Link }} <i onclick="openDeveloperMetadataModal('github', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right" class="fa fa-edit"></i></div></li>
 				{{ end }}
 				</ul>
 				<div id="developerMetadataModal" class="modal">
 				  <div class="modal-content">
 				    <span onclick="closeModal()" class="close">&times;</span>
-				    <h2>Add New Item</h2>
+				    <h2 id="modalHeader">Add New Item</h2>
 				    <form>
 				      <label for="title">Title:</label>
 				      <input type="hidden" id="metadata_id">
+				      <input type="hidden" id="metadata_type">
 				      <input type="text" id="title" name="title"><br><br>
 				      <label for="description">Description:</label>
 				      <textarea id="description" name="description"></textarea><br><br>
@@ -260,8 +273,12 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			  }
 			}
 
-			function openDeveloperMetadataModal(title, description, link, metadata_id) {
+			function openDeveloperMetadataModal(metadata_type, title, description, link, metadata_id) {
 				var modal = document.getElementById("developerMetadataModal");
+				if (metadata_type) {
+					document.getElementById("modalHeader").innerHTML = metadata_type;
+					document.getElementById("metadata_type").value = metadata_type;
+				}
 				modal.style.display = "block";
 				if (title) {
 					document.getElementById("title").value = title;
@@ -279,12 +296,13 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 
 			function saveDeveloperMetadata() {
 			  var ID = document.getElementById("metadata_id").value;
+			  var metadata_type = document.getElementById("metadata_type").value;
 			  var title = document.getElementById("title").value;
 			  var description = document.getElementById("description").value;
 			  var link = document.getElementById("link").value;
 			  var body = {
 			  	  "developer_profile_id": document.getElementById('profile-id').value,
-			  	  "metadata_type": "experience",
+			  	  "metadata_type": metadata_type,
 			  	  "title": document.getElementById("title").value,
 			  	  "description": document.getElementById("description").value,
 			  	  "link": document.getElementById("link").value
