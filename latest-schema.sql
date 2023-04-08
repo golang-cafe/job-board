@@ -784,6 +784,19 @@ CREATE TABLE IF NOT EXISTS public.blog_post (
 );
 
  CREATE UNIQUE INDEX blog_post_slug_idx on public.blog_post (slug);
+ 
+ CREATE TABLE "public"."recruiter_profile" (
+    "id" bpchar(27) NOT NULL,
+    "email" varchar(255) NOT NULL,
+    "title" varchar(255) NOT NULL,
+    "company" varchar(255) NOT NULL,
+    "company_url" varchar(255) NOT NULL,
+    "slug" varchar(255) NOT NULL,
+    "created_at" timestamp NOT NULL,
+    "updated_at" timestamp,
+    "name" varchar(255),
+    PRIMARY KEY ("id")
+);
 
  ALTER TABLE ONLY public.job ADD COLUMN plan_type VARCHAR(255) NOT NULL DEFAULT 'basic';
  ALTER TABLE ONLY public.job ADD COLUMN plan_duration INTEGER NOT NULL DEFAULT 1;
@@ -802,3 +815,4 @@ CREATE TABLE IF NOT EXISTS public.blog_post (
  ALTER TABLE ONLY public.developer_profile ADD COLUMN role_types VARCHAR(60) NOT NULL DEFAULT 'full-time';
  ALTER TABLE ONLY public.developer_profile ADD COLUMN detected_location_id VARCHAR(255) DEFAULT NULL;
  ALTER TABLE ONLY public.users ADD COLUMN user_type VARCHAR(20) DEFAULT 'developer';
+ ALTER TABLE ONLY public.developer_profile ADD COLUMN hourly_rate INTEGER DEFAULT 0;

@@ -69,6 +69,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<input type="hidden" name="profile-id" id="profile-id" value="{{ .DeveloperProfile.ID }}"/><br />
 				<input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" value="{{ .DeveloperProfile.Name }}"/><br />
 				<input type="text" name="location" id="location" placeholder="Job Location" style="width: 100%;" value="{{ .DeveloperProfile.Location }}"/><br />
+				<input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate in USD" style="width: 10%;" value="{{ if ne .DeveloperProfile.HourlyRate 0 }}{{ .DeveloperProfile.HourlyRate }}{{ end }}"/> USD/hour<br />
 				<input type="url" name="linkedin-url" id="linkedin-url" placeholder="Linkedin URL" style="width: 100%;" value="{{ .DeveloperProfile.LinkedinURL }}"/><br />
 				<div>
 					<label for="profile-image" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload Profile Image</label>
@@ -183,6 +184,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			function sendReq(url, isDelete) {
 							var fullName = document.getElementById("full-name").value;
 							var currentLocation = document.getElementById("location").value;
+							var hourlyRate = document.getElementById("hourly-rate").value;
 							var linkedinURL = document.getElementById("linkedin-url").value;
 							var skills = document.getElementById("skills").value;
 							var email = document.getElementById("email").value;
@@ -193,6 +195,10 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 											alert('Please fill all the mandatory fields');
 											return;
 										}
+							if (empty(hourlyRate) || hourlyRate == "0") {
+							    alert("Please specify a valid hourly rate in USD");
+								return;
+							}
 							if (!isURL(linkedinURL)) {
 											alert('"How To Apply" must be either an email address or a URL');
 											return;
@@ -222,6 +228,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 																			fullname: fullName,
 																			current_location: currentLocation,
 																			bio: bio,
+																			hourly_rate: hourlyRate,
 																			linkedin_url: linkedinURL,
 																			email: email,
 																			skills: skills,

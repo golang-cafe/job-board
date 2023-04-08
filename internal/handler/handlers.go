@@ -189,6 +189,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
 			Fullname           string   `json:"fullname"`
+			HourlyRate         string   `json:"hourly_rate"`
 			LinkedinURL        string   `json:"linkedin_url"`
 			CurrentLocation    string   `json:"current_location"`
 			GithubURL          *string  `json:"github_url,omitempty"`
@@ -259,10 +260,27 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			svr.JSON(w, http.StatusBadRequest, "detected_location_id should be set")
 			return
 		}
+		if req.HourlyRate == "" {
+			req.HourlyRate = "0"
+		}
+		hourlyRate, err := strconv.ParseInt(req.HourlyRate, 10, 64)
+		if err != nil {
+			svr.Log(err, "unable to parse string to int")
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+
+		if hourlyRate > 1000 && hourlyRate < 0 {
+			svr.Log(err, "Hourly rate cannot be more than 1000 or less than 0")
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+
 		dev := developer.Developer{
 			ID:                 k.String(),
 			Name:               req.Fullname,
 			Location:           req.CurrentLocation,
+			HourlyRate:         hourlyRate,
 			LinkedinURL:        req.LinkedinURL,
 			GithubURL:          req.GithubURL,
 			TwitterURL:         req.TwitterURL,
@@ -1115,6 +1133,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 			req := &struct {
 				ID                 string   `json:"id"`
 				Fullname           string   `json:"fullname"`
+				HourlyRate         string   `json:"hourly_rate"`
 				LinkedinURL        string   `json:"linkedin_url"`
 				Bio                string   `json:"bio"`
 				CurrentLocation    string   `json:"current_location"`
@@ -1159,6 +1178,10 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 					return
 				}
 			}
+			if req.HourlyRate == "" || req.HourlyRate == "0" {
+				svr.JSON(w, http.StatusBadRequest, "please specify hourly rate")
+				return
+			}
 			req.Bio = bluemonday.StrictPolicy().Sanitize(req.Bio)
 			req.Fullname = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.Fullname)))
 			req.CurrentLocation = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.CurrentLocation)))
@@ -1182,10 +1205,18 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 			if req.SearchStatus == developer.SearchStatusNotAvailable {
 				avail = false
 			}
+			hourlyRate, err := strconv.ParseInt(req.HourlyRate, 10, 64)
+			if err != nil {
+				svr.Log(err, "unable to parse string to int")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+
 			dev := developer.Developer{
 				ID:           req.ID,
 				Name:         req.Fullname,
 				Location:     req.CurrentLocation,
+				HourlyRate:   hourlyRate,
 				LinkedinURL:  req.LinkedinURL,
 				Bio:          req.Bio,
 				Email:        req.Email,
