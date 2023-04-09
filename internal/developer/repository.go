@@ -116,6 +116,8 @@ func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 		return dev, err
 	}
 
+	dev.SkillsArray = strings.Split(dev.Skills, ",")
+
 	return dev, nil
 }
 
