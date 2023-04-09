@@ -33,6 +33,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/middleware"
 	"github.com/golang-cafe/job-board/internal/payment"
 	"github.com/golang-cafe/job-board/internal/recruiter"
+	savedJobs "github.com/golang-cafe/job-board/internal/savedjobs"
 	"github.com/golang-cafe/job-board/internal/seo"
 	"github.com/golang-cafe/job-board/internal/server"
 	"github.com/golang-cafe/job-board/internal/user"
@@ -2495,6 +2496,26 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 				),
 			),
 		})
+	}
+}
+
+func SaveJobPageHandler(svr server.Server, savedJobsRepository *savedJobs.Repository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		jobID, err := strconv.Atoi(r.FormValue("jobID"))
+		if err != nil {
+			svr.Log(err, "unable to parse string to int")
+			svr.JSON(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		developerID := r.FormValue("developerID")
+
+		reqErr := savedJobsRepository.SaveJob(jobID, developerID)
+
+		if reqErr != nil {
+			svr.Log(err, "unable to save job")
+			svr.JSON(w, http.StatusBadRequest, err.Error())
+			return
+		}
 	}
 }
 

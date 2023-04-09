@@ -1022,6 +1022,13 @@
 			<img loading="lazy" width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon"
 				alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
 			{{ end }}
+			{{ if true }}
+				<button onclick="saveJob('{{ .ID }}', '2OBF9N3oeLSmlMmK7zgxN05zY7i')" >Save Job</button>
+				{{ else }}
+				<button>
+					<small>Login or signup to <b>Save Job</b></small>
+				</button>
+			{{ end }}
 			<div style="float: left;">
 				<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a>{{ if isTimeAfterNow .FrontPageEligibilityExpiredAt }} &bull; <small>Sponsored</small>{{ end }}<br />
 				<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
@@ -1375,6 +1382,26 @@
 				jobNode.style.display = 'none';
 				jobNode.setAttribute('data-toggle', 'off');
 			}
+		}
+		function saveJob(jobID, userID) {
+			var formData = new FormData();
+			formData.append('jobID', jobID);
+			formData.append('developerID', userID);
+
+			post('x/s/e', formData, () => {
+				if (status == 200) {
+					alert('Save successful!');
+				} else if (status == 413) {
+					alert('Save unsuccessful (413)');
+					return;
+				} else if (status == 415) {
+					alert('Save unsuccessful (415)');
+				} else {
+					alert('Some other error');
+				}
+
+				return;
+			});
 		}
 		function showname() {
 			var name = document.getElementById('apply-cv');

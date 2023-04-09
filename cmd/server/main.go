@@ -18,6 +18,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/payment"
 	"github.com/golang-cafe/job-board/internal/recruiter"
+	savedJobs "github.com/golang-cafe/job-board/internal/savedjobs"
 	"github.com/golang-cafe/job-board/internal/server"
 	"github.com/golang-cafe/job-board/internal/template"
 	"github.com/golang-cafe/job-board/internal/user"
@@ -60,6 +61,7 @@ func main() {
 	userRepo := user.NewRepository(conn)
 	companyRepo := company.NewRepository(conn)
 	jobRepo := job.NewRepository(conn)
+	savedJobsRepository := savedJobs.NewRepository(conn)
 	paymentRepo := payment.NewRepository(cfg.StripeKey, cfg.SiteName, cfg.SiteHost)
 
 	svr := server.NewServer(
@@ -193,6 +195,9 @@ func main() {
 
 	// apply for job
 	svr.RegisterRoute("/x/a/e", handler.ApplyForJobPageHandler(svr, jobRepo), []string{"POST"})
+
+	// save job
+	svr.RegisterRoute("/x/s/e", handler.SaveJobPageHandler(svr, savedJobsRepository), []string{"POST"})
 
 	// apply to job confirmation
 	svr.RegisterRoute("/apply/{token}", handler.ApplyToJobConfirmation(svr, jobRepo), []string{"GET"})
