@@ -17,3 +17,28 @@
 </style>
 {{ end }}
 {{ end }}
+{{ define "newsletter-banner-js" }}
+{{ if not .LoggedUser }}
+<script>
+document.getElementById('newsletter-banner-close').addEventListener('click', function () {
+			document.getElementById('newsletter-banner').style.display = 'none';
+		});
+document.getElementById('newsletter-banner-submit').addEventListener('click', function () {
+	var email = document.getElementById('newsletter-banner-input').value;
+	if (!isEmail(email)) {
+		alert('Please enter a valid email address!');
+		return;
+	}
+	get('/x/email/subscribe?email=' + encodeURIComponent(email), function (success) {
+		if (success) {
+			hideEmailBanner();
+			alert('Thanks for subscribing!');
+			document.getElementById('newsletter-banner-input').value = '';
+		} else {
+			alert('Oops, there was an error with your subscription!');
+		}
+	});
+});
+</script>
+{{ end }}
+{{ end }}

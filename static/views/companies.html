@@ -428,25 +428,6 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
             }
         });
     }
-	document.getElementById('newsletter-banner-close').addEventListener('click', function(){
-		document.getElementById('newsletter-banner').style.display = 'none';
-	});
-	document.getElementById('newsletter-banner-submit').addEventListener('click', function() {
-		var email = document.getElementById('newsletter-banner-input').value;
-		if (!isEmail(email)) {
-			alert('Please enter a valid email address!');
-			return;
-		}
-        	get('/x/email/subscribe?email='+encodeURIComponent(email), function(success) {
-            		if (success) {
-				hideEmailBanner();
-                		alert('Thanks for subscribing!');
-                		document.getElementById('newsletter-banner-input').value = '';
-            		} else {
-                		alert('Oops, there was an error with your subscription!');
-            		}
-        	});
-	});
         function empty() {
             var isThere = true;
             for (var i = 0; i < arguments.length; i++) {
@@ -497,6 +478,6 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 		document.getElementById('feedback').style.display = 'block';
     	});
     </script>
-
+    {{ template "newsletter-banner-js" . }}
 </body>
 </html>
