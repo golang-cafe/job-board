@@ -1140,6 +1140,13 @@ func UpdateDeveloperProfileSkillsHandler(svr server.Server, devRepo *developer.R
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			dev, err := devRepo.DeveloperProfileByID(req.ID)
+			if !profile.IsAdmin && dev.Email != profile.Email {
+				svr.Log(err, "Only same user or admin can edit metadata.")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
 			req.Skill = bluemonday.StrictPolicy().Sanitize(req.Skill)
 			err := devRepo.UpdateDeveloperSkills(req.ID, req.Skill)
 			if err != nil {
