@@ -17,19 +17,17 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) RecruiterProfileByID(id string) (Recruiter, error) {
-	row := r.db.QueryRow(`SELECT id, email, name, company, company_url, slug, created_at, updated_at, title FROM recruiter_profile WHERE id = $1`, id)
+	row := r.db.QueryRow(`SELECT id, email, name, company_url, slug, created_at, updated_at FROM recruiter_profile WHERE id = $1`, id)
 	obj := Recruiter{}
 	var nullTime sql.NullTime
 	err := row.Scan(
 		&obj.ID,
 		&obj.Email,
 		&obj.Name,
-		&obj.Company,
 		&obj.CompanyURL,
 		&obj.Slug,
 		&obj.CreatedAt,
 		&nullTime,
-		&obj.Title,
 	)
 	if nullTime.Valid {
 		obj.UpdatedAt = nullTime.Time
@@ -47,19 +45,17 @@ func (r *Repository) ActivateRecruiterProfile(email string) error {
 }
 
 func (r *Repository) RecruiterProfileByEmail(email string) (Recruiter, error) {
-	row := r.db.QueryRow(`SELECT id, email, name, company, company_url, slug, created_at, updated_at, title FROM recruiter_profile WHERE email = $1`, email)
+	row := r.db.QueryRow(`SELECT id, email, name, company_url, slug, created_at, updated_at FROM recruiter_profile WHERE email = $1`, email)
 	obj := Recruiter{}
 	var nullTime sql.NullTime
 	err := row.Scan(
 		&obj.ID,
 		&obj.Email,
 		&obj.Name,
-		&obj.Company,
 		&obj.CompanyURL,
 		&obj.Slug,
 		&obj.CreatedAt,
 		&nullTime,
-		&obj.Title,
 	)
 	if nullTime.Valid {
 		obj.UpdatedAt = nullTime.Time
@@ -79,7 +75,7 @@ func (r *Repository) RecruiterProfileByEmail(email string) (Recruiter, error) {
 func (r *Repository) SaveRecruiterProfile(dev Recruiter) error {
 	dev.Slug = slug.Make(fmt.Sprintf("%s %d", dev.Name, time.Now().UTC().Unix()))
 	_, err := r.db.Exec(
-		`INSERT INTO recruiter_profile (id, email, name, title, company, company_url, slug, created_at, updated_at) VALUES ($1, $2, $3, 'title', 'company', $4, $5, NOW(), NOW())`,
+		`INSERT INTO recruiter_profile (id, email, name, company_url, slug, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, NOW(), NOW())`,
 		dev.ID,
 		dev.Email,
 		dev.Name,

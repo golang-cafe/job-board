@@ -816,3 +816,5 @@ CREATE TABLE IF NOT EXISTS public.blog_post (
  ALTER TABLE ONLY public.developer_profile ADD COLUMN detected_location_id VARCHAR(255) DEFAULT NULL;
  ALTER TABLE ONLY public.users ADD COLUMN user_type VARCHAR(20) DEFAULT 'developer';
  ALTER TABLE ONLY public.developer_profile ADD COLUMN hourly_rate INTEGER DEFAULT 0;
+ ALTER TABLE ONLY public.recruiter_profile DROP COLUMN company;
+ ALTER TABLE ONLY public.recruiter_profile DROP COLUMN title;
