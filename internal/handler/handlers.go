@@ -1126,6 +1126,32 @@ func TriggerAdsManager(svr server.Server, jobRepo *job.Repository) http.HandlerF
 	)
 }
 
+func UpdateDeveloperProfileSkillsHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			req := &struct {
+				ID    string `json:"id"`
+				Skill string `json:"skill"`
+			}{}
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				svr.Log(errors.New("invalid skill"), "invalid skill")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			req.Skill = bluemonday.StrictPolicy().Sanitize(req.Skill)
+			err := devRepo.UpdateDeveloperSkills(req.ID, req.Skill)
+			if err != nil {
+				svr.Log(err, "unable to update developer profile")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
 func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return middleware.UserAuthenticatedMiddleware(
 		svr.SessionStore,

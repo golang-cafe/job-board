@@ -143,6 +143,7 @@ func main() {
 	svr.RegisterRoute("/x/srp", handler.SaveRecruiterProfileHandler(svr, recRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/sdp", handler.SaveDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/udp", handler.UpdateDeveloperProfileHandler(svr, devRepo), []string{"POST"})
+	svr.RegisterRoute("/x/udps", handler.UpdateDeveloperProfileSkillsHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/ddp", handler.DeleteDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/smdp/{id}", handler.SendMessageDeveloperProfileHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/developer/{slug}", handler.ViewDeveloperProfileHandler(svr, devRepo), []string{"GET"})
