@@ -212,15 +212,29 @@ func SaveDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposito
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			_, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
 			if err != nil {
 				svr.Log(err, "unable to get email from JWT")
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
 			}
+			dev, err := devRepo.DeveloperProfileByID(req.DeveloperProfileID)
+			if !profile.IsAdmin && dev.Email != profile.Email {
+				svr.Log(err, "Only same user or admin can edit metadata.")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
 			req.Title = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.Title)))
 			req.Description = bluemonday.StrictPolicy().Sanitize(req.Description)
+			k, err := ksuid.NewRandom()
+			if err != nil {
+				svr.Log(err, "unable to generate token")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+
 			devMetadata := developer.DeveloperMetadata{
+				ID:                 k.String(),
 				DeveloperProfileID: req.DeveloperProfileID,
 				MetadataType:       req.MetadataType,
 				Title:              req.Title,
@@ -244,7 +258,7 @@ func UpdateDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposi
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			req := &struct {
-				ID                 *int    `json:"id,omitempty"`
+				ID                 string  `json:"id"`
 				DeveloperProfileID string  `json:"developer_profile_id"`
 				MetadataType       string  `json:"metadata_type"`
 				Title              string  `json:"title"`
@@ -257,9 +271,14 @@ func UpdateDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposi
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			_, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
 			if err != nil {
 				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			if profile.Type != user.UserTypeAdmin && profile.Id != req.DeveloperProfileID {
+				svr.Log(err, "Only same user or admin can edit metadata.")
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
 			}
@@ -1602,6 +1621,7 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 		func(w http.ResponseWriter, r *http.Request) {
 			vars := mux.Vars(r)
 			profileID := vars["id"]
+			profileCompleted := r.URL.Query().Get("complete-profile")
 			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
 			if err != nil {
 				svr.Log(err, "unable to get email from JWT")
@@ -1626,10 +1646,11 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 					return
 				}
 				svr.Render(r, w, http.StatusOK, "edit-developer-profile.html", map[string]interface{}{
-					"DeveloperProfile":    dev,
-					"DeveloperExperiences": devExps,
-					"DeveloperEducation": devEducation,
+					"DeveloperProfile":        dev,
+					"DeveloperExperiences":    devExps,
+					"DeveloperEducation":      devEducation,
 					"DeveloperGithubProjects": devProjects,
+					"ProfileCompleted":        profileCompleted,
 				})
 			case user.UserTypeRecruiter:
 				rec, err := recRepo.RecruiterProfileByID(profileID)
@@ -1933,7 +1954,18 @@ func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *de
 			if err := database.ConfirmEmailSubscriber(svr.Conn, token); err != nil {
 				svr.Log(err, "unable to confirm subscriber using token "+token)
 			}
-			svr.Redirect(w, r, http.StatusMovedPermanently, "/profile/home")
+			exists, err := devRepo.DoesDeveloperMetadataExist(dev)
+			if err != nil {
+				svr.Log(err, "unable to get metadata information")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			if exists {
+				svr.Redirect(w, r, http.StatusMovedPermanently, "/profile/home")
+			} else {
+				svr.Redirect(w, r, http.StatusTemporaryRedirect, "/profile/"+dev.ID+"/edit?complete-profile=1")
+			}
+
 			return
 		case user.UserTypeRecruiter:
 			rec, err := recRepo.RecruiterProfileByEmail(u.Email)

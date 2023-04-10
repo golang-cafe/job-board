@@ -58,7 +58,6 @@ type Developer struct {
 	UpdatedAtHumanized string
 }
 
-
 func (d Developer) RoleTypeAsString() string {
 	return strings.Join(d.RoleTypes, ", ")
 }
@@ -73,7 +72,7 @@ type DeveloperMessage struct {
 }
 
 type DeveloperMetadata struct {
-	ID                 *int
+	ID                 string
 	DeveloperProfileID string
 	MetadataType       string
 	Title              string

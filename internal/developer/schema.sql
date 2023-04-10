@@ -44,17 +44,3 @@ ALTER TABLE developer_profile ADD COLUMN search_status VARCHAR(20) NOT NULL DEFA
 ALTER TABLE developer_profile ADD COLUMN role_types VARCHAR(20) NOT NULL DEFAULT 'full-time';
 ALTER TABLE developer_profile ADD COLUMN detected_location_id VARCHAR(255) DEFAULT NULL;
 ALTER TABLE developer_profile_message ADD COLUMN sender_id CHAR(27) DEFAULT NULL;
-
-
-CREATE TYPE valid_developer_metadata_type AS ENUM ('experience', 'education', 'github');
-
-CREATE TABLE IF NOT EXISTS developer_metadata (
-    id SERIAL PRIMARY KEY,
-    developer_profile_id CHAR(27) NOT NULL REFERENCES developer_profile(id),
-    type valid_developer_metadata_type,
-    title VARCHAR(255) NOT NULL,
-    description TEXT NOT NULL,
-    link CHAR(54) NULL,
-    created_at TIMESTAMP DEFAULT current_timestamp,
-    updated_at TIMESTAMP DEFAULT NULL
-);

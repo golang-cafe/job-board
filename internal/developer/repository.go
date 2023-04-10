@@ -274,7 +274,7 @@ func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 }
 
 func (r *Repository) SaveDeveloperMetadata(devMetadata DeveloperMetadata) error {
-	_, err := r.db.Exec(`INSERT INTO developer_metadata (developer_profile_id, type, title, description, link) VALUES ($1, $2, $3, $4, $5)`, devMetadata.DeveloperProfileID, devMetadata.MetadataType, devMetadata.Title, devMetadata.Description, devMetadata.Link)
+	_, err := r.db.Exec(`INSERT INTO developer_metadata (id, developer_profile_id, type, title, description, link) VALUES ($1, $2, $3, $4, $5, $6)`, devMetadata.ID, devMetadata.DeveloperProfileID, devMetadata.MetadataType, devMetadata.Title, devMetadata.Description, devMetadata.Link)
 	return err
 }
 
@@ -411,4 +411,17 @@ func (r *Repository) TrackDeveloperProfileMessageSent(dev Developer) error {
 	stmt := `INSERT INTO developer_profile_event (event_type, developer_profile_id, created_at) VALUES ($1, $2, NOW())`
 	_, err := r.db.Exec(stmt, developerProfileEventMessageSent, dev.ID)
 	return err
+}
+
+func (r *Repository) DoesDeveloperMetadataExist(dev Developer) (bool, error) {
+	var exists bool = false
+	result, err := r.db.Exec(`SELECT EXISTS (SELECT 1 from developer_metadata WHERE developer_profile_id = $1)`, dev.ID)
+	if err != nil {
+		return false, err
+	}
+	rowsAffected, err := result.RowsAffected()
+	if err != nil {
+		exists = rowsAffected > 0
+	}
+	return exists, err
 }

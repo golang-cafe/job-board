@@ -1,7 +1,6 @@
 package user
 
 import (
-	"fmt"
 	"database/sql"
 	"errors"
 	"time"
@@ -29,7 +28,6 @@ func (r *Repository) SaveTokenSignOn(email, token, userType string) error {
 // returns the user struct, whether the user existed already and an error
 func (r *Repository) GetOrCreateUserFromToken(token string) (User, bool, error) {
 	u := User{}
-	fmt.Println("hello world")
 	row := r.db.QueryRow(`SELECT t.token, t.email, u.id, u.email, u.created_at, t.user_type FROM user_sign_on_token t LEFT JOIN users u ON t.email = u.email WHERE t.token = $1`, token)
 	var tokenRes, id, email, tokenEmail, userType sql.NullString
 	var createdAt sql.NullTime
