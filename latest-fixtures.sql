@@ -23,3 +23,8 @@ INSERT INTO seo_location (name, currency, country, emoji) VALUES ('Japan', 'JP¥
 INSERT INTO seo_location (name, currency, country, emoji) VALUES ('India', '₹', 'India', '🇮🇳');
 INSERT INTO seo_location (name, currency, country, emoji) VALUES ('France', '€', 'France', '🇫🇷');
 INSERT INTO developer_profile (id, email, location, available, linkedin_url, image_id, slug, created_at, updated_at, skills, name, bio, hourly_rate) VALUES ('24goWl4YS6NYmV0FKW3SVeEHBKw', 'noreply2@appledeveloper.com', 'Paris, France', 'true', 'http://linkedin.com/appledeveloper2', '24ibdFIU4invHKb5ciPVkcMAvZa', 'mick-tony', '2022-02-05 11:47:04.0109991', '2022-02-05 11:47:04.010991', 'Go,JavaScript', 'Micky Mouse', 'Prolific JS dev', 100);
+INSERT INTO seo_skill (name) values ('MYSQL');
+INSERT INTO seo_skill (name) values ('JAVA');
+INSERT INTO seo_skill (name) values ('PYTHON');
+INSERT INTO seo_skill (name) values ('HTML');
+INSERT INTO seo_skill (name) values ('CSS');

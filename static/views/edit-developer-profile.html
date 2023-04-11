@@ -95,7 +95,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <div id="search-tag-container">
               <label for="search-tag">Skills</label>
               <input autocomplete="off" type="text" placeholder="Skills" id="search-tag"/>
-              <button onclick="addSkillTag()" id="add-tag-btn">Add</button>
+              <button onclick="addSkillTag()" disabled id="add-tag-btn">Add</button>
         <div style="z-index:1000;display:none;" id="search-tag-suggestions" class="search-suggestions">
         </div>
         </div>
@@ -200,6 +200,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
       document
           .getElementById('search-tag')
           .addEventListener('keyup', function(event) {
+                        addTagBtn.disabled = true;
               event.preventDefault();
               if (event.keyCode != 13) {
       document.getElementById('search-tag-suggestions').style.display = 'none';
@@ -215,6 +216,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
             document.getElementById('tag-option-'+item.name).addEventListener('click', function(e) {
               document.getElementById('search-tag').value = e.target.outerText;
               document.getElementById('search-tag-suggestions').style.display = 'none';
+              addTagBtn.disabled = false;
             });
             }
             document.getElementById('search-tag-suggestions').style.display = 'block';
