@@ -717,6 +717,7 @@
 				margin-bottom: 20px;
 				float: initial;
 			}
+			#search-location, #search-tag, #search-salary { width: 100%; margin-right: 0; margin-bottom: 10px; }
 
 			#post-btn {
 				width: auto;
@@ -927,7 +928,7 @@
 					{{ $salaryFilter := .SalaryFilter }}
 					{{ range $salaryBand := .AvailableSalaryBands }}
 					<option {{ if eq $salaryFilter $salaryBand }}selected{{ end }}
-						value="{{ $salaryBand }}-{{ $currencyFilter }}">{{ currencysymbol $currencyFilter }}{{ humannumber $salaryBand }}+</option>
+						value="{{ $salaryBand }}-{{ $currencyFilter }}">{{ currencysymbol $currencyFilter }}{{ humannumber $salaryBand }} or more</option>
 					{{ end }}
 				</select>
 			</div>
