@@ -433,6 +433,11 @@
 			padding: 0;
 			vertical-align: baseline
 		}
+		@media only screen and (max-width: 768px) {
+		    .menu-header a { font-size: 9pt !important; }
+		    #switch-profile-type-container {width: 85% !important;}
+		}
+		section {padding: 0 10px;}
 
 		html,
 		body {
@@ -824,6 +829,7 @@
         .tooltip:hover .tooltiptext {
             visibility: visible;
         }
+        #switch-profile-type-container {height: 70px; margin: 50px auto; width: 50%;}
 	</style>
 	<meta charset="utf-8">
 	<title>Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}</title>
@@ -883,7 +889,7 @@
 		<article>
 			<p>
 			<h1 style="margin-top:20px;">Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}</h1>
-			<div style="height: 70px; margin: 50px auto; width: 50%;">
+			<div id="switch-profile-type-container">
 				<div id="profile-developer" class="active-profile profile-type"
 					style="border-radius: 5px 0 0 5px; border-right: none;"><a style="color: #fff;" href="/Join-{{ .SiteJobCategory }}-Community">I am a developer</a></div>
 				<div id="profile-recruiter" class="profile-type" style="border-radius: 0 5px 5px 0; border-left: none;"><a href="/Hire-From-{{ .SiteJobCategory }}-Community">I am a recruiter</a></div>

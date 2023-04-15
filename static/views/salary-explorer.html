@@ -19,7 +19,6 @@
 		<meta name="twitter:title" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} - {{ .MonthAndYear }}">
 		<meta name="twitter:description" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}">
 		<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
-
 		<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
 		<style type="text/css">
 body{background:#ffffff;}
@@ -28,7 +27,18 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
 .svg-container {display: inline-block;position: relative;width: 100%;padding-bottom: 50%;vertical-align: middle;overflow: hidden;}
 .svg-content {display: inline-block;position: absolute;top: 0;left: 0;}      #salary-distribution, #salary-trends {width: 100%;height: 400px;margin-bottom: 20px;}
-#search-location{margin-bottom: 1px;border: 1px solid #d9d9d9;width:100%;}#search-salary-btn{width: 30%;float: right;margin-right: 0;}#search-location-container,#search-tag-container{position:relative;width:65%;display:inline-block;}.search-suggestions{z-index:1;width:100%;border:1px solid #d9d9d9;position:absolute;background:#fff;border-radius:3.6px;}.search-option{padding:5px 10px;}.search-option:hover{background:#d9d9d9;cursor:pointer;}@media only screen and (max-width:768px) {#search-salary-btn{width:100%;margin-right:0;margin-bottom:20px;float:initial;}#search-location-container,#search-tag-container{width:100%;}}
+#search-location{margin-bottom: 1px;border: 1px solid #d9d9d9;width:100%;}#search-salary-btn{width: 30%;float: right;margin-right: 0;}#search-location-container,#search-tag-container{position:relative;width:65%;display:inline-block;}.search-suggestions{z-index:1;width:100%;border:1px solid #d9d9d9;position:absolute;background:#fff;border-radius:3.6px;}.search-option{padding:5px 10px;}.search-option:hover{background:#d9d9d9;cursor:pointer;}
+.mobile-only { display: none; }
+section {padding: 0 10px;}
+@media only screen and (max-width:768px) {
+    .mobile-only { display: block; }
+    .menu-header a { font-size: 9pt !important; }
+    #search-salary-btn{width:100%;margin-right:0;margin-bottom:20px;float:initial;}
+    #search-location-container,#search-tag-container{width:100%;}
+    #post-btn-mobile { width:100%; }
+    #post-btn {display:none;}
+    .main-title { width: 100% !important; }
+}
 #salary-trends svg {font-size: 14px;}
 .main-title{font-weight: bold;margin: 0 0 auto;width:60%;color:{{ .PrimaryColor }};}
 .resp-sharing-button__link,.resp-sharing-button__icon {display: inline-block}
@@ -305,7 +315,7 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 		</header>
 		<section style="margin: 30px auto;">
 			<p>
-        <input type="submit" value="Join the Community" id="post-btn" onclick="window.location.href='/Join-{{ .SiteJobCategoryURLEncoded }}-Community';">  
+            <input type="submit" class="mobile-only" value="Join the Community" id="post-btn" onclick="window.location.href='/Join-{{ .SiteJobCategoryURLEncoded }}-Community';">  
 			<h1 class="main-title">{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}</h1><br/>
 			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Explore {{ .SiteJobCategory }} salaries in {{ .Location }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b> in {{ .MonthAndYear }} at companies like <b>{{ .TextCompanies }}</b> working as a <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
 			</p>
@@ -347,6 +357,10 @@ input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
 					</div>
 				</div>
 				<input type="submit" value="Find Salary" {{ if .LoggedUser }}onclick="search();"{{ else }}onclick="showPopup();"{{ end }} id="search-salary-btn"/>
+				<div class="mobile-only">
+				    <div style="width:100%; text-align: center;margin-top: 20px;margin-bottom: 10px;">Looking for a {{ .SiteJobCategory }} Job?</div>
+				    <input type="submit" class="mobile-only" value="Join the Community" id="post-btn-mobile" onclick="window.location.href='/Join-{{ .SiteJobCategoryURLEncoded }}-Community';">  
+				</div>
 			</div>
 			<article style="margin-top:10px;">
 				<br />
