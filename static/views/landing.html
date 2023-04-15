@@ -702,8 +702,12 @@
 			padding-right: 25px;
 			padding-left: 25px;
 		}
+		
+		.mobile-only { display: none; }
 
 		@media only screen and (max-width:768px) {
+		    .menu-header a { font-size: 9pt !important; }
+		    .mobile-only { display: block; }
 			.subnav {
 				width: 100%;
 			}
@@ -718,9 +722,10 @@
 				float: initial;
 			}
 			#search-location, #search-tag, #search-salary { width: 100%; margin-right: 0; margin-bottom: 10px; }
+			#post-a-job-mobile { width: 100%; }
 
 			#post-btn {
-				width: auto;
+				display: none;
 			}
 		}
 
@@ -933,6 +938,10 @@
 				</select>
 			</div>
 			<input type="submit" value="Search" id="search-btn" />
+			<div class="mobile-only">
+			    <div style="width:100%; text-align: center;margin-top: 20px;margin-bottom: 10px;">Hiring {{ .SiteJobCategory }} Developers?</div>
+			    <input type="submit" value="Post a Job" id="post-a-job-mobile" onclick="window.location.href='/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers';" />
+			</div>
 		</div>
 		<div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
 		<article class="apply-box" id="apply-box-0">
