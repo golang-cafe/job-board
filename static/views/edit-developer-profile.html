@@ -21,6 +21,13 @@ input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18
   stroke: steelblue;
   stroke-width: 2px;
 }
+#search-tag-suggestions {
+    width: 200px;
+    margin-top:-20px;
+}
+#search-tag {
+    width: 200px;
+}
 .tag {
   display: inline-block;
   margin-top:10px;
@@ -28,7 +35,6 @@ input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18
   font-size:medium;
   padding: 4px 10px;
   border-radius:5px;
-  text-transform: uppercase;
 }
 //croppr
   .croppr-container *{user-select:none;-moz-user-select:none;-webkit-user-select:none;-ms-user-select:none;box-sizing:border-box;-webkit-box-sizing:border-box;-moz-box-sizing:border-box}.croppr-container img{vertical-align:middle;max-width:100%}.croppr{position:relative;display:inline-block}.croppr-handle,.croppr-imageClipped,.croppr-overlay,.croppr-region{position:absolute;top:0}.croppr-overlay{background:rgba(0,0,0,.5);right:0;bottom:0;left:0;z-index:1;cursor:crosshair}.croppr-region{border:1px dashed rgba(0,0,0,.5);z-index:3;cursor:move}.croppr-imageClipped{right:0;bottom:0;left:0;z-index:2;pointer-events:none}.croppr-handle{border:1px solid #000;background-color:#fff;width:10px;height:10px;z-index:4}
@@ -42,6 +48,9 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 #add-tag-btn:hover {
       background: {{ .SecondaryColor }};
       color: #fff;
+}
+.tags-container {
+    margin-bottom:10px;
 }
     </style>
     <meta charset="utf-8">
@@ -101,18 +110,6 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         </div>
         <br />
         <input type="hidden" name="profile-image-id" id="profile-image-id" value="{{ .DeveloperProfile.ImageID }}" />
-        <div id="search-tag-container">
-              <label for="search-tag">Skills</label>
-              <input autocomplete="off" type="text" placeholder="Skills" id="search-tag"/>
-              <button onclick="addSkillTag()" disabled id="add-tag-btn">Add</button>
-        <div style="z-index:1000;display:none;" id="search-tag-suggestions" class="search-suggestions">
-        </div>
-        </div>
-        <p id="skills-{{ .DeveloperProfile.ID }}" class="tags-container">
-            {{ range $x, $y := .DeveloperProfile.SkillsArray }}
-              <span class="tag">{{ $y }}</span>
-            {{ end }}
-        </p>
         </div>
         <span>Search Status</span>
         <select name="search-status" id="search-status" style="height: 42px;">
@@ -171,6 +168,17 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
           {{ end }}
         </select>
         <textarea id="bio" placeholder="Short Bio" style="resize:none; width: 100%;overflow: hidden;min-height: 100px;" oninput="auto_grow(this);">{{ .DeveloperProfile.Bio }}</textarea><br />
+        <div id="search-tag-container">
+              <input autocomplete="off" type="text" placeholder="Skills" id="search-tag"/>
+              <button onclick="addSkillTag()" disabled id="add-tag-btn">Add</button>
+        <div style="z-index:1000;display:none;" id="search-tag-suggestions" class="search-suggestions">
+        </div>
+        </div>
+        <p id="skills-{{ .DeveloperProfile.ID }}" class="tags-container">
+            {{ range $x, $y := .DeveloperProfile.SkillsArray }}
+              <span class="tag">{{ $y }}</span>
+            {{ end }}
+        </p>
         <input type="email" name="email" disabled id="email" placeholder="Your Email" style="width: 100%;" value="{{ .DeveloperProfile.Email }}"/><br />
         <input type="submit" id="submit" value="Update" onclick="update();" style="float: right;">
         <p style="float:right;margin-top:5px;margin-right:10px;"><small><a href="" id="disapprove" value="Permanently Delete Developer Profile" onclick="disapprove();" style="color: rgb(211, 63, 53);">Permanently Delete Profile</a></small></p>
@@ -241,7 +249,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         httpReq('/x/udps', {'skill': tag, 'id': document.getElementById('profile-id').value}, function() {})
         let spans = tagsContainer.getElementsByTagName("span");
         for (let span of spans) {
-           if (tag.toUpperCase() === span.textContent.toUpperCase()) {
+           if (tag === span.textContent) {
               return
           };
         }

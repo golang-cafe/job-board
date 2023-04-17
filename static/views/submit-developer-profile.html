@@ -1132,7 +1132,7 @@
 			return /^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$/.test(url);
 		}
 		function validSkills(skills) {
-			return skills.length > 10 || skills.split(",").length > 10;
+			return skills.split(",").length < 1 || skills.split(",").length > 10;
 		}
 		function isEmail(email) {
 			var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
