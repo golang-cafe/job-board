@@ -336,7 +336,7 @@ func LocationsByPrefix(conn *sql.DB, prefix string) ([]Location, error) {
 
 func SkillsByPrefix(conn *sql.DB, prefix string) ([]SEOSkill, error) {
 	skills := make([]SEOSkill, 0)
-	if len(prefix) < 2 {
+	if len(prefix) < 1 {
 		return skills, nil
 	}
 	rows, err := conn.Query(`SELECT name FROM seo_skill WHERE name ILIKE $1 || '%' ORDER BY name ASC LIMIT 5`, prefix)
