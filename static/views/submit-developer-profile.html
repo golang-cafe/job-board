@@ -935,8 +935,6 @@
 			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;" />
 			<input type="url" name="github-url" id="github-url" placeholder="GitHub URL (Optional)"
 				style="width: 100%;" />
-			<input type="url" name="twitter-url" id="twitter-url" placeholder="Twitter URL (Optional)"
-				style="width: 100%;" />
 			<select id="search-status" name="search-status" style="width:100%;">
 				<option default value="">Your Status</option>
 				<option value="actively-applying">Actively Looking</option>
@@ -1065,7 +1063,6 @@
 			var fullName = document.getElementById("full-name").value;
 			var linkedinURL = document.getElementById("linkedin-url").value;
 			var githubURL = document.getElementById("github-url").value;
-			var twitterURL = document.getElementById("twitter-url").value;
 			var bio = document.getElementById("bio").value;
 			var email = document.getElementById("email").value;
 			var currentLocation = document.getElementById("current-location").value;
@@ -1105,10 +1102,6 @@
 			}
 			if (!empty(githubURL) && !isURL(githubURL)) {
 				alert('GitHub URL must be a valid url');
-				return;
-			}
-			if (!empty(twitterURL) && !isURL(twitterURL)) {
-				alert('Twitter URL must be a valid url');
 				return;
 			}
 			if (detectedLocationId == '') {
@@ -1154,9 +1147,6 @@
 						hourly_rate: hourlyRate,
 						detected_location_id: detectedLocationId,
 					};
-					if (!empty(twitterURL)) {
-						payload.twitter_url = twitterURL;
-					}
 					if (!empty(githubURL)) {
 						payload.github_url = githubURL;
 					}
