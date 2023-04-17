@@ -1148,7 +1148,7 @@ func UpdateDeveloperProfileSkillsHandler(svr server.Server, devRepo *developer.R
 				return
 			}
 			req.Skill = bluemonday.StrictPolicy().Sanitize(req.Skill)
-			err := devRepo.UpdateDeveloperSkills(req.ID, req.Skill)
+			err = devRepo.UpdateDeveloperSkills(req.ID, req.Skill)
 			if err != nil {
 				svr.Log(err, "unable to update developer profile")
 				svr.JSON(w, http.StatusInternalServerError, nil)

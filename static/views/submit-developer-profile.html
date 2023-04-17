@@ -829,16 +829,21 @@
         .tooltip:hover .tooltiptext {
             visibility: visible;
         }
+        #search-tag-suggestions {
+            width: 200px;
+            margin-top:-20px;
+        }
+        #search-tag {
+            width: 200px;
+        }
         #switch-profile-type-container {height: 70px; margin: 50px auto; width: 50%;}
         .tag {
           display: inline-block;
-          margin-top:10px;
           margin-right: 5px;
           background: #dbdbdb;
           font-size:medium;
           padding: 4px 10px;
           border-radius:5px;
-          text-transform: uppercase;
         }
         .search-option:hover {
             background: #d9d9d9;
@@ -852,6 +857,9 @@
         #add-tag-btn:hover {
             background: {{ .SecondaryColor }};
             color: #fff;
+        }
+        .tags-container {
+            margin:0px;
         }
 	</style>
 	<meta charset="utf-8">
@@ -991,21 +999,17 @@
 				<div class="clearfix"></div>
 			</div>
 			<input type="hidden" name="profile-type" id="profile-type" value="developer" />
+			<textarea id="bio" class="dev-only" placeholder="Short Bio" style="resize:none; width: 100%;"></textarea>
 			<input type="hidden" name="tags" id="tags" style="width:100%;"
 				placeholder="Your Skills (eg. MySQL, Go, HTML, CSS, JavaScript)" />
             <div id="search-tag-container">
-              <label for="search-tag">Skills</label>
               <input autocomplete="off" type="text" placeholder="Skills" id="search-tag"/>
               <button onclick="addSkillTag()" disabled id="add-tag-btn">Add</button>
                 <div style="z-index:1000;display:none;" id="search-tag-suggestions" class="search-suggestions">
                 </div>
              </div>
-            <p id="skills-{{ .DeveloperProfile.ID }}" class="tags-container">
-            {{ range $x, $y := .DeveloperProfile.SkillsArray }}
-              <span class="tag">{{ $y }}</span>
-            {{ end }}
+            <p class="tags-container">
             </p>
-			<textarea id="bio" class="dev-only" placeholder="Short Bio" style="resize:none; width: 100%;"></textarea>
 			<input type="email" name="email" id="email" placeholder="Your Email" style="width: 100%;" />
 			<br />
 			<input type="submit" id="submit" value="Join The Community" onclick="post();" style="margin-right:0px;float: right;">
@@ -1084,7 +1088,6 @@
         function addTag(tag) {
           var tags = document.getElementById("tags").value.split(",");
           var tagsArray = [];
-          debugger;
           for (index in tags) {
               element = tags[index].trim()
               if (element) {
@@ -1098,7 +1101,7 @@
           }
           let spans = tagsContainer.getElementsByTagName("span");
           for (let span of spans) {
-             if (tag.toUpperCase() === span.textContent.toUpperCase()) {
+             if (tag === span.textContent) {
                 return
             };
           }
@@ -1106,6 +1109,7 @@
           tagElement.classList.add('tag');
           tagElement.textContent = tag;
           tagsContainer.appendChild(tagElement);
+          tagsContainer.style.marginBottom = '10px';
         }  
 
         function addSkillTag() {
