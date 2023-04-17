@@ -216,11 +216,6 @@ func (r *Repository) UpdateDeveloperProfile(dev Developer) error {
 	return err
 }
 
-func (r *Repository) UpdateDeveloperSkills(id, skill string) error {
-	_, err := r.db.Exec(`UPDATE developer_profile SET skills = CASE WHEN skills IS NOT NULL AND skills ILIKE '%' || $1 || '%' THEN skills WHEN skills IS NOT NULL THEN skills || ', ' || $1 else $1 end WHERE id = $2;`, skill, id)
-	return err
-}
-
 func (r *Repository) DeleteDeveloperProfile(id, email string) error {
 	_, err := r.db.Exec(`DELETE FROM developer_profile WHERE id = $1 AND email = $2`, id, email)
 	return err
