@@ -52,6 +52,10 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 .tags-container {
     margin-bottom:10px;
 }
+.tags-container .tag:hover {
+    cursor: pointer;
+    background-color: rgb(211, 63, 53);
+}
     </style>
     <meta charset="utf-8">
     <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}" />
@@ -169,14 +173,15 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         </select>
         <textarea id="bio" placeholder="Short Bio" style="resize:none; width: 100%;overflow: hidden;min-height: 100px;" oninput="auto_grow(this);">{{ .DeveloperProfile.Bio }}</textarea><br />
         <div id="search-tag-container">
-              <input autocomplete="off" type="text" placeholder="Skills" id="search-tag"/>
+            <input type="hidden" name="tags" id="tags" value="{{ .DeveloperProfile.Skills }}"/>
+            <input autocomplete="off" type="text" placeholder="Skills" id="search-tag"/>
               <button onclick="addSkillTag()" disabled id="add-tag-btn">Add</button>
         <div style="z-index:1000;display:none;" id="search-tag-suggestions" class="search-suggestions">
         </div>
         </div>
         <p id="skills-{{ .DeveloperProfile.ID }}" class="tags-container">
             {{ range $x, $y := .DeveloperProfile.SkillsArray }}
-              <span class="tag">{{ $y }}</span>
+              <span class="tag" onclick="deleteTag('{{ $y }}');">{{ $y }}</span>
             {{ end }}
         </p>
         <input type="email" name="email" disabled id="email" placeholder="Your Email" style="width: 100%;" value="{{ .DeveloperProfile.Email }}"/><br />
@@ -246,7 +251,18 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 
       // Add a tag to the container
       function addTag(tag) {
-        httpReq('/x/udps', {'skill': tag, 'id': document.getElementById('profile-id').value}, function() {})
+        var tags = document.getElementById("tags").value.split(",");
+        var tagsArray = [];
+        for (index in tags) {
+            element = tags[index].trim()
+            if (element) {
+                tagsArray.push(element)
+            }
+        }
+        if (tagsArray.indexOf(tag) === -1) {
+            tagsArray.push(tag);
+            document.getElementById("tags").value = tagsArray.join(",");  
+        }
         let spans = tagsContainer.getElementsByTagName("span");
         for (let span of spans) {
            if (tag === span.textContent) {
@@ -256,7 +272,30 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         const tagElement = document.createElement('span');
         tagElement.classList.add('tag');
         tagElement.textContent = tag;
+        tagElement.addEventListener('click', function(e) {
+          deleteTag(e.target.textContent);
+        })
         tagsContainer.appendChild(tagElement);
+      }
+      function deleteTag(tag) {
+        var tags = document.getElementById("tags").value.split(",");
+        var tagsArray = [];
+        for (index in tags) {
+            element = tags[index].trim()
+            if (element) {
+                tagsArray.push(element)
+            }
+        }
+        if (tagsArray.indexOf(tag.trim()) != -1) {
+          tagsArray.splice(tagsArray.indexOf(tag.trim()), 1);
+          document.getElementById("tags").value = tagsArray.join(",");
+        }
+        let spans = tagsContainer.getElementsByTagName("span");
+        for (let span of spans) {
+           if (tag === span.textContent) {
+             span.remove();
+          };
+        }
       }
 
       function isEmail(email) {
@@ -293,12 +332,12 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
               var currentLocation = document.getElementById("location").value;
               var hourlyRate = document.getElementById("hourly-rate").value;
               var linkedinURL = document.getElementById("linkedin-url").value;
-              var skills = document.getElementById("skills").value;
               var email = document.getElementById("email").value;
               var bio = document.getElementById("bio").value;
+              var tags = document.getElementById("tags").value;
               var searchStatus = document.getElementById("search-status").value;
               var roleLevel = document.getElementById("role-level").value;
-              if (empty(fullName, currentLocation, linkedinURL, bio, skills, email)) {
+              if (empty(fullName, currentLocation, linkedinURL, bio, tags, email)) {
                       alert('Please fill all the mandatory fields');
                       return;
                     }
@@ -306,6 +345,10 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                   alert("Please specify a valid hourly rate in USD");
                 return;
               }
+              if (!validSkills(tags)) {
+				alert('Skills is too long. Please use 10 skills or less');
+				return;
+			}
               if (!isURL(linkedinURL)) {
                       alert('"How To Apply" must be either an email address or a URL');
                       return;
@@ -338,7 +381,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                                       hourly_rate: hourlyRate,
                                       linkedin_url: linkedinURL,
                                       email: email,
-                                      skills: skills,
+                                      skills: tags,
                                       search_status: searchStatus,
                                       role_level: roleLevel,
                                       profile_image_id: document.getElementById("profile-image-id").value
@@ -394,6 +437,10 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                                   }
                           }
             }
+        function validSkills(skills) {
+            var len = skills.split(",").length;
+			return len > 0 || len < 10;
+		}
       var httpReq = function(url, body, cb) {
               var xhr = new XMLHttpRequest();
               xhr.open('POST', url, true);

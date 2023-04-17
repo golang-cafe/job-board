@@ -861,6 +861,10 @@
         .tags-container {
             margin:0px;
         }
+        .tags-container .tag:hover {
+            cursor: pointer;
+            background-color: rgb(211, 63, 53);
+        }
 	</style>
 	<meta charset="utf-8">
 	<title>Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}</title>
@@ -1084,6 +1088,26 @@
                 }
             });  
 
+        function deleteTag(tag) {
+          var tags = document.getElementById("tags").value.split(",");
+          var tagsArray = [];
+          for (index in tags) {
+              element = tags[index].trim()
+              if (element) {
+                  tagsArray.push(element)
+              }
+          }
+          if (tagsArray.indexOf(tag.trim()) != -1) {
+            tagsArray.splice(tagsArray.indexOf(tag.trim()), 1);
+            document.getElementById("tags").value = tagsArray.join(",");
+          }
+          let spans = tagsContainer.getElementsByTagName("span");
+          for (let span of spans) {
+             if (tag === span.textContent) {
+               span.remove();
+            };
+          }
+        }
         // Add a tag to the container
         function addTag(tag) {
           var tags = document.getElementById("tags").value.split(",");
@@ -1096,8 +1120,7 @@
           }
           if (tagsArray.indexOf(tag) === -1) {
               tagsArray.push(tag);
-              document.getElementById("tags").value = tagsArray.join(", ");  
-
+              document.getElementById("tags").value = tagsArray.join(",");  
           }
           let spans = tagsContainer.getElementsByTagName("span");
           for (let span of spans) {
@@ -1108,6 +1131,9 @@
           const tagElement = document.createElement('span');
           tagElement.classList.add('tag');
           tagElement.textContent = tag;
+          tagElement.addEventListener('click', function(e) {
+            deleteTag(e.target.textContent);
+          })
           tagsContainer.appendChild(tagElement);
           tagsContainer.style.marginBottom = '10px';
         }  
@@ -1132,8 +1158,9 @@
 			return /^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$/.test(url);
 		}
 		function validSkills(skills) {
-			return skills.split(",").length < 1 || skills.split(",").length > 10;
-		}
+            var len = skills.split(",").length;
+            return len > 0 || len < 10;
+        }
 		function isEmail(email) {
 			var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
 			return re.test(email);
