@@ -18,7 +18,7 @@ export SUPPORT_EMAIL=support@example.com
 export MAILERLITE_API_KEY=a123
 export SENTRY_DSN=https://localhost:123
 export ENV=dev
-export HEROKU_POSTGRESQL_PINK_URL="postgresql://postgres:passw0rd!@localhost:5432/postgres?sslmode=disable"
+export HEROKU_POSTGRESQL_PINK_URL="postgresql://postgres:passw0rd!@localhost:9999/postgres?sslmode=disable"
 export GO111MODULE=on
 export CLOUDFLARE_API_TOKEN=a123
 export CLOUDFLARE_ZONE_TAG=a123
