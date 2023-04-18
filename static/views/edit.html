@@ -478,15 +478,18 @@ body{background:#ffffff;}
                 var formData = new FormData();
                 formData.append('image', mediaFile);
                 var xhr = new XMLHttpRequest();
-		xhr.open('PUT', '/x/s/m/{{ .Job.CompanyIconID }}?token='+token+'&x='+cropValues.x+'&y='+cropValues.y+'&w='+cropValues.width+'&h='+cropValues.height, true);
+		xhr.open('POST', '/x/s/m?token='+token+'&x='+cropValues.x+'&y='+cropValues.y+'&w='+cropValues.width+'&h='+cropValues.height, true);
                 xhr.send(formData);
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState === 4) {
+                        var companyIconId = "";
                         if (xhr.status !== 200) {
                             alert('There was an error while uploading the company logo');
                             document.getElementById("spinner-0").style.display = "none";
                             return;
                         }
+                        var res = JSON.parse(xhr.response);
+                        companyIconId = res.id;
                         httpReq(
                             url,
                             {
@@ -503,7 +506,7 @@ body{background:#ffffff;}
                                 perks: perks,
                                 interview_process: interviewProcess,
                                 token: token,
-                                company_icon_id: document.getElementById("existing-company-icon-id").value
+                                company_icon_id: companyIconId
                             },
                             function(bool) {
                                 document.getElementById("spinner-0").style.display = "none";
