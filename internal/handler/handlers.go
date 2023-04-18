@@ -3270,6 +3270,7 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			"ConversionRate":             conversionRate,
 			"IsCallback":                 isCallback,
 			"PaymentSuccess":             paymentSuccess,
+			"DefaultPlanExpiration":      time.Now().UTC().AddDate(0, 0, 30),
 			"StripePublishableKey":       svr.GetConfig().StripePublishableKey,
 		})
 	}

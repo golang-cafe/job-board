@@ -1047,6 +1047,7 @@ func (s Server) RenderPostAJobForLocation(w http.ResponseWriter, r *http.Request
 		"LastJobPostedAt":          lastJobPosted.Format(time.RFC3339),
 		"NewJobsLastWeek":          newJobsLastWeek,
 		"NewJobsLastMonth":         newJobsLastMonth,
+		"DefaultPlanExpiration":    time.Now().UTC().AddDate(0, 0, 30),
 		"StripePublishableKey":     s.GetConfig().StripePublishableKey,
 	})
 }

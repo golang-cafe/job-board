@@ -93,6 +93,7 @@ body{background:#ffffff;}
                     <option class="duration-field" id="duration-field-5" value="5">5 months</option>
                     <option class="duration-field" id="duration-field-6" value="6">6 months</option>
                 </select>
+                Your Plan Runs Until <b><span id="plan-expiration-date">{{ .DefaultPlanExpiration.Format "02 Jan 2006" }}</span></b>
                 <br />
                 <h4>Plan</h4>
                 <div style="width:100%;margin-bottom: 30px;">
@@ -175,6 +176,13 @@ body{background:#ffffff;}
             document.getElementById("plan-3-label-price").innerText = "US$"+baseVal*durations.value;
             document.getElementById("plan-3-featured-days").innerText = parseInt(document.getElementById("plan-3-featured-days-base").value)*durations.value;
             document.getElementById("plan-3-live-days").innerText = parseInt(document.getElementById("plan-3-live-days-base").value)*durations.value;
+            
+            var planExpirationDate = new Date();
+            planExpirationDate.setDate(planExpirationDate.getDate() + 30 * durations.value);
+            var monthNames = ["January", "February", "March", "April", "May", "June",
+              "July", "August", "September", "October", "November", "December"
+            ];
+            document.getElementById("plan-expiration-date").innerHTML = planExpirationDate.getDate()+" "+monthNames[planExpirationDate.getMonth()]+" "+planExpirationDate.getFullYear();
         });
       function renew(planType) {
         var planDuration = document.getElementById("duration-field-select").value;
