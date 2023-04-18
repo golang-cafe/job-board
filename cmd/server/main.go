@@ -8,6 +8,9 @@ import (
 	"os"
 	"strings"
 
+	"github.com/gorilla/mux"
+	"github.com/gorilla/sessions"
+
 	"github.com/golang-cafe/job-board/internal/blog"
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/config"
@@ -21,8 +24,6 @@ import (
 	"github.com/golang-cafe/job-board/internal/server"
 	"github.com/golang-cafe/job-board/internal/template"
 	"github.com/golang-cafe/job-board/internal/user"
-	"github.com/gorilla/mux"
-	"github.com/gorilla/sessions"
 )
 
 func main() {
@@ -205,9 +206,6 @@ func main() {
 
 	// save media file
 	svr.RegisterRoute("/x/s/m", handler.SaveMediaPageHandler(svr), []string{"POST"})
-
-	// update media file
-	svr.RegisterRoute("/x/s/m/{id}", handler.UpdateMediaPageHandler(svr), []string{"PUT"})
 
 	// retrieve media file
 	svr.RegisterRoute("/x/s/m/{id}", handler.RetrieveMediaPageHandler(svr), []string{"GET"})
