@@ -3015,7 +3015,7 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		}
 		cutImage := decImage.(interface {
 			SubImage(r image.Rectangle) image.Image
-		}).SubImage(image.Rect(x, y, wi, he))
+		}).SubImage(image.Rect(x, y, x+wi, y+he))
 		cutImageBytes := new(bytes.Buffer)
 		switch contentType {
 		case "image/jpg", "image/jpeg":
