@@ -260,7 +260,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         }
         if (tagsArray.indexOf(tag) === -1) {
             tagsArray.push(tag);
-            document.getElementById("tags").value = tagsArray.join(",");  
+            document.getElementById("tags").value = tagsArray.join(",");
         }
         let spans = tagsContainer.getElementsByTagName("span");
         for (let span of spans) {
@@ -401,15 +401,18 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                             console.log(cropValues);
                             formData.append('image', mediaFile);
                             var xhr = new XMLHttpRequest();
-                            xhr.open('PUT', '/x/s/m/{{ .DeveloperProfile.ImageID }}?x='+cropValues.x+'&y='+cropValues.y+'&w='+cropValues.width+'&h='+cropValues.height, true);
+                            xhr.open('POST', '/x/s/m?x='+cropValues.x+'&y='+cropValues.y+'&w='+cropValues.width+'&h='+cropValues.height, true);
                             xhr.send(formData);
                             xhr.onreadystatechange = function() {
                                     if (xhr.readyState === 4) {
+                                        var profileIconId = "";
                                             if (xhr.status !== 200) {
                                                     alert('There was an error while uploading profile image');
                                                     document.getElementById("spinner-0").style.display = "none";
                                                     return;
                                                   }
+                                      var res = JSON.parse(xhr.response);
+                                      profileIconId = res.id;
                                             httpReq(
                                                     url,
                                                     {
@@ -417,12 +420,13 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                                                             fullname: fullName,
                                                             current_location: currentLocation,
                                                             bio: bio,
+                                                            hourly_rate: hourlyRate,
                                                             linkedin_url: linkedinURL,
                                                             email: email,
-                                                            skills: skills,
+                                                            skills: tags,
                                                             search_status: searchStatus,
                                                             role_level: roleLevel,
-                                                            profile_image_id: document.getElementById("profile-image-id").value
+                                                            profile_image_id: profileIconId,
                                                           },
                                                     function(bool) {
                                                             document.getElementById("spinner-0").style.display = "none";

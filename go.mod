@@ -30,7 +30,6 @@ require (
 	github.com/matryer/is v1.4.0 // indirect
 	github.com/microcosm-cc/bluemonday v1.0.16
 	github.com/nfnt/resize v0.0.0-20180221191011-83c6a9932646
-	github.com/oschwald/maxminddb-golang v1.6.0
 	github.com/pkg/errors v0.8.1
 	github.com/rainycape/unidecode v0.0.0-20150907023854-cb7f23ec59be // indirect
 	github.com/rs/zerolog v1.20.0

@@ -21,8 +21,17 @@ import (
 	"github.com/ChimeraCoder/anaconda"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/bot-api/telegram"
-	jwt "github.com/dgrijalva/jwt-go"
-	humanize "github.com/dustin/go-humanize"
+	"github.com/dgrijalva/jwt-go"
+	"github.com/dustin/go-humanize"
+	"github.com/gorilla/feeds"
+	"github.com/gorilla/mux"
+	"github.com/gosimple/slug"
+	"github.com/machinebox/graphql"
+	"github.com/microcosm-cc/bluemonday"
+	"github.com/nfnt/resize"
+	"github.com/segmentio/ksuid"
+	"github.com/snabb/sitemap"
+
 	"github.com/golang-cafe/job-board/internal/blog"
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/database"
@@ -36,14 +45,6 @@ import (
 	"github.com/golang-cafe/job-board/internal/seo"
 	"github.com/golang-cafe/job-board/internal/server"
 	"github.com/golang-cafe/job-board/internal/user"
-	"github.com/gorilla/feeds"
-	"github.com/gorilla/mux"
-	"github.com/gosimple/slug"
-	"github.com/machinebox/graphql"
-	"github.com/microcosm-cc/bluemonday"
-	"github.com/nfnt/resize"
-	"github.com/segmentio/ksuid"
-	"github.com/snabb/sitemap"
 )
 
 const (
@@ -2944,106 +2945,6 @@ func RetrieveMediaMetaPageHandler(svr server.Server, jobRepo *job.Repository) ht
 	}
 }
 
-func UpdateMediaPageHandler(svr server.Server) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var x, y, wi, he int
-		var err error
-		x, err = strconv.Atoi(r.URL.Query().Get("x"))
-		if err != nil {
-			x = 0
-		}
-		y, err = strconv.Atoi(r.URL.Query().Get("y"))
-		if err != nil {
-			y = 0
-		}
-		wi, err = strconv.Atoi(r.URL.Query().Get("w"))
-		if err != nil {
-			wi = 0
-		}
-		he, err = strconv.Atoi(r.URL.Query().Get("h"))
-		if err != nil {
-			he = 0
-		}
-		vars := mux.Vars(r)
-		mediaID := vars["id"]
-		// limits upload form size to 5mb
-		maxMediaFileSize := 5 * 1024 * 1024
-		r.Body = http.MaxBytesReader(w, r.Body, int64(maxMediaFileSize))
-		imageFile, header, err := r.FormFile("image")
-		if err != nil {
-			svr.Log(err, "unable to read media file")
-			svr.JSON(w, http.StatusRequestEntityTooLarge, nil)
-			return
-		}
-		defer imageFile.Close()
-		fileBytes, err := ioutil.ReadAll(imageFile)
-		if err != nil {
-			svr.Log(err, "unable to read imageFile file content")
-			svr.JSON(w, http.StatusRequestEntityTooLarge, nil)
-			return
-		}
-		contentType := http.DetectContentType(fileBytes)
-		contentTypeInvalid := true
-		for _, allowedMedia := range allowedMediaTypes {
-			if allowedMedia == contentType {
-				contentTypeInvalid = false
-			}
-		}
-		if contentTypeInvalid {
-			svr.Log(errors.New("invalid media content type"), fmt.Sprintf("media file %s is not one of the allowed media types: %+v", contentType, allowedMediaTypes))
-			svr.JSON(w, http.StatusUnsupportedMediaType, nil)
-			return
-		}
-		if header.Size > int64(maxMediaFileSize) {
-			svr.Log(errors.New("media file is too large"), fmt.Sprintf("media file too large: %d > %d", header.Size, maxMediaFileSize))
-			svr.JSON(w, http.StatusRequestEntityTooLarge, nil)
-			return
-		}
-		decImage, _, err := image.Decode(bytes.NewReader(fileBytes))
-		if err != nil {
-			svr.Log(err, "unable to decode image from bytes")
-			svr.JSON(w, http.StatusInternalServerError, nil)
-			return
-		}
-		min := decImage.Bounds().Dy()
-		if decImage.Bounds().Dx() < min {
-			min = decImage.Bounds().Dx()
-		}
-		if he == 0 || wi == 0 || he != wi {
-			he = min
-			wi = min
-		}
-		cutImage := decImage.(interface {
-			SubImage(r image.Rectangle) image.Image
-		}).SubImage(image.Rect(x, y, wi+x, he+y))
-		cutImageBytes := new(bytes.Buffer)
-		switch contentType {
-		case "image/jpg", "image/jpeg":
-			if err := jpeg.Encode(cutImageBytes, cutImage, nil); err != nil {
-				svr.Log(err, "unable to encode cutImage into jpeg")
-				svr.JSON(w, http.StatusInternalServerError, nil)
-				return
-			}
-		case "image/png":
-			if err := png.Encode(cutImageBytes, cutImage); err != nil {
-				svr.Log(err, "unable to encode cutImage into png")
-				svr.JSON(w, http.StatusInternalServerError, nil)
-				return
-			}
-		default:
-			svr.Log(errors.New("content type not supported for encoding"), fmt.Sprintf("content type %s not supported for encoding", contentType))
-			svr.JSON(w, http.StatusInternalServerError, nil)
-		}
-		err = database.UpdateMedia(svr.Conn, database.Media{cutImageBytes.Bytes(), contentType}, mediaID)
-		if err != nil {
-			svr.Log(err, "unable to update media image to db")
-			svr.JSON(w, http.StatusInternalServerError, nil)
-			return
-		}
-		svr.JSON(w, http.StatusOK, nil)
-	}
-}
-
 func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var x, y, wi, he int
@@ -3114,7 +3015,7 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		}
 		cutImage := decImage.(interface {
 			SubImage(r image.Rectangle) image.Image
-		}).SubImage(image.Rect(x, y, wi, he))
+		}).SubImage(image.Rect(x, y, x+wi, y+he))
 		cutImageBytes := new(bytes.Buffer)
 		switch contentType {
 		case "image/jpg", "image/jpeg":
