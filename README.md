@@ -1,5 +1,9 @@
 ## Job Board
 
+[![Open Bounties](https://img.shields.io/endpoint?url=https%3A%2F%2Fconsole.algora.io%2Fapi%2Fshields%2Fgolang-cafe%2Fbounties%3Fstatus%3Dopen)](https://console.algora.io/org/golang-cafe/bounties?status=open)
+
+[![Rewarded Bounties](https://img.shields.io/endpoint?url=https%3A%2F%2Fconsole.algora.io%2Fapi%2Fshields%2Fgolang-cafe%2Fbounties%3Fstatus%3Dcompleted)](https://console.algora.io/org/golang-cafe/bounties?status=completed)
+
 This is the first Go job board with no recruiters & clear salary ranges.
 
 - Clear salary range in each job description
@@ -67,4 +71,4 @@ Feel free to open an issue on GitHub
 
 ### License
 
-This source code is licensed under [BSD 3-Clause License](LICENSE.txt) 
+This source code is licensed under [BSD 3-Clause License](LICENSE.txt)
