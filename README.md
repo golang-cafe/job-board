@@ -49,7 +49,7 @@ These are basic requirements with the respective versions have been tested to wo
 
 **Setup Guide**
 
-The only thing that needs to be setup in order for the app to run is the PostgreSQL database instance. Please run the following command in order to setup your local database instance.
+The only thing that needs to be setup in order for the app to run is the PostgreSQL database instance. Please ,run the following command in order to setup your local database instance.
 
 ```
 ./setup-database.sh
