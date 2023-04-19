@@ -96,13 +96,25 @@ func DevelopersHandler(svr server.Server, devRepo *developer.Repository) http.Ha
 
 func SubmitDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForProfileRegistration(w, r, devRepo, "submit-developer-profile.html")
+		profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		if profile != nil {
+			routeName := fmt.Sprintf("%s-Developers", strings.Title(svr.GetConfig().SiteJobCategory))
+			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("https://%s/%s", svr.GetConfig().SiteHost, routeName))
+		} else {
+			svr.RenderPageForProfileRegistration(w, r, devRepo, "submit-developer-profile.html")
+		}
 	}
 }
 
 func SubmitRecruiterProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForProfileRegistration(w, r, devRepo, "submit-recruiter-profile.html")
+		profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		if profile != nil {
+			routeName := fmt.Sprintf("%s-Developers", strings.Title(svr.GetConfig().SiteJobCategory))
+			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("https://%s/%s", svr.GetConfig().SiteHost, routeName))
+		} else {
+			svr.RenderPageForProfileRegistration(w, r, devRepo, "submit-recruiter-profile.html")
+		}
 	}
 }
 
@@ -1630,7 +1642,13 @@ func IndexPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFu
 
 func PermanentRedirectHandler(svr server.Server, dst string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("%s%s/%s", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, dst))
+		profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		if profile != nil && strings.EqualFold("/Join-Golang-Community", dst) {
+			routeName := fmt.Sprintf("%s-Developers", strings.Title(svr.GetConfig().SiteJobCategory))
+			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("https://%s/%s", svr.GetConfig().SiteHost, routeName))
+		} else {
+			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("https://%s/%s", svr.GetConfig().SiteHost, dst))
+		}
 	}
 }
 
