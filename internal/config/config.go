@@ -59,7 +59,7 @@ type Config struct {
 	DevelopersBannerLink     string
 	DevelopersBannerText     string
 	IsLocal                  bool
-	UrlProtocol              string
+	URLProtocol              string
 }
 
 func LoadConfig() (Config, error) {
@@ -301,6 +301,6 @@ func LoadConfig() (Config, error) {
 		DevelopersBannerLink:     developersBannerLink,
 		DevelopersBannerText:     developersBannerText,
 		IsLocal:                  isLocalBool,
-		UrlProtocol:              urlProtocol,
+		URLProtocol:              urlProtocol,
 	}, nil
 }
