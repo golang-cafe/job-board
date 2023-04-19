@@ -59,6 +59,7 @@ type Config struct {
 	DevelopersBannerLink     string
 	DevelopersBannerText     string
 	IsLocal                  bool
+	UrlProtocol              string
 }
 
 func LoadConfig() (Config, error) {
@@ -246,6 +247,10 @@ func LoadConfig() (Config, error) {
 	if isLocal != "" {
 		isLocalBool = true
 	}
+	var urlProtocol string
+	if env != "dev" {
+		urlProtocol = "https://"
+	}
 
 	return Config{
 		Port:                     port,
@@ -296,5 +301,6 @@ func LoadConfig() (Config, error) {
 		DevelopersBannerLink:     developersBannerLink,
 		DevelopersBannerText:     developersBannerText,
 		IsLocal:                  isLocalBool,
+		UrlProtocol:              urlProtocol,
 	}, nil
 }

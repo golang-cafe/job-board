@@ -171,8 +171,9 @@ func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repositor
 			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 			fmt.Sprintf("Verify Your Recruiter Profile on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"Verify Your Recruiter Profile on %s https://%s/x/auth/%s",
+				"Verify Your Recruiter Profile on %s %s%s/x/auth/%s",
 				svr.GetConfig().SiteName,
+				svr.GetConfig().UrlProtocol,
 				svr.GetConfig().SiteHost,
 				k.String(),
 			),
@@ -322,8 +323,9 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 			fmt.Sprintf("Verify Your Developer Profile on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"Verify Your Developer Profile on %s https://%s/x/auth/%s",
+				"Verify Your Developer Profile on %s %s%s/x/auth/%s",
 				svr.GetConfig().SiteName,
+				svr.GetConfig().UrlProtocol,
 				svr.GetConfig().SiteHost,
 				k.String(),
 			),
@@ -466,7 +468,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 				for _, j := range jobPosts {
 					fmt.Println("job post page generating...")
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://%s/job/%s`, svr.GetConfig().SiteHost, j.Slug),
+						Loc:        fmt.Sprintf(`%s%s/job/%s`, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, j.Slug),
 						LastMod:    time.Unix(j.CreatedAt, 0),
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -477,7 +479,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 				for _, b := range blogPosts {
 					fmt.Println("blog post page generating...")
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://%s/blog/%s`, svr.GetConfig().SiteHost, b.Path),
+						Loc:        fmt.Sprintf(`%s%s/blog/%s`, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, b.Path),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -488,7 +490,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 				for _, p := range pages {
 					fmt.Println("static page generating...")
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
+						Loc:        fmt.Sprintf(`%s%s/%s`, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -499,7 +501,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 				for i, p := range postAJobLandingPages {
 					fmt.Println("post a job landing page generating...", i, len(postAJobLandingPages))
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
+						Loc:        fmt.Sprintf(`%s%s/%s`, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -510,7 +512,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 				for i, p := range salaryLandingPages {
 					fmt.Println("salary landing page generating...", i, len(salaryLandingPages))
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
+						Loc:        fmt.Sprintf(`%s%s/%s`, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -521,7 +523,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 				for i, p := range landingPages {
 					fmt.Println("landing page generating...", i, len(landingPages))
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p.URI),
+						Loc:        fmt.Sprintf(`%s%s/%s`, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, p.URI),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -531,7 +533,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range companyLandingPages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
+						Loc:        fmt.Sprintf(`%s%s/%s`, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -541,7 +543,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range developerSkillsPages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
+						Loc:        fmt.Sprintf(`%s%s/%s`, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -551,7 +553,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range developerProfilePages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
+						Loc:        fmt.Sprintf(`%s%s/%s`, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -560,7 +562,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 				}
 				for _, p := range companyProfilePages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
+						Loc:        fmt.Sprintf(`%s%s/%s`, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -570,7 +572,7 @@ func TriggerSitemapUpdate(svr server.Server, devRepo *developer.Repository, jobR
 
 				for _, p := range developerLocationPages {
 					if err := database.SaveSitemapEntry(svr.Conn, database.SitemapEntry{
-						Loc:        fmt.Sprintf(`https://%s/%s`, svr.GetConfig().SiteHost, p),
+						Loc:        fmt.Sprintf(`%s%s/%s`, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, p),
 						LastMod:    n,
 						ChangeFreq: "weekly",
 					}); err != nil {
@@ -817,18 +819,18 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 				}
 				var jobsHTMLArr []string
 				for _, j := range jobPosts {
-					jobsHTMLArr = append(jobsHTMLArr, `<p><b>Job Title:</b> `+j.JobTitle+`<br /><b>Company:</b> `+j.Company+`<br /><b>Location:</b> `+j.Location+`<br /><b>Salary:</b> `+j.SalaryRange+`<br /><b>Detail:</b> <a href="https://`+svr.GetConfig().SiteHost+`/job/`+j.Slug+`">https://`+svr.GetConfig().SiteHost+`/job/`+j.Slug+`</a></p>`)
+					jobsHTMLArr = append(jobsHTMLArr, `<p><b>Job Title:</b> `+j.JobTitle+`<br /><b>Company:</b> `+j.Company+`<br /><b>Location:</b> `+j.Location+`<br /><b>Salary:</b> `+j.SalaryRange+`<br /><b>Detail:</b> <a href="`+svr.GetConfig().UrlProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`">`+svr.GetConfig().UrlProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`</a></p>`)
 					lastJobID = j.ID
 				}
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
 				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `</p>
 ` + jobsHTML + `
-	<p>Check out more jobs at <a title="` + svr.GetConfig().SiteName + `" href="https://` + svr.GetConfig().SiteHost + `">https://` + svr.GetConfig().SiteHost + `</a></p>
-	<p>Get companies apply to you, join the ` + svr.GetConfig().SiteJobCategory + ` Developer Community <a title="` + svr.GetConfig().SiteName + ` Community" href="https://` + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community">https://` + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community</a></p>
+	<p>Check out more jobs at <a title="` + svr.GetConfig().SiteName + `" href="` + svr.GetConfig().UrlProtocol + svr.GetConfig().SiteHost + `">` + svr.GetConfig().UrlProtocol + svr.GetConfig().SiteHost + `</a></p>
+	<p>Get companies apply to you, join the ` + svr.GetConfig().SiteJobCategory + ` Developer Community <a title="` + svr.GetConfig().SiteName + ` Community" href="` + svr.GetConfig().UrlProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community">` + svr.GetConfig().UrlProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community</a></p>
 	<p>` + svr.GetConfig().SiteName + `</p>
 	<hr />`
 				unsubscribeLink := `
-	<h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br />This email was sent to <strong>%s</strong> | <a href="https://` + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
+	<h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br />This email was sent to <strong>%s</strong> | <a href="` + svr.GetConfig().UrlProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
 
 				for _, s := range subscribers {
 					err = svr.GetEmail().SendHTMLEmail(
@@ -879,7 +881,7 @@ func TriggerTelegramScheduler(svr server.Server, jobRepo *job.Repository) http.H
 				api := telegram.New(svr.GetConfig().TelegramAPIToken)
 				ctx := context.Background()
 				for _, j := range jobPosts {
-					_, err := api.SendMessage(ctx, telegram.NewMessage(svr.GetConfig().TelegramChannelID, fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\nhttps://%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteHost, j.Slug)))
+					_, err := api.SendMessage(ctx, telegram.NewMessage(svr.GetConfig().TelegramChannelID, fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, j.Slug)))
 					if err != nil {
 						svr.Log(err, "unable to post on telegram")
 						continue
@@ -975,7 +977,7 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 				lastJobID := lastTwittedJobID
 				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
 				for _, j := range jobPosts {
-					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\nhttps://%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteHost, j.Slug), url.Values{})
+					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, j.Slug), url.Values{})
 					if err != nil {
 						svr.Log(err, "unable to post tweet")
 						continue
@@ -1342,7 +1344,7 @@ func AddEmailSubscriberHandler(svr server.Server) http.HandlerFunc {
 			fmt.Sprintf(
 				"Please click on the link below to confirm your subscription to receive weekly emails from %s\n\n%s\n\nIf this was not requested by you, please ignore this email.",
 				svr.GetConfig().SiteName,
-				fmt.Sprintf("https://%s/x/email/confirm/%s", svr.GetConfig().SiteHost, k.String()),
+				fmt.Sprintf("%s%s/x/email/confirm/%s", svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, k.String()),
 			),
 		)
 		if err != nil {
@@ -1628,7 +1630,7 @@ func IndexPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFu
 
 func PermanentRedirectHandler(svr server.Server, dst string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("https://%s/%s", svr.GetConfig().SiteHost, dst))
+		svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("%s%s/%s", svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, dst))
 	}
 }
 
@@ -1757,7 +1759,7 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.Handl
 			email.Address{Email: req.Email},
 			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 			fmt.Sprintf("Sign On on %s", svr.GetConfig().SiteName),
-			fmt.Sprintf("Sign On on %s https://%s/x/auth/%s", svr.GetConfig().SiteName, svr.GetConfig().SiteHost, token))
+			fmt.Sprintf("Sign On on %s %s%s/x/auth/%s", svr.GetConfig().SiteName, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, token))
 		if err != nil {
 			svr.Log(err, "unable to send email while applying to job")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -1787,7 +1789,7 @@ func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *de
 		stdClaims := &jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(30 * 24 * time.Hour).UTC().Unix(),
 			IssuedAt:  time.Now().UTC().Unix(),
-			Issuer:    fmt.Sprintf("https://%s", svr.GetConfig().SiteHost),
+			Issuer:    fmt.Sprintf("%s%s", svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost),
 		}
 		claims := middleware.UserJWT{
 			UserID:         u.ID,
@@ -2045,7 +2047,7 @@ func ServeRSSFeed(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 		now := time.Now()
 		feed := &feeds.Feed{
 			Title:       fmt.Sprintf("%s Jobs", svr.GetConfig().SiteName),
-			Link:        &feeds.Link{Href: fmt.Sprintf("https://%s", svr.GetConfig().SiteHost)},
+			Link:        &feeds.Link{Href: fmt.Sprintf("%s%s", svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost)},
 			Description: fmt.Sprintf("%s Jobs RSS Feed", svr.GetConfig().SiteName),
 			Author:      &feeds.Author{Name: svr.GetConfig().SiteName, Email: svr.GetConfig().SupportEmail},
 			Created:     now,
@@ -2055,16 +2057,16 @@ func ServeRSSFeed(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 			if j.CompanyIconID != "" {
 				feed.Items = append(feed.Items, &feeds.Item{
 					Title:       fmt.Sprintf("%s with %s - %s", j.JobTitle, j.Company, j.Location),
-					Link:        &feeds.Link{Href: fmt.Sprintf("https://%s/job/%s", svr.GetConfig().SiteHost, j.Slug)},
+					Link:        &feeds.Link{Href: fmt.Sprintf("%s%s/job/%s", svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, j.Slug)},
 					Description: string(svr.MarkdownToHTML(j.JobDescription + "\n\n**Salary Range:** " + j.SalaryRange)),
 					Author:      &feeds.Author{Name: svr.GetConfig().SiteName, Email: svr.GetConfig().SupportEmail},
-					Enclosure:   &feeds.Enclosure{Length: "not implemented", Type: "image", Url: fmt.Sprintf("https://%s/x/s/m/%s", svr.GetConfig().SiteHost, j.CompanyIconID)},
+					Enclosure:   &feeds.Enclosure{Length: "not implemented", Type: "image", Url: fmt.Sprintf("%s%s/x/s/m/%s", svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, j.CompanyIconID)},
 					Created:     *j.ApprovedAt,
 				})
 			} else {
 				feed.Items = append(feed.Items, &feeds.Item{
 					Title:       fmt.Sprintf("%s with %s - %s", j.JobTitle, j.Company, j.Location),
-					Link:        &feeds.Link{Href: fmt.Sprintf("https://%s/job/%s", svr.GetConfig().SiteHost, j.Slug)},
+					Link:        &feeds.Link{Href: fmt.Sprintf("%s%s/job/%s", svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, j.Slug)},
 					Description: string(svr.MarkdownToHTML(j.JobDescription + "\n\n**Salary Range:** " + j.SalaryRange)),
 					Author:      &feeds.Author{Name: svr.GetConfig().SiteName, Email: svr.GetConfig().SupportEmail},
 					Created:     *j.ApprovedAt,
@@ -2149,7 +2151,7 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 				email.Address{Email: purchaseEvent.Email},
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 				fmt.Sprintf("Your Job Ad is live on %s", svr.GetConfig().SiteName),
-				fmt.Sprintf("Your Job Ad has been approved and it's now live. You can edit the Job Ad at any time and check page views and clickouts by following this link https://%s/edit/%s", svr.GetConfig().SiteHost, jobToken))
+				fmt.Sprintf("Your Job Ad has been approved and it's now live. You can edit the Job Ad at any time and check page views and clickouts by following this link %s%s/edit/%s", svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, jobToken))
 			if err != nil {
 				svr.Log(err, "unable to send email while upgrading job ad")
 			}
@@ -2382,10 +2384,11 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 				fmt.Sprintf("Confirm your job application with %s", jobPost.Company),
 				fmt.Sprintf(
-					"Thanks for applying for the position %s with %s - %s.<br />Please confirm your application now by following this link https://%s/apply/%s",
+					"Thanks for applying for the position %s with %s - %s.<br />Please confirm your application now by following this link %s%s/apply/%s",
 					jobPost.JobTitle,
 					jobPost.Company,
 					jobPost.Location,
+					svr.GetConfig().UrlProtocol,
 					svr.GetConfig().SiteHost,
 					randomTokenStr,
 				),
@@ -2416,7 +2419,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 					fmt.Sprintf(
 						"Please click on the link below to confirm your subscription to receive weekly emails from %s\n\n%s\n\nIf this was not requested by you, please ignore this email.",
 						svr.GetConfig().SiteName,
-						fmt.Sprintf("https://%s/x/email/confirm/%s", svr.GetConfig().SiteHost, k.String()),
+						fmt.Sprintf("%s%s/x/email/confirm/%s", svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, k.String()),
 					),
 				)
 				if err != nil {
@@ -2452,12 +2455,13 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			email.Address{Email: applicant.Email},
 			fmt.Sprintf("New Applicant from %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"Hi, there is a new applicant for your position on %s: %s with %s - %s (https://%s/job/%s). Applicant's Email: %s. Please find applicant's CV attached below",
+				"Hi, there is a new applicant for your position on %s: %s with %s - %s (%s%s/job/%s). Applicant's Email: %s. Please find applicant's CV attached below",
 				svr.GetConfig().SiteName,
 				retrievedJobPost.JobTitle,
 				retrievedJobPost.Company,
 				retrievedJobPost.Location,
 				svr.GetConfig().SiteHost,
+				svr.GetConfig().UrlProtocol,
 				retrievedJobPost.Slug,
 				applicant.Email,
 			),
@@ -2485,12 +2489,14 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			"Title": "Job Application Successfull",
 			"Description": svr.StringToHTML(
 				fmt.Sprintf(
-					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"https://%s/job/%s\">https://%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. <br />Consider joining our Golang Cafe Developer community where companies can apply to you",
+					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"%s%s/job/%s\">%s%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. <br />Consider joining our Golang Cafe Developer community where companies can apply to you",
 					retrievedJobPost.JobTitle,
 					retrievedJobPost.Company,
 					retrievedJobPost.Location,
+					svr.GetConfig().UrlProtocol,
 					svr.GetConfig().SiteHost,
 					retrievedJobPost.Slug,
+					svr.GetConfig().UrlProtocol,
 					svr.GetConfig().SiteHost,
 					retrievedJobPost.Slug,
 				),
@@ -2517,11 +2523,12 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 			email.Address{Email: applicant.Email},
 			fmt.Sprintf("New Applicant from %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"Hi, there is a new applicant for your position on %s: %s with %s - %s (https://%s/job/%s). Applicant's Email: %s. Please find applicant's CV attached below",
+				"Hi, there is a new applicant for your position on %s: %s with %s - %s (%s%s/job/%s). Applicant's Email: %s. Please find applicant's CV attached below",
 				svr.GetConfig().SiteName,
 				jobPost.JobTitle,
 				jobPost.Company,
 				jobPost.Location,
+				svr.GetConfig().UrlProtocol,
 				svr.GetConfig().SiteHost,
 				jobPost.Slug,
 				applicant.Email,
@@ -2550,12 +2557,14 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 			"Title": "Job Application Successfull",
 			"Description": svr.StringToHTML(
 				fmt.Sprintf(
-					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"https://%s/job/%s\">https://%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. <br />Consider joining our Golang Cafe Developer community where companies can apply to you",
+					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"%s%s/job/%s\">%s%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. <br />Consider joining our Golang Cafe Developer community where companies can apply to you",
 					jobPost.JobTitle,
 					jobPost.Company,
 					jobPost.Location,
+					svr.GetConfig().UrlProtocol,
 					svr.GetConfig().SiteHost,
 					jobPost.Slug,
+					svr.GetConfig().UrlProtocol,
 					svr.GetConfig().SiteHost,
 					jobPost.Slug,
 				),
@@ -2664,8 +2673,9 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 			email.Address{Email: jobRq.Email},
 			fmt.Sprintf("New Upgrade on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"Hey! There is a new ad upgrade on %s. Please check https://%s/manage/%s",
+				"Hey! There is a new ad upgrade on %s. Please check %s%s/manage/%s",
 				svr.GetConfig().SiteName,
+				svr.GetConfig().UrlProtocol,
 				svr.GetConfig().SiteHost,
 				jobRq.Token,
 			),
@@ -2817,8 +2827,9 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 			email.Address{Email: jobRq.Email},
 			fmt.Sprintf("New Job Ad on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"Hey! There is a new Ad on %s. Please approve https://%s/manage/%s",
+				"Hey! There is a new Ad on %s. Please approve %s%s/manage/%s",
 				svr.GetConfig().SiteName,
+				svr.GetConfig().UrlProtocol,
 				svr.GetConfig().SiteHost,
 				randomTokenStr,
 			),
@@ -3129,7 +3140,7 @@ func ApproveJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Hand
 				email.Address{Email: jobRq.Email},
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 				fmt.Sprintf("Your Job Ad on %s", svr.GetConfig().SiteName),
-				fmt.Sprintf("Thanks for using %s,\n\nYour Job Ad has been approved and it's currently live on %s: https://%s.\n\nYou can track your Ad performance and renew your Ad via this edit link: https://%s/edit/%s\n.\n\nI am always available to answer any questions you may have,\n\nBest,\n\n%s\n%s", svr.GetConfig().SiteName, svr.GetConfig().SiteName, svr.GetConfig().SiteHost, svr.GetConfig().SiteHost, jobRq.Token, svr.GetConfig().SiteName, svr.GetConfig().AdminEmail),
+				fmt.Sprintf("Thanks for using %s,\n\nYour Job Ad has been approved and it's currently live on %s: %s%s.\n\nYou can track your Ad performance and renew your Ad via this edit link: %s%s/edit/%s\n.\n\nI am always available to answer any questions you may have,\n\nBest,\n\n%s\n%s", svr.GetConfig().SiteName, svr.GetConfig().SiteName, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, svr.GetConfig().UrlProtocol, svr.GetConfig().SiteHost, jobRq.Token, svr.GetConfig().SiteName, svr.GetConfig().AdminEmail),
 			)
 			if err != nil {
 				svr.Log(err, "unable to send email while approving job ad")
