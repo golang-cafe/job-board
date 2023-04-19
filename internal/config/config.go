@@ -247,7 +247,7 @@ func LoadConfig() (Config, error) {
 	if isLocal != "" {
 		isLocalBool = true
 	}
-	var urlProtocol string
+	urlProtocol := "http://"
 	if !strings.EqualFold(env, "dev") {
 		urlProtocol = "https://"
 	}
