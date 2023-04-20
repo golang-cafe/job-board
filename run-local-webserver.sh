@@ -1,10 +1,9 @@
 #!/usr/bin/env bash
 
 docker run -it --rm \
+    -w /app \
     -v $(pwd):/app \
-    -w /app/cmd/server \
-    -e HOST=0.0.0.0 \
-    -e PORT=9876 \
+    -p 9876:9876 \
     --env-file local.env \
     cosmtrek/air \
-    -c /app/.air.toml
+    --build.cmd "go build -o bin/server cmd/server/main.go" --build.bin "./bin/server"

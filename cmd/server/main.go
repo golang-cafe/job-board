@@ -31,7 +31,7 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to load config: %+v", err)
 	}
-	conn, err := database.GetDbConn(cfg.DatabaseURL)
+	conn, err := database.GetDbConn(cfg.DatabaseUser, cfg.DatabasePassword, cfg.DatabaseHost, cfg.DatabasePort, cfg.DatabaseDB)
 	if err != nil {
 		log.Fatalf("unable to connect to postgres: %v", err)
 	}

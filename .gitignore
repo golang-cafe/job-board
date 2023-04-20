@@ -6,3 +6,4 @@
 !run-local-webserver.sh
 bin
 .idea
+cmd/server/tmp

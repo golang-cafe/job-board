@@ -262,7 +262,13 @@ func CountEmailSubscribers(conn *sql.DB) (int, error) {
 }
 
 // GetDbConn tries to establish a connection to postgres and return the connection handler
-func GetDbConn(databaseURL string) (*sql.DB, error) {
+func GetDbConn(databaseUser string, databasePassword string, databaseHost string, databasePort string, databaseDB string) (*sql.DB, error) {
+	databaseURL := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
+		databaseUser,
+		databasePassword,
+		databaseHost,
+		databasePort,
+		databaseDB)
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
 		return nil, err
@@ -598,7 +604,7 @@ func GetPurchaseEvents(conn *sql.DB, jobID int) ([]PurchaseEvent, error) {
 	}
 	for rows.Next() {
 		var p PurchaseEvent
-		if err := rows.Scan(&p.StripeSessionID, &p.CreatedAt, &p.CompletedAt, &p.Amount, &p.Currency, &p.Description,&p.PlanType, &p.PlanDuration, &p.JobID); err != nil {
+		if err := rows.Scan(&p.StripeSessionID, &p.CreatedAt, &p.CompletedAt, &p.Amount, &p.Currency, &p.Description, &p.PlanType, &p.PlanDuration, &p.JobID); err != nil {
 			return purchases, err
 		}
 		purchases = append(purchases, p)
