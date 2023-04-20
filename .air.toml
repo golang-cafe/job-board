@@ -1,0 +1,18 @@
+# Watch these file extensions for changes.
+exts = ["go", "html"]
+
+# Exclude these paths from being watched.
+exclude_dirs = [".github"]
+
+# Build the app when these files change.
+build_args = ["-o", "bin/server", "cmd/server/main.go"]
+
+# Run these commands after a successful build.
+run_cmd = ["./bin/server"]
+
+# Customize the output colors.
+[colors]
+  main = "magenta"
+  watcher = "cyan"
+  build = "yellow"
+  run = "green"
