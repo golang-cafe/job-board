@@ -66,7 +66,7 @@ type devGetSaver interface {
 }
 
 type tokenSaver interface {
-	SaveTokenSignOn(email, token, userType string) error
+	SaveTokenSignOn(email, token, userType string, createdAt time.Time) error
 }
 
 func GetAuthPageHandler(svr server.Server) http.HandlerFunc {
@@ -165,7 +165,7 @@ func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repositor
 			UpdatedAt:  t,
 			Email:      strings.ToLower(req.Email),
 		}
-		err = userRepo.SaveTokenSignOn(strings.ToLower(req.Email), k.String(), user.UserTypeRecruiter)
+		err = userRepo.SaveTokenSignOn(strings.ToLower(req.Email), k.String(), user.UserTypeRecruiter, t)
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -311,7 +311,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			RoleLevel:          req.RoleLevel,
 			DetectedLocationID: detectedLocationID,
 		}
-		err = userRepo.SaveTokenSignOn(strings.ToLower(req.Email), k.String(), user.UserTypeDeveloper)
+		err = userRepo.SaveTokenSignOn(strings.ToLower(req.Email), k.String(), user.UserTypeDeveloper, t)
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1759,7 +1759,8 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.Handl
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = userRepo.SaveTokenSignOn(req.Email, k.String(), u.Type)
+		createdAt := time.Now().UTC()
+		err = userRepo.SaveTokenSignOn(req.Email, k.String(), u.Type, createdAt)
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -3664,6 +3665,22 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 					"Developer":     dev,
 				})
 			}
+		},
+	)
+}
+
+func TriggerExpiredUserSignOnTokensTask(svr server.Server, userRepo *user.Repository) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				err := userRepo.DeleteExpiredUserSignOnTokens()
+				if err != nil {
+					svr.Log(err, "unable to delete expired user_sign_on_tokens")
+					return
+				}
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
 	)
 }

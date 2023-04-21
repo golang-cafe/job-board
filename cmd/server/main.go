@@ -174,6 +174,7 @@ func main() {
 	svr.RegisterRoute("/x/task/update-last-week-clickouts", handler.TriggerUpdateLastWeekClickouts(svr), []string{"POST"})
 	svr.RegisterRoute("/x/task/monthly-highlights", handler.TriggerMonthlyHighlights(svr, jobRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/fx-rate-update", handler.TriggerFXRateUpdate(svr), []string{"POST"})
+	svr.RegisterRoute("/x/task/expire-sign-on-tokens", handler.TriggerExpiredUserSignOnTokensTask(svr, userRepo), []string{"POST"})
 
 	// view newsletter
 	svr.RegisterRoute("/newsletter", handler.ViewNewsletterPageHandler(svr, jobRepo), []string{"GET"})
