@@ -61,6 +61,18 @@ Once this command is successful you can now start the application
 ./run-local-webserver.sh
 ```
 
+**Test Cron-Jobs Locally**
+
+There are a few cron-jobs that are triggered on a schedule, these are scheduled externally via custom http calls to the website. You can see all available cron-jobs by searching for all routes that start with /x/task/<task-name>.
+
+In order to test a cron-job you can just make the following http request
+
+```
+curl -v -H 'x-machine-token: <machine-token>' -X POST http://localhost:9876/x/task/<task-name>
+```
+
+You can find the <machine-token> under your local environment variable configuration, in the `MACHINE_TOKEN` environment variable.
+
 ### Telegram Group OSS discussions
 
 https://t.me/+VloraT7W9yA1YTI8
