@@ -2,8 +2,10 @@
 .vscode/
 *.sh
 *.swp
+*.env
 !setup-database.sh
 !run-local-webserver.sh
+!local.env
 bin
 .idea
 cmd/server/tmp
