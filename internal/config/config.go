@@ -12,7 +12,12 @@ import (
 
 type Config struct {
 	Port                     string
-	DatabaseURL              string
+	DatabaseUser             string
+	DatabasePassword         string
+	DatabaseHost             string
+	DatabasePort             string
+	DatabaseName             string
+	DatabaseSSLMode          string
 	StripeKey                string // stripe secret API Key
 	StripeEndpointSecret     string // stripe endpoint webhook secret token
 	StripePublishableKey     string // stripe publishable API key
@@ -67,9 +72,29 @@ func LoadConfig() (Config, error) {
 	if port == "" {
 		return Config{}, fmt.Errorf("PORT cannot be empty")
 	}
-	databaseURL := os.Getenv("HEROKU_POSTGRESQL_PINK_URL")
-	if databaseURL == "" {
-		return Config{}, fmt.Errorf("HEROKU_POSTGRESQL_PINK_URL cannot be empty")
+	databaseUser := os.Getenv("DATABASE_USER")
+	if databaseUser == "" {
+		return Config{}, fmt.Errorf("DATABASE_USER cannot be empty")
+	}
+	databasePassword := os.Getenv("DATABASE_PASSWORD")
+	if databasePassword == "" {
+		return Config{}, fmt.Errorf("DATABASE_PASSWORD cannot be empty")
+	}
+	databaseHost := os.Getenv("DATABASE_HOST")
+	if databaseHost == "" {
+		return Config{}, fmt.Errorf("DATABASE_HOST cannot be empty")
+	}
+	databasePort := os.Getenv("DATABASE_PORT")
+	if databasePort == "" {
+		return Config{}, fmt.Errorf("DATABASE_PORT cannot be empty")
+	}
+	databaseName := os.Getenv("DATABASE_NAME")
+	if databaseName == "" {
+		return Config{}, fmt.Errorf("DATABASE_NAME cannot be empty")
+	}
+	databaseSSLMode := os.Getenv("DATABASE_SSL_MODE")
+	if databaseSSLMode == "" {
+		return Config{}, fmt.Errorf("DATABASE_SSL_MODE cannot be empty")
 	}
 	stripeKey := os.Getenv("STRIPE_KEY")
 	if stripeKey == "" {
@@ -254,7 +279,12 @@ func LoadConfig() (Config, error) {
 
 	return Config{
 		Port:                     port,
-		DatabaseURL:              databaseURL,
+		DatabaseUser:             databaseUser,
+		DatabasePassword:         databasePassword,
+		DatabaseHost:             databaseHost,
+		DatabasePort:             databasePort,
+		DatabaseName:             databaseName,
+		DatabaseSSLMode:          databaseSSLMode,
 		StripeKey:                stripeKey,
 		StripeEndpointSecret:     stripeEndpointSecret,
 		StripePublishableKey:     stripePublishableKey,
