@@ -16,7 +16,8 @@ type Config struct {
 	DatabasePassword         string
 	DatabaseHost             string
 	DatabasePort             string
-	DatabaseDB               string
+	DatabaseName             string
+	DatabaseSSLMode          string
 	StripeKey                string // stripe secret API Key
 	StripeEndpointSecret     string // stripe endpoint webhook secret token
 	StripePublishableKey     string // stripe publishable API key
@@ -87,9 +88,13 @@ func LoadConfig() (Config, error) {
 	if databasePort == "" {
 		return Config{}, fmt.Errorf("DATABASE_PORT cannot be empty")
 	}
-	databaseDB := os.Getenv("DATABASE_DB")
-	if databaseDB == "" {
-		return Config{}, fmt.Errorf("DATABASE_DB cannot be empty")
+	databaseName := os.Getenv("DATABASE_NAME")
+	if databaseName == "" {
+		return Config{}, fmt.Errorf("DATABASE_NAME cannot be empty")
+	}
+	databaseSSLMode := os.Getenv("DATABASE_SSL_MODE")
+	if databaseSSLMode == "" {
+		return Config{}, fmt.Errorf("DATABASE_SSL_MODE cannot be empty")
 	}
 	stripeKey := os.Getenv("STRIPE_KEY")
 	if stripeKey == "" {
@@ -278,7 +283,8 @@ func LoadConfig() (Config, error) {
 		DatabasePassword:         databasePassword,
 		DatabaseHost:             databaseHost,
 		DatabasePort:             databasePort,
-		DatabaseDB:               databaseDB,
+		DatabaseName:             databaseName,
+		DatabaseSSLMode:          databaseSSLMode,
 		StripeKey:                stripeKey,
 		StripeEndpointSecret:     stripeEndpointSecret,
 		StripePublishableKey:     stripePublishableKey,

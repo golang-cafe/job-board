@@ -262,13 +262,15 @@ func CountEmailSubscribers(conn *sql.DB) (int, error) {
 }
 
 // GetDbConn tries to establish a connection to postgres and return the connection handler
-func GetDbConn(databaseUser string, databasePassword string, databaseHost string, databasePort string, databaseDB string) (*sql.DB, error) {
-	databaseURL := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=disable",
+func GetDbConn(databaseUser string, databasePassword string, databaseHost string, databasePort string, databaseName string, sslMode string) (*sql.DB, error) {
+	databaseURL := fmt.Sprintf("postgres://%v:%v@%v:%v/%v?sslmode=%s",
 		databaseUser,
 		databasePassword,
 		databaseHost,
 		databasePort,
-		databaseDB)
+		databaseName,
+		sslMode,
+	)
 	db, err := sql.Open("postgres", databaseURL)
 	if err != nil {
 		return nil, err
