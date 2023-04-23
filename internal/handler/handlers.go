@@ -18,9 +18,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ChimeraCoder/anaconda"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/bot-api/telegram"
+	"github.com/dghubble/oauth1"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/dustin/go-humanize"
 	"github.com/gorilla/feeds"
@@ -986,10 +986,19 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 				if len(jobPosts) == 0 {
 					return
 				}
+
+				config := oauth1.NewConfig(svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
+				token := oauth1.NewToken(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret)
+				httpClient := config.Client(oauth1.NoContext, token)
+				const (
+					tweetPostPath = "https://api.twitter.com/2/tweets"
+					contentType   = "application/json"
+				)
+
 				lastJobID := lastTwittedJobID
-				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
 				for _, j := range jobPosts {
-					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug), url.Values{})
+					tweetStr := fmt.Sprintf("{\"text\":\"%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s%s/job/%s\"", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug)
+					_, err := httpClient.Post(tweetPostPath, contentType, strings.NewReader(tweetStr))
 					if err != nil {
 						svr.Log(err, "unable to post tweet")
 						continue

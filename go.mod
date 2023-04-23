@@ -12,6 +12,7 @@ require (
 	github.com/allegro/bigcache/v3 v3.0.0
 	github.com/azr/backoff v0.0.0-20160115115103-53511d3c7330 // indirect
 	github.com/bot-api/telegram v0.0.0-20170115211335-b7abf87c449e
+	github.com/dghubble/oauth1 v0.7.2 // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/dustin/go-humanize v1.0.0
 	github.com/dustin/go-jsonpointer v0.0.0-20160814072949-ba0abeacc3dc // indirect
@@ -37,7 +38,6 @@ require (
 	github.com/shurcooL/sanitized_anchor_name v0.0.0-20170918181015-86672fcb3f95 // indirect
 	github.com/snabb/diagio v0.0.0-20170305182244-0ef68e3dbf01 // indirect
 	github.com/snabb/sitemap v0.0.0-20171225173334-36baa8b39ef4
-	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/stripe/stripe-go v62.10.0+incompatible
 	golang.org/x/image v0.5.0 // indirect
 	gopkg.in/russross/blackfriday.v2 v2.0.0
