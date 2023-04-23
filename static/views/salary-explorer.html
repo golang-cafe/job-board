@@ -298,7 +298,7 @@ section {padding: 0 10px;}
     {{ template "newsletter-banner-html" . }}
 		<header>
 			<nav class="menu-header">
-				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="{{ .SiteName }} Logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
 				<small style="display:block;float:left;margin-bottom:10px;">
 						<a href="/">Jobs</a>&bull;
 						<a style="text-decoration: underline;" href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
