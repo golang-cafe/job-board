@@ -25,7 +25,7 @@ body{background:#ffffff;}
     .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
     </style>
     <meta charset="utf-8">
-    <meta name="title" content="Edit Blog Post | {{ .SiteName }}" />
+    <meta name="title" content="Edit Blog Post | {{ .SiteName }}">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     {{ template "google-analytics" }}
   </head>
@@ -47,19 +47,19 @@ body{background:#ffffff;}
     <article style="margin-top: 30px;">
         <p>
             <h3>Edit your Blog Post</h3>
-	    <b>Preview Link</b>: <a href="/blog/{{ .BlogPost.Slug }}" target="_blank" />https://{{ .SiteHost }}/blog/{{ .BlogPost.Slug }}</a><br /><br />
-	    <b>Created At</b>: {{ .BlogPost.CreatedAt }}<br /><br />
-	    <b>Updated At</b>: {{ .BlogPost.UpdatedAt }}<br /><br />
-	    <b>Status</b>: {{ if .IsPublished }}Published{{ else }}Draft{{ end }}<br /><br />
+	    <b>Preview Link</b>: <a href="/blog/{{ .BlogPost.Slug }}" target="_blank" />https://{{ .SiteHost }}/blog/{{ .BlogPost.Slug }}</a><br><br>
+	    <b>Created At</b>: {{ .BlogPost.CreatedAt }}<br><br>
+	    <b>Updated At</b>: {{ .BlogPost.UpdatedAt }}<br><br>
+	    <b>Status</b>: {{ if .IsPublished }}Published{{ else }}Draft{{ end }}<br><br>
 	    <input type="hidden" value="{{ .BlogPost.ID }}" id="blog-id"/>
-            <input type="text" name="blog-title" id="blog-title" placeholder="Blog Title" style="width: 100%;" value="{{ .BlogPost.Title }}"/><br />
-            <input type="text" name="blog-description" id="blog-description" placeholder="Blog Description" style="width: 100%;" value="{{ .BlogPost.Description }}"/><br />
-            <input type="text" name="blog-tags" id="blog-tags" placeholder="Blog Tags" style="width: 100%;" value="{{ .BlogPost.Tags }}"/><br />
-	    <input type="text" name="blog-slug" id="blog-slug" placeholder="Blog Slug" style="width: 100%;" value="{{ .BlogPost.Slug }}" disabled/><br />
-            <textarea id="blog-text" placeholder="Blog Content" style="resize:none; width: 100%;" value="{{ .BlogPost.Text }}"></textarea><br />
+            <input type="text" name="blog-title" id="blog-title" placeholder="Blog Title" style="width: 100%;" value="{{ .BlogPost.Title }}"><br>
+            <input type="text" name="blog-description" id="blog-description" placeholder="Blog Description" style="width: 100%;" value="{{ .BlogPost.Description }}"><br>
+            <input type="text" name="blog-tags" id="blog-tags" placeholder="Blog Tags" style="width: 100%;" value="{{ .BlogPost.Tags }}"><br>
+	    <input type="text" name="blog-slug" id="blog-slug" placeholder="Blog Slug" style="width: 100%;" value="{{ .BlogPost.Slug }}" disabled><br>
+            <textarea id="blog-text" placeholder="Blog Content" style="resize:none; width: 100%;" value="{{ .BlogPost.Text }}"></textarea><br>
             <input type="submit" id="submit" value="Update" onclick="update();" style="float: right;">
             {{ if .IsPublished }}
-	    	<input type="submit" id="unpublish" value="Unpublish" onclick="unpublish();" style="float: right;background-color: rgb(211, 63, 53);"><br />
+	    	<input type="submit" id="unpublish" value="Unpublish" onclick="unpublish();" style="float: right;background-color: rgb(211, 63, 53);"><br>
 	    {{ else }}
                 <input type="submit" id="publish" value="Publish" onclick="publish();" style="float: right;background-color: rgb(19, 113, 1);">
             {{ end }}

@@ -21,7 +21,7 @@ body{background:#ffffff;}
     .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
     </style>
     <meta charset="utf-8">
-    <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}" />
+    <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     {{ template "google-analytics" }}
   </head>
@@ -52,24 +52,24 @@ body{background:#ffffff;}
         <p>
             <h3>Manage Job Ad</h3>
             <small>
-                <b>Created:</b> {{ .Job.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br />
-                <b>Status:</b> {{ if .Job.ApprovedAt.Valid }} Published {{ .Job.ApprovedAt.Value.Format "Jan 02, 2006 15:04:05 UTC" }} {{ else }} Pending Approval {{ end }}<br />
+                <b>Created:</b> {{ .Job.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br>
+                <b>Status:</b> {{ if .Job.ApprovedAt.Valid }} Published {{ .Job.ApprovedAt.Value.Format "Jan 02, 2006 15:04:05 UTC" }} {{ else }} Pending Approval {{ end }}<br>
                 {{ if .ViewCount }}
-                    <b>Total Job Ad Page Views:</b> {{ .ViewCount }}<br />
+                    <b>Total Job Ad Page Views:</b> {{ .ViewCount }}<br>
                 {{ end }}
                 {{ if .ClickoutCount }}
-                    <b>Total Job Applications (clickouts):</b> {{ .ClickoutCount }}<br />
+                    <b>Total Job Applications (clickouts):</b> {{ .ClickoutCount }}<br>
                 {{ end }}
                 {{ if .ConversionRate }}
-                    <b>Click Through Rate:</b> {{ .ConversionRate }}%<br />
+                    <b>Click Through Rate:</b> {{ .ConversionRate }}%<br>
                 {{ end }}
 		<b>Job Post Link:</b> <a href="/job/{{ .Job.Slug }}" rel="noopener noreferrer" target="_blank">https://{{ .SiteHost }}/job/{{ .Job.Slug }}</a>
 		<b>Job Post Link:</b> <a href="/edit/{{ .Token }}" rel="noopener noreferrer">https://{{ .SiteHost }}/edit/{{ .Token }}</a>
-            </small><br /><br />
-            <input type="text" name="job-title" id="job-title" placeholder="Job Title" style="width: 100%;" value="{{ .Job.JobTitle }}"/><br />
-            <input type="text" name="job-location" id="job-location" placeholder="Job Location" style="width: 100%;" value="{{ .Job.Location }}"/><br />
-            <input type="number" name="salary-min" id="salary-min" placeholder="Min Annual Salary" style="width: 35%;" value="{{ .Job.SalaryMin }}"/>
-            <input type="number" name="salary-max" id="salary-max" placeholder="Max Annual Salary" style="width: 35%;" value="{{ .Job.SalaryMax }}"/>
+            </small><br><br>
+            <input type="text" name="job-title" id="job-title" placeholder="Job Title" style="width: 100%;" value="{{ .Job.JobTitle }}"><br>
+            <input type="text" name="job-location" id="job-location" placeholder="Job Location" style="width: 100%;" value="{{ .Job.Location }}"><br>
+            <input type="number" name="salary-min" id="salary-min" placeholder="Min Annual Salary" style="width: 35%;" value="{{ .Job.SalaryMin }}">
+            <input type="number" name="salary-max" id="salary-max" placeholder="Max Annual Salary" style="width: 35%;" value="{{ .Job.SalaryMax }}">
             <select name="salary-currency" id="salary-currency" style="height: 42px;">
                 {{ if eq .Job.SalaryCurrency "$" }}
                     <option value="$" selected>USD</option>
@@ -116,25 +116,25 @@ body{background:#ffffff;}
                 {{ else }}
                     <option value="¥">JPY</option>
                 {{ end }}
-	    </select> a {{ .Job.SalaryPeriod }}<br />
-            <input type="text" name="company-name" id="company-name" placeholder="Company Name" style="width: 100%;" value="{{ .Job.Company }}"/><br />
+	    </select> a {{ .Job.SalaryPeriod }}<br>
+            <input type="text" name="company-name" id="company-name" placeholder="Company Name" style="width: 100%;" value="{{ .Job.Company }}"><br>
             <div>
             <label for="company-icon-file" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload Company Logo</label>
             <div style="margin-bottom: 10px;float:left; width:100%;">
 		    <img id="company-icon-preview" src="{{ if .Job.CompanyIconID }}/x/s/m/{{ .Job.CompanyIconID }}{{ end }}" style="{{ if not .Job.CompanyIconID }}display: none;{{ end }}max-width:50%;cursor: pointer;float: left;"/>
 	    </div>
-            <input type="file" name="company-icon-file" id="company-icon-file" placeholder="Company Logo" style="visibility: hidden; width: 0; height: 0;" />
-            <input type="hidden" name="existing-company-icon-id" id="existing-company-icon-id" value="{{ if .Job.CompanyIconID }}{{ .Job.CompanyIconID }}{{ else }}0{{ end }}" />
+            <input type="file" name="company-icon-file" id="company-icon-file" placeholder="Company Logo" style="visibility: hidden; width: 0; height: 0;">
+            <input type="hidden" name="existing-company-icon-id" id="existing-company-icon-id" value="{{ if .Job.CompanyIconID }}{{ .Job.CompanyIconID }}{{ else }}0{{ end }}">
             <div class="clearfix"></div>
             </div>
-            <input type="url" name="company-website" id="company-website" placeholder="Company Website" style="width: 100%;" value="{{ .Job.CompanyURL }}"/><br />
-            <br />
-            <textarea id="job-description" placeholder="Job Description" style="resize:none; width: 100%;" value="{{ .Job.JobDescription }}"></textarea><br />
-            <textarea id="perks" placeholder="Perks (optional)" style="resize:none; width: 100%;"></textarea><br />
-            <textarea id="interview-process" placeholder="Interview Process (optional)" style="resize:none; width: 100%;"></textarea><br />
-            <input type="text" name="how-to-apply" id="how-to-apply" placeholder="How To Apply (Email or URL)" style="width: 100%;" value="{{ .Job.HowToApply }}"/><br />
-            <input type="email" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;" value="{{ .Job.CompanyEmail }}"/><br />
-            <input type="hidden" name="token" id="token" value="{{ .Token }}" />
+            <input type="url" name="company-website" id="company-website" placeholder="Company Website" style="width: 100%;" value="{{ .Job.CompanyURL }}"><br>
+            <br>
+            <textarea id="job-description" placeholder="Job Description" style="resize:none; width: 100%;" value="{{ .Job.JobDescription }}"></textarea><br>
+            <textarea id="perks" placeholder="Perks (optional)" style="resize:none; width: 100%;"></textarea><br>
+            <textarea id="interview-process" placeholder="Interview Process (optional)" style="resize:none; width: 100%;"></textarea><br>
+            <input type="text" name="how-to-apply" id="how-to-apply" placeholder="How To Apply (Email or URL)" style="width: 100%;" value="{{ .Job.HowToApply }}"><br>
+            <input type="email" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;" value="{{ .Job.CompanyEmail }}"><br>
+            <input type="hidden" name="token" id="token" value="{{ .Token }}">
             <input type="submit" id="submit" value="Update" onclick="update();" style="float: right;">
             {{ if .Job.ApprovedAt.Valid }}
                 <input type="submit" id="disapprove" value="Unpublish" onclick="disapprove();" style="float: right;background-color: rgb(211, 63, 53);">

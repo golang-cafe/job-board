@@ -28,9 +28,9 @@ body{background:#ffffff;}section { padding: 0 10px; }
         <meta charset="utf-8">
     {{ if and .Location $isRemote }}
     <title>Hire Remote {{ .SiteJobCategory }} Developers | {{ .SiteName }}</title>
-    <meta name="title" content="Hire Remote {{ .SiteJobCategory }} Developers | {{ .SiteName }}" />
-    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire remote {{ .SiteJobCategory }} developers, hire remote {{ .SiteJobCategory }} developers, hire remote go engineers" />
-    <meta name="description" content="Hire Remote {{ .SiteJobCategory }} Developers on {{ .SiteName }}" />
+    <meta name="title" content="Hire Remote {{ .SiteJobCategory }} Developers | {{ .SiteName }}">
+    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire remote {{ .SiteJobCategory }} developers, hire remote {{ .SiteJobCategory }} developers, hire remote go engineers">
+    <meta name="description" content="Hire Remote {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
     <meta itemprop="name" content="Hire Remote {{ .SiteJobCategory }} Developers">
     <meta itemprop="description" content="Hire Remote {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
 	<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
@@ -44,14 +44,14 @@ body{background:#ffffff;}section { padding: 0 10px; }
 	<meta name="twitter:description" content="Hire Remote {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
         
-	<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
-	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-Remote-{{ .SiteJobCategoryURLEncoded }}-Developers" />
+	<meta name="twitter:site" content="@{{ .SiteTwitter }}">
+	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-Remote-{{ .SiteJobCategoryURLEncoded }}-Developers">
     {{ else }}
         {{ if .Location }}
 	<title>Hire {{ .SiteJobCategory }} Developers In {{ .Location }} | {{ .SiteName }}</title>
-	<meta name="title" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} | {{ .SiteName }}" />
+	<meta name="title" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} | {{ .SiteName }}">
 	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers in {{ .Location }}, hire {{ .SiteJobCategory }} developers in {{ .Location }}, hire {{ .SiteJobCategory }} developers, hire go engineers in {{ .Location }}" />
-	<meta name="description" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} on {{ .SiteName }}" />
+	<meta name="description" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} on {{ .SiteName }}">
 	<meta itemprop="name" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }}">
 	<meta itemprop="description" content="Hire {{ .SiteJobCategory }} Developers In {{ .Location }} on {{ .SiteName }}">
 	<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
@@ -66,12 +66,12 @@ body{background:#ffffff;}section { padding: 0 10px; }
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
         
 	<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
-	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers-In-{{ .Location }}" />
+	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers-In-{{ .Location }}">
         {{ else }}
 	<title>Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}</title> 
-	<meta name="title" content="Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}" />
-	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire go engineers" />
-	<meta name="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}" />
+	<meta name="title" content="Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}">
+	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire go engineers">
+	<meta name="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
 	<meta itemprop="name" content="Hire {{ .SiteJobCategory }} Developers">
 	<meta itemprop="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
 	<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
@@ -85,8 +85,8 @@ body{background:#ffffff;}section { padding: 0 10px; }
 	<meta name="twitter:description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
         
-	<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>   
-	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers" />
+	<meta name="twitter:site" content="@{{ .SiteTwitter }}">   
+	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers">
         {{ end }}
     {{ end }}
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
@@ -119,10 +119,10 @@ body{background:#ffffff;}section { padding: 0 10px; }
 		<p>{{ .SiteName }} is trusted by hundred of companies such as {{ .FeaturedCompaniesNames }}</p>
 		<div style="text-align:center;">
 		{{ range $i, $j := .FeaturedCompanies }}
-			<img style="vertical-align:middle;border-radius:50px;" src="/x/s/m/{{ .IconImageID }}?w=100&h=100" width="100" title="{{ .Name }}" />
+			<img style="vertical-align:middle;border-radius:50px;" src="/x/s/m/{{ .IconImageID }}?w=100&h=100" width="100" title="{{ .Name }}">
 		{{ end }}
 		</div>
-		<br />
+		<br>
 		{{ end }}
 
 		<h3>Supercharge Your Hiring On {{ .SiteName }}</h3>
@@ -135,10 +135,10 @@ body{background:#ffffff;}section { padding: 0 10px; }
 		    <li><b>{{ .JobPageviewsLastMonth }}</b> jobs viewed last month</li>
                 </ul>
                 <h3>Create Your Job Ad</h3>
-                <input type="text" name="job-title" id="job-title" placeholder="Job Title" style="width: 100%;"/><br />
-                <input type="text" name="job-location" id="job-location" placeholder="Job Location" style="width: 100%;"/><br />
-                <input type="number" name="salary-min" id="salary-min" placeholder="Min Annual Salary" style="width: 35%;"/>
-                <input type="number" name="salary-max" id="salary-max" placeholder="Max Annual Salary" style="width: 35%;"/>
+                <input type="text" name="job-title" id="job-title" placeholder="Job Title" style="width: 100%;"><br>
+                <input type="text" name="job-location" id="job-location" placeholder="Job Location" style="width: 100%;"><br>
+                <input type="number" name="salary-min" id="salary-min" placeholder="Min Annual Salary" style="width: 35%;">
+                <input type="number" name="salary-max" id="salary-max" placeholder="Max Annual Salary" style="width: 35%;">
                 <select name="salary-currency" id="salary-currency" style="height: 42px;">
                     <option value="USD-$">USD</option>
                     <option value="GBP-£">GBP</option>
@@ -149,31 +149,31 @@ body{background:#ffffff;}section { padding: 0 10px; }
                     <option value="CHF-Fr">CHF</option>
                     <option value="INR-₹">INR</option>
                     <option value="JPY-¥">JPY</option>
-                </select> a year<br />
-                <input type="text" name="company-name" id="company-name" placeholder="Company Name" style="width: 100%;"/><br />
-                <input type="url" name="company-website" id="company-website" placeholder="Company Website" style="width: 100%;"/><br />
+                </select> a year<br>
+                <input type="text" name="company-name" id="company-name" placeholder="Company Name" style="width: 100%;"><br>
+                <input type="url" name="company-website" id="company-website" placeholder="Company Website" style="width: 100%;"><br>
                 <div>
                 <label for="company-icon-file" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">⬆ Upload Company Logo</label>
 		<div style="float:left; width:100%;">
-                	<img id="company-icon-preview" src="" style="max-width:100%;cursor: pointer;display: none; float: left;"/>
+                	<img id="company-icon-preview" src="" style="max-width:100%;cursor: pointer;display: none; float: left;">
 		</div>
-                <input type="file" name="company-icon-file" id="company-icon-file" placeholder="Company Logo" style="visibility: hidden; width: 0; height: 0;" />
+                <input type="file" name="company-icon-file" id="company-icon-file" placeholder="Company Logo" style="visibility: hidden; width: 0; height: 0;">
                 <div class="clearfix"></div>
                 </div>
-                <br />
-                <textarea id="job-description" placeholder="Job Description" style="resize:none; width: 100%;"></textarea><br />
+                <br>
+                <textarea id="job-description" placeholder="Job Description" style="resize:none; width: 100%;"></textarea><br>
 		<div style="width=100%;margin-bottom:10px;">
 			<label style="display: inline-block;white-space: nowrap;padding-right: 10px;"><input type="checkbox" id="visa-sponsorship" name="visa-sponsorship" style="margin-right:0;vertical-align:middle;"> <span style="vertical-align: middle;">VISA Sponsorship</span></label>
 		</div>
-                <input type="text" name="how-to-apply" id="how-to-apply" placeholder="How To Apply (Email or URL)" style="width: 100%;"/><br />
-                <input type="email" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;"/><br />
+                <input type="text" name="how-to-apply" id="how-to-apply" placeholder="How To Apply (Email or URL)" style="width: 100%;"><br>
+                <input type="email" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;"><br>
                 <h4>Preview</h4>
                 <article id="job-preview" class="line-item">
-                    <img src="" class="job-icon" id="job-preview-img" alt="Company Logo" title="Company Logo" style="display: none;"/>
+                    <img src="" class="job-icon" id="job-preview-img" alt="Company Logo" title="Company Logo" style="display: none;">
                     <div style="float: left;">
-                        <a><b id="job-preview-title">Job Title</b> with <b id="job-preview-company">Company Name</b></a><span id="job-preview-sponsored"> &bull; <small>Sponsored</small></span><br />
+                        <a><b id="job-preview-title">Job Title</b> with <b id="job-preview-company">Company Name</b></a><span id="job-preview-sponsored"> &bull; <small>Sponsored</small></span><br>
                         <b id="job-preview-location">Location</b> &bull; <code id="job-preview-salary-range">Salary Range</code>
-                        <br />
+                        <br>
                         <small>1 hour ago</small>
                     </div>
                     <div class="clearfix"></div>
@@ -190,14 +190,14 @@ body{background:#ffffff;}section { padding: 0 10px; }
                     <option class="duration-field" id="duration-field-6" value="6">6 months</option>
                 </select>
                 Your Plan Runs Until <b><span id="plan-expiration-date">{{ .DefaultPlanExpiration.Format "02 Jan 2006" }}</span></b>
-                <br />
+                <br>
                 <h4>Plan</h4>
                 <div style="width:100%;margin-bottom: 30px;">
                     <article class="plan-container" style="padding:20px 10px;height: auto;margin-right:5%;float:left;">
                         <h2 style="margin-top:0;text-align:center;">Basic Plan</h2>
-                        <input type="hidden" id="plan-1-item-price" value="{{ .Plan1IDPrice }}" />
-                        <input type="hidden" id="plan-1-total-price" value="{{ .Plan1IDPrice }}" />
-                        <input type="hidden" id="plan-1-live-days-base" value="30" />
+                        <input type="hidden" id="plan-1-item-price" value="{{ .Plan1IDPrice }}">
+                        <input type="hidden" id="plan-1-total-price" value="{{ .Plan1IDPrice }}">
+                        <input type="hidden" id="plan-1-live-days-base" value="30">
                         <p style="font-size:9pt;line-height:1rem;text-align:center;">
                             The Basic plan is ideal if you are just starting out and you want to try out {{ .SiteName }}.</p>
                         <h4 id="plan-1-label-price" style="text-align:center;margin-top:10px;font-size:20pt;">US${{ .Plan1IDPrice }}</h4>
@@ -211,10 +211,10 @@ body{background:#ffffff;}section { padding: 0 10px; }
                     </article>
                     <article class="plan-container" style="padding:20px 10px;height: auto;margin-right:5%;float:left;">
                         <h2 style="margin-top:0;text-align:center;">Pro Plan</h2>
-                        <input type="hidden" id="plan-2-item-price" value="{{ .Plan2IDPrice }}" />
-                        <input type="hidden" id="plan-2-total-price" value="{{ .Plan2IDPrice }}" />
-                        <input type="hidden" id="plan-2-featured-days-base" value="14" />
-                        <input type="hidden" id="plan-2-live-days-base" value="30" />
+                        <input type="hidden" id="plan-2-item-price" value="{{ .Plan2IDPrice }}">
+                        <input type="hidden" id="plan-2-total-price" value="{{ .Plan2IDPrice }}">
+                        <input type="hidden" id="plan-2-featured-days-base" value="14">
+                        <input type="hidden" id="plan-2-live-days-base" value="30">
                         <p style="font-size:9pt;line-height:1rem;text-align:center;">
                             The Pro plan it's the most popular chosen by companies on {{ .SiteName }}.</p>
                         <h4 id="plan-2-label-price" style="text-align:center;margin-top:10px;font-size:20pt;">US${{ .Plan2IDPrice }}</h4>
@@ -229,10 +229,10 @@ body{background:#ffffff;}section { padding: 0 10px; }
                     </article>
                     <article class="plan-container" style="padding:20px 10px;height: auto;margin-right:5%;float:left;">
                         <h2 style="margin-top:0;text-align:center;">Platinum Plan</h2>
-                        <input type="hidden" id="plan-3-item-price" value="{{ .Plan3IDPrice }}" />
-                        <input type="hidden" id="plan-3-total-price" value="{{ .Plan3IDPrice }}" />
-                        <input type="hidden" id="plan-3-featured-days-base" value="30" />
-                        <input type="hidden" id="plan-3-live-days-base" value="30" />
+                        <input type="hidden" id="plan-3-item-price" value="{{ .Plan3IDPrice }}">
+                        <input type="hidden" id="plan-3-total-price" value="{{ .Plan3IDPrice }}">
+                        <input type="hidden" id="plan-3-featured-days-base" value="30">
+                        <input type="hidden" id="plan-3-live-days-base" value="30">
                         <p style="font-size:9pt;line-height:1rem;text-align:center;">
                             The Platinum plan it's the best plan if you need to reach a lot of applicants very quickly</p>
                         <h4 id="plan-3-label-price" style="text-align:center;margin-top:10px;font-size:20pt;">US${{ .Plan3IDPrice }}</h4>

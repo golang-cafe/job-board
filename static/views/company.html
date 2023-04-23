@@ -19,9 +19,9 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
   .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}.hover-pointer{cursor: pointer;}
 		</style>
 		<meta charset="utf-8">
-		<meta name="title" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}" />
-		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}" />
-		<meta name="description" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}" />
+		<meta name="title" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
+		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}">
+		<meta name="description" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
 		<meta itemprop="name" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
 		<meta itemprop="description" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
 		<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .Company.IconImageID }}">
@@ -34,8 +34,8 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 		<meta name="twitter:title" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
 		<meta name="twitter:description" content="{{ .Company.Name }} is hiring {{ .SiteJobCategory }} Developers - {{ .MonthAndYear }}">
 		<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .Company.IconImageID }}">
-		<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
-		<link rel="canonical" href="https://{{ .SiteHost }}/company/{{ .Company.Slug }}" />
+		<meta name="twitter:site" content="@{{ .SiteTwitter }}">
+		<link rel="canonical" href="https://{{ .SiteHost }}/company/{{ .Company.Slug }}">
 		{{ template "google-analytics" }}
 	</head>
 	<body>
@@ -61,26 +61,26 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<p>
 				<h1>{{ .Company.Name }}</h1>
 				{{ if .Company.IconImageID }}
-				<img src="/x/s/m/{{ .Company.IconImageID }}?w=100&h=100" width="100" height="100" title="{{ .Company.Name }} Logo" alt="{{ .Company.Name }} Logo" style="border-radius: 50px; border: 1px solid #ccc;"/><br />
+				<img src="/x/s/m/{{ .Company.IconImageID }}?w=100&h=100" width="100" height="100" title="{{ .Company.Name }} Logo" alt="{{ .Company.Name }} Logo" style="border-radius: 50px; border: 1px solid #ccc;"/><br>
 				{{ end }}
-				<br />
-				<b>Company Website</b> <a href="{{ .Company.URL }}" target="_blank" rel="noopener noreferrer nofollow">{{ .Company.URL }}</a><br />
-				<b>Last Job Posted</b> {{ humantime .Company.LastJobCreatedAt }}<br />
-				<b>{{ .SiteJobCategory }} Job Openings:</b> {{ .Company.ActiveJobCount }}<br />
-				<b>Locations</b> {{ .Company.Locations }}<br />
+				<br>
+				<b>Company Website</b> <a href="{{ .Company.URL }}" target="_blank" rel="noopener noreferrer nofollow">{{ .Company.URL }}</a><br>
+				<b>Last Job Posted</b> {{ humantime .Company.LastJobCreatedAt }}<br>
+				<b>{{ .SiteJobCategory }} Job Openings:</b> {{ .Company.ActiveJobCount }}<br>
+				<b>Locations</b> {{ .Company.Locations }}<br>
 				{{ if .Company.Github }}
-				<b>GitHub</b> <a href="{{ .Company.Github }}" target="_blank" rel="noopener">{{ .Company.Github }}</a><br />
+				<b>GitHub</b> <a href="{{ .Company.Github }}" target="_blank" rel="noopener">{{ .Company.Github }}</a><br>
 				{{ end }}
 				{{ if .Company.Twitter }}
-				<b>Twitter</b> <a href="{{ .Company.Twitter }}" target="_blank" rel="noopener">{{ .Company.Twitter }}</a><br />
+				<b>Twitter</b> <a href="{{ .Company.Twitter }}" target="_blank" rel="noopener">{{ .Company.Twitter }}</a><br>
 				{{ end }}
 				{{ if .Company.Linkedin }}
-				<b>Linkedin</b> <a href="{{ .Company.Linkedin }}" target="_blank" rel="noopener">{{ .Company.Linkedin }}</a><br />
+				<b>Linkedin</b> <a href="{{ .Company.Linkedin }}" target="_blank" rel="noopener">{{ .Company.Linkedin }}</a><br>
 				{{ end }}
-				<br />
+				<br>
 				<h3>Company Description</h3>
 				{{ .Company.Description }}
-				<br />
+				<br>
 			</article>
 			{{ if .CompanyJobs }}
 			<h3>Company {{ .SiteJobCategory }} Job Openings</h3>
@@ -89,16 +89,16 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			{{ range $i, $j := .CompanyJobs }}
 			<article class="line-item">
 				{{ if .CompanyIconID }}
-				<img width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+				<img width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo">
 				{{ end }}
 				<div style="float: left;">
-					<a href="/job/{{ .Slug }}" target="_blank"><b>{{ .JobTitle }}</b><br />
-						<a style="font-size:12pt;" href="/{{ $siteJobCatUrlEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
-						<b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
-						<br />
+					<a href="/job/{{ .Slug }}" target="_blank"><b>{{ .JobTitle }}</b><br>
+						<a style="font-size:12pt;" href="/{{ $siteJobCatUrlEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br>
+						<b>{{ .Location }}</b><br>{{ .SalaryRange }} a {{ .SalaryPeriod }}
+						<br>
 						<small>{{ .TimeAgo }}</small>
 						{{ if gt .LastWeekClickouts 0 }}
-						<br />
+						<br>
 						<small>{{ .LastWeekClickouts }} Applicants This Week</small>
 						{{ end }}
 				</div>

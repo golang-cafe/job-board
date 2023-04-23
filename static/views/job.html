@@ -237,9 +237,9 @@ background-color: #FF6600
   .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
     </style>
     <meta charset="utf-8">
-    <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} - {{ .MonthAndYear }}" />
-    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}" />
-    <meta name="description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}" />
+    <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} - {{ .MonthAndYear }}">
+    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}">
+    <meta name="description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <meta itemprop="name" content="{{ .Job.JobTitle }} at {{ .Job.Company }}">
     <meta itemprop="description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <meta itemprop="image" content="{{ if .Job.CompanyIconID }}https://{{ .SiteHost }}/x/s/m/{{ .Job.CompanyIconID }}?w=200&h=200{{ else }}https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}{{ end }}">
@@ -252,8 +252,8 @@ background-color: #FF6600
     <meta name="twitter:title" content="{{ .Job.JobTitle }} at {{ .Job.Company }}">
     <meta name="twitter:description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <meta name="twitter:image" content="{{ if .Job.CompanyIconID }}https://{{ .SiteHost }}/x/s/m/{{ .Job.CompanyIconID }}?w=200&h=200{{ else }}https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}{{ end }}">
-    <meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
-    <link rel="canonical" href="https://{{ .SiteHost }}/job/{{ .Job.Slug }}" />
+    <meta name="twitter:site" content="@{{ .SiteTwitter }}">
+    <link rel="canonical" href="https://{{ .SiteHost }}/job/{{ .Job.Slug }}">
     {{ template "google-analytics" }}
   </head>
   <body>
@@ -285,13 +285,13 @@ background-color: #FF6600
                 <li>{{ if .LoggedUser }}Click Apply{{ else }}Go to your Inbox &amp; Confirm Your Application{{ end }}</li>
             </ol>
         </p>
-        <input type="hidden" name="apply-job-id" id="apply-job-id" value="0" />
-        <input type="text" name="apply-email" id="apply-email" {{ if .LoggedUser }}disabled {{ end }}placeholder="Your Email" {{ if .LoggedUser }}value="{{ .LoggedUser.Email }}"{{ end }} style="width: 100%;"/><br />
-        <input type="file" name="apply-cv" id="apply-cv" style="display: none;" onchange="showname()"/>
-        <label class="upload-file-label" id="apply-cv-label" style="width:100%;border: 1px solid #595959; border-radius: 3.6px;border-style:dashed;padding: 5.4px 6.3px;" for="apply-cv">Upload Your CV (PDF file only, max 5MB)</label><br />
-        {{ if not .LoggedUser }}<input type="checkbox" id="apply-notify-jobs" name="apply-notify-jobs" checked style="margin: 0 10px 0 0;"><small><label for="apply-notify-jobs">Notify me about new job openings</label></small><br />{{ end }}
-        <br />
-        <br />
+        <input type="hidden" name="apply-job-id" id="apply-job-id" value="0">
+        <input type="text" name="apply-email" id="apply-email" {{ if .LoggedUser }}disabled {{ end }}placeholder="Your Email" {{ if .LoggedUser }}value="{{ .LoggedUser.Email }}"{{ end }} style="width: 100%;"><br>
+        <input type="file" name="apply-cv" id="apply-cv" style="display: none;" onchange="showname()">
+        <label class="upload-file-label" id="apply-cv-label" style="width:100%;border: 1px solid #595959; border-radius: 3.6px;border-style:dashed;padding: 5.4px 6.3px;" for="apply-cv">Upload Your CV (PDF file only, max 5MB)</label><br>
+        {{ if not .LoggedUser }}<input type="checkbox" id="apply-notify-jobs" name="apply-notify-jobs" checked style="margin: 0 10px 0 0;"><small><label for="apply-notify-jobs">Notify me about new job openings</label></small><br>{{ end }}
+        <br>
+        <br>
         <input type="submit" id="apply-submit" value="Apply" onclick="uploadCV();" style="float: right;">
     </article>
       <article style="padding-bottom: 80px;">
@@ -301,19 +301,19 @@ background-color: #FF6600
 	    {{ end }}
                 <h1>{{ .Job.JobTitle }} at {{ .Job.Company }} - {{ .Job.Location }}</h1>
 		{{ if .Job.CompanyIconID }}
-		<img src="/x/s/m/{{ .Job.CompanyIconID }}?w=100&h=100" width="100" height="100" title="{{ .Job.Company }} Logo" alt="{{ .Job.Company }} Logo" style="border-radius: 50px; border: 1px solid #ccc;"/><br />
+		<img src="/x/s/m/{{ .Job.CompanyIconID }}?w=100&h=100" width="100" height="100" title="{{ .Job.Company }} Logo" alt="{{ .Job.Company }} Logo" style="border-radius: 50px; border: 1px solid #ccc;"><br>
 		{{ end }}
-		<br />
-		<b>Salary</b> {{ .Job.SalaryRange }} a {{ .Job.SalaryPeriod }}<br />
-		<b>Company Website</b> <a href="{{ .Job.CompanyURL }}" target="_blank" rel="nofollow">{{ .Job.CompanyURL }}</a><br />
-		<b>Published</b> {{ .MonthAndYear }}<br />
+		<br>
+		<b>Salary</b> {{ .Job.SalaryRange }} a {{ .Job.SalaryPeriod }}<br>
+		<b>Company Website</b> <a href="{{ .Job.CompanyURL }}" target="_blank" rel="nofollow">{{ .Job.CompanyURL }}</a><br>
+		<b>Published</b> {{ .MonthAndYear }}<br>
 		{{ if gt .Job.LastWeekClickouts 0 }}
-		<b>Applicants This Week</b> {{ .Job.LastWeekClickouts }}<br />
+		<b>Applicants This Week</b> {{ .Job.LastWeekClickouts }}<br>
 		{{ end }}
-		<br />
+		<br>
                 <h3>Job Description</h3>
                 {{ .HTMLJobDescription }}
-                <br />
+                <br>
                 {{ if .Job.Perks }}
                 <h3>Perks & Benefits</h3>
                 {{ .HTMLJobPerks }}
@@ -329,7 +329,7 @@ background-color: #FF6600
                   <a target="_blank" rel="noreferrer noopener" href="/x/r?j={{ .Job.ExternalID }}" style="float:right;" class="apply-link">Apply</a>
                 {{ end }}
 		{{ else }}
-		  <input type="submit" disabled class="right-btn" value="Job Expired" />
+		  <input type="submit" disabled class="right-btn" value="Job Expired">
 		{{ end }}
             </article>
 	    {{ if not .Job.Expired }}
@@ -377,7 +377,7 @@ background-color: #FF6600
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M.707 8.475C.275 8.64 0 9.508 0 9.508s.284.867.718 1.03l5.09 1.897 1.986 6.38a1.102 1.102 0 0 0 1.75.527l2.96-2.41a.405.405 0 0 1 .494-.013l5.34 3.87a1.1 1.1 0 0 0 1.046.135 1.1 1.1 0 0 0 .682-.803l3.91-18.795A1.102 1.102 0 0 0 22.5.075L.706 8.475z"/></svg></div>Telegram</div>
 </a>
 
-                <br />
+                <br>
             </p>
       </article>
       {{ end }}
@@ -388,16 +388,16 @@ background-color: #FF6600
           {{ range $i, $j := .RelevantJobs }}
               <article class="line-item">
                   {{ if .CompanyIconID }}
-                    <img width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+                    <img width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon" alt="{{ .Company }} Logo" title="{{ .Company }} Logo">
                   {{ end }}
                   <div style="float: left;">
-			  <a href="/job/{{ .Slug }}" target="_blank"><b>{{ .JobTitle }}</b><br />
-				  <a style="font-size:12pt;" href="/{{ $siteJobCatEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
-		  <b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
-                  <br />
+			  <a href="/job/{{ .Slug }}" target="_blank"><b>{{ .JobTitle }}</b><br>
+				  <a style="font-size:12pt;" href="/{{ $siteJobCatEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br>
+		  <b>{{ .Location }}</b><br>{{ .SalaryRange }} a {{ .SalaryPeriod }}
+                  <br>
                   <small>{{ .TimeAgo }}</small>
 		{{ if gt .LastWeekClickouts 0 }}
-                	<br />
+                	<br>
                 	<small>{{ .LastWeekClickouts }} Applicants This Week</small>
 		{{ end }}
                   </div>

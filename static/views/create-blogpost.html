@@ -25,9 +25,9 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
     .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
 		</style>
 		<meta charset="utf-8">
-		<meta name="title" content="Create a new blogpost | {{ .SiteName }}" />
-		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}" />
-		<meta name="description" content="Create a new blogpost | {{ .SiteName }}" />
+		<meta name="title" content="Create a new blogpost | {{ .SiteName }}">
+		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}">
+		<meta name="description" content="Create a new blogpost | {{ .SiteName }}">
 		<meta itemprop="name" content="Create a new blogpost | {{ .SiteName }}">
 		<meta itemprop="description" content="Create a new blogpost | {{ .SiteName }}">
 		<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
@@ -41,7 +41,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 		<meta name="twitter:description" content="Create a new blogpost | {{ .SiteName }}">
 		<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 
-		<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
+		<meta name="twitter:site" content="@{{ .SiteTwitter }}">
 		<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 		<script src="https://js.stripe.com/v3/"></script>
 		{{ template "google-analytics" }}
@@ -64,10 +64,10 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 			<article style="margin-top: 30px;">
 				<p>
 				<h1>Create a new Blog Post</h3>
-				<input type="text" name="blog-title" id="blog-title" placeholder="Blog Title" style="width: 100%;"/><br />
-				<input type="text" name="blog-description" id="blog-description" placeholder="Blog Description" style="width: 100%;"/><br />
-				<input type="text" name="blog-tags" id="blog-tags" placeholder="Blog Tags (Comma Separated)" style="width: 100%;"/><br />
-				<textarea id="blog-text" placeholder="Blog Text" style="resize:none; width: 100%;"></textarea><br />
+				<input type="text" name="blog-title" id="blog-title" placeholder="Blog Title" style="width: 100%;"><br>
+				<input type="text" name="blog-description" id="blog-description" placeholder="Blog Description" style="width: 100%;"><br>
+				<input type="text" name="blog-tags" id="blog-tags" placeholder="Blog Tags (Comma Separated)" style="width: 100%;"><br>
+				<textarea id="blog-text" placeholder="Blog Text" style="resize:none; width: 100%;"></textarea><br>
 				<input type="submit" id="submit" value="Create" onclick="create();" style="float: right;">
 				</p>
 			</article>

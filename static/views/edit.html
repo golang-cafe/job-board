@@ -25,9 +25,9 @@ body{background:#ffffff;}
     footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
     </style>
     <meta charset="utf-8">
-    <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}" />
-    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}" />
-    <meta name="description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}" />
+    <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
+    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .Job.JobTitle }}, {{ .Job.Company }}">
+    <meta name="description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <meta itemprop="name" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <meta itemprop="description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
@@ -41,7 +41,7 @@ body{background:#ffffff;}
     <meta name="twitter:description" content="{{ .SiteJobCategory }} Developer Jobs | {{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
     
-    <meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
+    <meta name="twitter:site" content="@{{ .SiteTwitter }}">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
     {{ template "google-analytics" }}
@@ -77,10 +77,10 @@ body{background:#ffffff;}
     <article style="margin-bottom: 30px;">
             {{ if $planExpired }}
             <h3>Your Job Ad has expired</h3>
-            Your Job Ad has expired on {{ .Job.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}. Renew your Job Ad with an easy click. Proceed with payment below and your ad will be automatically approved<br/><br />
+            Your Job Ad has expired on {{ .Job.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}. Renew your Job Ad with an easy click. Proceed with payment below and your ad will be automatically approved<br/><br>
             {{ else }}
             <h3>Your Job Ad is pending</h3>
-            Your Job Ad is pending approval. This means your payment may have not been received yet. Proceed with payment below and your ad will be automatically approved<br/><br />
+            Your Job Ad is pending approval. This means your payment may have not been received yet. Proceed with payment below and your ad will be automatically approved<br/><br>
             {{ end }}
         <h4>Choose Your Package</h4>
                 <p>Please choose one of the following options based on your criteria and budget. All our packags run for 30 days. They vary based on the level of reach you require. You can also make a purchase for multiple months by using the options below.</p>
@@ -94,14 +94,14 @@ body{background:#ffffff;}
                     <option class="duration-field" id="duration-field-6" value="6">6 months</option>
                 </select>
                 Your Plan Runs Until <b><span id="plan-expiration-date">{{ .DefaultPlanExpiration.Format "02 Jan 2006" }}</span></b>
-                <br />
+                <br>
                 <h4>Plan</h4>
                 <div style="width:100%;margin-bottom: 30px;">
                     <article style="padding:20px 10px;width: 28%;height: auto;margin-right:5%;float:left;">
                         <h2 style="margin-top:0;text-align:center;">Basic Plan</h2>
-                        <input type="hidden" id="plan-1-item-price" value="{{ .Plan1IDPrice }}" />
-                        <input type="hidden" id="plan-1-total-price" value="{{ .Plan1IDPrice }}" />
-                        <input type="hidden" id="plan-1-live-days-base" value="30" />
+                        <input type="hidden" id="plan-1-item-price" value="{{ .Plan1IDPrice }}">
+                        <input type="hidden" id="plan-1-total-price" value="{{ .Plan1IDPrice }}">
+                        <input type="hidden" id="plan-1-live-days-base" value="30">
                         <p style="font-size:9pt;line-height:1rem;text-align:center;">
                             The Basic plan is ideal if you are just starting out and you want to try out {{ .SiteName }}.</p>
                         <h4 id="plan-1-label-price" style="text-align:center;margin-top:10px;font-size:20pt;">US${{ .Plan1IDPrice }}</h4>
@@ -115,10 +115,10 @@ body{background:#ffffff;}
                     </article>
                     <article style="padding:20px 10px;width: 28%;height: auto;margin-right:5%;float:left;">
                         <h2 style="margin-top:0;text-align:center;">Pro Plan</h2>
-                        <input type="hidden" id="plan-2-item-price" value="{{ .Plan2IDPrice }}" />
-                        <input type="hidden" id="plan-2-total-price" value="{{ .Plan2IDPrice }}" />
-                        <input type="hidden" id="plan-2-featured-days-base" value="14" />
-                        <input type="hidden" id="plan-2-live-days-base" value="30" />
+                        <input type="hidden" id="plan-2-item-price" value="{{ .Plan2IDPrice }}">
+                        <input type="hidden" id="plan-2-total-price" value="{{ .Plan2IDPrice }}">
+                        <input type="hidden" id="plan-2-featured-days-base" value="14">
+                        <input type="hidden" id="plan-2-live-days-base" value="30">
                         <p style="font-size:9pt;line-height:1rem;text-align:center;">
                             The Pro plan it's the most popular chosen by companies on {{ .SiteName }}.</p>
                         <h4 id="plan-2-label-price" style="text-align:center;margin-top:10px;font-size:20pt;">US${{ .Plan2IDPrice }}</h4>
@@ -133,10 +133,10 @@ body{background:#ffffff;}
                     </article>
                     <article style="padding:20px 10px;width: 28%;height: auto;margin-right:5%;float:left;">
                         <h2 style="margin-top:0;text-align:center;">Platinum Plan</h2>
-                        <input type="hidden" id="plan-3-item-price" value="{{ .Plan3IDPrice }}" />
-                        <input type="hidden" id="plan-3-total-price" value="{{ .Plan3IDPrice }}" />
-                        <input type="hidden" id="plan-3-featured-days-base" value="30" />
-                        <input type="hidden" id="plan-3-live-days-base" value="30" />
+                        <input type="hidden" id="plan-3-item-price" value="{{ .Plan3IDPrice }}">
+                        <input type="hidden" id="plan-3-total-price" value="{{ .Plan3IDPrice }}">
+                        <input type="hidden" id="plan-3-featured-days-base" value="30">
+                        <input type="hidden" id="plan-3-live-days-base" value="30">
                         <p style="font-size:9pt;line-height:1rem;text-align:center;">
                             The Platinum plan it's the best plan if you need to reach a lot of applicants very quickly</p>
                         <h4 id="plan-3-label-price" style="text-align:center;margin-top:10px;font-size:20pt;">US${{ .Plan3IDPrice }}</h4>
@@ -229,19 +229,19 @@ body{background:#ffffff;}
         <p>
             <h3>Job Dashboard</h3>
             <small>
-                <b>Created:</b> {{ .Job.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br />
+                <b>Created:</b> {{ .Job.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br>
                 {{ if .ViewCount }}
-                    <b>Total Job Ad Page Views:</b> {{ .ViewCount }}<br />
+                    <b>Total Job Ad Page Views:</b> {{ .ViewCount }}<br>
                 {{ end }}
                 {{ if .ClickoutCount }}
-                    <b>Total Job Applications (clickouts):</b> {{ .ClickoutCount }}<br />
+                    <b>Total Job Applications (clickouts):</b> {{ .ClickoutCount }}<br>
                 {{ end }}
                 {{ if .ConversionRate }}
-                    <b>Click Through Rate:</b> {{ .ConversionRate }}%<br />
+                    <b>Click Through Rate:</b> {{ .ConversionRate }}%<br>
                 {{ end }}
-                <b>Status:</b> {{ if .Job.ApprovedAt.Valid }} Published {{ .Job.ApprovedAt.Value.Format "Jan 02, 2006 15:04:05 UTC" }} {{ else }} Pending Approval {{ end }}<br />
+                <b>Status:</b> {{ if .Job.ApprovedAt.Valid }} Published {{ .Job.ApprovedAt.Value.Format "Jan 02, 2006 15:04:05 UTC" }} {{ else }} Pending Approval {{ end }}<br>
 		<b>Job Post Link:</b> <a href="/job/{{ .Job.Slug }}" rel="noopener noreferrer" target="_blank">https://{{ .SiteHost }}/job/{{ .Job.Slug }}</a>
-            </small><br /><br />
+            </small><br><br>
             
             {{ if .ViewCount }}
                 <h3>Pageviews</h3>
@@ -257,10 +257,10 @@ body{background:#ffffff;}
     <article style="margin-top: 30px;">
         <p>
             <h3>Edit your Job Ad</h3>
-            <input type="text" name="job-title" id="job-title" placeholder="Job Title" style="width: 100%;" value="{{ .Job.JobTitle }}"/><br />
-            <input type="text" name="job-location" id="job-location" placeholder="Job Location" style="width: 100%;" value="{{ .Job.Location }}"/><br />
-            <input type="number" name="salary-min" id="salary-min" placeholder="Min Annual Salary" style="width: 35%;" value="{{ .Job.SalaryMin }}"/>
-            <input type="number" name="salary-max" id="salary-max" placeholder="Max Annual Salary" style="width: 35%;" value="{{ .Job.SalaryMax }}"/>
+            <input type="text" name="job-title" id="job-title" placeholder="Job Title" style="width: 100%;" value="{{ .Job.JobTitle }}"><br>
+            <input type="text" name="job-location" id="job-location" placeholder="Job Location" style="width: 100%;" value="{{ .Job.Location }}"><br>
+            <input type="number" name="salary-min" id="salary-min" placeholder="Min Annual Salary" style="width: 35%;" value="{{ .Job.SalaryMin }}">
+            <input type="number" name="salary-max" id="salary-max" placeholder="Max Annual Salary" style="width: 35%;" value="{{ .Job.SalaryMax }}">
             <select name="salary-currency" id="salary-currency" style="height: 42px;">
                 {{ if eq .Job.SalaryCurrency "$" }}
                     <option value="$" selected>USD</option>
@@ -307,25 +307,25 @@ body{background:#ffffff;}
                 {{ else }}
                     <option value="¥">JPY</option>
                 {{ end }}
-	    </select> a {{ .Job.SalaryPeriod }}<br />
-            <input type="text" name="company-name" id="company-name" placeholder="Company Name" style="width: 100%;" value="{{ .Job.Company }}"/><br />
+	    </select> a {{ .Job.SalaryPeriod }}<br>
+            <input type="text" name="company-name" id="company-name" placeholder="Company Name" style="width: 100%;" value="{{ .Job.Company }}"><br>
             <div>
             <label for="company-icon-file" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload Company Logo</label>
             <div style="margin-bottom: 10px;float:left; width:100%;">
-		    <img id="company-icon-preview" src="{{ if .Job.CompanyIconID }}/x/s/m/{{ .Job.CompanyIconID }}{{ end }}" style="{{ if not .Job.CompanyIconID }}display: none;{{ end }}max-width:50%;cursor: pointer;float: left;"/>
+		    <img id="company-icon-preview" src="{{ if .Job.CompanyIconID }}/x/s/m/{{ .Job.CompanyIconID }}{{ end }}" style="{{ if not .Job.CompanyIconID }}display: none;{{ end }}max-width:50%;cursor: pointer;float: left;">
 	    </div>
-            <input type="file" name="company-icon-file" id="company-icon-file" placeholder="Company Logo" style="visibility: hidden; width: 0; height: 0;" />
+            <input type="file" name="company-icon-file" id="company-icon-file" placeholder="Company Logo" style="visibility: hidden; width: 0; height: 0;">
             <div class="clearfix"></div>
             </div>
-            <br />
-            <input type="hidden" name="existing-company-icon-id" id="existing-company-icon-id" value="{{ if .Job.CompanyIconID }}{{ .Job.CompanyIconID }}{{ else }}0{{ end }}" />
-            <input type="url" name="company-website" id="company-website" placeholder="Company Website" style="width: 100%;" value="{{ .Job.CompanyURL }}"/><br />
-            <textarea id="job-description" placeholder="Job Description" style="resize:none; width: 100%;" value="{{ .Job.JobDescription }}"></textarea><br />
-            <textarea id="perks" placeholder="Perks (optional)" style="resize:none; width: 100%;"></textarea><br />
-            <textarea id="interview-process" placeholder="Interview Process (optional)" style="resize:none; width: 100%;"></textarea><br />
-            <input type="text" name="how-to-apply" id="how-to-apply" placeholder="How To Apply (Email or URL)" style="width: 100%;" value="{{ .Job.HowToApply }}"/><br />
-            <input type="email" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;" value="{{ .Job.CompanyEmail }}"/><br />
-            <input type="hidden" name="token" id="token" value="{{ .Token }}" />
+            <br>
+            <input type="hidden" name="existing-company-icon-id" id="existing-company-icon-id" value="{{ if .Job.CompanyIconID }}{{ .Job.CompanyIconID }}{{ else }}0{{ end }}">
+            <input type="url" name="company-website" id="company-website" placeholder="Company Website" style="width: 100%;" value="{{ .Job.CompanyURL }}"><br>
+            <textarea id="job-description" placeholder="Job Description" style="resize:none; width: 100%;" value="{{ .Job.JobDescription }}"></textarea><br>
+            <textarea id="perks" placeholder="Perks (optional)" style="resize:none; width: 100%;"></textarea><br>
+            <textarea id="interview-process" placeholder="Interview Process (optional)" style="resize:none; width: 100%;"></textarea><br>
+            <input type="text" name="how-to-apply" id="how-to-apply" placeholder="How To Apply (Email or URL)" style="width: 100%;" value="{{ .Job.HowToApply }}"><br>
+            <input type="email" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;" value="{{ .Job.CompanyEmail }}"><br>
+            <input type="hidden" name="token" id="token" value="{{ .Token }}">
             <input type="submit" id="submit" value="Update" onclick="update();" style="float: right;">
             {{ if .Job.ApprovedAt.Valid }}
                 <input type="submit" id="disapprove" value="Delete Job Listing" onclick="disapprove();" style="float: right;background-color: rgb(211, 63, 53);">

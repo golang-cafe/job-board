@@ -868,10 +868,10 @@
 	</style>
 	<meta charset="utf-8">
 	<title>Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}</title>
-	<meta name="title" content="Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}" />
+	<meta name="title" content="Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}">
 	<meta name="keywords"
-		content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire go engineers" />
-	<meta name="description" content="Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}" />
+		content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire go engineers">
+	<meta name="description" content="Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}">
 	<meta itemprop="name" content="Joim the {{ .SiteJobCategory }} Developers Community">
 	<meta itemprop="description" content="Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}">
 	<meta property="og:url" content="https://{{ .SiteHost }}">
@@ -882,8 +882,8 @@
 	<meta name="twitter:card" content="summary_large_image">
 	<meta name="twitter:title" content="Join the {{ .SiteJobCategory }} Developers Community | {{ .SiteName }}">
 	<meta name="twitter:description" content="Join the {{ .SiteJobCategory }} Developers Community on {{ .SiteName }}">
-	<meta name="twitter:site" content="@{{ .SiteTwitter }}" />
-	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers" />
+	<meta name="twitter:site" content="@{{ .SiteTwitter }}">
+	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers">
 	<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 	<script src="https://js.stripe.com/v3/"></script>
 	{{ template "feedback-box-css" . }}
@@ -933,12 +933,12 @@
 				Register your free profile on {{ .SiteName }}. There are <a
 					href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}" target="_blank">hundreds of companies</a>
 				and <a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">{{ .SiteJobCategory }} developers</a> from all over the world on the {{ .SiteName }}
-				Community.<br /><br /> Developers like <b>{{ .TopDeveloperNames }}</b> experienced in <b>{{ .TopDeveloperSkills }}</b> have joined {{ .SiteName }} recently.
+				Community.<br><br> Developers like <b>{{ .TopDeveloperNames }}</b> experienced in <b>{{ .TopDeveloperSkills }}</b> have joined {{ .SiteName }} recently.
 			</p>
 			<div style="margin-bottom: 20px; text-align: center;">
 				{{ range $i, $j := .TopDevelopers }}
 				<img width="50" height="50" style="margin-left:-20px;border-radius: 50px; border: 1px solid #aaa;"
-					src="/x/s/m/{{ .ImageID }}?w=50&h=50" title="{{ .Name }}" alt="{{ .Name }}" />
+					src="/x/s/m/{{ .ImageID }}?w=50&h=50" title="{{ .Name }}" alt="{{ .Name }}">
 				{{ end }}
 			</div>
 			<ul>
@@ -958,18 +958,18 @@
 			</ul>
 
 			<h3>Join the community</h3>
-			<input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" />
+			<input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;">
 			<div id="current-location-container" style="border-bottom:18px;">
 				<input autocomplete="off" type="text" name="current-location" class="dev-only"
-					placeholder="Your Current Location" id="current-location" style="width:100%;" />
+					placeholder="Your Current Location" id="current-location" style="width:100%;">
 				<div id="current-location-suggestions" style="display:none;margin-top:-20px;" class="search-suggestions">
 				</div>
 			</div>
-			<input type="hidden" id="detected-location-id" name="detected-location-id" />
-			<input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate" style="width: 30%;" /> <div class="tooltip">USD/hour<span class="tooltiptext">Your hourly rate is only visible to recruiters who are logged-in.</span></div>
-			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;" />
+			<input type="hidden" id="detected-location-id" name="detected-location-id">
+			<input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate" style="width: 30%;"> <div class="tooltip">USD/hour<span class="tooltiptext">Your hourly rate is only visible to recruiters who are logged-in.</span></div>
+			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;">
 			<input type="url" name="github-url" id="github-url" placeholder="GitHub URL (Optional)"
-				style="width: 100%;" />
+				style="width: 100%;">
 			<select id="search-status" name="search-status" style="width:100%;">
 				<option default value="">Your Status</option>
 				<option value="actively-applying">Actively Looking</option>
@@ -985,10 +985,10 @@
 				<option value="c-level">C-Level</option>
 			</select>
 			<div>
-				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-full-time" value="full-time" id="role-type-full-time"/> <span style="vertical-align: middle;">Full-Time</span></label>
-				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-part-time" value="part-time" id="role-type-part-time"/> <span style="vertical-align: middle;">Part-Time</span></label>
-				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-contract" value="contract" id="role-type-contract"/> <span style="vertical-align: middle;">Contract</span></label>
-				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-internship" value="internship" id="role-type-internship"/> <span style="vertical-align: middle;">Internship</span></label>
+				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-full-time" value="full-time" id="role-type-full-time"> <span style="vertical-align: middle;">Full-Time</span></label>
+				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-part-time" value="part-time" id="role-type-part-time"> <span style="vertical-align: middle;">Part-Time</span></label>
+				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-contract" value="contract" id="role-type-contract"> <span style="vertical-align: middle;">Contract</span></label>
+				<label style="display: inline-block;padding-right: 10px;white-space: nowrap;"><input style="vertical-align: middle;margin-right:0;" type="checkbox" name="role-type-internship" value="internship" id="role-type-internship"> <span style="vertical-align: middle;">Internship</span></label>
 			</div>
 			<div>
 				<label for="profile-image"
@@ -996,30 +996,30 @@
 					Profile Image</label>
 				<div style="float:left; width:100%;">
 					<img id="profile-image-preview" src=""
-						style="max-width:100%;cursor: pointer;display: none; float: left;" />
+						style="max-width:100%;cursor: pointer;display: none; float: left;">
 				</div>
 				<input type="file" name="profile-image" id="profile-image" placeholder="Your Avatar"
-					style="visibility: hidden; width: 0; height: 0;" />
+					style="visibility: hidden; width: 0; height: 0;">
 				<div class="clearfix"></div>
 			</div>
-			<input type="hidden" name="profile-type" id="profile-type" value="developer" />
+			<input type="hidden" name="profile-type" id="profile-type" value="developer">
 			<textarea id="bio" class="dev-only" placeholder="Short Bio" style="margin-top:10px;resize:none; width: 100%;"></textarea>
 			<input type="hidden" name="tags" id="tags" style="width:100%;"
-				placeholder="Your Skills (eg. MySQL, Go, HTML, CSS, JavaScript)" />
+				placeholder="Your Skills (eg. MySQL, Go, HTML, CSS, JavaScript)">
             <div id="search-tag-container">
-              <input autocomplete="off" type="text" placeholder="Skills" id="search-tag"/>
+              <input autocomplete="off" type="text" placeholder="Skills" id="search-tag">
               <button onclick="addSkillTag()" disabled id="add-tag-btn">Add</button>
                 <div style="z-index:1000;display:none;" id="search-tag-suggestions" class="search-suggestions">
                 </div>
              </div>
             <p class="tags-container">
             </p>
-			<input type="email" name="email" id="email" placeholder="Your Email" style="width: 100%;" />
-			<br />
+			<input type="email" name="email" id="email" placeholder="Your Email" style="width: 100%;">
+			<br>
 			<input type="submit" id="submit" value="Join The Community" onclick="post();" style="margin-right:0px;float: right;">
 			<p style="float:right;margin-bottom:0;margin-top:5px;margin-right:10px;"><small><a
 				href="/auth">Already a member?</a></small></p>
-			<br />
+			<br>
 			</p>
 		</article>
 	</section>

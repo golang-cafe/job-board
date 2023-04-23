@@ -18,9 +18,9 @@ body{background:#ffffff;}
     </style>
         <meta charset="utf-8">
 	<title>Complete Your Payment | {{ .SiteName }}</title>
-	<meta name="title" content="Complete Your Payment | {{ .SiteName }}" />
-	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire remote {{ .SiteJobCategory }} developers, hire remote {{ .SiteJobCategory }} developers, hire remote go engineers" />
-	<meta name="description" content="Complete Your Payment on {{ .SiteName }}" />
+	<meta name="title" content="Complete Your Payment | {{ .SiteName }}">
+	<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire remote {{ .SiteJobCategory }} developers, hire remote {{ .SiteJobCategory }} developers, hire remote go engineers">
+	<meta name="description" content="Complete Your Payment on {{ .SiteName }}">
         <meta itemprop="name" content="Complete Your Payment">
 	<meta itemprop="description" content="Complete Your Payment on {{ .SiteName }}">
 	<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
@@ -33,8 +33,8 @@ body{background:#ffffff;}
 	<meta name="twitter:title" content="Complete Your Payment | {{ .SiteName }}">
 	<meta name="twitter:description" content="Complete Your Payment on {{ .SiteName }}">
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
-	<meta name="twitter:site" content="@{{ .SiteTiwtter }}"/>
-	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-Remote-{{ .SiteJobCategoryURLEncoded }}-Developers" />
+	<meta name="twitter:site" content="@{{ .SiteTiwtter }}">
+	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-Remote-{{ .SiteJobCategoryURLEncoded }}-Developers">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
     {{ template "feedback-box-css" . }}
@@ -51,10 +51,10 @@ body{background:#ffffff;}
             <p>
                 <h2>Complete Your Payment</h2>
 		<p>Please review and complete your payment of <b>{{ .CurrencySymbol }}{{ .Amount }}</b>. You will receive a recipt of purchase into your email <b>{{ .Email }}</b></p> 
-		<br />
-                <br />
+		<br>
+                <br>
 		<input type="submit" id="submit" value="Pay {{ .CurrencySymbol }}{{ .Amount }}" onclick="post();" style="float: right;">
-                <br />
+                <br>
             </p>
       </article>
   </section>

@@ -25,7 +25,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
     .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
 		</style>
 		<meta charset="utf-8">
-		<meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}" />
+		<meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
 		<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 		<script src="https://js.stripe.com/v3/"></script>
 		{{ template "google-analytics" }}
@@ -57,21 +57,21 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				<p>
 				<h3>Your Profile is Live on {{ .SiteName }}</h3>
 				<small>
-					<b>Created:</b> {{ .RecruiterProfile.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br />
-					<b>Last Updated:</b> {{ .RecruiterProfile.UpdatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br />
-					<b>View Profile:</b> <a href="/developer/{{ .RecruiterProfile.Slug }}" rel="noopener noreferrer" target="_blank">https://{{ .SiteHost }}/developer/{{ .RecruiterProfile.Slug }}</a><br />
-				</small><br /><br />
+					<b>Created:</b> {{ .RecruiterProfile.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br>
+					<b>Last Updated:</b> {{ .RecruiterProfile.UpdatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br>
+					<b>View Profile:</b> <a href="/developer/{{ .RecruiterProfile.Slug }}" rel="noopener noreferrer" target="_blank">https://{{ .SiteHost }}/developer/{{ .RecruiterProfile.Slug }}</a><br>
+				</small><br><br>
 				</p>
 			</article>
 			<article style="margin-top: 30px;">
 				<p>
 				<h3>Edit Your Recruiter Profile</h3>
-				<input type="hidden" name="profile-id" id="profile-id" value="{{ .RecruiterProfile.ID }}"/><br />
-				<input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" value="{{ .RecruiterProfile.Name }}"/><br />
-				<input type="text" name="job-title" id="job-title" placeholder="Job Location" style="width: 100%;" value="{{ .RecruiterProfile.Title }}"/><br />
-                <input type="text" name="company" id="company" placeholder="Company Name" style="width: 100%;" value="{{ .RecruiterProfile.Company }}"/><br />
-				<input type="url" name="company-url" id="company-url" placeholder="Company URL" style="width: 100%;" value="{{ .RecruiterProfile.CompanyURL }}"/><br />
-				<input type="email" name="email" disabled id="email" placeholder="Your Email" style="width: 100%;" value="{{ .RecruiterProfile.Email }}"/><br />
+				<input type="hidden" name="profile-id" id="profile-id" value="{{ .RecruiterProfile.ID }}"/><br>
+				<input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" value="{{ .RecruiterProfile.Name }}"><br>
+				<input type="text" name="job-title" id="job-title" placeholder="Job Location" style="width: 100%;" value="{{ .RecruiterProfile.Title }}"><br>
+                <input type="text" name="company" id="company" placeholder="Company Name" style="width: 100%;" value="{{ .RecruiterProfile.Company }}"><br>
+				<input type="url" name="company-url" id="company-url" placeholder="Company URL" style="width: 100%;" value="{{ .RecruiterProfile.CompanyURL }}"><br>
+				<input type="email" name="email" disabled id="email" placeholder="Your Email" style="width: 100%;" value="{{ .RecruiterProfile.Email }}"><br>
 				<input type="submit" id="submit" value="Update" onclick="update();" style="float: right;">
 				</p>
 			</article>

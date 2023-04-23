@@ -58,7 +58,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 }
     </style>
     <meta charset="utf-8">
-    <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}" />
+    <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
     {{ template "google-analytics" }}
@@ -90,30 +90,30 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <p>
         <h3>Your Profile is Live on {{ .SiteName }}</h3>
         <small>
-          <b>Created:</b> {{ .DeveloperProfile.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br />
-          <b>Last Updated:</b> {{ .DeveloperProfile.UpdatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br />
+          <b>Created:</b> {{ .DeveloperProfile.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br>
+          <b>Last Updated:</b> {{ .DeveloperProfile.UpdatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br>
           <b>View Profile:</b> <a href="/developer/{{ .DeveloperProfile.Slug }}" rel="noopener noreferrer" target="_blank">https://{{ .SiteHost }}/developer/{{ .DeveloperProfile.Slug }}</a>
-        </small><br /><br />
+        </small><br><br>
         </p>
       </article>
       <article style="margin-top: 30px;">
         <p>
         <h3>Edit Your Developer Profile</h3>
-        <input type="hidden" name="profile-id" id="profile-id" value="{{ .DeveloperProfile.ID }}"/><br />
-        <input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" value="{{ .DeveloperProfile.Name }}"/><br />
-        <input type="text" name="location" id="location" placeholder="Job Location" style="width: 100%;" value="{{ .DeveloperProfile.Location }}"/><br />
-        <input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate in USD" style="width: 10%;" value="{{ if ne .DeveloperProfile.HourlyRate 0 }}{{ .DeveloperProfile.HourlyRate }}{{ end }}"/> USD/hour<br />
-        <input type="url" name="linkedin-url" id="linkedin-url" placeholder="Linkedin URL" style="width: 100%;" value="{{ .DeveloperProfile.LinkedinURL }}"/><br />
+        <input type="hidden" name="profile-id" id="profile-id" value="{{ .DeveloperProfile.ID }}"><br>
+        <input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" value="{{ .DeveloperProfile.Name }}"><br>
+        <input type="text" name="location" id="location" placeholder="Job Location" style="width: 100%;" value="{{ .DeveloperProfile.Location }}"><br>
+        <input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate in USD" style="width: 10%;" value="{{ if ne .DeveloperProfile.HourlyRate 0 }}{{ .DeveloperProfile.HourlyRate }}{{ end }}"> USD/hour<br>
+        <input type="url" name="linkedin-url" id="linkedin-url" placeholder="Linkedin URL" style="width: 100%;" value="{{ .DeveloperProfile.LinkedinURL }}"><br>
         <div>
           <label for="profile-image" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload Profile Image</label>
           <div style="margin-bottom: 10px;float:left; width:100%;">
             <img id="profile-image-preview" src="/x/s/m/{{ .DeveloperProfile.ImageID }}" style="max-width:50%;cursor: pointer;float: left;"/>
           </div>
-          <input type="file" name="profile-image" id="profile-image" placeholder="Profile Image" style="visibility: hidden; width: 0; height: 0;" />
+          <input type="file" name="profile-image" id="profile-image" placeholder="Profile Image" style="visibility: hidden; width: 0; height: 0;">
           <div class="clearfix"></div>
         </div>
-        <br />
-        <input type="hidden" name="profile-image-id" id="profile-image-id" value="{{ .DeveloperProfile.ImageID }}" />
+        <br>
+        <input type="hidden" name="profile-image-id" id="profile-image-id" value="{{ .DeveloperProfile.ImageID }}">
         </div>
         <span>Search Status</span>
         <select name="search-status" id="search-status" style="height: 42px;">
@@ -171,10 +171,10 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
           <option value="c-level" selected>C-Level</option>
           {{ end }}
         </select>
-        <textarea id="bio" placeholder="Short Bio" style="resize:none; width: 100%;overflow: hidden;min-height: 100px;" oninput="auto_grow(this);">{{ .DeveloperProfile.Bio }}</textarea><br />
+        <textarea id="bio" placeholder="Short Bio" style="resize:none; width: 100%;overflow: hidden;min-height: 100px;" oninput="auto_grow(this);">{{ .DeveloperProfile.Bio }}</textarea><br>
         <div id="search-tag-container">
-            <input type="hidden" name="tags" id="tags" value="{{ .DeveloperProfile.Skills }}"/>
-            <input autocomplete="off" type="text" placeholder="Skills" id="search-tag"/>
+            <input type="hidden" name="tags" id="tags" value="{{ .DeveloperProfile.Skills }}">
+            <input autocomplete="off" type="text" placeholder="Skills" id="search-tag">
               <button onclick="addSkillTag()" disabled id="add-tag-btn">Add</button>
         <div style="z-index:1000;display:none;" id="search-tag-suggestions" class="search-suggestions">
         </div>
@@ -184,7 +184,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
               <span class="tag" onclick="deleteTag('{{ $y }}');">{{ $y }}</span>
             {{ end }}
         </p>
-        <input type="email" name="email" disabled id="email" placeholder="Your Email" style="width: 100%;" value="{{ .DeveloperProfile.Email }}"/><br />
+        <input type="email" name="email" disabled id="email" placeholder="Your Email" style="width: 100%;" value="{{ .DeveloperProfile.Email }}"><br>
         <input type="submit" id="submit" value="Update" onclick="update();" style="margin-right:0px;float: right;">
         </p>
       </article>

@@ -21,9 +21,9 @@ body{background:#ffffff;}
     </style>
     <meta charset="utf-8">
     <title>Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}</title> 
-    <meta name="title" content="Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}" />
-    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire go engineers" />
-    <meta name="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}" />
+    <meta name="title" content="Hire {{ .SiteJobCategory }} Developers | {{ .SiteName }}">
+    <meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, hire {{ .SiteJobCategory }} developers, hire {{ .SiteJobCategory }} developers, hire go engineers">
+    <meta name="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
     <meta itemprop="name" content="Hire {{ .SiteJobCategory }} Developers">
     <meta itemprop="description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
     <meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
@@ -37,8 +37,8 @@ body{background:#ffffff;}
     <meta name="twitter:description" content="Hire {{ .SiteJobCategory }} Developers on {{ .SiteName }}">
     <meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
     
-    <meta name="twitter:site" content="@{{ .SiteTwitter }}"/>   
-    <link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers" />
+    <meta name="twitter:site" content="@{{ .SiteTwitter }}">
+    <link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     {{ template "google-analytics" }}
   </head>
@@ -60,10 +60,10 @@ body{background:#ffffff;}
       <article>
             <p>
                 <h1>Hire {{ .SiteJobCategory }} Developers</h1>
-                <input type="text" name="job-title" id="job-title" placeholder="Job Title" style="width: 100%;"/><br />
-                <input type="text" name="job-location" id="job-location" placeholder="Job Location" style="width: 100%;"/><br />
-                <input type="number" name="salary-min" id="salary-min" placeholder="Min Annual Salary" style="width: 35%;"/>
-                <input type="number" name="salary-max" id="salary-max" placeholder="Max Annual Salary" style="width: 35%;"/>
+                <input type="text" name="job-title" id="job-title" placeholder="Job Title" style="width: 100%;"><br>
+                <input type="text" name="job-location" id="job-location" placeholder="Job Location" style="width: 100%;"><br>
+                <input type="number" name="salary-min" id="salary-min" placeholder="Min Annual Salary" style="width: 35%;">
+                <input type="number" name="salary-max" id="salary-max" placeholder="Max Annual Salary" style="width: 35%;">
                 <select name="salary-currency" id="salary-currency" style="height: 42px;">
                     <option value="USD-$">USD</option>
                     <option value="GBP-£">GBP</option>
@@ -74,24 +74,24 @@ body{background:#ffffff;}
                     <option value="CHF-Fr">CHF</option>
                     <option value="INR-₹">INR</option>
                     <option value="JPY-¥">JPY</option>
-                </select><br />
-                <input type="text" name="company-name" id="company-name" placeholder="Company Name" style="width: 100%;"/><br />
-                <input type="url" name="company-website" id="company-website" placeholder="Company Website" style="width: 100%;"/><br />
+                </select><br>
+                <input type="text" name="company-name" id="company-name" placeholder="Company Name" style="width: 100%;"><br>
+                <input type="url" name="company-website" id="company-website" placeholder="Company Website" style="width: 100%;"><br>
                 <div>
                 <label for="company-icon-file" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload Company Logo</label>
 		<div style="float:left; width:100%;">
-                	<img id="company-icon-preview" src="" style="max-width:100%;cursor: pointer;display: none; float: left;"/>
+                	<img id="company-icon-preview" src="" style="max-width:100%;cursor: pointer;display: none; float: left;">
 		</div>
-                <input type="file" name="company-icon-file" id="company-icon-file" placeholder="Company Logo" style="visibility: hidden; width: 0; height: 0;" />
+                <input type="file" name="company-icon-file" id="company-icon-file" placeholder="Company Logo" style="visibility: hidden; width: 0; height: 0;">
                 <div class="clearfix"></div>
                 </div>
-                <br />
-                <textarea id="job-description" placeholder="Job Description" style="resize:none; width: 100%;"></textarea><br />
+                <br>
+                <textarea id="job-description" placeholder="Job Description" style="resize:none; width: 100%;"></textarea><br>
 		<div style="width=100%;margin-bottom:10px;">
 			<label style="display: inline-block;white-space: nowrap;padding-right: 10px;"><input type="checkbox" id="visa-sponsorship" name="visa-sponsorship" style="margin-right:0;vertical-align:middle;"> <span style="vertical-align: middle;">VISA Sponsorship</span></label>
 		</div>
-                <input type="text" name="how-to-apply" id="how-to-apply" placeholder="How To Apply (Email or URL)" style="width: 100%;"/><br />
-		<input type="email" name="company-email" id="company-email" placeholder="Your Email" value="{{ .SupportEmail }}" style="width: 100%;"/><br />
+                <input type="text" name="how-to-apply" id="how-to-apply" placeholder="How To Apply (Email or URL)" style="width: 100%;"><br>
+		<input type="email" name="company-email" id="company-email" placeholder="Your Email" value="{{ .SupportEmail }}" style="width: 100%;"><br>
                 <input type="submit" id="submit" value="Submit" onclick="post();" style="float: right;">
             </p>
       </article>
