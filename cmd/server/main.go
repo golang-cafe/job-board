@@ -174,6 +174,7 @@ func main() {
 	svr.RegisterRoute("/x/task/ads-manager", handler.TriggerAdsManager(svr, jobRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/twitter-scheduler", handler.TriggerTwitterScheduler(svr, jobRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/telegram-scheduler", handler.TriggerTelegramScheduler(svr, jobRepo), []string{"POST"})
+	svr.RegisterRoute("/x/task/linkedin-scheduler", handler.TriggerLinkedinScheduler(svr, jobRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/company-update", handler.TriggerCompanyUpdate(svr, companyRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/sitemap-update", handler.TriggerSitemapUpdate(svr, devRepo, jobRepo, blogRepo, companyRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/cloudflare-stats-export", handler.TriggerCloudflareStatsExport(svr), []string{"POST"})

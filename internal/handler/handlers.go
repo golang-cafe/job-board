@@ -914,6 +914,46 @@ func TriggerTelegramScheduler(svr server.Server, jobRepo *job.Repository) http.H
 	)
 }
 
+func TriggerLinkedinScheduler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				lastLinkedinJobIDStr, err := jobRepo.GetValue("last_linkedin_job_id")
+				if err != nil {
+					svr.Log(err, "unable to retrieve last linkedin job id")
+					return
+				}
+				lastLinkedinJobID, err := strconv.Atoi(lastLinkedinJobIDStr)
+				if err != nil {
+					svr.Log(err, "unable to convert job str to id")
+					return
+				}
+				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().TwitterJobsToPost, lastLinkedinJobID)
+				log.Printf("found %d/%d jobs to post on telegram\n", len(jobPosts), svr.GetConfig().TwitterJobsToPost)
+				if len(jobPosts) == 0 {
+					return
+				}
+				lastJobID := lastLinkedinJobID
+
+				//ctx := context.Background()
+				for _, j := range jobPosts {
+
+					lastJobID = j.ID
+				}
+				lastJobIDStr := strconv.Itoa(lastJobID)
+				err = jobRepo.SetValue("last_telegram_job_id", lastJobIDStr)
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to save last telegram job id to db as %s", lastJobIDStr))
+					return
+				}
+				log.Printf("updated last telegram job id to %s\n", lastJobIDStr)
+				log.Printf("posted last %d jobs to telegram", len(jobPosts))
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
 func TriggerMonthlyHighlights(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
