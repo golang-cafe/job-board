@@ -3667,3 +3667,19 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 		},
 	)
 }
+
+func TriggerExpiredUserSignOnTokensTask(svr server.Server, userRepo *user.Repository) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				err := userRepo.DeleteExpiredUserSignOnTokens()
+				if err != nil {
+					svr.Log(err, "unable to delete expired user_sign_on_tokens")
+					return
+				}
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
