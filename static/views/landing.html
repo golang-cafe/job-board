@@ -9,11 +9,11 @@
 	<link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="icon">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="title"
-		content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}" />
+		content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
 	<meta name="keywords"
-		content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} {{ .LocationFilter }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} engineer, {{ .SiteJobCategory }} software engineer, remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }}{{ end }}" />
+		content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} {{ .LocationFilter }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} engineer, {{ .SiteJobCategory }} software engineer, remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }}{{ end }}">
 	<meta name="description"
-		content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
+		content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
 	<meta itemprop="name"
 		content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 	<meta itemprop="description"
@@ -31,17 +31,17 @@
 		content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
 	<meta name="twitter:description"
 		content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
-	<link rel="canonical" href="https://{{ .SiteHost }}/Remote-{{ if .TagFilter }}{{.TagFilter}}-{{ end }}Jobs" />
+	<link rel="canonical" href="https://{{ .SiteHost }}/Remote-{{ if .TagFilter }}{{.TagFilter}}-{{ end }}Jobs">
 	{{ else }}
 	<title>{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}}{{ end }} Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
 	<link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="icon">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="title"
-		content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter }}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}" />
+		content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter }}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
 	<meta name="keywords"
-		content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} {{ .LocationFilter }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} engineer, {{ .SiteJobCategory }} software engineer, {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}}{{ end }}" />
+		content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} {{ .LocationFilter }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} engineer, {{ .SiteJobCategory }} software engineer, {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}}{{ end }}">
 	<meta name="description"
-		content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}" />
+		content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
 	<meta itemprop="name"
 		content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs | {{ .SiteName }}">
 	<meta itemprop="description"
@@ -61,13 +61,13 @@
 	<meta name="twitter:description"
 		content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
 	<link rel="canonical"
-		href="https://{{ .SiteHost }}/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}" />
+		href="https://{{ .SiteHost }}/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}">
 	{{ end }}
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 	<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss">
-	<meta name="twitter:site" content="@{{ .SiteTwitter }}" />
-	<meta name="google-site-verification" content="CsoJdYDgMeIeUO0ylZtiDUb4-VZvb2tCpLTkq3GglVo" />
-	<meta name="msvalidate.01" content="E75D7CB7D078DD8E9C2FBA8C285CD656" />
+	<meta name="twitter:site" content="@{{ .SiteTwitter }}">
+	<meta name="google-site-verification" content="CsoJdYDgMeIeUO0ylZtiDUb4-VZvb2tCpLTkq3GglVo">
+	<meta name="msvalidate.01" content="E75D7CB7D078DD8E9C2FBA8C285CD656">
 	<style>
 		body {
 			background: #fff;
@@ -657,7 +657,6 @@
 			border: 1px solid #d9d9d9;
 			width: -moz-calc(100% - 10px);
 			width: -webkit-calc(100% - 10px);
-			width: -o-calc(100% - 10px);
 			width: calc(100% - 10px);
 			margin-right: 10px;
 		}
@@ -881,7 +880,7 @@
 	<header>
 		<nav class="menu-header">
 			<div style="float: left;">
-				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
 				<small style="display:block;float:left;margin-bottom:10px;">
 					<a style="text-decoration: underline;" href="/">Jobs</a>&bull;
 					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
@@ -897,32 +896,32 @@
 		</nav>
 	</header>
 	<section style="padding: 0 10px;">
-		<p>
+		<div>
 			<input type="submit" value="Post a Job" id="post-btn"
 				onclick="window.location.href='/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers';">
 			{{ if $isRemote }}
 		<h1 class="main-title">Remote {{ if .TagFilter }}{{ .TagFilter }} {{ else }}{{ .SiteJobCategory }} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }}
-		</h1><br />
+		</h1><br>
 		<b style="font-size:12pt;">Hand-Picked {{ .SiteJobCategory }} jobs &bull; Apply directly to companies &bull;
 			Clear salary ranges</b>
 		<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} 🌎 Remote {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b> in {{ .MonthAndYear }} {{ if .TextCompanies }}at companies like <b>{{ .TextCompanies }}</b>{{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year{{ else }}{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }}{{ end }} working as a <b>{{ .TextJobTitles }}</b>.{{ end }} Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
 		{{ else }}
-		<h1 class="main-title">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }}{{ end }} Jobs {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }}{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year{{ end }}</h1><br />
+		<h1 class="main-title">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }}{{ end }} Jobs {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }}{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year{{ end }}</h1><br>
 		<b style="font-size:12pt;">Hand-Picked {{ .SiteJobCategory }} jobs &bull; Apply directly to companies &bull;
 			Clear salary ranges</b>
 		<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b>{{ if not .ComplementaryRemote }}{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}{{ end }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }} in {{ .MonthAndYear }} {{ if .TextCompanies }}at companies like <b>{{ .TextCompanies }}</b>{{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year{{ else }}{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }}{{ end }} working as a <b>{{ .TextJobTitles }}</b>.{{ end }} Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
 		{{ end }}
-		</p>
+		</div>
 		<div style="display: flex;align-items: stretch;margin-bottom: 10px;" id="search-outer-container">
 			<div id="search-tag-container">
 				<input autocomplete="off" type="text" value="{{ .TagFilter }}" placeholder="Skills, Company"
-					id="search-tag" />
+					id="search-tag">
 				<div style="z-index:1000;display:none;" id="search-tag-suggestions" class="search-suggestions">
 				</div>
 			</div>
 			<div id="search-location-container">
 				<input autocomplete="off" type="text" value="{{ .LocationFilter }}" placeholder="City, Country"
-					id="search-location" />
+					id="search-location">
 				<div id="search-location-suggestions" style="display:none;" class="search-suggestions">
 				</div>
 			</div>
@@ -937,28 +936,28 @@
 					{{ end }}
 				</select>
 			</div>
-			<input type="submit" value="Search" id="search-btn" />
+			<input type="submit" value="Search" id="search-btn">
 			<div class="mobile-only">
 			    <div style="width:100%; text-align: center;margin-top: 20px;margin-bottom: 10px;">Hiring {{ .SiteJobCategory }} Developers?</div>
-			    <input type="submit" value="Post a Job" id="post-a-job-mobile" onclick="window.location.href='/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers';" />
+			    <input type="submit" value="Post a Job" id="post-a-job-mobile" onclick="window.location.href='/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers';">
 			</div>
 		</div>
 		<div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
 		<article class="apply-box" id="apply-box-0">
 			<h3 style="margin-top: 10px;">{{ if .LoggedUser }}1-Click Apply{{ else }}2-Click Apply{{ end }}</h3>
-			<p>
+			<div>
 				<ol>
 					<li>Upload Your CV</li>
 					<li>{{ if .LoggedUser }}Click Apply{{ else }}Go to your Inbox &amp; Confirm Your Application{{ end }}</li>
 				</ol>
-			</p>
-			<input type="hidden" name="apply-job-id" id="apply-job-id" value="0" />
-			<input type="text" name="apply-email" id="apply-email" {{ if .LoggedUser }}disabled {{ end }}placeholder="Your Email" {{ if .LoggedUser }}value="{{ .LoggedUser.Email }}"{{ end }} style="width: 100%;"/><br />
-			<input type="file" name="apply-cv" id="apply-cv" style="display: none;" onchange="showname()"/>
-			<label class="upload-file-label" id="apply-cv-label" style="width:100%;border: 1px solid #595959; border-radius: 3.6px;border-style:dashed;padding: 5.4px 6.3px;" for="apply-cv">Upload Your CV (PDF file only, max 5MB)</label><br />
-			{{ if not .LoggedUser }}<input type="checkbox" id="apply-notify-jobs" name="apply-notify-jobs" checked style="margin: 0 10px 0 0;"><small><label for="apply-notify-jobs">Notify me about new job openings</label></small><br />{{ end }}
-			<br />
-			<br />
+			</div>
+			<input type="hidden" name="apply-job-id" id="apply-job-id" value="0">
+			<input type="text" name="apply-email" id="apply-email" {{ if .LoggedUser }}disabled {{ end }}placeholder="Your Email" {{ if .LoggedUser }}value="{{ .LoggedUser.Email }}"{{ end }} style="width: 100%;"><br>
+			<input type="file" name="apply-cv" id="apply-cv" style="display: none;" onchange="showname()">
+			<label class="upload-file-label" id="apply-cv-label" style="width:100%;border: 1px solid #595959; border-radius: 3.6px;border-style:dashed;padding: 5.4px 6.3px;" for="apply-cv">Upload Your CV (PDF file only, max 5MB)</label><br>
+			{{ if not .LoggedUser }}<input type="checkbox" id="apply-notify-jobs" name="apply-notify-jobs" checked style="margin: 0 10px 0 0;"><small><label for="apply-notify-jobs">Notify me about new job openings</label></small><br>{{ end }}
+			<br>
+			<br>
 			<input type="submit" id="apply-submit" value="Apply" onclick="uploadCV();" style="float: right;">
 		</article>
 		{{ if .PinnedJobs }}
@@ -972,23 +971,23 @@
 		<article class="line-item line-item-sponsored-1">
 			{{ if .CompanyIconID }}
 			<img loading="lazy" width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon"
-				alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+				alt="{{ .Company }} Logo" title="{{ .Company }} Logo">
 			{{ end }}
 			<div style="float: left;">
-				<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a> &bull; <small>Sponsored</small><br />
-				<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
-				<b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
-				<br />
+				<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a> &bull; <small>Sponsored</small><br>
+				<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br>
+				<b>{{ .Location }}</b><br>{{ .SalaryRange }} a {{ .SalaryPeriod }}
+				<br>
 				<small>{{ .TimeAgo }}</small>
 				{{ if gt .LastWeekClickouts 0 }}
-				<br />
+				<br>
 				<small>{{ .LastWeekClickouts }} Applicants This Week</small>
 				{{ end }}
 			</div>
 			<div class="job-desc" id="{{ .Slug }}" data-toggle="off">
 				<h3>Job Description</h3>
 				{{ .JobDescription }}
-				<br />
+				<br>
 				{{ if .Perks }}
 				<h3>Perks & Benefits</h3>
 				{{ .Perks }}
@@ -1015,31 +1014,31 @@
 		{{ $jobsFound := len .Jobs }}
 		{{ if gt $jobsFound 0 }}
 		{{ if .ComplementaryRemote }}
-		<small><b>No {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Jobs {{ if .LocationFilter }}in <b>{{ .LocationFilter }}</b>{{ end }}</b> {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }}</small><br /><br />
-		<small>Showing {{ len .Jobs }} of {{ .TotalJobCount }} <b>Remote</b>🌎 {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Jobs {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} available instead</small><br />
+		<small><b>No {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Jobs {{ if .LocationFilter }}in <b>{{ .LocationFilter }}</b>{{ end }}</b> {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }}</small><br><br>
+		<small>Showing {{ len .Jobs }} of {{ .TotalJobCount }} <b>Remote</b>🌎 {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Jobs {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} available instead</small><br>
 		{{ else }}
 		<small>{{ len .Jobs }} of {{ .TotalJobCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Jobs {{ if .LocationFilter }}in <b>{{ .LocationFilterWithCountry }}</b>{{ end }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }} {{ if .SalaryFilter }} paying at least
 			{{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} &bull; Sort by
-			<b>Date</b></small><br />
+			<b>Date</b></small><br>
 		{{ end }}
 		{{ else }}
-		No {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}jobs {{ if .LocationFilter }}in <b>{{ .LocationFilterWithCountry }}</b>{{ end }} {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} found. <b>Try removing some filters and expanding your search</b><br />
+		No {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}jobs {{ if .LocationFilter }}in <b>{{ .LocationFilterWithCountry }}</b>{{ end }} {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }} found. <b>Try removing some filters and expanding your search</b><br>
 		{{ end }}
 
 		{{ range $i, $j := .Jobs }}
 		<article class="line-item">
 			{{ if .CompanyIconID }}
 			<img loading="lazy" width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon"
-				alt="{{ .Company }} Logo" title="{{ .Company }} Logo" />
+				alt="{{ .Company }} Logo" title="{{ .Company }} Logo">
 			{{ end }}
 			<div style="float: left;">
-				<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a>{{ if isTimeAfterNow .FrontPageEligibilityExpiredAt }} &bull; <small>Sponsored</small>{{ end }}<br />
-				<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br />
-				<b>{{ .Location }}</b><br />{{ .SalaryRange }} a {{ .SalaryPeriod }}
-				<br />
+				<a onclick="displayJob('{{ .Slug }}')"><b>{{ .JobTitle }}</b></a>{{ if isTimeAfterNow .FrontPageEligibilityExpiredAt }} &bull; <small>Sponsored</small>{{ end }}<br>
+				<a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .Company }}</a><br>
+				<b>{{ .Location }}</b><br>{{ .SalaryRange }} a {{ .SalaryPeriod }}
+				<br>
 				<small>{{ .TimeAgo }}</small>
 				{{ if gt .LastWeekClickouts 0 }}
-				<br />
+				<br>
 				<small>{{ .LastWeekClickouts }} Applicants This Week</small>
 				{{ end }}
 			</div>
@@ -1050,7 +1049,7 @@
 				{{ end }}
 				<h3>Job Description</h3>
 				{{ .JobDescription }}
-				<br />
+				<br>
 				{{ if .Perks }}
 				<h3>Perks & Benefits</h3>
 				{{ .Perks }}
@@ -1068,7 +1067,7 @@
 					class="apply-link">Apply</a>
 				{{ end }}
 				{{ else }}
-				<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired" />
+				<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired">
 				{{ end }}
 				<a class="copy-to-clipboard" data-link="https://{{ $siteHost }}/job/{{ .Slug }}"
 					style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398; Copy Link</a>
@@ -1079,24 +1078,24 @@
 		</article>
 		{{ end }}
 		<article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
-			<div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;"
-				id="email-subscribe-item-text">Get a weekly email with all new {{ .SiteJobCategory }} jobs</div>
+			<h2 style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;"
+				id="email-subscribe-item-text">Get a weekly email with all new {{ .SiteJobCategory }} jobs</h2>
 			<input type="email" name="job-email-subscription" id="job-email-subscription"
 				style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
 			<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn"
-				value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;" />
+				value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;">
 		</article>
 		{{ if gt $jobsFound 0 }}
 		{{ if .LocationFilter }}
 		{{ if not .ComplementaryRemote }}
 		<small>{{ len .Jobs }} of {{ .TotalJobCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}jobs {{ if .LocationFilter }}in <b>{{ .LocationFilterWithCountry }}</b>{{ end }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }} {{ if .SalaryFilter }} paying at least
-			{{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }}</small><br />
+			{{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year {{ end }}</small><br>
 		{{ end }}
 		{{ else }}
-		<small>{{ len .Jobs }} of {{ .TotalJobCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}jobs {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{.CurrencyFilter }} per year {{ end }} found</small><br />
+		<small>{{ len .Jobs }} of {{ .TotalJobCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}jobs {{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{.CurrencyFilter }} per year {{ end }} found</small><br>
 		{{ end }}
 		{{ end }}
-		<br />
+		<br>
 		<nav>
 			<ul>
 				{{ $cur := .CurrentPage }}
