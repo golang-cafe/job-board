@@ -3603,6 +3603,42 @@ func GetUserBlogPostsHandler(svr server.Server, blogPostRepo *blog.Repository) h
 	)
 }
 
+func GetUserMessagesHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			all, err := devRepo.ListDeveloperProfileMessage(profile.UserID)
+			if err != nil {
+				svr.Log(err, "unable to retrieve messages")
+				svr.TEXT(w, http.StatusNotFound, "could not retrieve messages. Please try again later")
+				return
+			}
+			profileViews, err := devRepo.GetDeveloperProfilePageViewsCount(profile.UserID)
+			if err != nil {
+				svr.Log(err, "unable to retrieve profile view count.")
+				svr.TEXT(w, http.StatusNotFound, "could not retrieve profile view count. Please try again later")
+				return
+			}
+			sentMessagesCount, err := devRepo.GetDeveloperMessagesSentCount(profile.UserID)
+			if err != nil {
+				svr.Log(err, "unable to retrieve message sent count.")
+				svr.TEXT(w, http.StatusNotFound, "could not retrieve message sent count. Please try again later")
+				return
+			}
+			svr.Render(r, w, http.StatusOK, "user-messages.html", map[string]interface{}{
+				"Messages": all, "ProfileViews": profileViews, "SentMessagesCount": sentMessagesCount,
+			})
+		},
+	)
+}
+
 func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, recRepo *recruiter.Repository) http.HandlerFunc {
 	return middleware.UserAuthenticatedMiddleware(
 		svr.SessionStore,

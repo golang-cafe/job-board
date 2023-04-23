@@ -121,6 +121,36 @@ func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 	return dev, nil
 }
 
+func (r *Repository) ListDeveloperProfileMessage(profileID string) ([]DeveloperMessage, error) {
+	var messages []DeveloperMessage
+	rows, err := r.db.Query(
+		`SELECT id, email, content, profile_id, created_at, sent_at FROM developer_profile_message WHERE profile_id=$1`,
+		profileID,
+	)
+	if err != nil {
+		return messages, err
+	}
+
+	for rows.Next() {
+		var message DeveloperMessage
+		err := rows.Scan(
+			&message.ID,
+			&message.Email,
+			&message.Content,
+			&message.ProfileID,
+			&message.CreatedAt,
+			&message.SentAt,
+		)
+		if err != nil {
+			return messages, err
+		}
+		messages = append(messages, message)
+	}
+
+	return messages, nil
+
+}
+
 func (r *Repository) SendMessageDeveloperProfile(message DeveloperMessage, senderID string) error {
 	_, err := r.db.Exec(
 		`INSERT INTO developer_profile_message (id, email, content, profile_id, created_at, sender_id) VALUES ($1, $2, $3, $4, NOW(), $5)`,
@@ -362,6 +392,26 @@ func (r *Repository) GetDeveloperMessagesSentLastMonth() (int, error) {
 func (r *Repository) GetDeveloperProfilePageViewsLastMonth() (int, error) {
 	var count int
 	row := r.db.QueryRow(`select count(*) as c from developer_profile_event where event_type = 'developer_profile_page_view' and created_at > NOW() - INTERVAL '30 days'`)
+	if err := row.Scan(&count); err != nil {
+		return count, err
+	}
+
+	return count, nil
+}
+
+func (r *Repository) GetDeveloperMessagesSentCount(profile_id string) (int, error) {
+	var count int
+	row := r.db.QueryRow(`select count(*) from developer_profile_message where profile_id = $1`, profile_id)
+	if err := row.Scan(&count); err != nil {
+		return count, err
+	}
+
+	return count, nil
+}
+
+func (r *Repository) GetDeveloperProfilePageViewsCount(developer_profile_id string) (int, error) {
+	var count int
+	row := r.db.QueryRow(`select count(*) as c from developer_profile_event where event_type = 'developer_profile_page_view' and developer_profile_id=$1`, developer_profile_id)
 	if err := row.Scan(&count); err != nil {
 		return count, err
 	}

@@ -162,6 +162,7 @@ func main() {
 	svr.RegisterRoute("/profile/blog/create", handler.CreateDraftBlogPostHandler(svr, blogRepo), []string{"GET"})
 	svr.RegisterRoute("/profile/blog/list", handler.GetUserBlogPostsHandler(svr, blogRepo), []string{"GET"})
 	svr.RegisterRoute("/profile/blog/{id}/edit", handler.EditBlogPostHandler(svr, blogRepo), []string{"GET"})
+	svr.RegisterRoute("/profile/messages/list", handler.GetUserMessagesHandler(svr, devRepo), []string{"GET"})
 	svr.RegisterRoute("/x/profile/blog/create", handler.CreateBlogPostHandler(svr, blogRepo), []string{"POST"})
 	svr.RegisterRoute("/x/profile/blog/{id}/publish", handler.PublishBlogPostHandler(svr, blogRepo), []string{"POST"})
 	svr.RegisterRoute("/x/profile/blog/{id}/unpublish", handler.UnpublishBlogPostHandler(svr, blogRepo), []string{"POST"})

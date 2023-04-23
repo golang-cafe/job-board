@@ -9,3 +9,4 @@
 bin
 .idea
 cmd/server/tmp
+tmp/
