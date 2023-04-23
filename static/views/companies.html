@@ -75,11 +75,11 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 		</style>
 		{{ template "feedback-box-css" . }}
 		{{ template "newsletter-banner-css" . }}
-		{{ template "google-analytics" }}
+		{{ template "tpl_google-analytics" }}
 	</head>
 	<body>
-		{{ template "feedback-box-html" . }}
-		{{ template "newsletter-banner-html" . }}
+		{{ template "tpl_feedback-box-html" . }}
+		{{ template "tpl_newsletter-banner-html" . }}
 		<header>
 			<nav class="menu-header">
 				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">

@@ -831,11 +831,11 @@
 	<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 	<script src="https://js.stripe.com/v3/"></script>
 	{{ template "feedback-box-css" . }}
-	{{ template "google-analytics" }}
+	{{ template "tpl_google-analytics" }}
 </head>
 
 <body>
-	{{ template "feedback-box-html" . }}
+	{{ template "tpl_feedback-box-html" . }}
 	<div id="spinner-0">
 		<div class="overlay-effect"></div>
 		<div class="spinner-box">

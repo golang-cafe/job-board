@@ -254,7 +254,7 @@ background-color: #FF6600
     <meta name="twitter:image" content="{{ if .Job.CompanyIconID }}https://{{ .SiteHost }}/x/s/m/{{ .Job.CompanyIconID }}?w=200&h=200{{ else }}https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}{{ end }}">
     <meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
     <link rel="canonical" href="https://{{ .SiteHost }}/job/{{ .Job.Slug }}" />
-    {{ template "google-analytics" }}
+    {{ template "tpl_google-analytics" }}
   </head>
   <body>
     <header>
