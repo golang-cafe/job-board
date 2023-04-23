@@ -47,11 +47,6 @@ import (
 	"github.com/golang-cafe/job-board/internal/user"
 )
 
-const (
-	AuthStepVerifyDeveloperProfile = "1mCQFVDZTAx9VQa1lprjr0aLgoP"
-	AuthStepLoginDeveloperProfile  = "1mEvrSr2G4e4iGeucwolKW6o64d"
-)
-
 type devGetter interface {
 	DeveloperProfileByEmail(email string) (developer.Developer, error)
 }
