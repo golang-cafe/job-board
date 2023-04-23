@@ -61,7 +61,7 @@
 	<meta name="twitter:description"
 		content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
 	<link rel="canonical"
-		href="https://{{ .SiteHost }}/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}" />
+		href="https://{{ .SiteHost }}/{{ .SiteJobCategoryURLEncoded }}-{{ if .TagFilter }}{{.TagFilterURLEnc }}-{{ end }}Jobs{{ if .LocationFilter}}-In-{{ .LocationFilterURLEnc }}{{ end }}{{ if .SalaryFilter }}-Paying-{{ .SalaryFilter }}-{{ .CurrencyFilter }}-year{{ end }}">
 	{{ end }}
 	<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 	<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss">
@@ -897,7 +897,7 @@
 		</nav>
 	</header>
 	<section style="padding: 0 10px;">
-		<p>
+		<div>
 			<input type="submit" value="Post a Job" id="post-btn"
 				onclick="window.location.href='/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers';">
 			{{ if $isRemote }}
@@ -912,7 +912,7 @@
 			Clear salary ranges</b>
 		<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse <b>{{ .TextJobCount }} {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} Jobs{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}</b>{{ if not .ComplementaryRemote }}{{ if .LocationFilter }} in {{ .LocationFilterWithCountry }}{{ end }}{{ end }}{{ if .LocationEmojiFromDB }} {{ .LocationEmojiFromDB }}{{ end }} in {{ .MonthAndYear }} {{ if .TextCompanies }}at companies like <b>{{ .TextCompanies }}</b>{{ if .SalaryFilter }} paying at least {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} per year{{ else }}{{ if .HasSalaryInfo }} with salaries from <b>{{ .MinSalary }} to {{ .MaxSalary }}</b>{{ end }}{{ end }} working as a <b>{{ .TextJobTitles }}</b>.{{ end }} Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
 		{{ end }}
-		</p>
+		</div>
 		<div style="display: flex;align-items: stretch;margin-bottom: 10px;" id="search-outer-container">
 			<div id="search-tag-container">
 				<input autocomplete="off" type="text" value="{{ .TagFilter }}" placeholder="Skills, Company"
