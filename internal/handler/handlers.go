@@ -826,7 +826,7 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 				}
 				var jobsHTMLArr []string
 				for _, j := range jobPosts {
-					jobsHTMLArr = append(jobsHTMLArr, `<p><b>Job Title:</b> `+j.JobTitle+`<br /><b>Company:</b> `+j.Company+`<br /><b>Location:</b> `+j.Location+`<br /><b>Salary:</b> `+j.SalaryRange+`<br /><b>Detail:</b> <a href="`+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`">`+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`</a></p>`)
+					jobsHTMLArr = append(jobsHTMLArr, `<p><b>Job Title:</b> `+j.JobTitle+`<br><b>Company:</b> `+j.Company+`<br><b>Location:</b> `+j.Location+`<br><b>Salary:</b> `+j.SalaryRange+`<br><b>Detail:</b> <a href="`+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`">`+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`</a></p>`)
 					lastJobID = j.ID
 				}
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
@@ -837,7 +837,7 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 	<p>` + svr.GetConfig().SiteName + `</p>
 	<hr />`
 				unsubscribeLink := `
-	<h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br />This email was sent to <strong>%s</strong> | <a href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
+	<h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br>This email was sent to <strong>%s</strong> | <a href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
 
 				for _, s := range subscribers {
 					err = svr.GetEmail().SendHTMLEmail(
@@ -2391,7 +2391,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 				fmt.Sprintf("Confirm your job application with %s", jobPost.Company),
 				fmt.Sprintf(
-					"Thanks for applying for the position %s with %s - %s.<br />Please confirm your application now by following this link %s%s/apply/%s",
+					"Thanks for applying for the position %s with %s - %s.<br>Please confirm your application now by following this link %s%s/apply/%s",
 					jobPost.JobTitle,
 					jobPost.Company,
 					jobPost.Location,
@@ -2496,7 +2496,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			"Title": "Job Application Successfull",
 			"Description": svr.StringToHTML(
 				fmt.Sprintf(
-					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"%s%s/job/%s\">%s%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. <br />Consider joining our Golang Cafe Developer community where companies can apply to you",
+					"Thank you for applying for <b>%s with %s - %s</b><br><a href=\"%s%s/job/%s\">%s%s/job/%s</a>. <br><br>Your CV has been forwarded to company HR. <br>Consider joining our Golang Cafe Developer community where companies can apply to you",
 					retrievedJobPost.JobTitle,
 					retrievedJobPost.Company,
 					retrievedJobPost.Location,
@@ -2564,7 +2564,7 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 			"Title": "Job Application Successfull",
 			"Description": svr.StringToHTML(
 				fmt.Sprintf(
-					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"%s%s/job/%s\">%s%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. <br />Consider joining our Golang Cafe Developer community where companies can apply to you",
+					"Thank you for applying for <b>%s with %s - %s</b><br><a href=\"%s%s/job/%s\">%s%s/job/%s</a>. <br><br>Your CV has been forwarded to company HR. <br>Consider joining our Golang Cafe Developer community where companies can apply to you",
 					jobPost.JobTitle,
 					jobPost.Company,
 					jobPost.Location,
@@ -3659,6 +3659,22 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 					"Developer":     dev,
 				})
 			}
+		},
+	)
+}
+
+func TriggerExpiredUserSignOnTokensTask(svr server.Server, userRepo *user.Repository) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				err := userRepo.DeleteExpiredUserSignOnTokens()
+				if err != nil {
+					svr.Log(err, "unable to delete expired user_sign_on_tokens")
+					return
+				}
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
 	)
 }

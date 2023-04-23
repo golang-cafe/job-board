@@ -18,7 +18,7 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) SaveTokenSignOn(email, token, userType string) error {
-	if _, err := r.db.Exec(`INSERT INTO user_sign_on_token (token, email, user_type) VALUES ($1, $2, $3)`, token, email, userType); err != nil {
+	if _, err := r.db.Exec(`INSERT INTO user_sign_on_token (token, email, user_type, created_at) VALUES ($1, $2, $3, NOW())`, token, email, userType); err != nil {
 		return err
 	}
 	return nil
@@ -65,6 +65,12 @@ func (r *Repository) GetOrCreateUserFromToken(token string) (User, bool, error) 
 
 func (r *Repository) DeleteUserByEmail(email string) error {
 	_, err := r.db.Exec(`DELETE FROM users WHERE email = $1`, email)
+	return err
+}
+
+// DeleteExpiredUserSignOnTokens deletes user_sign_on_tokens older than 1 week
+func (r *Repository) DeleteExpiredUserSignOnTokens() error {
+	_, err := r.db.Exec(`DELETE FROM user_sign_on_token WHERE created_at < NOW() - INTERVAL '7 DAYS'`)
 	return err
 }
 

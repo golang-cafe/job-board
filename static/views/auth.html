@@ -5,11 +5,11 @@
     <title>{{ .SiteName }} Authentication</title>
     <link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="shortcut icon">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="title" content="{{ .SiteName }} Authentication" />
+    <meta name="title" content="{{ .SiteName }} Authentication">
     <meta itemprop="name" content="{{ .SiteName }} Authentication">
     <meta itemprop="description" content="{{ .SiteName }} Authentication">
     <meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
-    <style type="text/css">
+    <style>
         body {
             background: #ffffff;
         }
@@ -786,7 +786,7 @@
     </div>
     <header>
         <nav class="menu-header">
-            <img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+            <img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="{{ .SiteName }} Logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
             <small style="display:block;float:left;margin-bottom:10px;">
                     <a href="/">Jobs</a>&bull;
                     <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
@@ -810,7 +810,7 @@
                     style="border: 1px solid #d9d9d9;margin:10px auto;display:block;width:300px;" placeholder="Email Address">
                 <div style="width:100%;">
                 <input type="submit" onclick="auth()" class="email-subscribe-item" value="Send Magic Link"
-                    style="margin:0 auto;display:block;width:300px;" /></duv>
+                    style="margin:0 auto;display:block;width:300px;"></duv>
         </article>
     </section>
     <footer>
