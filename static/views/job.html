@@ -279,12 +279,12 @@ background-color: #FF6600
     <div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
     <article class="apply-box" id="apply-box-0">
         <h3 style="margin-top: 10px;">{{ if .LoggedUser }}1-Click Apply{{ else }}2-Click Apply{{ end }}</h3>
-        <p>
+        <div>
             <ol>
                 <li>Upload Your CV</li>
                 <li>{{ if .LoggedUser }}Click Apply{{ else }}Go to your Inbox &amp; Confirm Your Application{{ end }}</li>
             </ol>
-        </p>
+          </div>
         <input type="hidden" name="apply-job-id" id="apply-job-id" value="0">
         <input type="text" name="apply-email" id="apply-email" {{ if .LoggedUser }}disabled {{ end }}placeholder="Your Email" {{ if .LoggedUser }}value="{{ .LoggedUser.Email }}"{{ end }} style="width: 100%;"><br>
         <input type="file" name="apply-cv" id="apply-cv" style="display: none;" onchange="showname()">
