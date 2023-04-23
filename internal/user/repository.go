@@ -18,7 +18,7 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) SaveTokenSignOn(email, token, userType string) error {
-	if _, err := r.db.Exec(`INSERT INTO user_sign_on_token (token, email, user_type, created_at) VALUES ($1, $2, $3, $4)`, token, email, userType, time.Now().UTC()); err != nil {
+	if _, err := r.db.Exec(`INSERT INTO user_sign_on_token (token, email, user_type, created_at) VALUES ($1, $2, $3, NOW())`, token, email, userType); err != nil {
 		return err
 	}
 	return nil
