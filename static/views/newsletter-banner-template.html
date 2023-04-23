@@ -10,7 +10,7 @@
 {{ end }}
 {{ define "newsletter-banner-css" }}
 {{ if not .LoggedUser }}
-<style type="text/css">
+<style>
 #newsletter-banner{position: fixed;bottom: 0;left: 0;width: 100%;background: {{ .PrimaryColor }};color: #fff;text-align: center;z-index: 10;}@media only screen and (max-width: 768px) {#newsletter-banner{}}
 #newsletter-banner-input,#newsletter-banner-submit{margin-top: 15px; margin-bottom: 15px;border: 1px solid #fff;}
 #newsletter-banner-close{font-size: 1.5em;margin-left: .75em;margin-right: .5em;margin-top: 18px;float: right;cursor: pointer;z-index: 10;color: #fff;}

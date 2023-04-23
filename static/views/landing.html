@@ -31,7 +31,7 @@
 		content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }}{{ if .NewJobsLastMonth }}{{ if .NewJobsLastWeek }} ({{ .NewJobsLastWeek }} new){{ else }} ({{ .NewJobsLastMonth }} new){{ end }}{{ end }} | {{ .SiteName }}">
 	<meta name="twitter:description"
 		content="Remote {{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}{{ if .NewJobsLastMonth }} ({{ if .NewJobsLastWeek }}{{ .NewJobsLastWeek }} new this week{{ else }}{{ .NewJobsLastMonth }} new this month{{ end }}){{ end }}">
-	<link rel="canonical" href="https://{{ .SiteHost }}/Remote-{{ if .TagFilter }}{{.TagFilter}}-{{ end }}Jobs" />
+	<link rel="canonical" href="https://{{ .SiteHost }}/Remote-{{ if .TagFilter }}{{.TagFilter}}-{{ end }}Jobs">
 	{{ else }}
 	<title>{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}}{{ end }} Jobs{{ if .SalaryFilter }} Paying {{ humannumber .SalaryFilter }} {{ .CurrencyFilter }} a Year {{ end }} {{ if .LocationFilter}}in {{ .LocationFilterWithCountry }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
 	<link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="icon">
@@ -67,7 +67,7 @@
 	<link rel="alternate" type="application/rss+xml" title="RSS" href="/rss">
 	<meta name="twitter:site" content="@{{ .SiteTwitter }}">
 	<meta name="google-site-verification" content="CsoJdYDgMeIeUO0ylZtiDUb4-VZvb2tCpLTkq3GglVo">
-	<meta name="msvalidate.01" content="E75D7CB7D078DD8E9C2FBA8C285CD656" />
+	<meta name="msvalidate.01" content="E75D7CB7D078DD8E9C2FBA8C285CD656">
 	<style>
 		body {
 			background: #fff;
@@ -881,7 +881,7 @@
 	<header>
 		<nav class="menu-header">
 			<div style="float: left;">
-				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
 				<small style="display:block;float:left;margin-bottom:10px;">
 					<a style="text-decoration: underline;" href="/">Jobs</a>&bull;
 					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
@@ -1079,8 +1079,8 @@
 		</article>
 		{{ end }}
 		<article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
-			<div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;"
-				id="email-subscribe-item-text">Get a weekly email with all new {{ .SiteJobCategory }} jobs</div>
+			<h2 style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:20px auto;"
+				id="email-subscribe-item-text">Get a weekly email with all new {{ .SiteJobCategory }} jobs</h2>
 			<input type="email" name="job-email-subscription" id="job-email-subscription"
 				style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
 			<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn"
