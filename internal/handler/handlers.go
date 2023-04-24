@@ -1688,10 +1688,21 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 		if err := devRepo.TrackDeveloperProfileView(dev); err != nil {
 			svr.Log(err, "unable to track developer profile view")
 		}
+		devExps, err := devRepo.DeveloperMetadataByProfileID("experience", dev.ID)
+		devEducation, err := devRepo.DeveloperMetadataByProfileID("education", dev.ID)
+		devProjects, err := devRepo.DeveloperMetadataByProfileID("github", dev.ID)
+		if err != nil {
+			svr.Log(err, "unable to find developer metadata")
+			http.Redirect(w, r, "/auth", http.StatusUnauthorized)
+			return
+		}
 		dev.UpdatedAtHumanized = dev.UpdatedAt.UTC().Format("January 2006")
 		dev.SkillsArray = strings.Split(dev.Skills, ",")
 		svr.Render(r, w, http.StatusOK, "view-developer-profile.html", map[string]interface{}{
 			"DeveloperProfile": dev,
+			"DeveloperExperiences":    devExps,
+			"DeveloperEducation":      devEducation,
+			"DeveloperGithubProjects": devProjects,
 			"MonthAndYear":     time.Now().UTC().Format("January 2006"),
 		})
 	}

@@ -134,6 +134,11 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
   text-decoration: none;
   cursor: pointer;
 }
+#submit {
+	position: relative;
+	margin-bottom: 18px;
+	border-bottom: 18px;
+}
 
 </style>
     <meta charset="utf-8">
@@ -175,7 +180,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         </small><br><br>
         </p>
       </article>
-      <article style="margin-top: 30px;">
+      <article style="margin-top: 30px; margin-bottom: 10px;">
         <p>
         <h3>Edit Your Developer Profile</h3>
         <input type="hidden" name="profile-id" id="profile-id" value="{{ .DeveloperProfile.ID }}"><br>

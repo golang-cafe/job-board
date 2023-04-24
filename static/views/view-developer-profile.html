@@ -316,8 +316,45 @@ background-color: #FF6600
 		  	<span style="display: inline-block;margin-top:10px;background: #dbdbdb;font-size:medium;padding: 4px 10px;border-radius:5px;">{{ $y }}</span>
 		  {{ end }}
 	    </p><br>
-		  <p {{ if not .LoggedUser }}style="filter:blur(5px);" class="hover-pointer" onclick="sendMessage('{{ .DeveloperProfile.ID }}', '{{ .DeveloperProfile.Name }}');"{{ end }}>{{ .DeveloperProfile.Bio }}</p>
-		  <br>
+      <p {{ if not .LoggedUser }}style="filter:blur(5px);" class="hover-pointer" onclick="sendMessage('{{ .DeveloperProfile.ID }}', '{{ .DeveloperProfile.Name }}');"{{ end }}>{{ .DeveloperProfile.Bio }}</p>
+      {{ if .LoggedUser }}
+      <span>
+          <b>Experience</b>
+      </span>
+      <ul>
+        {{ range .DeveloperExperiences}}
+        <br />
+        <li><div> <b>{{ .Title }}</b>  <a>{{ .Link }}</a></div>
+          <div>{{ .Description }}</div>
+        </li>
+        {{ end }}
+       </ul>
+      <span>
+          <b>Education</b>
+      </span>
+      <ul>
+        {{ range .DeveloperEducation}}
+        <br />
+        <li><div> <b>{{ .Title }}</b>  <a>{{ .Link }}</a></div>
+          <div>{{ .Description }}</div>
+        </li>
+        {{ end }}
+       </ul>
+
+      <span>
+          <b>Github Projects</b>
+      </span>
+      <ul>
+        {{ range .DeveloperGithubProjects}}
+        <br />
+        <li><div> <b>{{ .Title }}</b>  <a>{{ .Link }}</a></div>
+          <div>{{ .Description }}</div>
+        </li>
+        {{ end }}
+       </ul>
+      {{ end }}
+
+
 		<input type="hidden" value="{{ .DeveloperProfile.ID }}" id="profile-id">
 		  <input class="send-message" style="float:right;" type="submit" {{ if not .DeveloperProfile.Available }}disabled {{ else }}onclick="sendMessage('{{ .DeveloperProfile.ID }}', '{{ .DeveloperProfile.Name }}');" {{ end }}value="Send Message">
             </article>
