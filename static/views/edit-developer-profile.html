@@ -264,7 +264,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
             {{ end }}
         </p>
         <input type="email" name="email" disabled id="email" placeholder="Your Email" style="width: 100%;" value="{{ .DeveloperProfile.Email }}"><br>
-        <span id="experience">Experience <div onclick="openDeveloperMetadataModal('experience');" style="float:right; cursor: pointer;"></span>Add</div> <br />
+        <span id="experience"><b>Experience</b> <div onclick="openDeveloperMetadataModal('experience');" style="float:right; cursor: pointer;"></span>Add</div> <br />
         <ul>
         {{ range .DeveloperExperiences}}
           <br />
@@ -272,19 +272,19 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
             <div>{{ .Description }}</div></li>
         {{ end }}
         </ul>
-        <span>Education <div onclick="openDeveloperMetadataModal('education');" style="float:right; cursor: pointer;"></span>Add</div> <br />
+        <span><b>Education</b> <div onclick="openDeveloperMetadataModal('education');" style="float:right; cursor: pointer;"></span>Add</div> <br />
         <ul>
         {{ range .DeveloperEducation}}
         <br />
-          <li><div> <b>{{ .Title }}</b> <a>{{ .Link }}</a> <div onclick="openDeveloperMetadataModal('education', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right cusrsor: pointer">Edit</div></div>
+          <li><div><b><a href="{{ .Link }}">{{ .Title }}</a></b><div onclick="openDeveloperMetadataModal('education', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right cusrsor: pointer">Edit</div></div>
           <div>{{ .Description }} </div></li>
         {{ end }}
         </ul>
-        <span>Github Projects <div onclick="openDeveloperMetadataModal('github');" style="float:right; cursor: pointer;"></span>Add</div> <br />
+        <span><b>Github Projects</b><div onclick="openDeveloperMetadataModal('github');" style="float:right; cursor: pointer;"></span>Add</div> <br />
         <ul>
         {{ range .DeveloperGithubProjects}}
         <br />
-          <li><div> <b>{{ .Title }}</b> <a>{{ .Link }}</a> <div onclick="openDeveloperMetadataModal('github', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right cursor: pointer">Edit</div></div>
+          <li><div><b><a href="{{ .Link }}">{{ .Title }}</a></b><div onclick="openDeveloperMetadataModal('github', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right cursor: pointer">Edit</div></div>
           <div>{{ .Description }} </div></li>
         {{ end }}
         </ul>
@@ -616,21 +616,21 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
       }
 
       function openDeveloperMetadataModal(metadataType, title, description, link, metadataId) {
-      	const metadataTypeToPlaceholderMapping = {
-      		"experience": {
-      			"title": "Senior Software Engineer@PiedPiper",
-      			"link": "https://piedpier.com",
-      			"description": "At Pied Piper, I served as a senior software engineer with ..."
-      		},
+        const metadataTypeToPlaceholderMapping = {
+          "experience": {
+            "title": "Senior Software Engineer at Google",
+            "link": "https://google.com",
+            "description": "At Google, I served as a senior software engineer with ..."
+          },
       		"github": {
       			"title": "GoLang Job board",
       			"link": "https://github.com/golang-cafe/job-board",
       			"description": "Open-source Go contributor at Go-Lang cafe."
       		},
       		"education": {
-      			"title": "B.E Computer Science",
-      			"link": "https://www.harvard.edu/",
-      			"description": "Graduated from Harvard in 2020."
+            "title": "Computer Science at Harvard",
+            "link": "https://www.harvard.edu/",
+            "description": "Graduated from Harvard in 2020"
       		}
       	}
         var modal = document.getElementById("developerMetadataModal");
