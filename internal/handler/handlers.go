@@ -277,7 +277,13 @@ func UpdateDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposi
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
 			}
-			if profile.Type != user.UserTypeAdmin && profile.Id != req.DeveloperProfileID {
+			dev, err := devRepo.DeveloperProfileByID(req.DeveloperProfileID)
+			if err != nil {
+				svr.Log(err, "unable to get user from profileID")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			if dev.Email != profile.Email && !profile.IsAdmin {
 				svr.Log(err, "Only same user or admin can edit metadata.")
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
@@ -1621,7 +1627,6 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 		func(w http.ResponseWriter, r *http.Request) {
 			vars := mux.Vars(r)
 			profileID := vars["id"]
-			profileCompleted := r.URL.Query().Get("complete-profile")
 			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
 			if err != nil {
 				svr.Log(err, "unable to get email from JWT")
@@ -1650,7 +1655,6 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 					"DeveloperExperiences":    devExps,
 					"DeveloperEducation":      devEducation,
 					"DeveloperGithubProjects": devProjects,
-					"ProfileCompleted":        profileCompleted,
 				})
 			case user.UserTypeRecruiter:
 				rec, err := recRepo.RecruiterProfileByID(profileID)
@@ -1954,18 +1958,7 @@ func VerifyTokenSignOn(svr server.Server, userRepo *user.Repository, devRepo *de
 			if err := database.ConfirmEmailSubscriber(svr.Conn, token); err != nil {
 				svr.Log(err, "unable to confirm subscriber using token "+token)
 			}
-			exists, err := devRepo.DoesDeveloperMetadataExist(dev)
-			if err != nil {
-				svr.Log(err, "unable to get metadata information")
-				svr.JSON(w, http.StatusInternalServerError, nil)
-				return
-			}
-			if exists {
-				svr.Redirect(w, r, http.StatusMovedPermanently, "/profile/home")
-			} else {
-				svr.Redirect(w, r, http.StatusTemporaryRedirect, "/profile/"+dev.ID+"/edit?complete-profile=1")
-			}
-
+			svr.Redirect(w, r, http.StatusMovedPermanently, "/profile/home")
 			return
 		case user.UserTypeRecruiter:
 			rec, err := recRepo.RecruiterProfileByEmail(u.Email)

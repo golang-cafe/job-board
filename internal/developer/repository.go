@@ -92,7 +92,7 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 func (r *Repository) DeveloperMetadataByProfileID(metadata_type string, profile_id string) ([]DeveloperMetadata, error) {
 	rows, err := r.db.Query(`SELECT id, title, description, link from developer_metadata WHERE developer_profile_id = $1 AND type = $2 `, profile_id, metadata_type)
 	devMetadata := []DeveloperMetadata{}
-	if err == sql.ErrNoRows {
+	if err != nil {
 		return devMetadata, nil
 	}
 	for rows.Next() {
