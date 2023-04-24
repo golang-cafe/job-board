@@ -89,6 +89,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
   width: 80%;
   max-width: 400px;
   margin-bottom: 10px;
+  resize: none;
 }
 
 /* Center buttons */
@@ -97,17 +98,23 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
   margin: 20px auto 0;
 }
 
-#saveBtn, #cancelBtn {
+#cancelBtn, #saveBtn {
     background: {{ .PrimaryColor }};
     color: #fff;
     display:inline-block;
     margin-right: 5px;
     margin-left: 5px;
 }
-
-#saveBtn:hover, #cancelBtn:hover {
+#cancelBtn {
+    background: #ff0000;
+}
+#saveBtn:hover {
     background: {{ .SecondaryColor }};
     color: #fff;
+}
+#cancelBtn:hover {
+	background: #ff7f7f;
+	color: #fff;
 }
 
 /* Close button */
@@ -291,8 +298,8 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
               <input type="text" id="title" placeholder="Senior Software Engineer @PiedPiper" name="title"><br>
               <textarea id="description" name="description" placeholder="At Pied Piper, I served as a senior software engineer ..."></textarea><br>
               <input type="text" id="link" name="link" placeholder="https://piedpiper.com">
-              <button type="button" onclick="saveDeveloperMetadata()" id="saveBtn">Save</button>
               <button type="button" onclick="closeModal()" id="cancelBtn">Cancel</button>
+              <button type="button" onclick="saveDeveloperMetadata()" id="saveBtn">Save</button>
             </form>
           </div>
         </div>
