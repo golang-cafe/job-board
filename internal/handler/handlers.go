@@ -66,6 +66,11 @@ type tokenSaver interface {
 
 func GetAuthPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		if profile != nil {
+			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("%s%s/", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
+			return
+		}
 		svr.Render(r, w, http.StatusOK, "auth.html", nil)
 	}
 }
