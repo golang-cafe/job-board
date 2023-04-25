@@ -310,9 +310,9 @@ background-color: #FF6600
     <small>{{ if or .IsUserRecruiter .IsUserAdmin }}{{ if ne .DeveloperProfile.HourlyRate 0 }}Hourly Rate: <b>{{ .DeveloperProfile.HourlyRate }} USD/hour</b>{{ else }}Hourly Rate: <b>Not specified</b>{{ end }}{{ end }}</small><br>
     <small>Experience Level: <b>{{ stringTitle .DeveloperProfile.RoleLevel }}</b></small><br>
     <small>Work Preference: <b>{{ .DeveloperProfile.RoleTypeAsString }}</b></small><br>
-    {{ if and .DeveloperProfile.LinkedinURL (or .IsUserRecruiter .IsUserAdmin) }}<small>LinkedIn: <b>{{ .DeveloperProfile.LinkedinURL }}</b></small><br>{{ end }}
-    {{ if and .DeveloperProfile.TwitterURL (or .IsUserRecruiter .IsUserAdmin) }}<small>Twitter: <b>{{ .DeveloperProfile.TwitterURL }}</b></small><br>{{ end }}
-    {{ if and .DeveloperProfile.GithubURL (or .IsUserRecruiter .IsUserAdmin) }}<small>GitHub: <b>{{ .DeveloperProfile.GithubURL }}</b></small><br>{{ end }}
+    {{ if and .DeveloperProfile.LinkedinURL (or .IsUserRecruiter .IsUserAdmin) }}<small>LinkedIn: <a href="{{ .DeveloperProfile.LinkedinURL }}" target="_blank" rel="nofollow">{{ .DeveloperProfile.LinkedinURL }}</a></small><br>{{ end }}
+    {{ if and .DeveloperProfile.TwitterURL (or .IsUserRecruiter .IsUserAdmin) }}<small>Twitter: <a href="{{ .DeveloperProfile.TwitterURL }}" target="_blank" rel="nofollow">{{ .DeveloperProfile.TwitterURL }}</a></small><br>{{ end }}
+    {{ if and .DeveloperProfile.GithubURL (or .IsUserRecruiter .IsUserAdmin) }}<small>GitHub: <a href="{{ .DeveloperProfile.GithubURL }}" target="_blank" rel="nofollow">{{ .DeveloperProfile.GithubURL }}</a></small><br>{{ end }}
 		<small>Last Updated <b>{{ .DeveloperProfile.UpdatedAtHumanized }}</b></small><br>
 		<p id="skills-{{ .DeveloperProfile.ID }}">
 		  {{ range $x, $y := .DeveloperProfile.SkillsArray }}
