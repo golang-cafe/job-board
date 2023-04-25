@@ -324,7 +324,7 @@ background-color: #FF6600
       <ul>
         {{ range .DeveloperExperiences}}
         <br />
-        <li><div> <b>{{ .Title }}</b>  <a>{{ .Link }}</a></div>
+        <li><div><b><a href="{{ .Link }}" rel="noreferrer nofollow" target="_blank">{{ .Title }}</a></b></div>
           <div>{{ .Description }}</div>
         </li>
         {{ end }}
@@ -335,7 +335,7 @@ background-color: #FF6600
       <ul>
         {{ range .DeveloperEducation}}
         <br />
-        <li><div> <b>{{ .Title }}</b>  <a>{{ .Link }}</a></div>
+        <li><div><b><a href="{{ .Link }}" rel="noreferrer nofollow" target="_blank">{{ .Title }}</a></b></div>
           <div>{{ .Description }}</div>
         </li>
         {{ end }}
@@ -347,7 +347,7 @@ background-color: #FF6600
       <ul>
         {{ range .DeveloperGithubProjects}}
         <br />
-        <li><div> <b>{{ .Title }}</b>  <a>{{ .Link }}</a></div>
+        <li><div><b><a href="{{ .Link }}" rel="noreferrer nofollow" target="_blank">{{ .Title }}</a></b></div>
           <div>{{ .Description }}</div>
         </li>
         {{ end }}
