@@ -1012,6 +1012,19 @@
              </div>
             <p class="tags-container">
             </p>
+			<div>
+				<label for="profile-resume"
+					style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload
+					Resume</label>
+				<div style="float:left; width:100%;">
+					<iframe id="profile-resume-preview" src="" width="100%" height="500px" style="max-width:100%;cursor: pointer;display: none; float: left;"></iframe>
+				</div>
+				<input type="file" name="profile-resume" id="profile-resume" placeholder="Your Resume"
+					style="visibility: hidden; width: 0; height: 0;">
+				<div class="clearfix"></div>
+			</div>
+			<br>
+
 			<input type="email" name="email" id="email" placeholder="Your Email" style="width: 100%;">
 			<br>
 			<input type="submit" id="submit" value="Join The Community" onclick="post();" style="margin-right:0px;float: right;">
@@ -1205,6 +1218,23 @@
 				});
 			}
 		});
+		document.getElementById("profile-resume").addEventListener("change", function () {
+			if (this.files && this.files[0]) {
+				if (this.files[0].type !== "application/pdf") {
+				alert("Only PDF files are allowed");
+				return;
+				}
+				if (this.files[0].size > 5 * 1024 * 1024) {
+				alert("Max file size for company logo is 5MB");
+				return;
+				}
+				var pdfSrc = URL.createObjectURL(this.files[0]);
+				var pdf = document.getElementById("profile-resume-preview");
+				pdf.style.display = "block";
+				pdf.src = pdfSrc;
+			}
+		});
+
 		function post() {
 			var fullName = document.getElementById("full-name").value;
 			var linkedinURL = document.getElementById("linkedin-url").value;
@@ -1257,31 +1287,68 @@
 				return;
 			}
 			var cropValues = cropInstance.getValue();
-			var mediaFile = document.getElementById('profile-image').files[0];
-			var formData = new FormData();
-			formData.append('image', mediaFile);
-			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/x/s/m?x=' + cropValues.x + '&y=' + cropValues.y + '&w=' + cropValues.width + '&h=' + cropValues.height, true);
-			xhr.send(formData);
-			xhr.onreadystatechange = function () {
-				if (xhr.readyState === 4) {
-					var companyIconId = "";
-					if (xhr.status !== 200) {
-						document.getElementById("spinner-0").style.display = "none";
-						document.getElementById('profile-image').value = '';
-						alert('There was an error while uploading your profile image. Please make sure the image is under 5MB and it\'s JPG,JPEG or PNG format.');
-						return;
-					}
-					var res = JSON.parse(xhr.response);
-					profileImageId = res.id;
-					var payload = {
+			function uploadImage() {
+				return new Promise(function(resolve, reject){
+					var mediaFile = document.getElementById('profile-image').files[0];
+					var formData = new FormData();
+					formData.append('image', mediaFile);
+					var xhr = new XMLHttpRequest();
+					xhr.open('POST', '/x/s/m?x=' + cropValues.x + '&y=' + cropValues.y + '&w=' + cropValues.width + '&h=' + cropValues.height, true);
+					xhr.send(formData);
+					xhr.onreadystatechange = function () {
+						if (xhr.readyState === 4) {
+							var companyIconId = "";
+							if (xhr.status !== 200) {
+								document.getElementById("spinner-0").style.display = "none";
+								document.getElementById('profile-image').value = '';
+								alert('There was an error while uploading your profile image. Please make sure the image is under 5MB and it\'s JPG,JPEG or PNG format.');
+								reject('Could not upload image');
+							}
+							var res = JSON.parse(xhr.response);
+							debugger;
+							resolve(res.id);
+						}
+					};
+				})				
+			}
+			function uploadResume() {
+				return new Promise(function(resolve, reject){
+					var resumeFile = document.getElementById('profile-resume').files[0];
+					var formData = new FormData();
+					formData.append('file', resumeFile);
+					var xhr = new XMLHttpRequest();
+					xhr.open('POST', '/x/s/r', true);
+					xhr.send(formData);
+					xhr.onreadystatechange = function () {
+						if (xhr.readyState === 4) {
+							var companyIconId = "";
+							if (xhr.status !== 200) {
+								document.getElementById("spinner-0").style.display = "none";
+								document.getElementById('profile-resume').value = '';
+								alert('There was an error while uploading your resume. Please make sure the resume is under 5MB and it\'s pdf format.');
+								reject('Could not upload resume');
+							}
+							var res = JSON.parse(xhr.response);
+							debugger;
+							resolve(res.id);
+						}
+					};
+				})				
+			}
+
+			uploadImagePromise = uploadImage()
+			uploadResumePromise = uploadResume()
+			Promise.all([ uploadImagePromise, uploadResumePromise ]).then(function(values) {
+				debugger;
+				var payload = {
 						fullname: fullName,
 						linkedin_url: linkedinURL,
 						bio: bio,
 						email: email,
 						tags: tags,
 						current_location: currentLocation,
-						profile_image_id: profileImageId,
+						profile_image_id: values[0],
+						profile_resume_id: values[1],
 						search_status: searchStatus,
 						role_level: roleLevel,
 						role_types: roleTypes,
@@ -1307,9 +1374,12 @@
 							}
 						}
 					);
-				}
-			}
+			}).catch(function(reason) {
+				// one of input Promises rejected
+			});
+
 		}
+
 		var postMessage = function (body, cb) {
 			var xhr = new XMLHttpRequest();
 			xhr.open('POST', '/x/s/message', true);

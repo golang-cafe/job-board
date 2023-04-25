@@ -24,7 +24,7 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE slug = $1`, slug)
+	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, resume_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE slug = $1`, slug)
 	dev := Developer{}
 	var roleTypes string
 	err := row.Scan(
@@ -35,6 +35,7 @@ func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 		&dev.LinkedinURL,
 		&dev.HourlyRate,
 		&dev.ImageID,
+		&dev.ResumeID,
 		&dev.Slug,
 		&dev.CreatedAt,
 		&dev.UpdatedAt,
@@ -250,7 +251,7 @@ func (r *Repository) ActivateDeveloperProfile(email string) error {
 func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 	dev.Slug = slug.Make(fmt.Sprintf("%s %d", dev.Name, time.Now().UTC().Unix()))
 	_, err := r.db.Exec(
-		`INSERT INTO developer_profile (email, location, linkedin_url, hourly_rate, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url, role_types, role_level, search_status, detected_location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
+		`INSERT INTO developer_profile (email, location, linkedin_url, hourly_rate, bio, available, image_id, resume_id, slug, skills, name, id, github_url, twitter_url, role_types, role_level, search_status, detected_location_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16, $17, $18, NOW(), NOW())`,
 		dev.Email,
 		dev.Location,
 		dev.LinkedinURL,
@@ -258,6 +259,7 @@ func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 		dev.Bio,
 		dev.Available,
 		dev.ImageID,
+		dev.ResumeID,
 		dev.Slug,
 		dev.Skills,
 		dev.Name,

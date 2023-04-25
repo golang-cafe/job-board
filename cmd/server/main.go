@@ -217,9 +217,12 @@ func main() {
 
 	// save media file
 	svr.RegisterRoute("/x/s/m", handler.SaveMediaPageHandler(svr), []string{"POST"})
+	svr.RegisterRoute("/x/s/r", handler.SaveResumePageHandler(svr), []string{"POST"})
 
 	// retrieve media file
 	svr.RegisterRoute("/x/s/m/{id}", handler.RetrieveMediaPageHandler(svr), []string{"GET"})
+
+	svr.RegisterRoute("/x/s/r/{id}", handler.RetrieveResumePageHandler(svr), []string{"GET"})
 
 	// retrieve meta image media file
 	svr.RegisterRoute("/x/s/m/meta/{id}", handler.RetrieveMediaMetaPageHandler(svr, jobRepo), []string{"GET"})

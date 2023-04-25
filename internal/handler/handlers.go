@@ -370,6 +370,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			Bio                string   `json:"bio"`
 			Tags               string   `json:"tags"`
 			ProfileImageID     string   `json:"profile_image_id"`
+			ProfileResumeID    string   `json:"profile_resume_id"`
 			Email              string   `json:"email"`
 			SearchStatus       string   `json:"search_status"`
 			RoleLevel          string   `json:"role_level"`
@@ -464,6 +465,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			UpdatedAt:          t,
 			Email:              strings.ToLower(req.Email),
 			ImageID:            req.ProfileImageID,
+			ResumeID:           req.ProfileResumeID,
 			Skills:             req.Tags,
 			SearchStatus:       req.SearchStatus,
 			RoleTypes:          req.RoleTypes,
@@ -3057,6 +3059,26 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 	}
 }
 
+func RetrieveResumePageHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		resumeID := vars["id"]
+		resume, err := database.GetResumeByID(svr.Conn, resumeID)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to retrieve resume by ID: '%s'", resumeID))
+			svr.MEDIA(w, http.StatusNotFound, resume.Bytes, resume.MediaType)
+			return
+		}
+		// pdf, err := api.Read(bytes.NewReader(resume.Bytes), nil)
+		// if err != nil {
+		// 	svr.Log(err, "unable to decode pdf from bytes")
+		// 	svr.JSON(w, http.StatusInternalServerError, nil)
+		// 	return
+		// }
+		svr.MEDIA(w, http.StatusOK, resume.Bytes, resume.MediaType)
+	}
+}
+
 func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -3143,6 +3165,53 @@ func RetrieveMediaMetaPageHandler(svr server.Server, jobRepo *job.Repository) ht
 		svr.MEDIA(w, http.StatusOK, mediaBytes, "image/png")
 	}
 }
+
+func SaveResumePageHandler(svr server.Server) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		// limits upload form size to 5mb
+		maxResumeFileSize := 5 * 1024 * 1024
+		allowedMediaTypes := []string{"application/pdf"}
+		r.Body = http.MaxBytesReader(w, r.Body, int64(maxResumeFileSize))
+		cv, header, err := r.FormFile("file")
+		if err != nil {
+			svr.Log(err, "unable to read resume file")
+			svr.JSON(w, http.StatusBadRequest, nil)
+			return
+		}
+		defer cv.Close()
+		fileBytes, err := ioutil.ReadAll(cv)
+		if err != nil {
+			svr.Log(err, "unable to read cv file content")
+			svr.JSON(w, http.StatusRequestEntityTooLarge, nil)
+			return
+		}
+		contentType := http.DetectContentType(fileBytes)
+		contentTypeInvalid := true
+		for _, allowedMedia := range allowedMediaTypes {
+			if allowedMedia == contentType {
+				contentTypeInvalid = false
+			}
+		}
+		if contentTypeInvalid {
+			svr.Log(errors.New("invalid media content type"), fmt.Sprintf("resume file %s is not one of the allowed media types: %+v", contentType, allowedMediaTypes))
+			svr.JSON(w, http.StatusUnsupportedMediaType, nil)
+			return
+		}
+		if header.Size > int64(maxResumeFileSize) {
+			svr.Log(errors.New("resume file is too large"), fmt.Sprintf("resume file too large: %d > %d", header.Size, maxResumeFileSize))
+			svr.JSON(w, http.StatusRequestEntityTooLarge, nil)
+			return
+		}
+		id, err := database.SaveResume(svr.Conn, database.Media{fileBytes, contentType})
+		if err != nil {
+			svr.Log(err, "unable to save media image to db")
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+		svr.JSON(w, http.StatusOK, map[string]interface{}{"id": id})
+	}
+}
+
 
 func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {

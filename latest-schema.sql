@@ -832,3 +832,18 @@ CREATE TABLE IF NOT EXISTS public.developer_metadata (
     created_at TIMESTAMP DEFAULT current_timestamp,
     updated_at TIMESTAMP DEFAULT NULL
 );
+CREATE TABLE public.resume (
+    id character(27) NOT NULL,
+    bytes bytea NOT NULL,
+    media_type character varying(100) NOT NULL
+);
+ALTER TABLE ONLY public.developer_profile ADD COLUMN resume_id character(27) DEFAULT NULL;
+
+CREATE TABLE public.developer_resume_download (
+    id character(27) NOT NULL,
+    developer_profile_id character(27) NOT NULL,
+    resume_id character(27) NOT NULL,
+    user_id character(27) NOT NULL,
+    downloaded_at timestamp NOT NULL,
+    PRIMARY KEY (id)
+);

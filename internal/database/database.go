@@ -647,6 +647,18 @@ type Media struct {
 	MediaType string
 }
 
+func SaveResume(conn *sql.DB, media Media) (string, error) {
+	resumeID, err := ksuid.NewRandom()
+	if err != nil {
+		return "", err
+	}
+	_, err = conn.Exec(`INSERT INTO resume (id, bytes, media_type) VALUES ($1, $2, $3)`, resumeID.String(), media.Bytes, media.MediaType)
+	if err != nil {
+		return "", err
+	}
+	return resumeID.String(), nil
+}
+
 func SaveMedia(conn *sql.DB, media Media) (string, error) {
 	mediaID, err := ksuid.NewRandom()
 	if err != nil {
@@ -736,6 +748,19 @@ func SaveCloudflareBrowserStat(conn *sql.DB, s CloudflareBrowserStat) error {
 func UpdateMedia(conn *sql.DB, media Media, mediaID string) error {
 	_, err := conn.Exec(`UPDATE image SET bytes = $1, media_type = $2 WHERE id = $3`, media.Bytes, media.MediaType, mediaID)
 	return err
+}
+
+func GetResumeByID(conn *sql.DB, resumeID string) (Media, error) {
+	var m Media
+	row := conn.QueryRow(
+		`SELECT bytes, media_type 
+		FROM resume
+		WHERE id = $1`, resumeID)
+	err := row.Scan(&m.Bytes, &m.MediaType)
+	if err != nil {
+		return Media{}, err
+	}
+	return m, nil
 }
 
 func GetMediaByID(conn *sql.DB, mediaID string) (Media, error) {

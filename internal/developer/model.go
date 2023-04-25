@@ -41,6 +41,7 @@ type Developer struct {
 	HourlyRate         int64
 	Available          bool
 	ImageID            string
+	ResumeID		   string
 	Slug               string
 	CreatedAt          time.Time
 	UpdatedAt          time.Time
