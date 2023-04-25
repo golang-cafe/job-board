@@ -272,14 +272,14 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <span id="experience">
           <b>Experience</b>
         </span>
-        <div onclick="openDeveloperMetadataModal('experience');" style="float:right; cursor: pointer;">
+        <div onclick="openDeveloperMetadataModal('experience');" style="float:right; cursor: pointer;text-decoration: underline;">
           Add
         </div>
         <br />
         <ul>
           {{ range .DeveloperExperiences}}
           <br />
-          <li><div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b> <div onclick="openDeveloperMetadataModal('experience', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;">Edit</div></div>
+          <li><div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b> <div onclick="openDeveloperMetadataModal('experience', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;">Edit</div></div>
             <div>{{ .Description }}</div>
           </li>
           {{ end }}
@@ -288,28 +288,31 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <span>
         	<b>Education</b>
         </span>
-        <div onclick="openDeveloperMetadataModal('education');" style="float:right; cursor: pointer;">
+        <div onclick="openDeveloperMetadataModal('education');" style="float:right; cursor: pointer;text-decoration: underline;">
           Add
         </div>
         <br />
         <ul>
         {{ range .DeveloperEducation}}
         <br />
-          <li><div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b><div onclick="openDeveloperMetadataModal('education', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right cusrsor: pointer">Edit</div></div>
-          <div>{{ .Description }} </div></li>
+          <li>
+            <div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b>
+              <div onclick="openDeveloperMetadataModal('education', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;">Edit</div>
+            </div>
+            <div>{{ .Description }} </div></li>
         {{ end }}
         </ul>
         <span>
         	<b>Github Projects</b>
         </span>
-        <div onclick="openDeveloperMetadataModal('github');" style="float:right; cursor: pointer;">
+        <div onclick="openDeveloperMetadataModal('github');" style="float:right; cursor: pointer;text-decoration: underline;">
           Add
         </div>
         <br />
         <ul>
         {{ range .DeveloperGithubProjects}}
         <br />
-          <li><div><b><a href="{{ .Link }}">{{ .Title }}</a></b><div onclick="openDeveloperMetadataModal('github', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right cursor: pointer">Edit</div></div>
+          <li><div><b><a href="{{ .Link }}">{{ .Title }}</a></b><div onclick="openDeveloperMetadataModal('github', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;">Edit</div></div>
           <div>{{ .Description }} </div></li>
         {{ end }}
         </ul>
