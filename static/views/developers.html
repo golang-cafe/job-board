@@ -80,11 +80,9 @@ body{background:#ffffff;}
         </nav>
       </header>
   <section style="padding: 0 10px;">
-    <p>
     {{ if not .LoggedUser }}<input type="submit" value="Join the Community" id="post-btn" onclick="window.location.href='/Join-{{ .SiteJobCategoryURLEncoded }}-Community';">{{ end }}
 	<h1 class="main-title">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }} </h1><br>
 	<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse, view and reach <b>{{ if .TotalDevelopersCount }}{{ .TotalDevelopersCount }}{{ end }} {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} developers</b> for hire {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }}. Search developers experienced in <b>{{ .TopDeveloperSkills }}</b>. {{ .SiteJobCategory }} developers like <b>{{ .TopDeveloperNames }}</b> and many more are available for hire on {{ .SiteName }}. Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></h2>
-    </p>
     <div style="margin-bottom: 10px;">
 	<div id="search-tag-container">
         <input autocomplete="off" type="text" value="{{ .TagFilter }}" placeholder="Skills" id="search-tag">
