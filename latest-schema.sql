@@ -819,25 +819,6 @@ ALTER TABLE ONLY public.developer_profile ADD COLUMN hourly_rate INTEGER DEFAULT
 ALTER TABLE ONLY public.recruiter_profile DROP COLUMN company;
 ALTER TABLE ONLY public.recruiter_profile DROP COLUMN title;
 ALTER TABLE ONLY public.user_sign_on_token ADD COLUMN created_at TIMESTAMP DEFAULT NOW();
-ALTER TABLE ONLY public.job ADD COLUMN plan_type VARCHAR(255) NOT NULL DEFAULT 'basic';
-ALTER TABLE ONLY public.job ADD COLUMN plan_duration INTEGER NOT NULL DEFAULT 1;
-ALTER TABLE ONLY public.job ADD COLUMN newsletter_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
-ALTER TABLE ONLY public.job ADD COLUMN social_media_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
-ALTER TABLE ONLY public.job ADD COLUMN blog_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
-ALTER TABLE ONLY public.job ADD COLUMN front_page_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
-ALTER TABLE ONLY public.job ADD COLUMN company_page_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
-ALTER TABLE ONLY public.job ADD COLUMN plan_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
-ALTER TABLE ONLY public.purchase_event ADD COLUMN plan_type VARCHAR(255) NOT NULL DEFAULT 'legacy';
-ALTER TABLE ONLY public.purchase_event ADD COLUMN plan_duration INTEGER NOT NULL DEFAULT 1;
-ALTER TABLE ONLY public.company ADD COLUMN company_page_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
-ALTER TABLE ONLY public.user_sign_on_token ADD COLUMN user_type VARCHAR(20) DEFAULT 'developer';
-ALTER TABLE ONLY public.developer_profile ADD COLUMN role_level VARCHAR(20) NOT NULL DEFAULT 'mid-level';
-ALTER TABLE ONLY public.developer_profile ADD COLUMN search_status VARCHAR(20) NOT NULL DEFAULT 'casually-looking';
-ALTER TABLE ONLY public.developer_profile ADD COLUMN role_types VARCHAR(60) NOT NULL DEFAULT 'full-time';
-ALTER TABLE ONLY public.developer_profile ADD COLUMN detected_location_id VARCHAR(255) DEFAULT NULL;
-ALTER TABLE ONLY public.users ADD COLUMN user_type VARCHAR(20) DEFAULT 'developer';
-ALTER TABLE ONLY public.developer_profile ADD COLUMN hourly_rate INTEGER DEFAULT 0;
-
 
 CREATE TYPE public.valid_developer_metadata_type AS ENUM ('experience', 'education', 'github');
 
