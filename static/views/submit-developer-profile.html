@@ -968,8 +968,6 @@
 			<input type="hidden" id="detected-location-id" name="detected-location-id">
 			<input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate" style="width: 30%;"> <div class="tooltip">USD/hour<span class="tooltiptext">Your hourly rate is only visible to recruiters who are logged-in.</span></div>
 			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;">
-			<input type="url" name="github-url" id="github-url" placeholder="GitHub URL (Optional)"
-				style="width: 100%;">
 			<select id="search-status" name="search-status" style="width:100%;">
 				<option default value="">Your Status</option>
 				<option value="actively-applying">Actively Looking</option>
@@ -1210,7 +1208,6 @@
 		function post() {
 			var fullName = document.getElementById("full-name").value;
 			var linkedinURL = document.getElementById("linkedin-url").value;
-			var githubURL = document.getElementById("github-url").value;
 			var bio = document.getElementById("bio").value;
 			var email = document.getElementById("email").value;
 			var currentLocation = document.getElementById("current-location").value;
@@ -1246,10 +1243,6 @@
 			}
 			if (!validSkills(tags)) {
 				alert('Skills is too long. Please use 10 skills or less');
-				return;
-			}
-			if (!empty(githubURL) && !isURL(githubURL)) {
-				alert('GitHub URL must be a valid url');
 				return;
 			}
 			if (detectedLocationId == '') {
@@ -1295,9 +1288,6 @@
 						hourly_rate: hourlyRate,
 						detected_location_id: detectedLocationId,
 					};
-					if (!empty(githubURL)) {
-						payload.github_url = githubURL;
-					}
 					http(
 						'/x/sdp',
 						payload,
