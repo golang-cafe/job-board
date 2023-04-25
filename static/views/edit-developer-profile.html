@@ -279,9 +279,11 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <ul>
           {{ range .DeveloperExperiences}}
           <br />
-          <li><div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b> <div onclick="openDeveloperMetadataModal('experience', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;">Edit</div></div>
+          <li><div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b>
+            <div onclick="openDeveloperMetadataModal('experience', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
+            <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
+          </div>
             <div>{{ .Description }}</div>
-            <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;">Delete</div>
             <br>
           </li>
           {{ end }}
@@ -298,10 +300,10 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <br />
           <li>
             <div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b>
-              <div onclick="openDeveloperMetadataModal('education', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;">Edit</div>
+              <div onclick="openDeveloperMetadataModal('education', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
+              <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
             </div>
             <div>{{ .Description }} </div></li>
-          <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;">Delete</div>
           <br>
         {{ end }}
         </ul>
@@ -315,9 +317,11 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <ul>
         {{ range .DeveloperGithubProjects}}
         <br />
-          <li><div><b><a href="{{ .Link }}" .Title }}</a></b><div onclick="openDeveloperMetadataModal('github', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;">Edit</div></div>
+          <li><div><b><a href="{{ .Link }}">{{ .Title }}</a></b>
+            <div onclick="openDeveloperMetadataModal('github', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
+            <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
+          </div>
           <div>{{ .Description }} </div></li>
-          <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;">Delete</div>
           <br>
         {{ end }}
         </ul>
