@@ -175,6 +175,7 @@ type JobApplyURL struct {
 }
 
 type Applicant struct {
+	Token       string
 	Cv          []byte
 	Email       string
 	CreatedAt   time.Time

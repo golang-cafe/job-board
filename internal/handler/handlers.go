@@ -3547,6 +3547,32 @@ func ManageJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.H
 	)
 }
 
+func DownloadJobApplicationCvHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+	return middleware.AdminAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			vars := mux.Vars(r)
+			token := vars["token"]
+			applicant, err := jobRepo.GetApplicantByApplyToken(token)
+			if err != nil {
+				svr.Log(err, fmt.Sprintf("unable to find job application by applicant token: %s", token))
+				svr.JSON(w, http.StatusNotFound, nil)
+				return
+			}
+			w.Header().Set("Content-Type", "application/pdf")
+			w.Header().Set("Content-Length", fmt.Sprintf("%d", applicant.CvSize))
+
+			_, err = w.Write(applicant.Cv)
+			if err != nil {
+				svr.Log(err, fmt.Sprintf("unable to serve job application CV for applicant token: %s", token))
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+		},
+	)
+}
+
 func GetBlogPostBySlugHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
