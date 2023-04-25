@@ -798,7 +798,6 @@ CREATE TABLE IF NOT EXISTS public.blog_post (
     PRIMARY KEY ("id")
 );
 
-<<<<<<< HEAD
 ALTER TABLE ONLY public.job ADD COLUMN plan_type VARCHAR(255) NOT NULL DEFAULT 'basic';
 ALTER TABLE ONLY public.job ADD COLUMN plan_duration INTEGER NOT NULL DEFAULT 1;
 ALTER TABLE ONLY public.job ADD COLUMN newsletter_eligibility_expired_at TIMESTAMP DEFAULT '1970-01-01 00:00:00';
