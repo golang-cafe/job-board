@@ -24,6 +24,33 @@ body{background:#ffffff;}section { padding: 0 10px; }
     .plan-container {
         width: 28%;
     }
+    .menu-header {
+			text-align: left;
+			width: 100%;
+			margin: 20px auto;
+			border-bottom: 1px solid #d9d9d9;
+		}
+
+		.menu-header a {
+			white-space: pre;
+			color: black;
+			font-size: 12pt;
+			font-weight: bold;
+			padding-right: 5px;
+		}
+		.hover-pointer:hover { cursor:pointer; }
+
+		header {
+			padding: 0 10px;
+			width: 780px;
+			margin: auto;
+		}
+        @media only screen and (max-width:768px) {
+		    .menu-header a { font-size: 9pt !important; }
+			.subnav {
+				width: 100%;
+			}
+        }
     </style>
         <meta charset="utf-8">
     {{ if and .Location $isRemote }}
@@ -96,6 +123,24 @@ body{background:#ffffff;}section { padding: 0 10px; }
   </head>
   <body>
     {{ template "feedback-box-html" . }}
+    <header>
+		<nav class="menu-header">
+			<div style="float: left;">
+				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+				<small style="display:block;float:left;margin-bottom:10px;">
+					<a style="text-decoration: underline;" href="/">Jobs</a>&bull;
+					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
+					<a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
+					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
+					<br>
+				</small>
+			</div>
+			<div style="float: right;">
+				{{ if .LoggedUser }}<a href="/profile/home">Your Profile</a>{{ else }}<a href="/auth">Login</a>{{ end }}
+			</div>
+			<div style="clear: both;"></div>
+		</nav>
+	</header>
   <div id="spinner-0">
     <div class="overlay-effect"></div>
     <div class="spinner-box"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
