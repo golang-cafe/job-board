@@ -3456,6 +3456,10 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to marshal stats for job id %d", jobID))
 		}
+		applicants, err := jobRepo.GetApplicantsForJob(jobID)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to retrieve job applicants for job id %d", jobPost.ID))
+		}
 		svr.Render(r, w, http.StatusOK, "edit.html", map[string]interface{}{
 			"Job":                        jobPost,
 			"Stats":                      string(statsSet),
@@ -3471,6 +3475,7 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			"PaymentSuccess":             paymentSuccess,
 			"DefaultPlanExpiration":      time.Now().UTC().AddDate(0, 0, 30),
 			"StripePublishableKey":       svr.GetConfig().StripePublishableKey,
+			"Applicants":                 applicants,
 		})
 	}
 }
@@ -3548,29 +3553,25 @@ func ManageJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.H
 }
 
 func DownloadJobApplicationCvHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
-	return middleware.AdminAuthenticatedMiddleware(
-		svr.SessionStore,
-		svr.GetJWTSigningKey(),
-		func(w http.ResponseWriter, r *http.Request) {
-			vars := mux.Vars(r)
-			token := vars["token"]
-			applicant, err := jobRepo.GetApplicantByApplyToken(token)
-			if err != nil {
-				svr.Log(err, fmt.Sprintf("unable to find job application by applicant token: %s", token))
-				svr.JSON(w, http.StatusNotFound, nil)
-				return
-			}
-			w.Header().Set("Content-Type", "application/pdf")
-			w.Header().Set("Content-Length", fmt.Sprintf("%d", applicant.CvSize))
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		token := vars["token"]
+		applicant, err := jobRepo.GetApplicantByApplyToken(token)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to find job application by applicant token: %s", token))
+			svr.JSON(w, http.StatusNotFound, nil)
+			return
+		}
+		w.Header().Set("Content-Type", "application/pdf")
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", applicant.CvSize))
 
-			_, err = w.Write(applicant.Cv)
-			if err != nil {
-				svr.Log(err, fmt.Sprintf("unable to serve job application CV for applicant token: %s", token))
-				svr.JSON(w, http.StatusInternalServerError, nil)
-				return
-			}
-		},
-	)
+		_, err = w.Write(applicant.Cv)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to serve job application CV for applicant token: %s", token))
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+	}
 }
 
 func GetBlogPostBySlugHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {

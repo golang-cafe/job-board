@@ -225,7 +225,7 @@ body{background:#ffffff;}
                         );
       }
     </script>
-    <article>
+    <article style="margin-bottom: 30px;">
         <p>
             <h3>Job Dashboard</h3>
             <small>
@@ -253,6 +253,33 @@ body{background:#ffffff;}
                 <div id="job-stats-clickouts"></div>
             {{ end }}
         </p>
+    </article>
+    <article>
+        <h3>Applications for this job</h3>
+        {{ if .Applicants }}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Application date</th>
+                        <th>Status</th>
+                        <th>Email address</th>
+                        <th>CV</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range $i, $a := .Applicants }}
+                        <tr>
+                            <td>{{ .CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}</td>
+                            <td>{{ if .ConfirmedAt.Valid }} Confirmed {{ .ConfirmedAt.Value.Format "Jan 02, 2006 15:04:05 UTC" }} {{ else }} Pending Confirmation {{ end }}</td>
+                            <td>{{ .Email }}</td>
+                            <td><a href="/download-cv/{{ .Token }}" target="_blank">View CV</a></td>
+                        </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        {{ else }}
+            <p>No applicants yet.</p>
+        {{ end }}
     </article>
     <article style="margin-top: 30px;">
         <p>
