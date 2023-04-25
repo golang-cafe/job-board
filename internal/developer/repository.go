@@ -89,6 +89,28 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 	return dev, nil
 }
 
+func (r *Repository) DeveloperMetadataByProfileID(metadata_type string, profile_id string) ([]DeveloperMetadata, error) {
+	rows, err := r.db.Query(`SELECT id, title, description, link from developer_metadata WHERE developer_profile_id = $1 AND type = $2 ORDER BY created_at DESC`, profile_id, metadata_type)
+	devMetadata := []DeveloperMetadata{}
+	if err != nil {
+		return devMetadata, nil
+	}
+	for rows.Next() {
+		var devMeta DeveloperMetadata
+		err := rows.Scan(
+			&devMeta.ID,
+			&devMeta.Title,
+			&devMeta.Description,
+			&devMeta.Link,
+		)
+		if err != nil {
+			return devMetadata, err
+		}
+		devMetadata = append(devMetadata, devMeta)
+	}
+	return devMetadata, nil
+}
+
 func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
@@ -200,7 +222,6 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 			&dev.RoleLevel,
 			&roleTypes,
 		)
-		fmt.Printf("found dev %s and hourly rate %d\n", dev.ID, dev.HourlyRate)
 		dev.RoleTypes = strings.Split(roleTypes, ",")
 		if err != nil {
 			return developers, fullRowsCount, err
@@ -248,6 +269,21 @@ func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 		dev.SearchStatus,
 		dev.DetectedLocationID,
 	)
+	return err
+}
+
+func (r *Repository) SaveDeveloperMetadata(devMetadata DeveloperMetadata) error {
+	_, err := r.db.Exec(`INSERT INTO developer_metadata (id, developer_profile_id, type, title, description, link) VALUES ($1, $2, $3, $4, $5, $6)`, devMetadata.ID, devMetadata.DeveloperProfileID, devMetadata.MetadataType, devMetadata.Title, devMetadata.Description, devMetadata.Link)
+	return err
+}
+
+func (r *Repository) DeleteDeveloperMetadata(id string, developer_profile_id string) error {
+	_, err := r.db.Exec(`DELETE FROM developer_metadata WHERE id = $1 and developer_profile_id = $2`, id, developer_profile_id)
+	return err
+}
+
+func (r *Repository) UpdateDeveloperMetadata(devMetadata DeveloperMetadata) error {
+	_, err := r.db.Exec(`UPDATE developer_metadata SET title = $1, description = $2, link = $3 WHERE id = $4`, devMetadata.Title, devMetadata.Description, devMetadata.Link, devMetadata.ID)
 	return err
 }
 
