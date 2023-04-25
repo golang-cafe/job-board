@@ -1,16 +1,16 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
   <head>
-	<meta name="yandex-verification" content="96b3163b8551fd06" />
+	<meta name="yandex-verification" content="96b3163b8551fd06">
 	<title>{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}</title>
         <link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="shortcut icon">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 	<meta name="title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
 	<meta name="keywords" content="{{ .SiteJobCategory }} developers, {{ .SiteJobCategory }} developers for hire{{ if .TagFilter }}, {{ .SiteJobCategory }} {{ .TagFilter }} developers{{ end }}{{ if .LocationFilter }}, {{ .SiteJobCategory }} developers in {{ .LocationFilter }}{{ end }}">
 	<meta name="description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
-	<meta itemprop="name" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
-	<meta itemprop="description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
-	<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
+    <meta itemprop="name" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
+    <meta itemprop="description" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
+    <meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 	<meta property="og:url" content="https://{{ .SiteHost }}">
         <meta property="og:type" content="website">
 	<meta property="og:title" content="{{ .SiteJobCategory }} {{ if .TagFilter }}{{.TagFilter}} {{ end }}Developers for Hire{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear}} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} - {{ .SiteName }}">
@@ -73,7 +73,6 @@ body{background:#ffffff;}
 					<a style="text-decoration: underline;" href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
 					<br>
 				</small>
-			</div>
 			<div style="float: right;">
 				{{ if .LoggedUser }}<a href="/profile/home">Your Profile</a>{{ else }}<a href="/auth">Login</a>{{ end }}
 			</div>
@@ -83,7 +82,7 @@ body{background:#ffffff;}
   <section style="padding: 0 10px;">
     <p>
     {{ if not .LoggedUser }}<input type="submit" value="Join the Community" id="post-btn" onclick="window.location.href='/Join-{{ .SiteJobCategoryURLEncoded }}-Community';">{{ end }}
-	<h1 class="main-title">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }} </h1><br/>
+	<h1 class="main-title">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }} </h1><br>
 	<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Browse, view and reach <b>{{ .TextJobCount }} {{ .SiteJobCategory }}{{ if .TagFilter }} {{ .TagFilter }}{{ end }} developers</b> for hire {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }}. Search developers experienced in <b>{{ .TopDeveloperSkills }}</b>. {{ .SiteJobCategory }} developers like <b>{{ .TopDeveloperNames }}</b> and many more are available for hire on {{ .SiteName }}. Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></h2>
     </p>
     <div style="margin-bottom: 10px;">
@@ -112,7 +111,7 @@ body{background:#ffffff;}
     <article class="apply-box" id="apply-box-0">
 	{{ if .LoggedUser }}
     <h3 id="apply-box-title" style="margin-top: 10px;">Send a Message to <span id="message-to"></span></h3>
-	<div id="apply-box-container">
+	<div id="apply-box-container-new-recruiter">
 	<p id="profile-info"></p>
         <input type="hidden" name="profile-id" id="profile-id" value="0">
         <input type="text" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;" value="{{ .LoggedUser.Email }}" disabled><br>
@@ -122,25 +121,25 @@ body{background:#ffffff;}
         <input type="submit" id="apply-submit" value="Send" onclick="hitSend();" style="float: right;">
 	</div>
     {{ else }}
-    <h3 id="apply-box-title" style="margin-top: 10px;">Create your free recruiter profile to message <span id="message-to"></span></h3>
-	<div id="apply-box-container">
-	<p id="profile-info"></p>
+    <h3 id="apply-box-title-new-recruiter-profile" style="margin-top: 10px;">Create your free recruiter profile to message <span id="message-to"></span></h3>
+	<div id="apply-box-container-new-recruiter-link">
+	<p id="profile-info-new-profile-link"></p>
         <input type="hidden" name="profile-id" id="profile-id" value="0">
         <p>You can create a free profile on {{ .SiteName }} and contact {{ .SiteJobCategory }} Developers for hire.</p>
         <br>
         <br>
-        <input type="submit" id="apply-submit" value="Create Free Profile" onclick="window.location.href='/Hire-From-{{ .SiteJobCategory }}-Community';" style="float: right;">
+        <input type="submit" id="apply-submit-new-profile" value="Create Free Profile" onclick="window.location.href='/Hire-From-{{ .SiteJobCategory }}-Community';" style="float: right;">
 	</div>
     {{ end }}
     </article>
     <article class="apply-box" id="apply-box-1">
-        <h3 id="apply-box-title" style="margin-top: 10px;">Create your free profile to continue</h3>
-      <div id="apply-box-container">
+        <h3 id="apply-box-title-new-developer-profile" style="margin-top: 10px;">Create your free profile to continue</h3>
+      <div id="apply-box-container-view-developers">
       <p id="profile-info"></p>
       <div style="margin-bottom: 20px; text-align: center;">
         {{ range $i, $j := .TopDevelopers }}
         <img width="50" height="50" style="margin-left:-20px;border-radius: 50px; border: 1px solid #aaa;"
-          src="/x/s/m/{{ .ImageID }}?w=50&h=50" title="{{ .Name }}" alt="{{ .Name }}" />
+          src="/x/s/m/{{ .ImageID }}?w=50&h=50" title="{{ .Name }}" alt="{{ .Name }}">
         {{ end }}
       </div>
       <ul>
@@ -173,11 +172,13 @@ body{background:#ffffff;}
         {{ $isUserRecruiter := .IsUserRecruiter }}
 	    {{ range $i, $j := .Developers }}
               <article class="line-item">
-		  <img {{ if not $isLoggedUser }}style="filter:blur(5px);" onclick="sendMessage('{{ .ID }}', '{{ truncateName .Name }}');" class="job-icon hover-pointer"{{ else }}class="job-icon"{{ end }}loading="lazy" width="120" height="120" src="/x/s/m/{{ .ImageID }}?w=100&h=100" alt="{{ .Name }}" title="{{ .Name }}">
+                <h2>
+                    <img {{ if not $isLoggedUser }}style="filter:blur(5px);" onclick="sendMessage('{{ .ID }}', '{{ truncateName .Name }}');" class="job-icon hover-pointer"{{ else }}class="job-icon"{{ end }} loading="lazy" width="120" height="120" src="/x/s/m/{{ .ImageID }}?w=100&h=100" alt="{{ .Name }}" title="{{ .Name }}">
+                </h2>
                   <div style="float: left;">
 			  <a href="/developer/{{ .Slug }}" target="_blank"><b>{{ if $isLoggedUser }}{{ .Name }}{{ else }}{{ truncateName .Name }}{{ end }}</b></a><br>
               <small>{{ if .Available }}<span style="display: inline-block; width: 10px; height: 10px; background: #00ab6f; border-radius: 10px; margin-right: 5px;"></span>Currently Available{{ else }}<span style="display: inline-block; width: 10px; height: 10px; background: #ab3300; border-radius: 10px; margin-right: 5px;"></span>Currently Unavailable{{ end }}</small><br>
-		  <b id="location-{{ .ID }}">{{ .Location }}</b><br/>
+		  <b id="location-{{ .ID }}">{{ .Location }}</b><br>
           <small>{{ if or $isUserRecruiter $isUserAdmin }}{{ if ne .HourlyRate 0 }}Hourly Rate <b>{{ .HourlyRate }} USD/hour</b>{{ else }}Hourly Rate <b>Not specified</b>{{ end }}{{ end }}</small><br>
           <small>Experience Level: <b>{{ stringTitle .RoleLevel }}</b></small><br>
           <small>Work Preference: <b>{{ .RoleTypeAsString }}</b></small><br>
@@ -190,7 +191,7 @@ body{background:#ffffff;}
 		  <br>
 		  <div class="overflow"><p {{ if not $isLoggedUser }}style="filter:blur(5px);" class="hover-pointer" onclick="sendMessage('{{ .ID }}', '{{ .Name }}');"{{ end }}>{{ .Bio }}</p></div>
 		  <br>
-		  <small>Last Updated {{ .UpdatedAtHumanized }}</small><br/>
+		  <small>Last Updated {{ .UpdatedAtHumanized }}</small><br>
                   </div>
 		  <input class="send-message" type="submit" {{ if not .Available }}disabled {{ else }}onclick="sendMessage('{{ .ID }}', '{{ .Name }}');" {{ end }}value="Send Message">
                 <div class="clearfix"></div>
@@ -342,7 +343,7 @@ body{background:#ffffff;}
         function sendMessage(profileID, profileName) {
             document.getElementById('profile-id').value = profileID;
             document.getElementById('message-to').innerHTML = profileName;
-	        document.getElementById('profile-info').innerHTML = 'Current Location <b>'+document.getElementById('location-'+profileID).innerHTML+'</b><br/>'+document.getElementById('skills-'+profileID).innerHTML;
+	        document.getElementById('profile-info').innerHTML = 'Current Location <b>'+document.getElementById('location-'+profileID).innerHTML+'</b><br>'+document.getElementById('skills-'+profileID).innerHTML;
             document.getElementById('apply-box-0').style.display = 'block';
             document.getElementById('overlay-0').style.display = 'block';
         }
