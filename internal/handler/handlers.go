@@ -194,6 +194,165 @@ func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repositor
 	}
 }
 
+func SaveDeveloperMetadataHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			req := &struct {
+				DeveloperProfileID string  `json:"developer_profile_id"`
+				MetadataType       string  `json:"metadata_type"`
+				Title              string  `json:"title"`
+				Description        string  `json:"description"`
+				Link               *string `json:"link,omitempty"`
+			}{}
+
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				svr.Log(errors.New("invalid developer metadata"), "invalid developer metadata")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			dev, err := devRepo.DeveloperProfileByID(req.DeveloperProfileID)
+			if !profile.IsAdmin && dev.Email != profile.Email {
+				svr.Log(err, "Only same user or admin can edit metadata.")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			req.Title = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.Title)))
+			req.Description = bluemonday.StrictPolicy().Sanitize(req.Description)
+			k, err := ksuid.NewRandom()
+			if err != nil {
+				svr.Log(err, "unable to generate token")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+
+			devMetadata := developer.DeveloperMetadata{
+				ID:                 k.String(),
+				DeveloperProfileID: req.DeveloperProfileID,
+				MetadataType:       req.MetadataType,
+				Title:              req.Title,
+				Description:        req.Description,
+				Link:               req.Link,
+			}
+			err = devRepo.SaveDeveloperMetadata(devMetadata)
+			if err != nil {
+				svr.Log(err, "unable to save developer metadata")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
+func DeleteDeveloperMetadataHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			req := &struct {
+				ID                 string  `json:"id"`
+				DeveloperProfileID string  `json:"developer_profile_id"`
+			}{}
+
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				svr.Log(errors.New("invalid developer metadata ID"), "invalid developer metadata ID")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			dev, err := devRepo.DeveloperProfileByID(req.DeveloperProfileID)
+			if err != nil {
+				svr.Log(err, "unable to get user from profileID")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			if dev.Email != profile.Email && !profile.IsAdmin {
+				svr.Log(err, "Only same user or admin can edit metadata.")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			err = devRepo.DeleteDeveloperMetadata(req.ID, req.DeveloperProfileID)
+			if err != nil {
+				svr.Log(err, "unable to delete developer metadata")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
+func UpdateDeveloperMetadataHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			req := &struct {
+				ID                 string  `json:"id"`
+				DeveloperProfileID string  `json:"developer_profile_id"`
+				MetadataType       string  `json:"metadata_type"`
+				Title              string  `json:"title"`
+				Description        string  `json:"description"`
+				Link               *string `json:"link,omitempty"`
+			}{}
+
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				svr.Log(errors.New("invalid developer metadata"), "invalid developer metadata")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			dev, err := devRepo.DeveloperProfileByID(req.DeveloperProfileID)
+			if err != nil {
+				svr.Log(err, "unable to get user from profileID")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			if dev.Email != profile.Email && !profile.IsAdmin {
+				svr.Log(err, "Only same user or admin can edit metadata.")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			req.Title = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.Title)))
+			req.Description = bluemonday.StrictPolicy().Sanitize(req.Description)
+
+			devMetadata := developer.DeveloperMetadata{
+				ID:                 req.ID,
+				DeveloperProfileID: req.DeveloperProfileID,
+				MetadataType:       req.MetadataType,
+				Title:              req.Title,
+				Description:        req.Description,
+				Link:               req.Link,
+			}
+			err = devRepo.UpdateDeveloperMetadata(devMetadata)
+			if err != nil {
+				svr.Log(err, "unable to save developer metadata")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
 func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRepo tokenSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
@@ -1522,6 +1681,9 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 			switch profile.Type {
 			case user.UserTypeDeveloper:
 				dev, err := devRepo.DeveloperProfileByID(profileID)
+				devExps, err := devRepo.DeveloperMetadataByProfileID("experience", profileID)
+				devEducation, err := devRepo.DeveloperMetadataByProfileID("education", profileID)
+				devProjects, err := devRepo.DeveloperMetadataByProfileID("github", profileID)
 				if err != nil {
 					svr.Log(err, "unable to find developer profile")
 					http.Redirect(w, r, "/auth", http.StatusUnauthorized)
@@ -1532,7 +1694,10 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 					return
 				}
 				svr.Render(r, w, http.StatusOK, "edit-developer-profile.html", map[string]interface{}{
-					"DeveloperProfile": dev,
+					"DeveloperProfile":        dev,
+					"DeveloperExperiences":    devExps,
+					"DeveloperEducation":      devEducation,
+					"DeveloperGithubProjects": devProjects,
 				})
 			case user.UserTypeRecruiter:
 				rec, err := recRepo.RecruiterProfileByID(profileID)
@@ -1566,10 +1731,21 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 		if err := devRepo.TrackDeveloperProfileView(dev); err != nil {
 			svr.Log(err, "unable to track developer profile view")
 		}
+		devExps, err := devRepo.DeveloperMetadataByProfileID("experience", dev.ID)
+		devEducation, err := devRepo.DeveloperMetadataByProfileID("education", dev.ID)
+		devProjects, err := devRepo.DeveloperMetadataByProfileID("github", dev.ID)
+		if err != nil {
+			svr.Log(err, "unable to find developer metadata")
+			http.Redirect(w, r, "/auth", http.StatusUnauthorized)
+			return
+		}
 		dev.UpdatedAtHumanized = dev.UpdatedAt.UTC().Format("January 2006")
 		dev.SkillsArray = strings.Split(dev.Skills, ",")
 		svr.Render(r, w, http.StatusOK, "view-developer-profile.html", map[string]interface{}{
 			"DeveloperProfile": dev,
+			"DeveloperExperiences":    devExps,
+			"DeveloperEducation":      devEducation,
+			"DeveloperGithubProjects": devProjects,
 			"MonthAndYear":     time.Now().UTC().Format("January 2006"),
 		})
 	}

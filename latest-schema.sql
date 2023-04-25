@@ -819,3 +819,16 @@ ALTER TABLE ONLY public.developer_profile ADD COLUMN hourly_rate INTEGER DEFAULT
 ALTER TABLE ONLY public.recruiter_profile DROP COLUMN company;
 ALTER TABLE ONLY public.recruiter_profile DROP COLUMN title;
 ALTER TABLE ONLY public.user_sign_on_token ADD COLUMN created_at TIMESTAMP DEFAULT NOW();
+
+CREATE TYPE public.valid_developer_metadata_type AS ENUM ('experience', 'education', 'github');
+
+CREATE TABLE IF NOT EXISTS public.developer_metadata (
+    id CHAR(27) NOT NULL,
+    developer_profile_id CHAR(27) NOT NULL REFERENCES public.developer_profile(id),
+    type public.valid_developer_metadata_type,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    link CHAR(54) NULL,
+    created_at TIMESTAMP DEFAULT current_timestamp,
+    updated_at TIMESTAMP DEFAULT NULL
+);

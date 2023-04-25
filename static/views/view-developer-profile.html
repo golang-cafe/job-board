@@ -316,8 +316,52 @@ background-color: #FF6600
 		  	<span style="display: inline-block;margin-top:10px;background: #dbdbdb;font-size:medium;padding: 4px 10px;border-radius:5px;">{{ $y }}</span>
 		  {{ end }}
 	    </p><br>
-		  <p {{ if not .LoggedUser }}style="filter:blur(5px);" class="hover-pointer" onclick="sendMessage('{{ .DeveloperProfile.ID }}', '{{ .DeveloperProfile.Name }}');"{{ end }}>{{ .DeveloperProfile.Bio }}</p>
-		  <br>
+      <span><b>Summary</b></span>
+      <p {{ if not .LoggedUser }}style="filter:blur(5px);" class="hover-pointer" onclick="sendMessage('{{ .DeveloperProfile.ID }}', '{{ .DeveloperProfile.Name }}');"{{ end }}>{{ .DeveloperProfile.Bio }}</p>
+      {{ if .LoggedUser }}
+      {{ if gt (len .DeveloperExperiences) 0 }}
+      <span>
+          <b>Experience</b>
+      </span>
+      {{ end }}
+      <ul>
+        {{ range .DeveloperExperiences }}
+        <br />
+        <li><div><b><a href="{{ .Link }}" rel="noreferrer nofollow" target="_blank">{{ .Title }}</a></b></div>
+          <div>{{ .Description }}</div>
+        </li>
+        {{ end }}
+       </ul>
+      {{ if gt (len .DeveloperEducation) 0 }}
+      <span>
+          <b>Education</b>
+      </span>
+      {{ end }}
+      <ul>
+        {{ range .DeveloperEducation }}
+        <br />
+        <li><div><b><a href="{{ .Link }}" rel="noreferrer nofollow" target="_blank">{{ .Title }}</a></b></div>
+          <div>{{ .Description }}</div>
+        </li>
+        {{ end }}
+       </ul>
+
+      {{ if gt (len .DeveloperGithubProjects) 0 }}
+      <span>
+          <b>Github Projects</b>
+      </span>
+      {{ end }}
+      <ul>
+        {{ range .DeveloperGithubProjects }}
+        <br />
+        <li><div><b><a href="{{ .Link }}" rel="noreferrer nofollow" target="_blank">{{ .Title }}</a></b></div>
+          <div>{{ .Description }}</div>
+        </li>
+        {{ end }}
+       </ul>
+      {{ end }}
+
+
 		<input type="hidden" value="{{ .DeveloperProfile.ID }}" id="profile-id">
 		  <input class="send-message" style="float:right;" type="submit" {{ if not .DeveloperProfile.Available }}disabled {{ else }}onclick="sendMessage('{{ .DeveloperProfile.ID }}', '{{ .DeveloperProfile.Name }}');" {{ end }}value="Send Message">
             </article>
