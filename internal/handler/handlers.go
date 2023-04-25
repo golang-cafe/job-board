@@ -252,6 +252,49 @@ func SaveDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposito
 	)
 }
 
+func DeleteDeveloperMetadataHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			req := &struct {
+				ID                 string  `json:"id"`
+				DeveloperProfileID string  `json:"developer_profile_id"`
+			}{}
+
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				svr.Log(errors.New("invalid developer metadata ID"), "invalid developer metadata ID")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			dev, err := devRepo.DeveloperProfileByID(req.DeveloperProfileID)
+			if err != nil {
+				svr.Log(err, "unable to get user from profileID")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			if dev.Email != profile.Email && !profile.IsAdmin {
+				svr.Log(err, "Only same user or admin can edit metadata.")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			err = devRepo.DeleteDeveloperMetadata(req.ID, req.DeveloperProfileID)
+			if err != nil {
+				svr.Log(err, "unable to delete developer metadata")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
 func UpdateDeveloperMetadataHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return middleware.UserAuthenticatedMiddleware(
 		svr.SessionStore,

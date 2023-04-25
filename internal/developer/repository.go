@@ -277,6 +277,11 @@ func (r *Repository) SaveDeveloperMetadata(devMetadata DeveloperMetadata) error 
 	return err
 }
 
+func (r *Repository) DeleteDeveloperMetadata(id string, developer_profile_id string) error {
+	_, err := r.db.Exec(`DELETE FROM developer_metadata WHERE id = $1 and developer_profile_id = $2`, id, developer_profile_id)
+	return err
+}
+
 func (r *Repository) UpdateDeveloperMetadata(devMetadata DeveloperMetadata) error {
 	_, err := r.db.Exec(`UPDATE developer_metadata SET title = $1, description = $2, link = $3 WHERE id = $4`, devMetadata.Title, devMetadata.Description, devMetadata.Link, devMetadata.ID)
 	return err

@@ -281,10 +281,11 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
           <br />
           <li><div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b> <div onclick="openDeveloperMetadataModal('experience', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;">Edit</div></div>
             <div>{{ .Description }}</div>
+            <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;">Delete</div>
+            <br>
           </li>
           {{ end }}
          </ul>
-        
         <span>
         	<b>Education</b>
         </span>
@@ -300,6 +301,8 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
               <div onclick="openDeveloperMetadataModal('education', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;">Edit</div>
             </div>
             <div>{{ .Description }} </div></li>
+          <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;">Delete</div>
+          <br>
         {{ end }}
         </ul>
         <span>
@@ -312,8 +315,10 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <ul>
         {{ range .DeveloperGithubProjects}}
         <br />
-          <li><div><b><a href="{{ .Link }}">{{ .Title }}</a></b><div onclick="openDeveloperMetadataModal('github', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;">Edit</div></div>
+          <li><div><b><a href="{{ .Link }}" .Title }}</a></b><div onclick="openDeveloperMetadataModal('github', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;">Edit</div></div>
           <div>{{ .Description }} </div></li>
+          <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;">Delete</div>
+          <br>
         {{ end }}
         </ul>
         <div id="developerMetadataModal" class="modal">
@@ -678,7 +683,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
           document.getElementById("description").placeholder = metadataTypeToPlaceholderMapping[metadataType]["description"];
         }
         if (link) {
-          document.getElementById("link").value = link;
+          document.getElementById("link").value = link.trim();
         } else {
           document.getElementById("link").placeholder = metadataTypeToPlaceholderMapping[metadataType]["link"];
         }
@@ -687,12 +692,28 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         }
       }
 
+      function deleteDeveloperMetadata(id) {
+        var body = {
+          "developer_profile_id": document.getElementById('profile-id').value,
+          "id": id
+        }
+        httpReq('/x/ddm', body, function(bool) {window.location.reload();})
+      }
+
       function saveDeveloperMetadata() {
         var ID = document.getElementById("metadataId").value;
         var metadataType = document.getElementById("metadataType").value;
-        var title = document.getElementById("title").value;
-        var description = document.getElementById("description").value;
-        var link = document.getElementById("link").value;
+        var title = document.getElementById("title").value.trim();
+        var description = document.getElementById("description").value.trim();
+        var link = document.getElementById("link").value.trim();
+        if (!isURL(link)) {
+          alert('"Link" must be a valid URL');
+          return;
+        }
+        if (empty(title, description)) {
+          alert('Title or description cannot be empty');
+          return;
+        }
         var body = {
             "developer_profile_id": document.getElementById('profile-id').value,
             "metadata_type": metadataType,
