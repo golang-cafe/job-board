@@ -270,6 +270,9 @@ func main() {
 	// @private: view edit job by token
 	svr.RegisterRoute("/edit/{token}", handler.EditJobViewPageHandler(svr, jobRepo), []string{"GET"})
 
+	// @private: download an applicants cv by applicant token
+	svr.RegisterRoute("/download-cv/{token}", handler.DownloadJobApplicationCvHandler(svr, jobRepo), []string{"GET"})
+
 	// @private: disapprove job by token
 	svr.RegisterRoute("/x/d", handler.DisapproveJobPageHandler(svr, jobRepo), []string{"POST"})
 
