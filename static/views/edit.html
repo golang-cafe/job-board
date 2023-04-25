@@ -356,7 +356,7 @@ body{background:#ffffff;}
             </tbody>
         </table>
     {{ else }}
-        <p>Remember, if you chose to use an external URL to collect your applications, we are unable to track applications.</p>
+        <p>{{ if .HowToApplyIsURL}}Remember, if you chose to use an external URL to collect your applications, we are unable to track applications.{{ else }}No applicants yet.{{ end }}</p>
     {{ end }}
 </article>
   {{ if .Purchases }}
