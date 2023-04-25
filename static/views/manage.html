@@ -48,8 +48,8 @@ body{background:#ffffff;}
             <div class="spinner-box"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
         </div>
   <section>
-    <article>
-        <p>
+    <article style="margin-bottom: 30px;">
+        <div>
             <h3>Manage Job Ad</h3>
             <small>
                 <b>Created:</b> {{ .Job.CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}<br>
@@ -142,8 +142,34 @@ body{background:#ffffff;}
                 <input type="submit" id="approve" value="Approve" onclick="approve();" style="float: right;">
             {{ end }}
             <input type="submit" id="delete" value="Permanently Delete" onclick="permanentlyDelete();" style="float: right;background-color: rgb(211, 63, 53);">
-        </p>
-  </article>
+            <div style="clear: both"></div>
+        </div>
+    </article>
+    {{ if .Applicants }}
+        <article>
+            <h3>Applications for this job</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Application date</th>
+                        <th>Status</th>
+                        <th>Email address</th>
+                        <th>CV</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{ range $i, $a := .Applicants }}
+                        <tr>
+                            <td>{{ .CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}</td>
+                            <td>{{ if .ConfirmedAt.Valid }} Confirmed {{ .ConfirmedAt.Value.Format "Jan 02, 2006 15:04:05 UTC" }} {{ else }} Pending Confirmation {{ end }}</td>
+                            <td>{{ .Email }}</td>
+                            <td>{{ .CvSize }} bytes</td>
+                        </tr>
+                    {{ end }}
+                </tbody>
+            </table>
+        </article>
+    {{ end }}
   </section>
 		<footer>
 			<nav>

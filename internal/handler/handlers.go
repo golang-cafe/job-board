@@ -3528,6 +3528,10 @@ func ManageJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.H
 			if clickoutCount > 0 && viewCount > 0 {
 				conversionRate = fmt.Sprintf("%.2f", float64(float64(clickoutCount)/float64(viewCount)*100))
 			}
+			applicants, err := jobRepo.GetApplicantsForJob(jobID)
+			if err != nil {
+				svr.Log(err, fmt.Sprintf("unable to retrieve job applicants for job id %d", jobID))
+			}
 			svr.Render(r, w, http.StatusOK, "manage.html", map[string]interface{}{
 				"Job":                        jobPost,
 				"JobPerksEscaped":            svr.JSEscapeString(jobPost.Perks),
@@ -3537,6 +3541,7 @@ func ManageJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.H
 				"ViewCount":                  viewCount,
 				"ClickoutCount":              clickoutCount,
 				"ConversionRate":             conversionRate,
+				"Applicants":                 applicants,
 			})
 		},
 	)
