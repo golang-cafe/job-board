@@ -755,6 +755,80 @@ func (r *Repository) JobsByQuery(location, tag string, pageId, salary int, curre
 	return jobs, fullRowsCount, nil
 }
 
+func (r *Repository) JobsForRecruiter(posterEmail string, pageId, jobsPerPage int) ([]*JobPost, int, error) {
+	jobs := []*JobPost{}
+	var rows *sql.Rows
+	offset := pageId*jobsPerPage - jobsPerPage
+
+	rows, err := r.db.Query(`
+		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at 
+		FROM public.job
+		WHERE company_email = $1
+		ORDER BY created_at DESC LIMIT $3 OFFSET $2`, posterEmail, offset, jobsPerPage)
+
+	if err != nil {
+		return jobs, 0, err
+	}
+	defer rows.Close()
+	var fullRowsCount int
+	for rows.Next() {
+		job := &JobPost{}
+		var createdAt time.Time
+		var perks, interview, companyIcon sql.NullString
+		err = rows.Scan(
+			&fullRowsCount,
+			&job.ID,
+			&job.JobTitle,
+			&job.Company,
+			&job.CompanyURL,
+			&job.SalaryRange,
+			&job.Location,
+			&job.JobDescription,
+			&perks,
+			&interview,
+			&job.HowToApply,
+			&createdAt,
+			&job.CreatedAt,
+			&job.Slug,
+			&job.SalaryMin,
+			&job.SalaryMax,
+			&job.SalaryCurrency,
+			&companyIcon,
+			&job.ExternalID,
+			&job.SalaryPeriod,
+			&job.Expired,
+			&job.LastWeekClickouts,
+			&job.PlanType,
+			&job.PlanDuration,
+			&job.BlogEligibilityExpiredAt,
+			&job.CompanyPageEligibilityExpiredAt,
+			&job.FrontPageEligibilityExpiredAt,
+			&job.NewsletterEligibilityExpiredAt,
+			&job.PlanExpiredAt,
+			&job.SocialMediaEligibilityExpiredAt,
+		)
+		if companyIcon.Valid {
+			job.CompanyIconID = companyIcon.String
+		}
+		if perks.Valid {
+			job.Perks = perks.String
+		}
+		if interview.Valid {
+			job.InterviewProcess = interview.String
+		}
+		job.TimeAgo = createdAt.UTC().Format("January 2006")
+		if err != nil {
+			return jobs, fullRowsCount, err
+		}
+		jobs = append(jobs, job)
+	}
+	err = rows.Err()
+	if err != nil {
+		return jobs, fullRowsCount, err
+	}
+	return jobs, fullRowsCount, nil
+}
+
 func (r *Repository) TokenByJobID(jobID int) (string, error) {
 	tokenRow := r.db.QueryRow(
 		`SELECT token

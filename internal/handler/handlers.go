@@ -3678,3 +3678,45 @@ func TriggerExpiredUserSignOnTokensTask(svr server.Server, userRepo *user.Reposi
 		},
 	)
 }
+
+func RecruiterJobPosts(svr server.Server, devRepo *developer.Repository, recRepo *recruiter.Repository, jobRepo *job.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			rec, err := recRepo.RecruiterProfileByEmail(profile.Email)
+			if err != nil {
+				svr.Log(err, "unable to find recruiter profile")
+				svr.JSON(w, http.StatusNotFound, nil)
+				return
+			}
+			page := r.URL.Query().Get("p")
+			pageID, err := strconv.Atoi(page)
+			if err != nil {
+				pageID = 1
+			}
+			jobsForPage, totalJobCount, err := jobRepo.JobsForRecruiter(profile.Email, pageID, svr.GetConfig().JobsPerPage)
+			if err != nil {
+				svr.Log(err, "unable to get jobs for recruiter")
+				svr.JSON(w, http.StatusInternalServerError, "Oops! An internal error has occurred")
+				return
+			}
+			svr.Render(r, w, http.StatusOK, "recruiter-job-posts.html", map[string]interface{}{
+				"Jobs":          jobsForPage,
+				"totalJobCount": totalJobCount,
+				"IsAdmin":       profile.IsAdmin,
+				"UserID":        profile.UserID,
+				"UserEmail":     profile.Email,
+				"UserCreatedAt": profile.CreatedAt,
+				"ProfileID":     rec.ID,
+				"UserType":      profile.Type,
+				"Recruiter":     rec,
+			})
+		})
+}

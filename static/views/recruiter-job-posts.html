@@ -48,41 +48,12 @@ body{background:#ffffff;}
         <div class="spinner-box"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
     </div>
     <section style="margin: 30px auto;">
-            <article>
-              <h1>{{ .SiteName }} Profile Settings</h1>
-	      <p>This is your account information</p>
-	      <ul>
-		      <li><b>Account ID:</b> {{ .UserID }}</li>
-		      <li><b>Account Email:</b> {{ .UserEmail }}</li>
-		      <li><b>Account Created At:</b> {{ .UserCreatedAt }}</li>
-		      <li><b>Account Type:</b> {{ .UserType }}</li>
-	      </ul>
-	      <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
-        <ul>
-		  {{ if eq .UserType "developer" }}
-        <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Developer Profile</a></li>
-        <li><a href="/support">Contact Support</a></li>
-      {{ end }}
-      
-      {{ if eq .UserType "recruiter" }}
-        <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Info</a></li>
-        <li><a href="/{{ .SiteJobCategory }}-Developers">Browse & Message Developers</a></li>
-        <li><a href="/ad">Post a Job Post</a></li>
-        <li><a href="/profile/jobs">View Your Job Posts</a></li>
-        <li><a onclick="alert('This functionality is not available yet. We are working on it.');">Create Company Page</a></li>
-        <li><a href="/support">Contact Support</a></li>
-      {{ end }}
-
-		  {{ if eq .UserType "admin" }}
-      <li><a href="/profile/blog/list">View Your Blog Posts</a></li>
-      <li><a href="/profile/blog/create">Create Blog Post</a></li>
-		  <li><a href="/manage/list">List Job Posts</a></li>
-		  <li><a href="/manage/new">Create Job Post</a></li>
-		  {{ end }}
-          <li><a onclick="logout();">Logout</a></li>
-            </ul>
-              <br>
-            </article>
+      <article>
+        <h2>Jobs Posted</h2>
+        {{ range $i, $j := .Jobs }}
+          <a href="/edit/{{ $j.ID }}">{{ $j.JobTitle }}</a>
+        {{ end }}
+      </article>
   </section>
 		<footer>
 			<nav>
