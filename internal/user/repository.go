@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/dustin/go-humanize"
+	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/segmentio/ksuid"
 )
 
@@ -81,4 +82,42 @@ func (r *Repository) GetUser(email string) (User, error) {
 		return u, err
 	}
 	return u, nil
+}
+
+// CreateUserWithEmail creates a new user with given email and user_type
+// returns the user struct, and an error
+func (r *Repository) CreateUserWithEmail(email, user_type string) (User, error) {
+	u := User{}
+
+	userID, err := ksuid.NewRandom()
+	if err != nil {
+		return u, err
+	}
+
+	u.ID = userID.String()
+	u.Email = email
+	u.CreatedAt = time.Now()
+	u.Type = user_type
+	u.CreatedAtHumanised = humanize.Time(u.CreatedAt.UTC())
+	if _, err := r.db.Exec(`INSERT INTO users (id, email, created_at, user_type) VALUES ($1, $2, $3, $4)`, u.ID, u.Email, u.CreatedAt, u.Type); err != nil {
+		return User{}, err
+	}
+
+	return u, nil
+}
+
+// GetOrCreateUserIfRecruit seeks a user in the users table or creates one if the user has a job posting
+// returns user struct and an error
+func (r *Repository) GetOrCreateUserIfRecruit(email string, jobRepo *job.Repository) (User, error) {
+	u, err := r.GetUser(email)
+	if err == nil {
+		return u, nil
+	}
+
+	hasPostedJob := jobRepo.JobExistsForEmail(email)
+	if hasPostedJob {
+		return r.CreateUserWithEmail(email, "recruiter")
+	}
+
+	return User{}, errors.New("not found")
 }

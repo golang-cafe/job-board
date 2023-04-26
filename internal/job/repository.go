@@ -26,6 +26,15 @@ func (r *Repository) TrackJobView(job *JobPost) error {
 	return err
 }
 
+func (r *Repository) JobExistsForEmail(email string) bool {
+	res := r.db.QueryRow(`SELECT id FROM purchase_event where email=$1 LIMIT 1`, email)
+	var job JobPost
+	err := res.Scan(
+		&job.ID,
+	)
+	return err != nil
+}
+
 func (r *Repository) GetJobByApplyToken(token string) (JobPost, Applicant, error) {
 	res := r.db.QueryRow(`SELECT t.cv, t.email, j.id, j.job_title, j.company, company_url, salary_range, location, how_to_apply, slug, j.external_id
 	FROM job j JOIN apply_token t ON t.job_id = j.id AND t.token = $1 WHERE j.approved_at IS NOT NULL AND t.created_at < NOW() + INTERVAL '3 days' AND t.confirmed_at IS NULL`, token)

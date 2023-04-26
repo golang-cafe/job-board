@@ -651,35 +651,35 @@ func TriggerCloudflareStatsExport(svr server.Server) http.HandlerFunc {
 				req := graphql.NewRequest(
 					`query {
   viewer {
-    zones(filter: {zoneTag: $zoneTag}) {
-      httpRequests1dGroups(orderBy: [date_ASC]  filter: { date_gt: $fromDate } limit: 10000) {
-        dimensions {
-          date
-        }
-      sum {
-        pageViews
-        requests
-        bytes
-        cachedBytes
-        threats
-        countryMap {
-          clientCountryName
-          requests
-          threats
-        }
-	browserMap {
-          uaBrowserFamily
-          pageViews
-        }
-        responseStatusMap {
-          edgeResponseStatus
-          requests
-        }
-      }
-        uniq {
-          uniques
-        }
-    }
+	zones(filter: {zoneTag: $zoneTag}) {
+  	httpRequests1dGroups(orderBy: [date_ASC]  filter: { date_gt: $fromDate } limit: 10000) {
+    	dimensions {
+      	date
+    	}
+  	sum {
+    	pageViews
+    	requests
+    	bytes
+    	cachedBytes
+    	threats
+    	countryMap {
+      	clientCountryName
+      	requests
+      	threats
+    	}
+    browserMap {
+      	uaBrowserFamily
+      	pageViews
+    	}
+    	responseStatusMap {
+      	edgeResponseStatus
+      	requests
+    	}
+  	}
+    	uniq {
+      	uniques
+    	}
+	}
   }
 }
 }`,
@@ -832,12 +832,12 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
 				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `</p>
 ` + jobsHTML + `
-	<p>Check out more jobs at <a title="` + svr.GetConfig().SiteName + `" href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `">` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `</a></p>
-	<p>Get companies apply to you, join the ` + svr.GetConfig().SiteJobCategory + ` Developer Community <a title="` + svr.GetConfig().SiteName + ` Community" href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community">` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community</a></p>
-	<p>` + svr.GetConfig().SiteName + `</p>
-	<hr />`
+    <p>Check out more jobs at <a title="` + svr.GetConfig().SiteName + `" href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `">` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `</a></p>
+    <p>Get companies apply to you, join the ` + svr.GetConfig().SiteJobCategory + ` Developer Community <a title="` + svr.GetConfig().SiteName + ` Community" href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community">` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community</a></p>
+    <p>` + svr.GetConfig().SiteName + `</p>
+    <hr />`
 				unsubscribeLink := `
-	<h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br>This email was sent to <strong>%s</strong> | <a href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
+    <h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br>This email was sent to <strong>%s</strong> | <a href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
 
 				for _, s := range subscribers {
 					err = svr.GetEmail().SendHTMLEmail(
@@ -1730,7 +1730,7 @@ func SendFeedbackMessage(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.HandlerFunc {
+func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
 			Email string `json:"email"`
@@ -1743,7 +1743,7 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.Handl
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		u, err := userRepo.GetUser(req.Email)
+		u, err := userRepo.GetOrCreateUserIfRecruit(req.Email, jobRepo)
 		if err != nil {
 			svr.JSON(w, http.StatusNotFound, nil)
 			return
