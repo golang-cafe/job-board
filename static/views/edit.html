@@ -332,7 +332,7 @@ body{background:#ffffff;}
             {{ end }}
         </p>
   </article>
-  <article>
+  <article style="margin-top:30px;">
     <h3>Applications for this job</h3>
     {{ if .Applicants }}
         <table>
@@ -356,7 +356,7 @@ body{background:#ffffff;}
             </tbody>
         </table>
     {{ else }}
-        <p>{{ if .HowToApplyIsURL}}Remember, if you chose to use an external URL to collect your applications, we are unable to track applications.{{ else }}No applicants yet.{{ end }}</p>
+        <p>{{ if .HowToApplyIsURL }}Remember, if you chose to use an external URL to collect your applications, we are unable to track applications.{{ else }}No applicants yet.{{ end }}</p>
     {{ end }}
 </article>
   {{ if .Purchases }}

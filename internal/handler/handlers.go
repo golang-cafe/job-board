@@ -3462,7 +3462,7 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 		}
 		svr.Render(r, w, http.StatusOK, "edit.html", map[string]interface{}{
 			"Job":                        jobPost,
-			"HowToApplyIsURL":		      svr.IsEmail(jobPost.HowToApply),
+			"HowToApplyIsURL":		      !svr.IsEmail(jobPost.HowToApply),
 			"Stats":                      string(statsSet),
 			"Purchases":                  purchaseEvents,
 			"JobPerksEscaped":            svr.JSEscapeString(jobPost.Perks),
