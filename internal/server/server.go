@@ -651,6 +651,9 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 	if strings.EqualFold(location, "remote") {
 		locSearch = ""
 	}
+
+	recruiterFilters := developer.ParseRecruiterFiltersFromQuery(r.URL.Query())
+
 	developersForPage, totalDevelopersCount, err := devRepo.DevelopersByLocationAndTag(locSearch, tag, pageID, s.cfg.DevelopersPerPage)
 	if err != nil {
 		s.Log(err, "unable to get developers by location and tag")
@@ -726,6 +729,9 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		s.Log(err, "GetDeveloperProfilePageViewsLastMonth")
 	}
 
+	developerRoleLevels := developer.SortedRoleLevels()
+	developerRoleTypes := developer.SortedRoleTypes()
+
 	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
 		"Developers":                         developersForPage,
 		"TopDeveloperSkills":                 textifyGeneric(topDeveloperSkills),
@@ -754,6 +760,9 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
 		"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
 		"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
+		"DeveloperRoleLevels":                developerRoleLevels,
+		"DeveloperRoleTypes":                 developerRoleTypes,
+		"RecruiterFilters":                   recruiterFilters,
 	})
 
 }
