@@ -179,7 +179,7 @@ func (r *Repository) MarkDeveloperMessageAsSent(id string) error {
 	return err
 }
 
-func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSize int) ([]Developer, int, error) {
+func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSize int, recruiterFilters RecruiterFilters) ([]Developer, int, error) {
 	var rows *sql.Rows
 	var err error
 	offset := pageID*pageSize - pageSize
@@ -199,6 +199,44 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 		query += fmt.Sprintf(` AND location ILIKE '%%' || $%d || '%%'`, argIndex)
 		args = append(args, loc)
 		argIndex++
+	}
+
+	if recruiterFilters.HourlyMin > 0 {
+		query += fmt.Sprintf(` AND hourly_rate >= $%d`, argIndex)
+		args = append(args, recruiterFilters.HourlyMin)
+		argIndex++
+	}
+
+	if recruiterFilters.HourlyMax > 0 {
+		query += fmt.Sprintf(` AND hourly_rate <= $%d`, argIndex)
+		args = append(args, recruiterFilters.HourlyMax)
+		argIndex++
+	}
+
+	if len(recruiterFilters.RoleLevels) > 0 {
+		keys := make([]interface{}, 0, len(recruiterFilters.RoleLevels))
+		placeholders := make([]string, 0, len(recruiterFilters.RoleLevels))
+		for k := range recruiterFilters.RoleLevels {
+			keys = append(keys, k)
+			placeholders = append(placeholders, fmt.Sprintf(`$%d`, argIndex))
+			argIndex++
+		}
+
+		query += fmt.Sprintf(` AND role_level IN (%s)`, strings.Join(placeholders, `, `))
+		args = append(args, keys...)
+	}
+
+	if len(recruiterFilters.RoleTypes) > 0 {
+		keys := make([]interface{}, 0, len(recruiterFilters.RoleTypes))
+		placeholders := make([]string, 0, len(recruiterFilters.RoleTypes))
+		for k := range recruiterFilters.RoleTypes {
+			keys = append(keys, k)
+			placeholders = append(placeholders, fmt.Sprintf(`$%d`, argIndex))
+			argIndex++
+		}
+
+		query += fmt.Sprintf(` AND string_to_array(role_types, ',') && ARRAY[%s]`, strings.Join(placeholders, `, `))
+		args = append(args, keys...)
 	}
 
 	query += fmt.Sprintf(` ORDER BY updated_at DESC LIMIT $%d OFFSET $%d`, argIndex, argIndex+1)

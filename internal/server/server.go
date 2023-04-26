@@ -652,9 +652,13 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		locSearch = ""
 	}
 
-	recruiterFilters := developer.ParseRecruiterFiltersFromQuery(r.URL.Query())
+	profile, _ := middleware.GetUserFromJWT(r, s.SessionStore, s.GetJWTSigningKey())
+	var recruiterFilters developer.RecruiterFilters
+	if profile != nil && (profile.IsRecruiter || profile.IsAdmin) {
+		recruiterFilters = developer.ParseRecruiterFiltersFromQuery(r.URL.Query())
+	}
 
-	developersForPage, totalDevelopersCount, err := devRepo.DevelopersByLocationAndTag(locSearch, tag, pageID, s.cfg.DevelopersPerPage)
+	developersForPage, totalDevelopersCount, err := devRepo.DevelopersByLocationAndTag(locSearch, tag, pageID, s.cfg.DevelopersPerPage, recruiterFilters)
 	if err != nil {
 		s.Log(err, "unable to get developers by location and tag")
 		s.JSON(w, http.StatusInternalServerError, "Oops! An internal error has occurred")
@@ -662,7 +666,7 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 	}
 	if len(developersForPage) == 0 {
 		complementaryRemote = true
-		developersForPage, totalDevelopersCount, err = devRepo.DevelopersByLocationAndTag("", "", pageID, s.cfg.DevelopersPerPage)
+		developersForPage, totalDevelopersCount, err = devRepo.DevelopersByLocationAndTag("", "", pageID, s.cfg.DevelopersPerPage, developer.RecruiterFilters{})
 	}
 	pages := []int{}
 	pageLinksPerPage := 8
