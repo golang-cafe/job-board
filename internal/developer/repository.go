@@ -184,20 +184,34 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 	var err error
 	offset := pageID*pageSize - pageSize
 	var developers []Developer
-	switch {
-	case tag != "" && loc != "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND skills ILIKE '%' || $2 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $3 OFFSET $4`, loc, tag, pageSize, offset)
-	case tag != "" && loc == "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE skills ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, tag, pageSize, offset)
-	case tag == "" && loc != "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, loc, pageSize, offset)
-	default:
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE created_at != updated_at ORDER BY updated_at DESC LIMIT $1 OFFSET $2`, pageSize, offset)
+
+	query := `SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE created_at != updated_at`
+	var args []interface{}
+	argIndex := 1
+
+	if tag != "" {
+		query += fmt.Sprintf(` AND skills ILIKE '%%' || $%d || '%%'`, argIndex)
+		args = append(args, tag)
+		argIndex++
 	}
+
+	if loc != "" {
+		query += fmt.Sprintf(` AND location ILIKE '%%' || $%d || '%%'`, argIndex)
+		args = append(args, loc)
+		argIndex++
+	}
+
+	query += fmt.Sprintf(` ORDER BY updated_at DESC LIMIT $%d OFFSET $%d`, argIndex, argIndex+1)
+	args = append(args, pageSize, offset)
+	argIndex += 2
+
+	rows, err = r.db.Query(query, args...)
 	if err == sql.ErrNoRows {
 		return developers, 0, nil
 	}
+
 	var fullRowsCount int
+	defer rows.Close()
 	for rows.Next() {
 		var dev Developer
 		var roleTypes string
