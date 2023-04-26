@@ -839,6 +839,12 @@ CREATE TABLE public.resume (
 );
 ALTER TABLE ONLY public.developer_profile ADD COLUMN resume_id character(27) DEFAULT NULL;
 
+<<<<<<< HEAD
+=======
+
+ALTER TABLE ONLY public.developer_profile ADD COLUMN resume_id character(27) DEFAULT NULL;
+
+>>>>>>> b483385 (Handle cv upload flow)
 CREATE TABLE public.developer_resume_download (
     id character(27) NOT NULL,
     developer_profile_id character(27) NOT NULL,

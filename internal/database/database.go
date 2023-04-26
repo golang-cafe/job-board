@@ -750,6 +750,11 @@ func UpdateMedia(conn *sql.DB, media Media, mediaID string) error {
 	return err
 }
 
+func SaveDeveloperResumeDownload(conn *sql.DB, ID string, developerProfileID string, userID string, resumeID string) error {
+	_, err := conn.Exec(`INSERT INTO developer_resume_download (id, developer_profile_id, resume_id, user_id, downloaded_at) VALUES ($1, $2, $3, $4, NOW())`, ID, developerProfileID, resumeID, userID)
+	return err
+}
+
 func GetResumeByID(conn *sql.DB, resumeID string) (Media, error) {
 	var m Media
 	row := conn.QueryRow(

@@ -363,7 +363,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 		req := &struct {
 			Fullname           string   `json:"fullname"`
 			HourlyRate         string   `json:"hourly_rate"`
-			LinkedinURL        string   `json:"linkedin_url"`
+			LinkedinURL        string   `json:"linkedin_url,omitempty"`
 			CurrentLocation    string   `json:"current_location"`
 			GithubURL          *string  `json:"github_url,omitempty"`
 			TwitterURL         *string  `json:"twitter_url,omitempty"`
@@ -1316,6 +1316,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				CurrentLocation    string   `json:"current_location"`
 				Skills             string   `json:"skills"`
 				ImageID            string   `json:"profile_image_id"`
+				ResumeID           string   `json:"profile_resume_id"`
 				Email              string   `json:"email"`
 				SearchStatus       string   `json:"search_status"`
 				RoleLevel          string   `json:"role_level"`
@@ -1401,6 +1402,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				UpdatedAt:    t,
 				Skills:       req.Skills,
 				ImageID:      req.ImageID,
+				ResumeID:     req.ResumeID,
 				SearchStatus: req.SearchStatus,
 				RoleLevel:    req.RoleLevel,
 			}
@@ -3063,18 +3065,31 @@ func RetrieveResumePageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		resumeID := vars["id"]
+		isDownload := r.URL.Query().Get("is_download")
+		developerProfileID := r.URL.Query().Get("developer_profile_id")
+		userID := r.URL.Query().Get("user_id")
+		fmt.Printf(isDownload)
+		if (isDownload == "true" && developerProfileID != "" && userID != "") {
+			k, err := ksuid.NewRandom()
+			if err != nil {
+				svr.Log(err, "unable to generate token")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			ID := k.String()
+		    err = database.SaveDeveloperResumeDownload(svr.Conn, ID, developerProfileID, userID, resumeID)
+			if err != nil {
+				svr.Log(err, fmt.Sprintf("unable to save resume download data"))
+				svr.MEDIA(w, http.StatusNotFound, []byte{}, "application/pdf")
+				return
+			}	
+		}
 		resume, err := database.GetResumeByID(svr.Conn, resumeID)
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to retrieve resume by ID: '%s'", resumeID))
 			svr.MEDIA(w, http.StatusNotFound, resume.Bytes, resume.MediaType)
 			return
 		}
-		// pdf, err := api.Read(bytes.NewReader(resume.Bytes), nil)
-		// if err != nil {
-		// 	svr.Log(err, "unable to decode pdf from bytes")
-		// 	svr.JSON(w, http.StatusInternalServerError, nil)
-		// 	return
-		// }
 		svr.MEDIA(w, http.StatusOK, resume.Bytes, resume.MediaType)
 	}
 }

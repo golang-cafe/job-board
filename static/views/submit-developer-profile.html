@@ -967,7 +967,13 @@
 			</div>
 			<input type="hidden" id="detected-location-id" name="detected-location-id">
 			<input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate" style="width: 30%;"> <div class="tooltip">USD/hour<span class="tooltiptext">Your hourly rate is only visible to recruiters who are logged-in.</span></div>
+<<<<<<< HEAD
 			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;">
+=======
+			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL (Optional)" style="width: 100%;">
+			<input type="url" name="github-url" id="github-url" placeholder="GitHub URL (Optional)"
+				style="width: 100%;">
+>>>>>>> b483385 (Handle cv upload flow)
 			<select id="search-status" name="search-status" style="width:100%;">
 				<option default value="">Your Status</option>
 				<option value="actively-applying">Actively Looking</option>
@@ -1259,8 +1265,8 @@
 			if (document.getElementById("role-type-internship").checked) {
 				roleTypes.push('internship');
 			}
-			if (empty(tags, fullName, linkedinURL, bio, email, currentLocation, searchStatus, roleLevel, hourlyRate)) {
-				alert('You must fill all the mandatory fields (Full Name, Email, Linkedin URL, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
+			if (empty(tags, fullName, bio, email, currentLocation, searchStatus, roleLevel, hourlyRate)) {
+				alert('You must fill all the mandatory fields (Full Name, Email, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
 				return;
 			}
 			if (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL)) {
@@ -1305,7 +1311,6 @@
 								reject('Could not upload image');
 							}
 							var res = JSON.parse(xhr.response);
-							debugger;
 							resolve(res.id);
 						}
 					};
@@ -1329,7 +1334,6 @@
 								reject('Could not upload resume');
 							}
 							var res = JSON.parse(xhr.response);
-							debugger;
 							resolve(res.id);
 						}
 					};
@@ -1339,10 +1343,8 @@
 			uploadImagePromise = uploadImage()
 			uploadResumePromise = uploadResume()
 			Promise.all([ uploadImagePromise, uploadResumePromise ]).then(function(values) {
-				debugger;
 				var payload = {
 						fullname: fullName,
-						linkedin_url: linkedinURL,
 						bio: bio,
 						email: email,
 						tags: tags,
@@ -1355,6 +1357,15 @@
 						hourly_rate: hourlyRate,
 						detected_location_id: detectedLocationId,
 					};
+<<<<<<< HEAD
+=======
+					if (!empty(linkedinURL)) {
+						payload.linkedin_url = linkedinURL;
+					}
+					if (!empty(githubURL)) {
+						payload.github_url = githubURL;
+					}
+>>>>>>> b483385 (Handle cv upload flow)
 					http(
 						'/x/sdp',
 						payload,

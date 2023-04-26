@@ -21,6 +21,20 @@ body{background:#ffffff;}section {padding: 0 10px;}
   display: inline-block
 }
 
+#resume-action {
+  display: inline-block;
+  margin-bottom:10px;
+  background: #dbdbdb;
+  font-size:medium;
+  padding: 4px 10px;
+  border-radius:5px;
+}
+
+#resume-action:hover {
+  background: #c0c0c0;
+  cursor: pointer;
+}
+
 .resp-sharing-button__link {
   text-decoration: none;
   color: #fff;
@@ -281,6 +295,7 @@ background-color: #FF6600
       {{ if .LoggedUser }}
 	<h3 id="apply-box-title" style="margin-top: 10px;">Send a Message to <span id="message-to"></span></h3>
 	<div id="apply-box-container">
+  <input type="hidden" name="user-id" id="user-id" value="{{ .LoggedUser.UserID}}">
 	<p id="profile-info"></p>
         <input type="hidden" name="profile-id" id="profile-id" value="0">
         <input type="text" name="company-email" id="company-email" placeholder="Your Email" style="width: 100%;" value="{{ .LoggedUser.Email }}" disabled><br>
@@ -307,6 +322,13 @@ background-color: #FF6600
 		<img {{ if not .LoggedUser }}style="filter:blur(5px);border-radius:50px;border:1px solid #ccc;" onclick="sendMessage('{{ .DeveloperProfile.ID }}', '{{ truncateName .DeveloperProfile.Name }}');" class="hover-pointer"{{ else }}style="border-radius:50px;border:1px solid #ccc;"{{ end }} src="/x/s/m/{{ .DeveloperProfile.ImageID }}?w=100&h=100" width="100" height="100" title="{{ .DeveloperProfile.Name }}" alt="{{ .DeveloperProfile.Name }}"><br>
     <small>{{ if .DeveloperProfile.Available }}<span style="display: inline-block; width: 10px; height: 10px; background: #00ab6f; border-radius: 10px; margin-right: 5px;"></span>Currently Available{{ else }}<span style="display: inline-block; width: 10px; height: 10px; background: #ab3300; border-radius: 10px; margin-right: 5px;"></span>Currently Unavailable{{ end }}</small><br>
 		<b id="location-{{ .DeveloperProfile.ID }}">{{ .DeveloperProfile.Location }}</b><br>
+    {{ if not (or .IsUserRecruiter .IsUserAdmin) }}
+    <span id="resume-action" onclick="viewResume()">View Resume</span>
+    <span id="resume-action" onclick="downloadResume()">Download Resume</span>
+    <input type="hidden" value="{{ .DeveloperProfile.ResumeID }}" id="profile-resume-id">
+    {{ end }}
+
+
     <small>{{ if or .IsUserRecruiter .IsUserAdmin }}{{ if ne .DeveloperProfile.HourlyRate 0 }}Hourly Rate: <b>{{ .DeveloperProfile.HourlyRate }} USD/hour</b>{{ else }}Hourly Rate: <b>Not specified</b>{{ end }}{{ end }}</small><br>
     <small>Experience Level: <b>{{ stringTitle .DeveloperProfile.RoleLevel }}</b></small><br>
     <small>Work Preference: <b>{{ .DeveloperProfile.RoleTypeAsString }}</b></small><br>
@@ -433,6 +455,21 @@ background-color: #FF6600
       </nav>
   </footer>
     <script>
+        function viewResume() {
+          var profileResumeID = document.getElementById('profile-resume-id').value;
+          window.open('/x/s/r/' + profileResumeID, '_blank');
+        }
+        function downloadResume() {
+          var profileResumeID = document.getElementById('profile-resume-id').value;
+          var developerProfileID = document.getElementById('profile-id').value;
+          var userID = document.getElementById('user-id').value;
+          var URL = '/x/s/r/' + profileResumeID + '?is_download=true&developer_profile_id=' + developerProfileID + '&user_id=' + userID;
+          const link = document.createElement("a");
+          link.href = URL;
+          link.download = 'resume.pdf';
+          link.click();
+        }
+
         function isEmail(email) {
             var re = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
             return re.test(email);
@@ -493,6 +530,7 @@ background-color: #FF6600
             document.getElementById('apply-box-0').style.display = 'none';
             document.getElementById('overlay-0').style.display = 'none';
         }
+
     </script>
 
 </body>
