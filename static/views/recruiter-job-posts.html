@@ -51,7 +51,16 @@ body{background:#ffffff;}
       <article>
         <h2>Jobs Posted</h2>
         {{ range $i, $j := .Jobs }}
-          <a href="/edit/{{ $j.ID }}">{{ $j.JobTitle }}</a>
+          <div style="margin-bottom: 20px;">
+            <a href="/edit/{{ $j.ID }}" target="_blank"><b>{{ $j.JobTitle }}</b><br>
+              <b>{{ .Location }}</b><br>{{ .SalaryRange }} a {{ .SalaryPeriod }}
+              <br>
+              <small>{{ $j.TimeAgo }}</small>
+              {{ if gt .LastWeekClickouts 0 }}
+              <br>
+              <small>{{ .LastWeekClickouts }} Applicants This Week</small>
+              {{ end }}
+          </div>
         {{ end }}
       </article>
   </section>
