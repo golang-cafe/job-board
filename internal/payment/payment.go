@@ -17,13 +17,15 @@ type Repository struct {
 	stripeKey string
 	siteName  string
 	siteHost  string
+	siteProtocol string
 }
 
-func NewRepository(stripeKey, siteName, siteHost string) *Repository {
+func NewRepository(stripeKey, siteName, siteHost, siteProtocol string) *Repository {
 	return &Repository{
 		stripeKey: stripeKey,
 		siteName:  siteName,
 		siteHost:  siteHost,
+		siteProtocol: siteProtocol,
 	}
 }
 
@@ -81,7 +83,7 @@ func (r Repository) CreateGenericSession(email, currency string, amount int) (*s
 	return session, nil
 }
 
-func (r Repository) CreateSession(jobRq *job.JobRq, jobToken string, monthlyAmount int64, numMonths int64) (*stripe.CheckoutSession, error) {
+func (r Repository) CreateJobAdSession(jobRq *job.JobRq, jobToken string, monthlyAmount int64, numMonths int64) (*stripe.CheckoutSession, error) {
 	stripe.Key = r.stripeKey
 	params := &stripe.CheckoutSessionParams{
 		BillingAddressCollection: stripe.String("required"),
@@ -92,13 +94,47 @@ func (r Repository) CreateSession(jobRq *job.JobRq, jobToken string, monthlyAmou
 			{
 				Name:     stripe.String(fmt.Sprintf("%s Job Ad %s Plan", r.siteName, strings.Title(jobRq.PlanType))),
 				Amount:   stripe.Int64(monthlyAmount),
-				Currency: stripe.String(strings.ToLower(jobRq.CurrencyCode)),
+				Currency: stripe.String("usd"),
 				Quantity: stripe.Int64(numMonths),
 			},
 		},
-		SuccessURL:    stripe.String(fmt.Sprintf("https://%s/edit/%s?payment=1&callback=1", r.siteHost, jobToken)),
-		CancelURL:     stripe.String(fmt.Sprintf("https://%s/edit/%s?payment=0&callback=1", r.siteHost, jobToken)),
+		SuccessURL:    stripe.String(fmt.Sprintf("%s%s/edit/%s?payment=1&callback=1", r.siteProtocol, r.siteHost, jobToken)),
+		CancelURL:     stripe.String(fmt.Sprintf("%s%s/edit/%s?payment=0&callback=1", r.siteProtocol, r.siteHost, jobToken)),
 		CustomerEmail: &jobRq.Email,
+	}
+
+	session, err := session.New(params)
+	if err != nil {
+		return nil, fmt.Errorf("unable to create stripe session: %+v", err)
+	}
+
+	return session, nil
+}
+
+func (r Repository) CreateDevDirectorySession(email string, userID string, monthlyAmount int64, numMonths int64, isRenew bool) (*stripe.CheckoutSession, error) {
+	stripe.Key = r.stripeKey
+	successURL := stripe.String(fmt.Sprintf("%s%s/auth?payment=1&email=%s", r.siteProtocol, r.siteHost, email))
+	cancelURL := stripe.String(fmt.Sprintf("%s%s/auth?payment=0&email=%s", r.siteProtocol, r.siteHost, email))
+	if isRenew {
+		successURL = stripe.String(fmt.Sprintf("%s%s/profile/home?payment=1", r.siteProtocol, r.siteHost))
+		cancelURL = stripe.String(fmt.Sprintf("%s%s/profile/home?payment=0", r.siteProtocol, r.siteHost))
+	}
+	params := &stripe.CheckoutSessionParams{
+		BillingAddressCollection: stripe.String("required"),
+		PaymentMethodTypes: stripe.StringSlice([]string{
+			"card",
+		}),
+		LineItems: []*stripe.CheckoutSessionLineItemParams{
+			{
+				Name:     stripe.String(fmt.Sprintf("%s Developer Directory %d Months Plan", r.siteName, numMonths)),
+				Amount:   stripe.Int64(monthlyAmount),
+				Currency: stripe.String("usd"),
+				Quantity: stripe.Int64(numMonths),
+			},
+		},
+		SuccessURL:    successURL,
+		CancelURL:     cancelURL,
+		CustomerEmail: &email,
 	}
 
 	session, err := session.New(params)

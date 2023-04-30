@@ -832,3 +832,18 @@ CREATE TABLE IF NOT EXISTS public.developer_metadata (
     created_at TIMESTAMP DEFAULT current_timestamp,
     updated_at TIMESTAMP DEFAULT NULL
 );
+
+CREATE TABLE public.developer_directory_purchase_event (
+    stripe_session_id character varying(255) NOT NULL,
+    amount integer NOT NULL,
+    currency character(3) NOT NULL,
+    description character varying(255) NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    expired_at timestamp without time zone NOT NULL,
+    completed_at timestamp without time zone,
+    recruiter_id character(27) NOT NULL,
+    email varchar(255) NOT NULL,
+    duration integer NOT NULL
+);
+
+ALTER TABLE public.recruiter_profile ADD COLUMN plan_expired_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();

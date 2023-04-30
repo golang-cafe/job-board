@@ -15,14 +15,31 @@ body{background:#ffffff;}
     a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%;color:{{ .PrimaryColor }};}
     .line-item-sponsored-1 {border-radius: 8px;background-color: #fff9c9;}@media only screen and (max-width: 768px) {.email-subscribe-item{margin-top:15px;margin-bottom: 0;}}
     .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
-    .overlay-effect {display: none;width: 100%; height: 100%; position: fixed; top: 0; left: 0;background: rgba(0, 0, 0,0.5);z-index: 99999}
+    .overlay-effect {display: block;width: 100%; height: 100%; position: fixed; top: 0; left: 0;background: rgba(0, 0, 0,0.5);z-index: 99999}
     .spinner-box {z-index: 999999;width: 124px; padding: 30px; height: auto;position: fixed;margin: 5% auto; top: 40px; left: 0; right: 0;background: #fff;}
     .lds-ring {display: inline-block; position: relative; width: 64px; height: 64px;}.lds-ring div {box-sizing: border-box; display: block; position: absolute; width: 51px; height: 51px; margin: 6px; border: 6px solid #000; border-radius: 50%; animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite; border-color: #000 transparent transparent transparent;}
     .lds-ring div:nth-child(1) {animation-delay: -0.45s;}.lds-ring div:nth-child(2) {animation-delay: -0.3s;}.lds-ring div:nth-child(3) {animation-delay: -0.15s;}
     @keyframes lds-ring {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}#spinner-0{display: none;}
     .apply-box {z-index: 100000;display: none;width: 50%; height: auto;position: fixed;margin: 5% auto; top: 40px; left: 0; right: 0;background: #fff;}@media only screen and (max-width: 768px) {.apply-box{width: 90%;}}
-    footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
+    footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} 
+    .clearfix::after {
+			content: "";
+			clear: both;
+			display: table;
+		}
+  		@media only screen and (max-witdh: 768px) {
+		    .plan-container {width: 100% !important; margin-bottom: 10px;}
+			.subnav ul li {
+				width: 100%;
+			}
+		}
+          .plan-container {
+                  width: 28%;
+              }
     </style>
+    {{ if (eq .UserType "recruiter") and (isTimeBeforeNow .Recruiter.PlanExpiredAt) }}
+    <script src="https://js.stripe.com/v3/"></script>
+    {{ end }}
     {{ template "google-analytics" }}
   </head>
   <body>
@@ -44,42 +61,124 @@ body{background:#ffffff;}
       </nav>
     </header>
     <div id="spinner-0">
-        <div class="overlay-effect"></div>
-        <div class="spinner-box"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
-    </div>
+		<div class="overlay-effect"></div>
+		<div class="spinner-box">
+			<div class="lds-ring">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+		</div>
+	</div>
     <section style="margin: 30px auto;">
             <article>
-              <h1>{{ .SiteName }} Profile Settings</h1>
+              <h1>{{ .SiteName }} User Account</h1>
 	      <p>This is your account information</p>
 	      <ul>
 		      <li><b>Account ID:</b> {{ .UserID }}</li>
 		      <li><b>Account Email:</b> {{ .UserEmail }}</li>
-		      <li><b>Account Created At:</b> {{ .UserCreatedAt }}</li>
+		      <li><b>Account Created At:</b> {{ .UserCreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}</li>
 		      <li><b>Account Type:</b> {{ .UserType }}</li>
-	      </ul>
-	      <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
-        <ul>
-		  {{ if eq .UserType "developer" }}
+			  {{ if eq .UserType "recruiter" }}
+			  <li><b>Subscription:</b> {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}Your Developer Director Access Has Expired on {{ .Recruiter.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}. Please continue below to renew your access.{{ else }}{{ .Recruiter.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}{{ end }}</li>
+		  </ul>
+			  {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}
+			  <h2>Your Developers Directory Access Has Expired</h2>
+			  <div style="margin-bottom:20px;">
+					Please choose one of the options below. You will only be billed once. This is not a subscription. Consider choosing a longer plan to lock in a lower price.
+					</div>
+                <div style="width:100%;margin-bottom: 30px;">
+                    <article class="plan-container" style="padding:20px 10px;height: auto;margin-right:5%;float:left;">
+                        <h2 style="margin-top:0;text-align:center;">3 Months</h2>
+                        <input type="hidden" id="plan-1-item-price" value="{{ .DevDirectoryPlan1IDPrice }}">
+                        <p style="font-size:9pt;line-height:1rem;text-align:center;">
+                            The 3 Months plan is ideal if you are just starting out on {{ .SiteName }}.</p>
+                        <h4 id="plan-1-label-price" style="margin-bottom:5px;text-align:center;margin-top:10px;font-size:20pt;">US${{ mul .DevDirectoryPlan1IDPrice 3 }}</h4>
+                        <div style="margin-bottom: 20px;text-align:center;font-size:12pt;">US${{ .DevDirectoryPlan1IDPrice }} a month</div>
+                        <input type="submit" id="submit" value="Buy Now" onclick="post(3);" style="width:100%;">
+                        <ul style="margin-top:20px;font-size: 10pt;">
+                            <li>3 Months unlimited access to the directory</li>
+                            <li>No retainer fees</li>
+                            <li>Unlimited messages and searches</li>
+                            <li>Access to hourly rates & LinkedIn profiles</li>
+                            <li>Business hours Mon-Fri email customer support</li>
+                        </ul>
+                    </article>
+                    <article class="plan-container" style="padding:20px 10px;height: auto;margin-right:5%;float:left;">
+                        <h2 style="margin-top:0;text-align:center;">6 Months</h2>
+                        <input type="hidden" id="plan-2-item-price" value="{{ .DevDirectoryPlan2IDPrice }}">
+                        <p style="font-size:9pt;line-height:1rem;text-align:center;">
+                            The 6 Months plan it's the most popular chosen by recruiters on {{ .SiteName }}.</p>
+                        <h4 id="plan-2-label-price" style="margin-bottom:5px;text-align:center;margin-top:10px;font-size:20pt;">US${{ mul .DevDirectoryPlan2IDPrice 6 }}</h4>
+                        <div style="margin-bottom: 20px;text-align:center;font-size:12pt;">US${{ .DevDirectoryPlan2IDPrice }} a month</div>
+                        <input type="submit" id="submit" value="Buy Now" onclick="post(6);" style="width:100%;">
+                        <ul style="margin-top:20px;font-size: 10pt;">
+                            <li>6 Months unlimited access to the directory</li>
+                            <li>No retainer fees</li>
+                            <li>Unlimited messages and searches</li>
+                            <li>Access to hourly rates & LinkedIn profiles</li>
+                            <li>Get notified when new developers sign-up</li>
+                            <li>Priority 24/7 email customer support</li>
+                        </ul>
+                    </article>
+                    <article class="plan-container" style="padding:20px 10px;height: auto;margin-right:5%;float:left;">
+                        <h2 style="margin-top:0;text-align:center;">12 Months</h2>
+                        <input type="hidden" id="plan-3-item-price" value="{{ .DevDirectoryPlan3IDPrice }}">
+                        <p style="font-size:9pt;line-height:1rem;text-align:center;">
+                            The 12 Months plan it's the best plan if you need to hire all-year around</p>
+                        <h4 id="plan-3-label-price" style="margin-bottom:5px;text-align:center;margin-top:10px;font-size:20pt;">US${{ mul .DevDirectoryPlan3IDPrice 12 }}</h4>
+                        <div style="margin-bottom: 20px;text-align:center;font-size:12pt;">US${{ .DevDirectoryPlan3IDPrice }} a month</div>
+                        <input type="submit" id="submit" value="Buy Now" onclick="post(12);" style="width:100%;">
+                        <ul style="margin-top:20px;font-size: 10pt;">
+                            <li>12 Months unlimited access to the directory</li>
+                            <li>No retainer fees</li>
+                            <li>Unlimited messages and searches</li>
+                            <li>Access to hourly rates & LinkedIn profiles</li>
+                            <li>Get notified when new developers sign-up</li>
+                            <li>Priority 24/7 email customer support</li>
+                        </ul>
+                    </article>
+                </div>
+                <div class="clearfix"></div>
+				<p style="line-height:1rem;float:left;width:50%;text-align:left;font-size:9pt;margin-bottom:0px;margin-top:10px;">This is not a subscription. You will only be charged once. By continuing you accept the <a href="/terms-of-service" target="_blank">Terms of Service</a></p>
+                <div class="clearfix"></div>
+                <br>
+			  {{ end }}
+			  {{ end }}
+	  {{ if eq .UserType "developer" }}
+		<p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
+		<ul>
         <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Developer Profile</a></li>
         <li><a href="/support">Contact Support</a></li>
+        <li><a onclick="logout();">Logout</a></li>
+		</ul>
       {{ end }}
       
       {{ if eq .UserType "recruiter" }}
+      {{ if isTimeAfterNow .Recruiter.PlanExpiredAt }}
+        <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
+        <ul>
         <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Info</a></li>
         <li><a href="/{{ .SiteJobCategory }}-Developers">Browse & Message Developers</a></li>
         <li><a href="/ad">Post a Job Post</a></li>
         <li><a onclick="alert('This functionality is not available yet. We are working on it.');">Create Company Page</a></li>
         <li><a href="/support">Contact Support</a></li>
+        <li><a onclick="logout();">Logout</a></li>
+        </ul>
+        {{ end }}
       {{ end }}
 
 		  {{ if eq .UserType "admin" }}
-      <li><a href="/profile/blog/list">View Your Blog Posts</a></li>
-      <li><a href="/profile/blog/create">Create Blog Post</a></li>
+		  <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
+		  <ul>
+          <li><a href="/profile/blog/list">View Your Blog Posts</a></li>
+          <li><a href="/profile/blog/create">Create Blog Post</a></li>
 		  <li><a href="/manage/list">List Job Posts</a></li>
 		  <li><a href="/manage/new">Create Job Post</a></li>
+	      <li><a onclick="logout();">Logout</a></li>
+          </ul>
 		  {{ end }}
-          <li><a onclick="logout();">Logout</a></li>
-            </ul>
               <br>
             </article>
   </section>
@@ -94,6 +193,85 @@ body{background:#ffffff;}
 			</nav>
 		</footer>
     <script>
+    {{ if (eq .UserType "recruiter") and (isTimeBeforeNow .Recruiter.PlanExpiredAt) }}
+    var stripe = Stripe('{{ .StripePublishableKey }}');
+	var http = function (url, body, cb) {
+		var xhr = new XMLHttpRequest();
+		xhr.open('POST', url, true);
+		xhr.setRequestHeader('Content-Type', 'application/json');
+		xhr.send(JSON.stringify(body));
+		xhr.onreadystatechange = function () {
+			if (xhr.readyState === 4) {
+				cb(xhr.status === 200, xhr.response, xhr.status);
+			}
+		}
+	};
+    function post(planDuration) {
+		    if (planDuration != 3 && planDuration != 6 && planDuration != 12) {
+				alert("Invalid plan duration, please specify 3, 6 or 12 months.");
+			}
+              var itemPrice = 0;
+              if (planDuration == 3) {
+                itemPrice = parseInt(document.getElementById("plan-1-item-price").value);
+              }
+              if (planDuration == 6) {
+                itemPrice = parseInt(document.getElementById("plan-2-item-price").value);
+              }
+              if (planDuration == 12) {
+                itemPrice = parseInt(document.getElementById("plan-3-item-price").value);
+              }
+              var payload = {
+                  recruiter_id: '{{ .Recruiter.ID }}',
+                  item_price: itemPrice,
+                  plan_duration: planDuration,
+              };
+              document.getElementById("spinner-0").style.display = "block";
+              http(
+                  '/x/s/d/upsell',
+                  payload,
+                  function (success, body, statusCode) {
+                      if (success) {
+                        try {
+                            var res = JSON.parse(body);
+                            console.log(res);
+                            stripe.redirectToCheckout({
+                                sessionId: res.s_id
+                            }).then(function (result) {
+                                document.getElementById("spinner-0").style.display = "none";
+                                if (result.error) {
+                                    console.log(result.error);
+                                    alert('Oops, there was a problem with your payment. Please try again later');
+                                }
+                            });
+                        } catch (err) {
+                            document.getElementById("spinner-0").style.display = "none";
+                            console.log(err);
+                            alert('Oops, there was a problem with your payment. Please try again later');
+                        }
+                      } else {
+                          document.getElementById("spinner-0").style.display = "none";
+                          if (statusCode == 400) {
+                              alert('There was a problem with your request. ' + body);
+                          } else {
+                              alert('There was a problem with your request, please try again later.');
+                          }
+                      }
+                  }
+              );
+		}
+    {{ end }}
+    function checkPaymentStatus() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const paymentValue = urlParams.get('payment');
+      
+      if (paymentValue === '1') {
+        alert('Your payment was successful, please allow few minutes for the payment to process. If you still don\' have access reach out to our support email.');
+      } else if (paymentValue === '0') {
+        alert('We could not process your payment. Please try again. If you have trouble please reach out to our support email.');
+      }
+    }
+    
+    window.addEventListener('load', checkPaymentStatus);
       function logout() {
         document.cookie = '____gc=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
         window.location.href='/';

@@ -52,6 +52,9 @@ func NewTemplate() *Template {
 		"replaceDash": func(s string) string {
 			return strings.ReplaceAll(s, "-", " ")
 		},
+		"mul": func(a int, b int) int {
+			return a*b
+		},
 		"currencysymbol": func(currency string) string {
 			symbols := map[string]string{
 				"USD": "$",
