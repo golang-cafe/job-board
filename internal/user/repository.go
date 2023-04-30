@@ -75,13 +75,28 @@ func (r *Repository) DeleteExpiredUserSignOnTokens() error {
 	return err
 }
 
-func (r *Repository) GetUser(email string) (User, error) {
-	u := User{}
-	row := r.db.QueryRow(`SELECT id, email, created_at, user_type FROM users WHERE email = $1`, email)
-	if err := row.Scan(&u.ID, &u.Email, &u.CreatedAt, &u.Type); err != nil {
-		return u, err
+func (r *Repository) GetUserTypeByEmail(email string) (string, error) {
+	var userType string
+	row := r.db.QueryRow(`SELECT user_type FROM users WHERE email = $1`, email)
+	err := row.Scan(&userType)
+	if err == sql.ErrNoRows {
+		// check if user is unverified recruiter/developer
+		row = r.db.QueryRow(`SELECT 'recruiter' FROM recruiter_profile WHERE email = $1`, email)
+		err = row.Scan(&userType)
+		if err == nil {
+			return userType, nil
+		}
+		row = r.db.QueryRow(`SELECT 'developer' FROM developer_profile WHERE email = $1`, email)
+		err = row.Scan(&userType)
+		if err == nil {
+			return userType, nil
+		}
+		return userType, err
 	}
-	return u, nil
+	if err != nil {
+		return userType, err
+	}
+	return userType, nil
 }
 
 // CreateUserWithEmail creates a new user with given email and user_type
@@ -108,16 +123,21 @@ func (r *Repository) CreateUserWithEmail(email, user_type string) (User, error) 
 
 // GetOrCreateUserIfRecruit seeks a user in the users table or creates one if the user has a job posting
 // returns user struct and an error
-func (r *Repository) GetOrCreateUserIfRecruit(email string, jobRepo *job.Repository) (User, error) {
-	u, err := r.GetUser(email)
+func (r *Repository) GetUserTypeByEmailOrCreateUserIfRecruit(email string, jobRepo *job.Repository) (string, error) {
+	u, err := r.GetUserTypeByEmail(email)
 	if err == nil {
 		return u, nil
 	}
 
 	hasPostedJob := jobRepo.JobExistsForEmail(email)
 	if hasPostedJob {
-		return r.CreateUserWithEmail(email, "recruiter")
+		user, err := r.CreateUserWithEmail(email, "recruiter")
+		if err == nil {
+			return user.Type, nil
+		} else {
+			return "", err
+		}
 	}
 
-	return User{}, errors.New("not found")
+	return "", errors.New("not found")
 }

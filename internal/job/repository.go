@@ -2,6 +2,7 @@ package job
 
 import (
 	"database/sql"
+	"encoding/binary"
 	"errors"
 	"fmt"
 	"strconv"
@@ -46,6 +47,42 @@ func (r *Repository) GetJobByApplyToken(token string) (JobPost, Applicant, error
 	}
 
 	return job, applicant, nil
+}
+
+func (r *Repository) GetApplicantsForJob(jobID int) ([]*Applicant, error) {
+	applicants := []*Applicant{}
+	var rows *sql.Rows
+	rows, err := r.db.Query(`SELECT t.token, t.cv, t.email, t.created_at, t.confirmed_at FROM apply_token t WHERE t.job_id = $1 ORDER BY t.confirmed_at ASC, t.created_at ASC`, jobID)
+	if err != nil {
+		return applicants, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		applicant := &Applicant{}
+		err := rows.Scan(&applicant.Token, &applicant.Cv, &applicant.Email, &applicant.CreatedAt, &applicant.ConfirmedAt)
+		if err != nil {
+			return applicants, err
+		}
+		applicant.CvSize = binary.Size(applicant.Cv)
+		applicants = append(applicants, applicant)
+	}
+	err = rows.Err()
+	if err != nil {
+		return applicants, err
+	}
+	return applicants, nil
+}
+
+func (r *Repository) GetApplicantByApplyToken(applyToken string) (Applicant, error) {
+	res := r.db.QueryRow(`SELECT t.token, t.cv, t.email, t.created_at, t.confirmed_at FROM apply_token t WHERE t.token = $1`, applyToken)
+	applicant := Applicant{}
+	err := res.Scan(&applicant.Token, &applicant.Cv, &applicant.Email, &applicant.CreatedAt, &applicant.ConfirmedAt)
+	if err != nil {
+		return applicant, err
+	}
+	applicant.CvSize = binary.Size(applicant.Cv)
+	return applicant, nil
 }
 
 func (r *Repository) TrackJobClickout(jobID int) error {

@@ -14,4 +14,5 @@ type Recruiter struct {
 	Slug       string
 	CreatedAt  time.Time
 	UpdatedAt  time.Time
+	PlanExpiredAt time.Time
 }

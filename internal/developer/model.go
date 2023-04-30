@@ -70,3 +70,12 @@ type DeveloperMessage struct {
 	CreatedAt time.Time
 	SentAt    time.Time
 }
+
+type DeveloperMetadata struct {
+	ID                 string
+	DeveloperProfileID string
+	MetadataType       string
+	Title              string
+	Description        string
+	Link               *string
+}

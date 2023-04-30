@@ -77,10 +77,10 @@ body{background:#ffffff;}
     <article style="margin-bottom: 30px;">
             {{ if $planExpired }}
             <h3>Your Job Ad has expired</h3>
-            Your Job Ad has expired on {{ .Job.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}. Renew your Job Ad with an easy click. Proceed with payment below and your ad will be automatically approved<br/><br>
+            Your Job Ad has expired on {{ .Job.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}. Renew your Job Ad with an easy click. Proceed with payment below and your ad will be automatically approved<br><br>
             {{ else }}
             <h3>Your Job Ad is pending</h3>
-            Your Job Ad is pending approval. This means your payment may have not been received yet. Proceed with payment below and your ad will be automatically approved<br/><br>
+            Your Job Ad is pending approval. This means your payment may have not been received yet. Proceed with payment below and your ad will be automatically approved<br><br>
             {{ end }}
         <h4>Choose Your Package</h4>
                 <p>Please choose one of the following options based on your criteria and budget. All our packags run for 30 days. They vary based on the level of reach you require. You can also make a purchase for multiple months by using the options below.</p>
@@ -225,7 +225,7 @@ body{background:#ffffff;}
                         );
       }
     </script>
-    <article>
+    <article style="margin-bottom: 30px;">
         <p>
             <h3>Job Dashboard</h3>
             <small>
@@ -332,6 +332,33 @@ body{background:#ffffff;}
             {{ end }}
         </p>
   </article>
+  <article style="margin-top:30px;">
+    <h3>Applications for this job</h3>
+    {{ if .Applicants }}
+        <table>
+            <thead>
+                <tr>
+                    <th>Application date</th>
+                    <th>Status</th>
+                    <th>Email address</th>
+                    <th>CV</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{ range $i, $a := .Applicants }}
+                    <tr>
+                        <td>{{ .CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}</td>
+                        <td>{{ if .ConfirmedAt.Valid }} Confirmed {{ .ConfirmedAt.Value.Format "Jan 02, 2006 15:04:05 UTC" }} {{ else }} Pending Confirmation {{ end }}</td>
+                        <td>{{ .Email }}</td>
+                        <td><a href="/download-cv/{{ .Token }}" target="_blank">View CV</a></td>
+                    </tr>
+                {{ end }}
+            </tbody>
+        </table>
+    {{ else }}
+        <p>{{ if .HowToApplyIsURL }}Remember, if you chose to use an external URL to collect your applications, we are unable to track applications.{{ else }}No applicants yet.{{ end }}</p>
+    {{ end }}
+</article>
   {{ if .Purchases }}
     <article style="margin-top: 30px;">
         <p>

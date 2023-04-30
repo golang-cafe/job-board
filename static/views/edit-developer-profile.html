@@ -56,7 +56,91 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
     cursor: pointer;
     background-color: rgb(211, 63, 53);
 }
-    </style>
+
+.modal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  top: 0;
+  left: 0;
+  z-index: 9999; /* Sit on top */
+  width: 100%;
+  height: 100%;
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content/Box */
+.modal-content {
+  background-color: #fefefe;
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  max-width: 500px;
+  width: 80%; /* Could be more or less, depending on screen size */
+  text-align: center;
+}
+
+/* Center input elements */
+.modal-content input[type="text"],
+.modal-content input[type="hidden"],
+.modal-content textarea {
+  display: block;
+  margin: 0 auto;
+  width: 80%;
+  max-width: 400px;
+  margin-bottom: 10px;
+  resize: none;
+}
+
+/* Center buttons */
+.modal-content button {
+  display: block;
+  margin: 20px auto 0;
+}
+
+#cancelBtn, #saveBtn {
+    background: {{ .PrimaryColor }};
+    color: #fff;
+    display:inline-block;
+    margin-right: 5px;
+    margin-left: 5px;
+}
+#cancelBtn {
+    background: #ff0000;
+}
+#saveBtn:hover {
+    background: {{ .SecondaryColor }};
+    color: #fff;
+}
+#cancelBtn:hover {
+	background: #ff7f7f;
+	color: #fff;
+}
+
+/* Close button */
+.close {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  font-size: 24px;
+  font-weight: bold;
+  color: #aaa;
+}
+
+/* Hover styles for close button */
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+#submit {
+	position: relative;
+	margin-bottom: 18px;
+	border-bottom: 18px;
+}
+
+</style>
     <meta charset="utf-8">
     <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
@@ -96,7 +180,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         </small><br><br>
         </p>
       </article>
-      <article style="margin-top: 30px;">
+      <article style="margin-top: 30px; margin-bottom: 10px;">
         <p>
         <h3>Edit Your Developer Profile</h3>
         <input type="hidden" name="profile-id" id="profile-id" value="{{ .DeveloperProfile.ID }}"><br>
@@ -185,7 +269,79 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
             {{ end }}
         </p>
         <input type="email" name="email" disabled id="email" placeholder="Your Email" style="width: 100%;" value="{{ .DeveloperProfile.Email }}"><br>
-        <input type="submit" id="submit" value="Update" onclick="update();" style="margin-right:0px;float: right;">
+        <span id="experience">
+          <b>Experience</b>
+        </span>
+        <div onclick="openDeveloperMetadataModal('experience');" style="float:right; cursor: pointer;text-decoration: underline;">
+          Add
+        </div>
+        <br />
+        <ul>
+          {{ range .DeveloperExperiences}}
+          <br />
+          <li><div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b>
+            <div onclick="openDeveloperMetadataModal('experience', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
+            <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
+          </div>
+            <div>{{ .Description }}</div>
+            <br>
+          </li>
+          {{ end }}
+         </ul>
+        <span>
+        	<b>Education</b>
+        </span>
+        <div onclick="openDeveloperMetadataModal('education');" style="float:right; cursor: pointer;text-decoration: underline;">
+          Add
+        </div>
+        <br />
+        <ul>
+        {{ range .DeveloperEducation}}
+        <br />
+          <li>
+            <div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b>
+              <div onclick="openDeveloperMetadataModal('education', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
+              <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
+            </div>
+            <div>{{ .Description }} </div></li>
+          <br>
+        {{ end }}
+        </ul>
+        <span>
+        	<b>Github Projects</b>
+        </span>
+        <div onclick="openDeveloperMetadataModal('github');" style="float:right; cursor: pointer;text-decoration: underline;">
+          Add
+        </div>
+        <br />
+        <ul>
+        {{ range .DeveloperGithubProjects}}
+        <br />
+          <li><div><b><a href="{{ .Link }}">{{ .Title }}</a></b>
+            <div onclick="openDeveloperMetadataModal('github', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
+            <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
+          </div>
+          <div>{{ .Description }} </div></li>
+          <br>
+        {{ end }}
+        </ul>
+        <div id="developerMetadataModal" class="modal">
+          <div class="modal-content">
+            <span onclick="closeModal()" class="close">&times;</span>
+            <h2 id="modalHeader">Add New Item</h2>
+            <form>
+              <input type="hidden" id="metadataId">
+              <input type="hidden" id="metadataType">
+              <input type="text" id="title" placeholder="Senior Software Engineer @PiedPiper" name="title"><br>
+              <textarea id="description" name="description" placeholder="At Pied Piper, I served as a senior software engineer ..."></textarea><br>
+              <input type="text" id="link" name="link" placeholder="https://piedpiper.com">
+              <button type="button" onclick="closeModal()" id="cancelBtn">Cancel</button>
+              <button type="button" onclick="saveDeveloperMetadata()" id="saveBtn">Save</button>
+            </form>
+          </div>
+        </div>
+
+        <input type="submit" id="submit" value="Update" onclick="update();" style="margin-right:0px;float: right;"><br>
         </p>
       </article>
     </section>
@@ -489,6 +645,106 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                     }
               return !isThere;
             };
+      window.onclick = function(event) {
+        var modal = document.getElementById("developerMetadataModal");
+        if (event.target == modal) {
+          modal.style.display = "none";
+        }
+      }
+
+      function openDeveloperMetadataModal(metadataType, title, description, link, metadataId) {
+        const metadataTypeToPlaceholderMapping = {
+          "experience": {
+            "title": "Senior Software Engineer at Google",
+            "link": "https://google.com",
+            "description": "At Google, I served as a senior software engineer with ..."
+          },
+      		"github": {
+      			"title": "Golang Job board",
+      			"link": "https://github.com/golang-cafe/job-board",
+      			"description": "Open-source Go contributor at Go-Lang cafe."
+      		},
+      		"education": {
+            "title": "Computer Science at Harvard",
+            "link": "https://www.harvard.edu/",
+            "description": "Graduated from Harvard in 2020"
+      		}
+      	}
+        var modal = document.getElementById("developerMetadataModal");
+        if (metadataType) {
+          document.getElementById("modalHeader").innerHTML = metadataType.toUpperCase();
+          document.getElementById("metadataType").value = metadataType;
+        }
+        modal.style.display = "block";
+        if (title) {
+          document.getElementById("title").value = title;
+        } else {
+          document.getElementById("title").placeholder = metadataTypeToPlaceholderMapping[metadataType]["title"];
+        }
+        if (description) {
+          document.getElementById("description").value = description;
+        } else {
+          document.getElementById("description").placeholder = metadataTypeToPlaceholderMapping[metadataType]["description"];
+        }
+        if (link) {
+          document.getElementById("link").value = link.trim();
+        } else {
+          document.getElementById("link").placeholder = metadataTypeToPlaceholderMapping[metadataType]["link"];
+        }
+        if (metadataId) {
+          document.getElementById("metadataId").value = metadataId
+        }
+      }
+
+      function deleteDeveloperMetadata(id) {
+        var body = {
+          "developer_profile_id": document.getElementById('profile-id').value,
+          "id": id
+        }
+        httpReq('/x/ddm', body, function(bool) {window.location.reload();})
+      }
+
+      function saveDeveloperMetadata() {
+        var ID = document.getElementById("metadataId").value;
+        var metadataType = document.getElementById("metadataType").value;
+        var title = document.getElementById("title").value.trim();
+        var description = document.getElementById("description").value.trim();
+        var link = document.getElementById("link").value.trim();
+        if (!isURL(link)) {
+          alert('"Link" must be a valid URL');
+          return;
+        }
+        if (empty(title, description)) {
+          alert('Title or description cannot be empty');
+          return;
+        }
+        var body = {
+            "developer_profile_id": document.getElementById('profile-id').value,
+            "metadata_type": metadataType,
+            "title": document.getElementById("title").value,
+            "description": document.getElementById("description").value,
+            "link": document.getElementById("link").value
+        }
+        if (ID) {
+            body["id"] = ID;
+            httpReq('/x/udm', body, function(bool) {closeModal(); window.location.reload();}) 
+        }
+        else {
+            httpReq('/x/sdm', body, function(bool) {closeModal(); window.location.reload();})
+        }
+      }
+
+      function closeModal() {
+        var modal = document.getElementById("developerMetadataModal");
+        document.getElementById("title").value = ""
+        document.getElementById("link").value = ""
+        document.getElementById("description").value = ""
+        document.getElementById("title").placeholder = ""
+        document.getElementById("link").placeholder = ""
+        document.getElementById("description").placeholder = ""
+
+        modal.style.display = "none";
+      }
 
     </script>
 

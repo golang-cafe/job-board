@@ -621,6 +621,7 @@ func (s Server) RenderPageForProfileRegistration(w http.ResponseWriter, r *http.
 		"DeveloperMessagesSentLastMonth":     messagesSentLastMonth,
 		"DevelopersRegisteredLastMonth":      devsRegisteredLastMonth,
 		"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
+		"StripePublishableKey": s.GetConfig().StripePublishableKey,
 		"MonthAndYear":                       time.Now().UTC().Format("January 2006"),
 		"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
 		"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
@@ -1080,6 +1081,9 @@ func (s Server) Render(r *http.Request, w http.ResponseWriter, status int, htmlV
 	dataMap["Plan1IDPrice"] = s.GetConfig().PlanID1Price / 100
 	dataMap["Plan2IDPrice"] = s.GetConfig().PlanID2Price / 100
 	dataMap["Plan3IDPrice"] = s.GetConfig().PlanID3Price / 100
+	dataMap["DevDirectoryPlan1IDPrice"] = s.GetConfig().DevDirectoryPlanID1Price / 100
+	dataMap["DevDirectoryPlan2IDPrice"] = s.GetConfig().DevDirectoryPlanID2Price / 100
+	dataMap["DevDirectoryPlan3IDPrice"] = s.GetConfig().DevDirectoryPlanID3Price / 100
 	dataMap["MonthAndYear"] = time.Now().UTC().Format("January 2006")
 
 	return s.tmpl.Render(w, status, htmlView, dataMap)
