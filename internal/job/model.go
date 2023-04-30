@@ -126,6 +126,7 @@ type JobPost struct {
 	SalaryMax                       int64
 	CompanyIconID                   string
 	ExternalID                      string
+	EditToken                       string
 	IsQuickApply                    bool
 	ApprovedAt                      *time.Time
 	CompanyEmail                    string

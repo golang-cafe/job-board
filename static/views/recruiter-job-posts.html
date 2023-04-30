@@ -52,7 +52,7 @@ body{background:#ffffff;}
         <h2>Jobs Posted</h2>
         {{ range $i, $j := .Jobs }}
           <div style="margin-bottom: 20px;">
-            <a href="/edit/{{ $j.ID }}" target="_blank"><b>{{ $j.JobTitle }}</b><br>
+            <a href="/edit/{{ $j.EditToken }}" target="_blank"><b>{{ .JobTitle }}</b><br>
               <b>{{ .Location }}</b><br>{{ .SalaryRange }} a {{ .SalaryPeriod }}
               <br>
               <small>{{ $j.TimeAgo }}</small>

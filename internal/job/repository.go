@@ -761,10 +761,12 @@ func (r *Repository) JobsForRecruiter(posterEmail string, pageId, jobsPerPage in
 	offset := pageId*jobsPerPage - jobsPerPage
 
 	rows, err := r.db.Query(`
-		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at 
+		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, job.created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at, edit_token.token
 		FROM public.job
+		JOIN public.edit_token 
+		ON edit_token.job_id = id
 		WHERE company_email = $1
-		ORDER BY created_at DESC LIMIT $3 OFFSET $2`, posterEmail, offset, jobsPerPage)
+		ORDER BY job.created_at DESC LIMIT $3 OFFSET $2`, posterEmail, offset, jobsPerPage)
 
 	if err != nil {
 		return jobs, 0, err
@@ -806,6 +808,7 @@ func (r *Repository) JobsForRecruiter(posterEmail string, pageId, jobsPerPage in
 			&job.NewsletterEligibilityExpiredAt,
 			&job.PlanExpiredAt,
 			&job.SocialMediaEligibilityExpiredAt,
+			&job.EditToken,
 		)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
