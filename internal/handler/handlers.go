@@ -219,9 +219,10 @@ func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repositor
 			email.Address{Email: req.Email},
 			fmt.Sprintf("New Dev Directory Subscriber on %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"Hey! There is a new Developer Directory Subscription on %s. Profile ID: %s, Email: %s, Company: %s",
+				"Hey! There is a new Developer Directory Subscription on %s. Developer Directory Subscription %d Months Plan @ US$%d/month, Email: %s, Company: %s",
 				svr.GetConfig().SiteName,
-				rec.ID,
+				req.PlanDuration,
+				req.ItemPrice,
 				rec.Email,
 				rec.CompanyURL,
 			),
@@ -2942,7 +2943,7 @@ func DeveloperDirectoryUpsellPageHandler(svr server.Server, jobRepo *job.Reposit
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
 			}
-			sess, err := paymentRepo.CreateDevDirectorySession(profile.Email, upsellRq.RecruiterID, int64(upsellRq.ItemPrice), int64(upsellRq.PlanDuration), true)
+			sess, err := paymentRepo.CreateDevDirectorySession(profile.Email, upsellRq.RecruiterID, int64(upsellRq.ItemPrice*100), int64(upsellRq.PlanDuration), true)
 			if err != nil {
 				svr.Log(err, "unable to create payment session")
 			}
@@ -2952,9 +2953,10 @@ func DeveloperDirectoryUpsellPageHandler(svr server.Server, jobRepo *job.Reposit
 				email.Address{Email: profile.Email},
 				fmt.Sprintf("New Dev Directory Subscriber Renew on %s", svr.GetConfig().SiteName),
 				fmt.Sprintf(
-					"Hey! There is a new Developer Directory Subscription Renew on %s. Profile ID: %s, Email: %s",
+					"Hey! There is a new Developer Directory Subscription Renew on %s. Developer Directory Subscription %d Months Plan @ US$%d/month, Email: %s",
 					svr.GetConfig().SiteName,
-					upsellRq.RecruiterID,
+					upsellRq.PlanDuration,
+					upsellRq.ItemPrice,
 					profile.Email,
 				),
 			)
