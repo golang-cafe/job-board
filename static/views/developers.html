@@ -141,12 +141,12 @@ body{background:#ffffff;}
     <div style="margin-bottom: 10px;">
         <div class="container" style="margin-bottom: 30px;">
             <div id="search-tag-container">
-                <label for="search-tag">Skills</label>
+                <label for="search-tag"><b>Skills</b></label>
                 <input autocomplete="off" type="text" value="{{ .TagFilter }}" placeholder="Skills" id="search-tag" name="search-tag">
                 <div style="z-index:1000;display:none;" id="search-tag-suggestions" class="search-suggestions"></div>
             </div>
             <div id="search-location-container">
-                <label for="search-location">Location</label>
+                <label for="search-location"><b>Location</b></label>
                 <input autocomplete="off" type="text" value="{{ .LocationFilter }}" placeholder="City, Country" id="search-location" name="search-location">
                 <div id="search-location-suggestions" style="display:none;" class="search-suggestions"></div>
             </div>
@@ -154,24 +154,18 @@ body{background:#ffffff;}
         {{ if or .IsUserRecruiter .IsUserAdmin }}
             <form id="recruiter-filters">
                 <fieldset class="container">
-                    <legend><strong>Recruiter filters</strong></legend>
-                    
                     <fieldset style="grid-column: span 2; margin-bottom: 10px;">
-                        <legend>Hourly Rate</legend>
-
+                        <legend><b>Hourly Rate</b></legend>
                         <div class="field-group">
-                            <label for="hourlyMin">Minimum</label>
-                            <input type="number" name="hourlyMin" id="hourlyMin" value="{{ if .RecruiterFilters.HourlyMin }}{{ .RecruiterFilters.HourlyMin }}{{ end }}" placeholder="0">
+                            <input style="border: 1px solid #d9d9d9;" type="number" name="hourlyMin" id="hourlyMin" value="{{ if .RecruiterFilters.HourlyMin }}{{ .RecruiterFilters.HourlyMin }}{{ end }}" placeholder="Minimum Rate USD/hr">
                         </div>
-
                         <div class="field-group">
-                            <label for="hourlyMax">Maximum</label>
-                            <input type="number" name="hourlyMax" id="hourlyMax" value="{{ if .RecruiterFilters.HourlyMax }}{{ .RecruiterFilters.HourlyMax }}{{ end }}" placeholder="Unlimited">
+                            <input style="border: 1px solid #d9d9d9;" type="number" name="hourlyMax" id="hourlyMax" value="{{ if .RecruiterFilters.HourlyMax }}{{ .RecruiterFilters.HourlyMax }}{{ end }}" placeholder="Maximum Rate USD/hr">
                         </div>
                     </fieldset>
 
                     <fieldset>
-                        <legend>Experience level</legend>
+                        <legend><b>Experience level</b></legend>
                         {{ range $v, $l := .DeveloperRoleLevels }}
                         <div class="checkbox-list-item">
                             <input type="checkbox" name="roleLevel" id="roleLevel[{{ .Id }}]" value="{{ .Id }}" {{ if index $.RecruiterFilters.RoleLevels .Id }}checked{{ end }} />
@@ -181,7 +175,7 @@ body{background:#ffffff;}
                     </fieldset>
 
                     <fieldset>
-                        <legend>Work preference</legend>
+                        <legend><b>Work preference</b></legend>
                         {{ range $v, $l := .DeveloperRoleTypes }}
                         <div class="checkbox-list-item">
                             <input type="checkbox" name="roleType" id="roleType[{{ .Id }}]" value="{{ .Id }}" {{ if index $.RecruiterFilters.RoleTypes .Id }}checked{{ end }} />
