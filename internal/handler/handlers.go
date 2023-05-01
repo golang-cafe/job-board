@@ -209,7 +209,7 @@ func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repositor
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		sess, err := paymentRepo.CreateDevDirectorySession(rec.Email, rec.ID, int64(req.ItemPrice), int64(req.PlanDuration), false)
+		sess, err := paymentRepo.CreateDevDirectorySession(rec.Email, rec.ID, int64(req.ItemPrice*100), int64(req.PlanDuration), false)
 		if err != nil {
 			svr.Log(err, "unable to create payment session")
 		}
