@@ -159,7 +159,7 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 		{{ $siteJobCat := .SiteJobCategory }}
 		{{ range $i, $j := .Companies }}
 		<article class="line-item"{{ if isTimeAfterNow .CompanyPageEligibilityExpiredAt }}style="background-color: #FFF8C7;"{{ end }}>
-			<h2><img loading="lazy" width="60" height="60" src="/x/s/m/{{ .IconImageID }}?w=100&h=100" class="job-icon" alt="{{ .Name }} Logo" title="{{ .Name }} Logo"></h2>
+			<h2 style="margin-top:0;"><img loading="lazy" width="60" height="60" src="/x/s/m/{{ .IconImageID }}?w=100&h=100" class="job-icon" alt="{{ .Name }} Logo" title="{{ .Name }} Logo"></h2>
 			<div style="float: left;">
 				<a href="/company/{{ .Slug }}" title="{{ .Name }} is Hiring {{ $siteJobCat }} Engineers"><b>{{ .Name }}</b></a>{{ if isTimeAfterNow .CompanyPageEligibilityExpiredAt }} &bull; <small>Sponsored</small>{{ end }}<br>
 				<b>{{ .Locations }}</b>
