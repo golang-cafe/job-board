@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/sessions"
 
 	"github.com/golang-cafe/job-board/internal/blog"
+	"github.com/golang-cafe/job-board/internal/bookmark"
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/config"
 	"github.com/golang-cafe/job-board/internal/database"
@@ -69,6 +70,7 @@ func main() {
 	companyRepo := company.NewRepository(conn)
 	jobRepo := job.NewRepository(conn)
 	paymentRepo := payment.NewRepository(cfg.StripeKey, cfg.SiteName, cfg.SiteHost, cfg.URLProtocol)
+	bookmarkRepo := bookmark.NewRepository(conn)
 
 	svr := server.NewServer(
 		cfg,
@@ -249,6 +251,9 @@ func main() {
 
 	// view company by slug
 	svr.RegisterRoute("/company/{slug}", handler.CompanyBySlugPageHandler(svr, companyRepo, jobRepo), []string{"GET"})
+
+	// bookmarks (saved jobs)
+	svr.RegisterRoute("/bookmarks", bookmark.BookmarksHandler(svr, bookmarkRepo), []string{"GET"})
 
 	//
 	// auth routes
