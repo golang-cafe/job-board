@@ -50,6 +50,10 @@ body{background:#ffffff;}
     <section style="margin: 30px auto;">
       <article>
         <h2>Jobs Posted</h2>
+        {{ $jobsFound := len .Jobs }}
+		    {{ if eq $jobsFound 0 }}
+          <p>No jobs posted yet. <a href="/Hire-Golang-Developers">Post a job</a></p>
+        {{ end }}
         <ul>
           {{ range $i, $j := .Jobs }}
           <li>
