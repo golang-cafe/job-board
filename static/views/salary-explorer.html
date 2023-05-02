@@ -1,15 +1,15 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
 	<head>
 		<title>{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} - {{ .MonthAndYear }}</title>
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta charset="utf-8">
-		<meta name="title" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} - {{ .MonthAndYear }}" />
-		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} salary, go engineer salary, go Developer Salary, {{ .SiteJobCategory }} Software Engineer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}, go engineer salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }}, {{ .SiteJobCategory }} salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }}, go salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }}" />
-		<meta name="description" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}" />
-		<meta itemprop="name" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} - {{ .MonthAndYear }}">
-		<meta itemprop="description" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}">
-		<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
+		<meta name="title" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} - {{ .MonthAndYear }}">
+		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} salary, go engineer salary, go Developer Salary, {{ .SiteJobCategory }} Software Engineer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}, go engineer salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }}, {{ .SiteJobCategory }} salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }}, go salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }}">
+		<meta name="description" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}">
+    <meta itemprop="name" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} - {{ .MonthAndYear }}">
+    <meta itemprop="description" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}">
+    <meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 		<meta property="og:url" content="https://{{ .SiteHost }}">
 		<meta property="og:type" content="website">
 		<meta property="og:title" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }} - {{ .MonthAndYear }}">
@@ -19,8 +19,8 @@
 		<meta name="twitter:title" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} - {{ .MonthAndYear }}">
 		<meta name="twitter:description" content="{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}">
 		<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
-		<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
-		<style type="text/css">
+		<meta name="twitter:site" content="@{{ .SiteTwitter }}">
+		<style>
 body{background:#ffffff;}
 input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}th{font-weight:600}td,th{border-bottom:1.08px solid #595959;overflow:auto;padding:14.85px 18px;text-align:left;vertical-align:top}thead th{border-bottom-width:2.16px;padding-bottom:6.3px}table{display:table;overflow-x:auto}input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}fieldset{display:flex;flex-direction:row;flex-wrap:wrap}fieldset legend{margin:18px 0}input,textarea,select,button{border-radius:3.6px;display:inline-block;padding:9.9px}input+label,input+input[type="checkbox"],input+input[type="radio"],textarea+label,textarea+input[type="checkbox"],textarea+input[type="radio"],select+label,select+input[type="checkbox"],select+input[type="radio"],button+label,button+input[type="checkbox"],button+input[type="radio"]{page-break-before:always}input,select,label{margin-right:3.6px}textarea{min-height:90px;min-width:360px}label{display:inline-block;margin-bottom:12.6px}label+*{page-break-before:always}label>input{margin-bottom:0}input[type="submit"],input[type="reset"],button{background:#f2f2f2;color:#191919;cursor:pointer;display:inline;margin-bottom:18px;margin-right:7.2px;padding:6.525px 23.4px;text-align:center}input[type="submit"]:hover,input[type="reset"]:hover,button:hover{background:#d9d9d9;color:#000}input[type="submit"][disabled],input[type="reset"][disabled],button[disabled]{background:#e6e5e5;color:#403f3f;cursor:not-allowed}input[type="submit"],button[type="submit"]{background:{{ .PrimaryColor }};color:#fff}input[type="submit"]:hover,button[type="submit"]:hover{background:{{ .SecondaryColor }};color:#ffffff}input,select,textarea{margin-bottom:18px}input[type="text"],input[type="password"],input[type="email"],input[type="url"],input[type="phone"],input[type="tel"],input[type="number"],input[type="datetime"],input[type="date"],input[type="month"],input[type="week"],input[type="color"],input[type="time"],input[type="search"],input[type="range"],input[type="file"],input[type="datetime-local"],select,textarea{border:1px solid #595959;padding:5.4px 6.3px}input[type="checkbox"],input[type="radio"]{flex-grow:0;height:29.7px;margin-left:0;margin-right:9px;vertical-align:middle}input[type="checkbox"]+label,input[type="radio"]+label{page-break-before:avoid}select[multiple]{min-width:270px}input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}pre,code,kbd,samp,var,output{font-family:Helvetica;font-size:14.4px}pre{border-left:1.8px solid #59c072;line-height:25.2px;overflow:auto;padding-left:18px}pre code{background:none;border:0;line-height:29.7px;padding:0}code,kbd{background:#daf1e0;border-radius:3.6px;color:#2a6f3b;display:inline-block;line-height:18px;padding:3.6px 6.3px 2.7px}kbd{background:#2a6f3b;color:#fff}mark{background:#ffc;padding:0 3.6px}input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}h1,h2,h3,h4,h5,h6{color:#000;margin-bottom:18px}h1{font-size:36px;font-weight:500;line-height:41.4px;margin-top:72px}h2{font-size:25.2px;font-weight:400;line-height:30.6px;margin-top:54px}h3{font-size:21.6px;line-height:27px;margin-top:36px}h4{font-size:18px;line-height:23.4px;margin-top:18px}h5{font-size:14.4px;font-weight:bold;line-height:21.6px;text-transform:uppercase}h6{color:#595959;font-size:14.4px;font-weight:bold;line-height:18px;text-transform:uppercase}input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}a{color:{{ .PrimaryColor }};text-decoration:none}a:hover{text-decoration:underline}hr{border-bottom:1px solid #595959}figcaption,small{font-size:15.3px}figcaption{color:#595959}var,em,i{font-style:italic}dt,strong,b{font-weight:600}del,s{text-decoration:line-through}ins,u{text-decoration:underline}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-.5em}sub{bottom:-.25em}*{border:0;border-collapse:separate;border-spacing:0;box-sizing:border-box;margin:0;max-width:100%;outline:0;padding:0;vertical-align:baseline}html,body{width:100%}html{height:100%}body{color:#1a1919;}p,ul,ol,dl,blockquote,hr,pre,table,form,fieldset,figure,address{margin-bottom:29.7px}section{margin-left:auto;margin-right:auto;width:780px}article,header,footer{padding:43.2px}article{word-wrap: break-word;background:#fff;border:1px solid #d9d9d9;border-radius:7.2px}nav{text-align:center}nav ul{list-style:none;margin-left:0;text-align:center}nav ul li{display:inline-block;margin-left:9px;margin-right:9px;vertical-align:middle}nav ul li:last-child{margin-right:0}ol,ul{margin-left:31.5px}li dl,li ol,li ul{margin-bottom:0}dl{display:inline-block}dt{padding:0 18px}dd{padding:0 18px 4.5px}dd:last-of-type{border-bottom:1.08px solid #595959}dd+dt{border-top:1.08px solid #595959;padding-top:9px}blockquote{border-left:2.16px solid #595959;padding:4.5px 18px 4.5px 15.84px}blockquote footer{color:#595959;font-size:13.5px;margin:0}blockquote p{margin-bottom:0}img{height:auto;margin:0 auto}figure img{display:block}/*# sourceMappingURL=tacit-css-1.3.2.min.css.map */
 input{-webkit-appearance: none;-moz-appearance: none;appearance: none;}
@@ -298,7 +298,7 @@ section {padding: 0 10px;}
     {{ template "newsletter-banner-html" . }}
 		<header>
 			<nav class="menu-header">
-				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="{{ .SiteName }} Logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
 				<small style="display:block;float:left;margin-bottom:10px;">
 						<a href="/">Jobs</a>&bull;
 						<a style="text-decoration: underline;" href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
@@ -306,7 +306,6 @@ section {padding: 0 10px;}
 						<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
 						<br>
 					</small>
-				</div>
 				<div style="float: right;">
 					{{ if .LoggedUser }}<a href="/profile/home">Your Profile</a>{{ else }}<a href="/auth">Login</a>{{ end }}
 				</div>
@@ -314,20 +313,20 @@ section {padding: 0 10px;}
 			</nav>
 		</header>
 		<section style="margin: 30px auto;">
-			<p>
+			<div>
             <input type="submit" class="mobile-only" value="Join the Community" id="post-btn" onclick="window.location.href='/Join-{{ .SiteJobCategoryURLEncoded }}-Community';">  
-			<h1 class="main-title">{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}</h1><br/>
-			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Explore {{ .SiteJobCategory }} salaries in {{ .Location }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b> in {{ .MonthAndYear }} at companies like <b>{{ .TextCompanies }}</b> working as a <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
-			</p>
+			<h1 class="main-title">{{ .SiteJobCategory }} Developer Salary {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}</h1><br>
+			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Explore {{ .SiteJobCategory }} salaries in {{ .Location }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }} at companies like <b>{{ .TextCompanies }}</b> working as a <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
+      </div>
       <div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
       <article class="apply-box" id="apply-box-0">
-          <h3 id="apply-box-title" style="margin-top: 10px;">Create your free profile to continue</h3>
+          <h3 id="apply-box-title" style="margin-top: 10px;">Create your profile to continue</h3>
         <div id="apply-box-container">
         <p id="profile-info"></p>
         <div style="margin-bottom: 20px; text-align: center;">
           {{ range $i, $j := .TopDevelopers }}
           <img width="50" height="50" style="margin-left:-20px;border-radius: 50px; border: 1px solid #aaa;"
-            src="/x/s/m/{{ .ImageID }}?w=50&h=50" title="{{ .Name }}" alt="{{ .Name }}" />
+            src="/x/s/m/{{ .ImageID }}?w=50&h=50" title="{{ .Name }}" alt="{{ .Name }}">
           {{ end }}
         </div>
         <ul>
@@ -345,37 +344,37 @@ section {padding: 0 10px;}
           <li>Get access to our <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote" target="_blank">Salary Explorer</a></li>
           <li>Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></li>
         </ul>
-              <br />
-              <input type="submit" id="apply-submit" value="Create Free Profile" onclick="window.location.href='/Join-{{ .SiteJobCategory }}-Community';" style="float: right;">
+              <br>
+              <input type="submit" id="apply-submit" value="Create Profile" onclick="window.location.href='/Join-{{ .SiteJobCategory }}-Community';" style="float: right;">
         </div>
           </article>
 			<div>
 				<div id="search-location-container">
-					<input autocomplete="off" type="text" value="{{ .Location }}" placeholder="City, Country" id="search-location"/>
+					<input autocomplete="off" type="text" value="{{ .Location }}" placeholder="City, Country" id="search-location">
 					<div id="search-location-suggestions" style="display:none;" class="search-suggestions">
 						<div class="search-option">Rome</div>
 					</div>
 				</div>
-				<input type="submit" value="Find Salary" {{ if .LoggedUser }}onclick="search();"{{ else }}onclick="showPopup();"{{ end }} id="search-salary-btn"/>
+				<input type="submit" value="Find Salary" {{ if .LoggedUser }}onclick="search();"{{ else }}onclick="showPopup();"{{ end }} id="search-salary-btn">
 				<div class="mobile-only">
 				    <div style="width:100%; text-align: center;margin-top: 20px;margin-bottom: 10px;">Looking for a {{ .SiteJobCategory }} Job?</div>
 				    <input type="submit" class="mobile-only" value="Join the Community" id="post-btn-mobile" onclick="window.location.href='/Join-{{ .SiteJobCategoryURLEncoded }}-Community';">  
 				</div>
 			</div>
 			<article style="margin-top:10px;">
-				<br />
+				<br>
 				<div>
 				</div>
-				<br />
+				<br>
 				{{ if .ComplimentaryRemote }}
 				<p>
-				Based on the data on <b>{{ .SiteName }}</b> unfortunately <span style="color: red;">there isn't enough data to calculate salary distribution for {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}.</span><br/><br />
-				We are showing <b>Remote {{ .SiteJobCategory }} Developer Salary</b> instead.<br />
+				Based on the data on <b>{{ .SiteName }}</b> unfortunately <span style="color: red;">there isn't enough data to calculate salary distribution for {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}.</span><br><br>
+				We are showing <b>Remote {{ .SiteJobCategory }} Developer Salary</b> instead.<br>
 				The average salary as of {{ .MonthAndYear }} appears to be between <b><span id="min-salary">{{ .Currency }}{{ .MeanMin }}</span></b> and <b><span id="max-salary">{{ .Currency }}{{ .MeanMax }}</span></b> per year (before tax).
 				</p>
 				{{ else }}
 				<p>
-				Based on the data on <b>{{ .SiteName }}</b> the distribution of minimum and maximum salary for a {{ .SiteJobCategory }} Software Engineer in <b>{{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}.</b><br />
+				Based on the data on <b>{{ .SiteName }}</b> the distribution of minimum and maximum salary for a {{ .SiteJobCategory }} Software Engineer in <b>{{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }} in {{ .MonthAndYear }}.</b><br>
 				The average salary as of {{ .MonthAndYear }} appears to be between <b><span id="min-salary">{{ .Currency }}{{ .MeanMin }}</span></b> and <b><span id="max-salary">{{ .Currency }}{{ .MeanMax }}</span></b> per year (before tax).
 				</p>
 				{{ end }}
@@ -429,15 +428,15 @@ section {padding: 0 10px;}
 	<h2>{{ .SiteJobCategory }} {{ .Location }} Salary Trends</h2>
         <div id="salary-trends"></div>
         {{ if .ComplimentaryRemote }}
-        <p>
+        <div>
           <p>The Chart below represents the maximum salary trend over time. When data points are available the chart shows outer p10 p90 percentiles, inner p25 and p75 percentiles and the <b>median</b> trending over time for Remote based jobs. Data as of {{ .MonthAndYear }}</p>
-        </p>
+        </div>
         {{ else }}
-        <p>
+        <div>
           <p>The Chart below represents the maximum salary trend over time. When data points are available the chart shows outer p10 p90 percentiles, inner p25 and p75 percentiles and the <b>median</b> trending over time for jobs based in {{ .Location }}{{ if .Country }}, {{ .Country }}{{ end }}. Data as of {{ .MonthAndYear }}</p>
-        </p>
+        </div>
         {{ end }}
-        <br />
+        <br>
 	<h2>Share This {{ .SiteJobCategory }} {{ .Location }} Salary Insight</h2>
 	<a class="resp-sharing-button__link" href="https://facebook.com/sharer/sharer.php?u=https%3A%2F%2F{{ .SiteHost }}%2F{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-{{ .LocationURLEncoded }}" target="_blank" rel="noopener" aria-label="Facebook">
           <div class="resp-sharing-button resp-sharing-button--facebook resp-sharing-button--medium"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
@@ -455,7 +454,7 @@ section {padding: 0 10px;}
           <div class="resp-sharing-button resp-sharing-button--linkedin resp-sharing-button--medium"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M6.5 21.5h-5v-13h5v13zM4 6.5C2.5 6.5 1.5 5.3 1.5 4s1-2.4 2.5-2.4c1.6 0 2.5 1 2.6 2.5 0 1.4-1 2.5-2.6 2.5zm11.5 6c-1 0-2 1-2 2v7h-5v-13h5V10s1.6-1.5 4-1.5c3 0 5 2.2 5 6.3v6.7h-5v-7c0-1-1-2-2-2z"/></svg></div>LinkedIn</div>
         </a>
-	<a class="resp-sharing-button__link" href="https://reddit.com/submit/?url=https%3A%2F%2F{{ .SiteHost }}%2F{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-{{ .LocationURLEncoded }}&amp;resubmit=true&amp;title=Check%20This%20{{ .SiteJobCategoryURLEncoded }}%20Developer%20Salary" tInsightarget="_blank" rel="noopener" aria-label="Reddit">
+	<a class="resp-sharing-button__link" href="https://reddit.com/submit/?url=https%3A%2F%2F{{ .SiteHost }}%2F{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-{{ .LocationURLEncoded }}&amp;resubmit=true&amp;title=Check%20This%20{{ .SiteJobCategoryURLEncoded }}%20Developer%20Salary" target="_blank" rel="noopener" aria-label="Reddit">
           <div class="resp-sharing-button resp-sharing-button--reddit resp-sharing-button--medium"><div aria-hidden="true" class="resp-sharing-button__icon resp-sharing-button__icon--solid">
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M24 11.5c0-1.65-1.35-3-3-3-.96 0-1.86.48-2.42 1.24-1.64-1-3.75-1.64-6.07-1.72.08-1.1.4-3.05 1.52-3.7.72-.4 1.73-.24 3 .5C17.2 6.3 18.46 7.5 20 7.5c1.65 0 3-1.35 3-3s-1.35-3-3-3c-1.38 0-2.54.94-2.88 2.22-1.43-.72-2.64-.8-3.6-.25-1.64.94-1.95 3.47-2 4.55-2.33.08-4.45.7-6.1 1.72C4.86 8.98 3.96 8.5 3 8.5c-1.65 0-3 1.35-3 3 0 1.32.84 2.44 2.05 2.84-.03.22-.05.44-.05.66 0 3.86 4.5 7 10 7s10-3.14 10-7c0-.22-.02-.44-.05-.66 1.2-.4 2.05-1.54 2.05-2.84zM2.3 13.37C1.5 13.07 1 12.35 1 11.5c0-1.1.9-2 2-2 .64 0 1.22.32 1.6.82-1.1.85-1.92 1.9-2.3 3.05zm3.7.13c0-1.1.9-2 2-2s2 .9 2 2-.9 2-2 2-2-.9-2-2zm9.8 4.8c-1.08.63-2.42.96-3.8.96-1.4 0-2.74-.34-3.8-.95-.24-.13-.32-.44-.2-.68.15-.24.46-.32.7-.18 1.83 1.06 4.76 1.06 6.6 0 .23-.13.53-.05.67.2.14.23.06.54-.18.67zm.2-2.8c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm5.7-2.13c-.38-1.16-1.2-2.2-2.3-3.05.38-.5.97-.82 1.6-.82 1.1 0 2 .9 2 2 0 .84-.53 1.57-1.3 1.87z"/></svg></div>Reddit</div>
         </a>
@@ -470,9 +469,9 @@ section {padding: 0 10px;}
 
       </article>
           <article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
-		  <div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:5px auto 20px auto;" id="email-subscribe-item-text">Get a weekly email with all new {{ .SiteJobCategory }} jobs</div>
+		  <h2 style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:5px auto 20px auto;" id="email-subscribe-item-text">Get a weekly email with all new {{ .SiteJobCategory }} jobs</h2>
                 <input type="email" name="job-email-subscription" id="job-email-subscription" style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
-		<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;"/>
+		<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;">
             </article>
     </section>
       <footer>

@@ -1,53 +1,53 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
 	<head>
 		{{ $isRemote := eq .LocationFilter "Remote" }}
 		{{ if and .LocationFilter $isRemote }}
-		<meta name="yandex-verification" content="96b3163b8551fd06" />
+		<meta name="yandex-verification" content="96b3163b8551fd06" >
 		<title>Remote Companies using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
 		<link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="shortcut icon">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="title" content="Remote Companies using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
-		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} {{ .LocationFilter }} companies, companies using {{ .SiteJobCategory }}, {{ .SiteJobCategory }} companies, remote companies" />
-		<meta name="description" content="Remote Companies Using {{ .SiteJobCategory }} in production and hiring {{ .SiteJobCategory }} engineers in {{ .MonthAndYear }}{{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
-		<meta itemprop="name" content="Remote Companies using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+		<meta name="title" content="Remote Companies using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
+		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} {{ .LocationFilter }} companies, companies using {{ .SiteJobCategory }}, {{ .SiteJobCategory }} companies, remote companies">
+		<meta name="description" content="Remote Companies Using {{ .SiteJobCategory }} in production and hiring {{ .SiteJobCategory }} engineers in {{ .MonthAndYear }}{{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
+		<meta itemprop="name" content="Remote Companies using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta itemprop="description" content="Remote Companies Using {{ .SiteJobCategory }} in production and hiring Go engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 		<meta property="og:url" content="https://{{ .SiteHost }}">
 		<meta property="og:type" content="website">
-		<meta name="og:title" content="Remote Companies Using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+		<meta name="og:title" content="Remote Companies Using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" >
 		<meta property="og:description" content="Remote Companies Using {{ .SiteJobCategory }} in production and hiring {{ .SiteJobCategory }} engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta property="og:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:title" content="Remote Companies Using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+		<meta name="twitter:title" content="Remote Companies Using {{ .SiteJobCategory }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" >
 		<meta name="twitter:description" content="Remote Companies Using {{ .SiteJobCategory }} in production and hiring {{ .SiteJobCategory }} engineers in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
-		<link rel="canonical" href="https://{{ .SiteHost }}/Remote-Companies-Using-{{ .SiteJobCategoryURLEncoded }}" />
+		<link rel="canonical" href="https://{{ .SiteHost }}/Remote-Companies-Using-{{ .SiteJobCategoryURLEncoded }}" >
 		{{ else }}
-		<meta name="yandex-verification" content="96b3163b8551fd06" />
+		<meta name="yandex-verification" content="96b3163b8551fd06" >
 		<title>Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}</title>
 		<link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="shortcut icon">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta name="title" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
-		<meta name="keywords" content="{{ .SiteJobCategory }}{{ if .LocationFilter }}, {{ .SiteJobCategory }} companies in {{ .LocationFilter}} {{ end }}, companies using go, companies using {{ .SiteJobCategory }}, {{ .SiteJobCategory }} companies" />
-		<meta name="description" content="{{ .SiteJobCategory }} Companies using {{ .SiteJobCategory }} in production and hiring Go engineers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }}" />
-		<meta itemprop="name" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+		<meta name="title" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
+		<meta name="keywords" content="{{ .SiteJobCategory }}{{ if .LocationFilter }}, {{ .SiteJobCategory }} companies in {{ .LocationFilter}} {{ end }}, companies using go, companies using {{ .SiteJobCategory }}, {{ .SiteJobCategory }} companies">
+		<meta name="description" content="{{ .SiteJobCategory }} Companies using {{ .SiteJobCategory }} in production and hiring Go engineers{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }}">
+		<meta itemprop="name" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta itemprop="description" content="Companies Using {{ .SiteJobCategory }} in production and hiring Go engineers{{ if .LocationFilter }} in {{.LocationFilter}}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 		<meta property="og:url" content="https://{{ .SiteHost }}">
 		<meta property="og:type" content="website">
-		<meta name="og:title" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+		<meta name="og:title" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta property="og:description" content="Companies Using {{ .SiteJobCategory }} in production and hiring Go engineers{{ if .LocationFilter }} in {{.LocationFilter}}{{ if .Region }}, {{ .Region }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta property="og:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
 		<meta name="twitter:card" content="summary_large_image">
-		<meta name="twitter:title" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}" />
+		<meta name="twitter:title" content="Companies using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }} in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
 		<meta name="twitter:description" content="Companies Using {{ .SiteJobCategory }} in production and hiring Go engineers{{ if .LocationFilter }}{{.LocationFilter}} {{ end }}Jobs in {{ .MonthAndYear }} {{ if .ShowPage }} - Page {{ .CurrentPage }} {{ end }} | {{ .SiteName }}">
-		<link rel="canonical" href="https://{{ .SiteHost }}/Companies-Using-{{ .SiteJobCategoryURLEncoded }}{{ if .LocationFilter }}-In-{{.LocationFilter}}{{ end }}" />
+		<link rel="canonical" href="https://{{ .SiteHost }}/Companies-Using-{{ .SiteJobCategoryURLEncoded }}{{ if .LocationFilter }}-In-{{.LocationFilter}}{{ end }}">
 		{{ end }}
 		<meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}">
-		<meta name="twitter:site" content="@{{ .SiteTwitter }}"/>
-		<meta name="google-site-verification" content="CsoJdYDgMeIeUO0ylZtiDUb4-VZvb2tCpLTkq3GglVo" />
-		<meta name="msvalidate.01" content="E75D7CB7D078DD8E9C2FBA8C285CD656" />
-		<style type="text/css">
+		<meta name="twitter:site" content="@{{ .SiteTwitter }}">
+		<meta name="google-site-verification" content="CsoJdYDgMeIeUO0ylZtiDUb4-VZvb2tCpLTkq3GglVo">
+		<meta name="msvalidate.01" content="E75D7CB7D078DD8E9C2FBA8C285CD656">
+		<style>
 body{background:#ffffff;}
 input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}th{font-weight:600}td,th{border-bottom:1.08px solid #595959;overflow:auto;padding:14.85px 18px;text-align:left;vertical-align:top}thead th{border-bottom-width:2.16px;padding-bottom:6.3px}table{display:table;overflow-x:auto}input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}fieldset{display:flex;flex-direction:row;flex-wrap:wrap}fieldset legend{margin:18px 0}input,textarea,select,button{border-radius:3.6px;display:inline-block;padding:9.9px}input+label,input+input[type="checkbox"],input+input[type="radio"],textarea+label,textarea+input[type="checkbox"],textarea+input[type="radio"],select+label,select+input[type="checkbox"],select+input[type="radio"],button+label,button+input[type="checkbox"],button+input[type="radio"]{page-break-before:always}input,select,label{margin-right:3.6px}textarea{min-height:90px;min-width:360px}label{display:inline-block;margin-bottom:12.6px}label+*{page-break-before:always}label>input{margin-bottom:0}input[type="submit"],input[type="reset"],button{background:#f2f2f2;color:#191919;cursor:pointer;display:inline;margin-bottom:18px;margin-right:7.2px;padding:6.525px 23.4px;text-align:center}input[type="submit"]:hover,input[type="reset"]:hover,button:hover{background:#d9d9d9;color:#000}input[type="submit"][disabled],input[type="reset"][disabled],button[disabled]{background:#e6e5e5;color:#403f3f;cursor:not-allowed}input[type="submit"],button[type="submit"]{background:{{ .PrimaryColor }};color:#fff}input[type="submit"]:hover,button[type="submit"]:hover{background:{{ .SecondaryColor }};color:#ffffff}input,select,textarea{margin-bottom:18px}input[type="text"],input[type="password"],input[type="email"],input[type="url"],input[type="phone"],input[type="tel"],input[type="number"],input[type="datetime"],input[type="date"],input[type="month"],input[type="week"],input[type="color"],input[type="time"],input[type="search"],input[type="range"],input[type="file"],input[type="datetime-local"],select,textarea{border:1px solid #595959;padding:5.4px 6.3px}input[type="checkbox"],input[type="radio"]{flex-grow:0;height:29.7px;margin-left:0;margin-right:9px;vertical-align:middle}input[type="checkbox"]+label,input[type="radio"]+label{page-break-before:avoid}select[multiple]{min-width:270px}input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}pre,code,kbd,samp,var,output{font-family:Menlo,Monaco,Consolas,"Courier New",monospace;font-size:14.4px}pre{border-left:1.8px solid #59c072;line-height:25.2px;overflow:auto;padding-left:18px}pre code{background:none;border:0;line-height:29.7px;padding:0}code,kbd{background:#daf1e0;border-radius:3.6px;color:#2a6f3b;display:inline-block;line-height:18px;padding:3.6px 6.3px 2.7px}kbd{background:#2a6f3b;color:#fff}mark{background:#ffc;padding:0 3.6px}input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}h1,h2,h3,h4,h5,h6{color:#000;margin-bottom:18px}h1{font-size:36px;font-weight:500;line-height:41.4px;margin-top:72px}h2{font-size:25.2px;font-weight:400;line-height:30.6px;margin-top:54px}h3{font-size:21.6px;line-height:27px;margin-top:36px}h4{font-size:18px;line-height:23.4px;margin-top:18px}h5{font-size:14.4px;font-weight:bold;line-height:21.6px;text-transform:uppercase}h6{color:#595959;font-size:14.4px;font-weight:bold;line-height:18px;text-transform:uppercase}input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18px;font-stretch:normal;font-style:normal;font-weight:400;line-height:29.7px}a{color:{{ .PrimaryColor }};text-decoration:none}a:hover{text-decoration:underline}hr{border-bottom:1px solid #595959}figcaption,small{font-size:15.3px}figcaption{color:#595959}var,em,i{font-style:italic}dt,strong,b{font-weight:600}del,s{text-decoration:line-through}ins,u{text-decoration:underline}sub,sup{font-size:75%;line-height:0;position:relative;vertical-align:baseline}sup{top:-.5em}sub{bottom:-.25em}*{border:0;border-collapse:separate;border-spacing:0;box-sizing:border-box;margin:0;max-width:100%;outline:0;padding:0;vertical-align:baseline}html,body{width:100%}html{height:100%}body{color:#1a1919;}p,ul,ol,dl,blockquote,hr,pre,table,form,fieldset,figure,address{margin-bottom:29.7px}section{margin-left:auto;margin-right:auto;width:780px}article,header,footer{padding:43.2px}article{word-wrap: break-word;background:#fff;border:1px solid #d9d9d9;border-radius:7.2px}nav{text-align:center}nav ul{list-style:none;margin-left:0;text-align:center}nav ul li{display:inline-block;margin-left:9px;margin-right:9px;vertical-align:middle}nav ul li:last-child{margin-right:0}ol,ul{margin-left:31.5px}li dl,li ol,li ul{margin-bottom:0}dl{display:inline-block}dt{padding:0 18px}dd{padding:0 18px 4.5px}dd:last-of-type{border-bottom:1.08px solid #595959}dd+dt{border-top:1.08px solid #595959;padding-top:9px}blockquote{border-left:2.16px solid #595959;padding:4.5px 18px 4.5px 15.84px}blockquote footer{color:#595959;font-size:13.5px;margin:0}blockquote p{margin-bottom:0}img{height:auto;margin:0 auto}figure img{display:block}/*# sourceMappingURL=tacit-css-1.3.2.min.css.map */
 footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
@@ -82,7 +82,7 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 		{{ template "newsletter-banner-html" . }}
 		<header>
 			<nav class="menu-header">
-				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
 				<small style="display:block;float:left;margin-bottom:10px;">
 						<a href="/">Jobs</a>&bull;
 						<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
@@ -90,7 +90,6 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 						<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
 						<br>
 					</small>
-				</div>
 				<div style="float: right;">
 					{{ if .LoggedUser }}<a href="/profile/home">Your Profile</a>{{ else }}<a href="/auth">Login</a>{{ end }}
 				</div>
@@ -100,23 +99,23 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 		<section style="padding: 0 10px;">
 			<input type="submit" value="Post a Job" id="post-btn"
 			onclick="window.location.href='/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers';">
-			<p>
+			<div>
 			{{ if and .LocationFilter $isRemote }}
-			<h1 class="main-title">Remote Companies Using {{ .SiteJobCategory }}</h1><br/>
+			<h1 class="main-title">Remote Companies Using {{ .SiteJobCategory }}</h1><br>
 			{{ else }}
-			<h1 class="main-title">Companies Using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</h1><br/>
+			<h1 class="main-title">Companies Using {{ .SiteJobCategory }}{{ if .LocationFilter }} in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}{{ end }}</h1><br>
 			{{ end }}
 			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Explore <b>{{ .TextJobCount }} companies</b> hiring {{ .SiteJobCategory }} developers {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }} like <b>{{ .TextCompanies }}</b> hiring <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
-			</p>
+			</div>
 			<div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
       <article class="apply-box" id="apply-box-0">
-          <h3 id="apply-box-title" style="margin-top: 10px;">Create your free profile to continue</h3>
+          <h3 id="apply-box-title" style="margin-top: 10px;">Create your profile to continue</h3>
         <div id="apply-box-container">
         <p id="profile-info"></p>
         <div style="margin-bottom: 20px; text-align: center;">
           {{ range $i, $j := .TopDevelopers }}
           <img width="50" height="50" style="margin-left:-20px;border-radius: 50px; border: 1px solid #aaa;"
-            src="/x/s/m/{{ .ImageID }}?w=50&h=50" title="{{ .Name }}" alt="{{ .Name }}" />
+            src="/x/s/m/{{ .ImageID }}?w=50&h=50" title="{{ .Name }}" alt="{{ .Name }}">
           {{ end }}
         </div>
         <ul>
@@ -134,59 +133,59 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
           <li>Get access to our <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote" target="_blank">Salary Explorer</a></li>
           <li>Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></li>
         </ul>
-              <br />
-              <input type="submit" id="apply-submit" value="Create Free Profile" onclick="window.location.href='/Join-{{ .SiteJobCategory }}-Community';" style="float: right;">
+              <br>
+              <input type="submit" id="apply-submit" value="Create Profile" onclick="window.location.href='/Join-{{ .SiteJobCategory }}-Community';" style="float: right;">
         </div>
           </article>
 			<div style="margin-bottom:10px;">
 				<div id="search-location-container">
-					<input autocomplete="off" type="text" value="{{ .LocationFilter }}" placeholder="City, Country" id="search-location"/>
+					<input autocomplete="off" type="text" value="{{ .LocationFilter }}" placeholder="City, Country" id="search-location">
 					<div id="search-location-suggestions" style="display:none;" class="search-suggestions">
 						<div class="search-option">Rome</div>
 					</div>
 				</div>
-				<input type="submit" {{ if .LoggedUser }}onclick="search();"{{ else }}onclick="showPopup();"{{ end }} value="Find Companies" id="search-btn"/>
+				<input type="submit" {{ if .LoggedUser }}onclick="search();"{{ else }}onclick="showPopup();"{{ end }} value="Find Companies" id="search-btn">
 				<div class="mobile-only">
 				    <div style="width:100%; text-align: center;margin-top: 20px;margin-bottom: 10px;">Hiring {{ .SiteJobCategory }} Developers?</div>
-				    <input type="submit" value="Post a Job" id="post-a-job-mobile" onclick="window.location.href='/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers';" />
+				    <input type="submit" value="Post a Job" id="post-a-job-mobile" onclick="window.location.href='/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers';">
 				</div>
 			</div>
 			{{ if .ComplementaryRemote }}
-			<small><b>No Companies</b> Using {{ .SiteJobCategory }} Found{{ if .LocationFilter }}in <b>{{ .LocationFilter }}</b>{{ end }}</b></small><br /><br />
-		<small>Showing {{ len .Companies }} of {{ .TotalCompaniesCount }} <b>Remote</b> Companies Using {{ .SiteJobCategory }} available instead</small><br />
+			<small><b>No Companies</b> Using {{ .SiteJobCategory }} Found{{ if .LocationFilter }}in <b>{{ .LocationFilter }}</b>{{ end }}</b></small><br><br>
+		<small>Showing {{ len .Companies }} of {{ .TotalCompaniesCount }} <b>Remote</b> Companies Using {{ .SiteJobCategory }} available instead</small><br>
 		{{ else }}
-		<small>{{ len .Companies }} of {{ .TotalCompaniesCount }} Companies using {{ .SiteJobCategory }} {{ if .LocationFilter }}in <b>{{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} &bull; Sort by <b>Most Recent</b></small><br />
+		<small>{{ len .Companies }} of {{ .TotalCompaniesCount }} Companies using {{ .SiteJobCategory }} {{ if .LocationFilter }}in <b>{{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} &bull; Sort by <b>Most Recent</b></small><br>
 		{{ end }}
 		{{ $siteJobCat := .SiteJobCategory }}
 		{{ range $i, $j := .Companies }}
 		<article class="line-item"{{ if isTimeAfterNow .CompanyPageEligibilityExpiredAt }}style="background-color: #FFF8C7;"{{ end }}>
-			<img loading="lazy" width="60" height="60" src="/x/s/m/{{ .IconImageID }}?w=100&h=100" class="job-icon" alt="{{ .Name }} Logo" title="{{ .Name }} Logo" />
+			<h2 style="margin-top:0;"><img loading="lazy" width="60" height="60" src="/x/s/m/{{ .IconImageID }}?w=100&h=100" class="job-icon" alt="{{ .Name }} Logo" title="{{ .Name }} Logo"></h2>
 			<div style="float: left;">
-				<a href="/company/{{ .Slug }}" title="{{ .Name }} is Hiring {{ $siteJobCat }} Engineers"><b>{{ .Name }}</b></a>{{ if isTimeAfterNow .CompanyPageEligibilityExpiredAt }} &bull; <small>Sponsored</small>{{ end }}<br />
+				<a href="/company/{{ .Slug }}" title="{{ .Name }} is Hiring {{ $siteJobCat }} Engineers"><b>{{ .Name }}</b></a>{{ if isTimeAfterNow .CompanyPageEligibilityExpiredAt }} &bull; <small>Sponsored</small>{{ end }}<br>
 				<b>{{ .Locations }}</b>
-				<br />
-				<small><b>Last Job Posted:</b> {{ humantime .LastJobCreatedAt }}</small><br/>
+				<br>
+				<small><b>Last Job Posted:</b> {{ humantime .LastJobCreatedAt }}</small><br>
 				<small><b>{{ $siteJobCat }} Job Openings:</b> {{ .ActiveJobCount }}</small>
-				{{ if .Description }}<br /><small>{{ .Description }}</small>{{ end }}
+				{{ if .Description }}<br><small>{{ .Description }}</small>{{ end }}
 			</div>
 			<div class="clearfix"></div>
 		</article>
 		{{ end }}
 		{{ if not .LoggedUser }}
 		<article class="line-item" id="email-subscribe-banner" style="margin-top:10px;">
-			<div style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:5px auto 20px auto;" id="email-subscribe-item-text">Get a weekly email with all new {{ .SiteJobCategory }} jobs</div>
+			<h2 style="width: 50%;font-size:15pt;text-align:center;font-weight:bold;display:table;margin:5px auto 20px auto;" id="email-subscribe-item-text">Get a weekly email with all new {{ .SiteJobCategory }} jobs</h2>
 			<input type="email" name="job-email-subscription" id="job-email-subscription" style="width:50%;margin:10px auto;display:table;border: 1px solid #d9d9d9;" placeholder="Your Email">
-			<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;"/>
+			<input type="submit" onclick="subscribe()" id="email-subscribe-item-btn" value="Join {{ .EmailSubscribersCount }}+ others" style="width:50%;display:table;margin:5px auto;">
 		</article>
 		{{ end }}
 		{{ if .LocationFilter }}
 		{{ if not .ComplementaryRemote }}
-		<small>{{ len .Companies }} of {{ .TotalCompaniesCount }} Companies using {{ .SiteJobCategory }} found {{ if .LocationFilter }}in <b>{{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }}</small><br />
+		<small>{{ len .Companies }} of {{ .TotalCompaniesCount }} Companies using {{ .SiteJobCategory }} found {{ if .LocationFilter }}in <b>{{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }}</small><br>
 		{{ end }}
 		{{ else }}
-		<small>{{ len .Companies }} of {{ .TotalCompaniesCount }} Companies using {{ .SiteJobCategory }} found</small><br />
+		<small>{{ len .Companies }} of {{ .TotalCompaniesCount }} Companies using {{ .SiteJobCategory }} found</small><br>
 		{{ end }}
-		<br />
+		<br>
 		<nav>
 			<ul>
 				{{ $cur := .CurrentPage }}

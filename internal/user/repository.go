@@ -18,7 +18,7 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) SaveTokenSignOn(email, token, userType string) error {
-	if _, err := r.db.Exec(`INSERT INTO user_sign_on_token (token, email, user_type) VALUES ($1, $2, $3)`, token, email, userType); err != nil {
+	if _, err := r.db.Exec(`INSERT INTO user_sign_on_token (token, email, user_type, created_at) VALUES ($1, $2, $3, NOW())`, token, email, userType); err != nil {
 		return err
 	}
 	return nil
@@ -68,11 +68,32 @@ func (r *Repository) DeleteUserByEmail(email string) error {
 	return err
 }
 
-func (r *Repository) GetUser(email string) (User, error) {
-	u := User{}
-	row := r.db.QueryRow(`SELECT id, email, created_at, user_type FROM users WHERE email = $1`, email)
-	if err := row.Scan(&u.ID, &u.Email, &u.CreatedAt, &u.Type); err != nil {
-		return u, err
+// DeleteExpiredUserSignOnTokens deletes user_sign_on_tokens older than 1 week
+func (r *Repository) DeleteExpiredUserSignOnTokens() error {
+	_, err := r.db.Exec(`DELETE FROM user_sign_on_token WHERE created_at < NOW() - INTERVAL '7 DAYS'`)
+	return err
+}
+
+func (r *Repository) GetUserTypeByEmail(email string) (string, error) {
+	var userType string
+	row := r.db.QueryRow(`SELECT user_type FROM users WHERE email = $1`, email)
+	err := row.Scan(&userType)
+	if err == sql.ErrNoRows {
+		// check if user is unverified recruiter/developer
+		row = r.db.QueryRow(`SELECT 'recruiter' FROM recruiter_profile WHERE email = $1`, email)
+		err = row.Scan(&userType)
+		if err == nil {
+			return userType, nil
+		}
+		row = r.db.QueryRow(`SELECT 'developer' FROM developer_profile WHERE email = $1`, email)
+		err = row.Scan(&userType)
+		if err == nil {
+			return userType, nil
+		}
+		return userType, err
 	}
-	return u, nil
+	if err != nil {
+		return userType, err
+	}
+	return userType, nil
 }

@@ -47,11 +47,6 @@ import (
 	"github.com/golang-cafe/job-board/internal/user"
 )
 
-const (
-	AuthStepVerifyDeveloperProfile = "1mCQFVDZTAx9VQa1lprjr0aLgoP"
-	AuthStepLoginDeveloperProfile  = "1mEvrSr2G4e4iGeucwolKW6o64d"
-)
-
 type devGetter interface {
 	DeveloperProfileByEmail(email string) (developer.Developer, error)
 }
@@ -71,7 +66,15 @@ type tokenSaver interface {
 
 func GetAuthPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.Render(r, w, http.StatusOK, "auth.html", nil)
+		profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		if profile != nil {
+			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("%s%s/", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
+			return
+		}
+		email := r.URL.Query().Get("email")
+		svr.Render(r, w, http.StatusOK, "auth.html", map[string]interface{}{
+			"DefaultEmail": email,
+		})
 	}
 }
 
@@ -84,12 +87,21 @@ func CompaniesHandler(svr server.Server, companyRepo *company.Repository, jobRep
 	}
 }
 
-func DevelopersHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+func DevelopersHandler(svr server.Server, devRepo *developer.Repository, recruiterRepo *recruiter.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		location := vars["location"]
 		tag := vars["tag"]
 		page := r.URL.Query().Get("p")
+		profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		if profile != nil && profile.Type == "recruiter" {
+			expTime, err := recruiterRepo.RecruiterProfilePlanExpiration(profile.Email)
+			if err == nil && expTime.Before(time.Now().UTC()) {
+				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
+				fmt.Println(expTime)
+				return
+			}
+		}
 		svr.RenderPageForDevelopers(w, r, devRepo, location, tag, page, "developers.html")
 	}
 }
@@ -118,12 +130,14 @@ func SubmitRecruiterProfileHandler(svr server.Server, devRepo *developer.Reposit
 	}
 }
 
-func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repository, userRepo tokenSaver) http.HandlerFunc {
+func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repository, userRepo tokenSaver, paymentRepo *payment.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
-			Fullname   string `json:"fullname"`
-			CompanyURL string `json:"company_url"`
-			Email      string `json:"email"`
+			Fullname     string `json:"fullname"`
+			CompanyURL   string `json:"company_url"`
+			Email        string `json:"email"`
+			PlanDuration int    `json:"plan_duration"`
+			ItemPrice    int    `json:"item_price"`
 		}{}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			svr.JSON(w, http.StatusBadRequest, "request is invalid")
@@ -195,8 +209,204 @@ func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repositor
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
+		sess, err := paymentRepo.CreateDevDirectorySession(rec.Email, rec.ID, int64(req.ItemPrice*100), int64(req.PlanDuration), false)
+		if err != nil {
+			svr.Log(err, "unable to create payment session")
+		}
+		err = svr.GetEmail().SendHTMLEmail(
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: svr.GetEmail().DefaultAdminAddress()},
+			email.Address{Email: req.Email},
+			fmt.Sprintf("New Dev Directory Subscriber on %s", svr.GetConfig().SiteName),
+			fmt.Sprintf(
+				"Hey! There is a new Developer Directory Subscription on %s. Developer Directory Subscription %d Months Plan @ US$%d/month, Email: %s, Company: %s",
+				svr.GetConfig().SiteName,
+				req.PlanDuration,
+				req.ItemPrice,
+				rec.Email,
+				rec.CompanyURL,
+			),
+		)
+		if err != nil {
+			svr.Log(err, "unable to send email to admin while creating subscription")
+		}
+		if sess != nil {
+			err = database.InitiatePaymentEventForDeveloperDirectoryAccess(
+				svr.Conn,
+				sess.ID,
+				int64(req.ItemPrice*req.PlanDuration*100),
+				fmt.Sprintf("Developer Directory Subscription %d Months Plan @ US$%d/month", req.PlanDuration, req.ItemPrice),
+				rec.ID,
+				rec.Email,
+				int64(req.PlanDuration),
+			)
+			if err != nil {
+				svr.Log(err, "unable to save payment initiated event")
+			}
+			svr.JSON(w, http.StatusOK, map[string]string{"s_id": sess.ID})
+			return
+		}
 		svr.JSON(w, http.StatusOK, nil)
 	}
+}
+
+func SaveDeveloperMetadataHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			req := &struct {
+				DeveloperProfileID string  `json:"developer_profile_id"`
+				MetadataType       string  `json:"metadata_type"`
+				Title              string  `json:"title"`
+				Description        string  `json:"description"`
+				Link               *string `json:"link,omitempty"`
+			}{}
+
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				svr.Log(errors.New("invalid developer metadata"), "invalid developer metadata")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			dev, err := devRepo.DeveloperProfileByID(req.DeveloperProfileID)
+			if !profile.IsAdmin && dev.Email != profile.Email {
+				svr.Log(err, "Only same user or admin can edit metadata.")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			req.Title = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.Title)))
+			req.Description = bluemonday.StrictPolicy().Sanitize(req.Description)
+			k, err := ksuid.NewRandom()
+			if err != nil {
+				svr.Log(err, "unable to generate token")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+
+			devMetadata := developer.DeveloperMetadata{
+				ID:                 k.String(),
+				DeveloperProfileID: req.DeveloperProfileID,
+				MetadataType:       req.MetadataType,
+				Title:              req.Title,
+				Description:        req.Description,
+				Link:               req.Link,
+			}
+			err = devRepo.SaveDeveloperMetadata(devMetadata)
+			if err != nil {
+				svr.Log(err, "unable to save developer metadata")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
+func DeleteDeveloperMetadataHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			req := &struct {
+				ID                 string  `json:"id"`
+				DeveloperProfileID string  `json:"developer_profile_id"`
+			}{}
+
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				svr.Log(errors.New("invalid developer metadata ID"), "invalid developer metadata ID")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			dev, err := devRepo.DeveloperProfileByID(req.DeveloperProfileID)
+			if err != nil {
+				svr.Log(err, "unable to get user from profileID")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			if dev.Email != profile.Email && !profile.IsAdmin {
+				svr.Log(err, "Only same user or admin can edit metadata.")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			err = devRepo.DeleteDeveloperMetadata(req.ID, req.DeveloperProfileID)
+			if err != nil {
+				svr.Log(err, "unable to delete developer metadata")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
+func UpdateDeveloperMetadataHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			req := &struct {
+				ID                 string  `json:"id"`
+				DeveloperProfileID string  `json:"developer_profile_id"`
+				MetadataType       string  `json:"metadata_type"`
+				Title              string  `json:"title"`
+				Description        string  `json:"description"`
+				Link               *string `json:"link,omitempty"`
+			}{}
+
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				svr.Log(errors.New("invalid developer metadata"), "invalid developer metadata")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			dev, err := devRepo.DeveloperProfileByID(req.DeveloperProfileID)
+			if err != nil {
+				svr.Log(err, "unable to get user from profileID")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			if dev.Email != profile.Email && !profile.IsAdmin {
+				svr.Log(err, "Only same user or admin can edit metadata.")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			req.Title = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.Title)))
+			req.Description = bluemonday.StrictPolicy().Sanitize(req.Description)
+
+			devMetadata := developer.DeveloperMetadata{
+				ID:                 req.ID,
+				DeveloperProfileID: req.DeveloperProfileID,
+				MetadataType:       req.MetadataType,
+				Title:              req.Title,
+				Description:        req.Description,
+				Link:               req.Link,
+			}
+			err = devRepo.UpdateDeveloperMetadata(devMetadata)
+			if err != nil {
+				svr.Log(err, "unable to save developer metadata")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
 }
 
 func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRepo tokenSaver) http.HandlerFunc {
@@ -831,7 +1041,7 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 				}
 				var jobsHTMLArr []string
 				for _, j := range jobPosts {
-					jobsHTMLArr = append(jobsHTMLArr, `<p><b>Job Title:</b> `+j.JobTitle+`<br /><b>Company:</b> `+j.Company+`<br /><b>Location:</b> `+j.Location+`<br /><b>Salary:</b> `+j.SalaryRange+`<br /><b>Detail:</b> <a href="`+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`">`+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`</a></p>`)
+					jobsHTMLArr = append(jobsHTMLArr, `<p><b>Job Title:</b> `+j.JobTitle+`<br><b>Company:</b> `+j.Company+`<br><b>Location:</b> `+j.Location+`<br><b>Salary:</b> `+j.SalaryRange+`<br><b>Detail:</b> <a href="`+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`">`+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`</a></p>`)
 					lastJobID = j.ID
 				}
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
@@ -842,7 +1052,7 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 	<p>` + svr.GetConfig().SiteName + `</p>
 	<hr />`
 				unsubscribeLink := `
-	<h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br />This email was sent to <strong>%s</strong> | <a href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
+	<h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br>This email was sent to <strong>%s</strong> | <a href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
 
 				for _, s := range subscribers {
 					err = svr.GetEmail().SendHTMLEmail(
@@ -1527,6 +1737,9 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 			switch profile.Type {
 			case user.UserTypeDeveloper:
 				dev, err := devRepo.DeveloperProfileByID(profileID)
+				devExps, err := devRepo.DeveloperMetadataByProfileID("experience", profileID)
+				devEducation, err := devRepo.DeveloperMetadataByProfileID("education", profileID)
+				devProjects, err := devRepo.DeveloperMetadataByProfileID("github", profileID)
 				if err != nil {
 					svr.Log(err, "unable to find developer profile")
 					http.Redirect(w, r, "/auth", http.StatusUnauthorized)
@@ -1537,7 +1750,10 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 					return
 				}
 				svr.Render(r, w, http.StatusOK, "edit-developer-profile.html", map[string]interface{}{
-					"DeveloperProfile": dev,
+					"DeveloperProfile":        dev,
+					"DeveloperExperiences":    devExps,
+					"DeveloperEducation":      devEducation,
+					"DeveloperGithubProjects": devProjects,
 				})
 			case user.UserTypeRecruiter:
 				rec, err := recRepo.RecruiterProfileByID(profileID)
@@ -1558,10 +1774,19 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 	)
 }
 
-func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository, recruiterRepo *recruiter.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		profileSlug := vars["slug"]
+		profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		if profile != nil && profile.Type == "recruiter" {
+			expTime, err := recruiterRepo.RecruiterProfilePlanExpiration(profile.Email)
+			if err == nil && expTime.Before(time.Now().UTC()) {
+				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))	
+				return
+			}
+
+		}
 		dev, err := devRepo.DeveloperProfileBySlug(profileSlug)
 		if err != nil {
 			svr.Log(err, "unable to find developer profile by slug "+profileSlug)
@@ -1571,10 +1796,21 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 		if err := devRepo.TrackDeveloperProfileView(dev); err != nil {
 			svr.Log(err, "unable to track developer profile view")
 		}
+		devExps, err := devRepo.DeveloperMetadataByProfileID("experience", dev.ID)
+		devEducation, err := devRepo.DeveloperMetadataByProfileID("education", dev.ID)
+		devProjects, err := devRepo.DeveloperMetadataByProfileID("github", dev.ID)
+		if err != nil {
+			svr.Log(err, "unable to find developer metadata")
+			http.Redirect(w, r, "/auth", http.StatusUnauthorized)
+			return
+		}
 		dev.UpdatedAtHumanized = dev.UpdatedAt.UTC().Format("January 2006")
 		dev.SkillsArray = strings.Split(dev.Skills, ",")
 		svr.Render(r, w, http.StatusOK, "view-developer-profile.html", map[string]interface{}{
 			"DeveloperProfile": dev,
+			"DeveloperExperiences":    devExps,
+			"DeveloperEducation":      devEducation,
+			"DeveloperGithubProjects": devProjects,
 			"MonthAndYear":     time.Now().UTC().Format("January 2006"),
 		})
 	}
@@ -1748,7 +1984,7 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.Handl
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		u, err := userRepo.GetUser(req.Email)
+		userType, err := userRepo.GetUserTypeByEmail(req.Email)
 		if err != nil {
 			svr.JSON(w, http.StatusNotFound, nil)
 			return
@@ -1759,7 +1995,7 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.Handl
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = userRepo.SaveTokenSignOn(req.Email, k.String(), u.Type)
+		err = userRepo.SaveTokenSignOn(req.Email, k.String(), userType)
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -2095,7 +2331,7 @@ func ServeRSSFeed(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	}
 }
 
-func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func StripePaymentConfirmationWebhookHandler(svr server.Server, jobRepo *job.Repository, recruiterRepo *recruiter.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		const MaxBodyBytes = int64(65536)
 		req.Body = http.MaxBytesReader(w, req.Body, MaxBodyBytes)
@@ -2107,14 +2343,25 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 		}
 
 		stripeSig := req.Header.Get("Stripe-Signature")
+		svr.Log(nil, fmt.Sprintf("got session %v", string(body)))
 		sess, err := payment.HandleCheckoutSessionComplete(body, svr.GetConfig().StripeEndpointSecret, stripeSig)
 		if err != nil {
 			svr.Log(err, "error while handling checkout session complete")
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		if sess != nil {
-			affectedRows, err := database.SaveSuccessfulPayment(svr.Conn, sess.ID)
+		if sess == nil {
+			svr.JSON(w, http.StatusNotFound, nil)
+			return
+		}
+		isJobAd, err := database.IsJobAdPaymentEvent(svr.Conn, sess.ID)
+		if err != nil {
+			svr.Log(err, "IsJobAdPaymentEvent: error")
+			svr.JSON(w, http.StatusInternalServerError, map[string]interface{}{"erorr": err.Error()})
+			return
+		}
+		if isJobAd {
+			affectedRows, err := database.SaveSuccessfulPaymentForJobAd(svr.Conn, sess.ID)
 			if err != nil {
 				svr.Log(err, "error while saving successful payment")
 				svr.JSON(w, http.StatusBadRequest, nil)
@@ -2131,7 +2378,7 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			purchaseEvent, err := database.GetPurchaseEventBySessionID(svr.Conn, sess.ID)
+			purchaseEvent, err := database.GetJobAdPurchaseEventBySessionID(svr.Conn, sess.ID)
 			if err != nil {
 				svr.Log(errors.New("unable to find purchase event by stripe session id"), fmt.Sprintf("session id %s", sess.ID))
 				svr.JSON(w, http.StatusBadRequest, nil)
@@ -2143,7 +2390,7 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-
+	
 			expiration, err := jobRepo.PlanTypeAndDurationToExpirations(
 				purchaseEvent.PlanType,
 				purchaseEvent.PlanDuration,
@@ -2173,8 +2420,49 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 			svr.JSON(w, http.StatusOK, nil)
 			return
 		}
-
-		svr.JSON(w, http.StatusOK, nil)
+		isDevDirectory, err := database.IsDevDirectoryPaymentEvent(svr.Conn, sess.ID)
+		if err != nil {
+			svr.Log(err, "IsDevDirectoryPaymentEvent: error")
+			svr.JSON(w, http.StatusInternalServerError, map[string]interface{}{"erorr": err.Error()})
+			return
+		}
+		if isDevDirectory {
+			affectedRows, err := database.SaveSuccessfulPaymentForDevDirectory(svr.Conn, sess.ID)
+			if err != nil {
+				svr.Log(err, "error while saving successful payment for dev directory")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			if affectedRows != 1 {
+				svr.Log(errors.New("invalid number of rows affected when saving payment"), fmt.Sprintf("got %d expected 1", affectedRows))
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			purchaseEvent, err := database.GetDevDirectoryPurchaseEventBySessionID(svr.Conn, sess.ID)
+			if err != nil {
+				svr.Log(errors.New("unable to find purchase event by stripe session id"), fmt.Sprintf("session id %s", sess.ID))
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			if err := recruiterRepo.UpdateRecruiterPlanExpiration(purchaseEvent.Email, purchaseEvent.ExpiredAt); err != nil {
+				svr.Log(errors.New("unable to update job to new ad type"), fmt.Sprintf("unable to update recruiter developer directory access for session id %s", sess.ID))
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			err = svr.GetEmail().SendHTMLEmail(
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
+				email.Address{Email: purchaseEvent.Email},
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
+				fmt.Sprintf("Your Developer Directory Access is active on %s", svr.GetConfig().SiteName),
+				fmt.Sprintf("Your payment has been received successfully and you can now access the Developer Directory. Please follow this link to login %s%s/auth?email=%s", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, purchaseEvent.Email))
+			if err != nil {
+				svr.Log(err, "unable to send email while activating recruiter developer directory plan")
+			}
+			svr.JSON(w, http.StatusOK, nil)
+			return
+		}
+		svr.JSON(w, http.StatusInternalServerError, map[string]interface{}{"error": "sessionID is not dev or job ad type"})
+		return
 	}
 }
 
@@ -2240,6 +2528,12 @@ func SitemapHandler(svr server.Server) http.HandlerFunc {
 func RobotsTXTHandler(svr server.Server, robotsTxtContent []byte) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		svr.TEXT(w, http.StatusOK, strings.ReplaceAll(string(robotsTxtContent), "__host_placeholder__", svr.GetConfig().SiteHost))
+	}
+}
+
+func AdsTXTHandler(svr server.Server, adsTxtContent []byte) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		svr.TEXT(w, http.StatusOK, string(adsTxtContent))
 	}
 }
 
@@ -2396,7 +2690,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 				fmt.Sprintf("Confirm your job application with %s", jobPost.Company),
 				fmt.Sprintf(
-					"Thanks for applying for the position %s with %s - %s.<br />Please confirm your application now by following this link %s%s/apply/%s",
+					"Thanks for applying for the position %s with %s - %s.<br>Please confirm your application now by following this link %s%s/apply/%s",
 					jobPost.JobTitle,
 					jobPost.Company,
 					jobPost.Location,
@@ -2501,7 +2795,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			"Title": "Job Application Successfull",
 			"Description": svr.StringToHTML(
 				fmt.Sprintf(
-					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"%s%s/job/%s\">%s%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. <br />Consider joining our Golang Cafe Developer community where companies can apply to you",
+					"Thank you for applying for <b>%s with %s - %s</b><br><a href=\"%s%s/job/%s\">%s%s/job/%s</a>. <br><br>Your CV has been forwarded to company HR. <br>Consider joining our Golang Cafe Developer community where companies can apply to you",
 					retrievedJobPost.JobTitle,
 					retrievedJobPost.Company,
 					retrievedJobPost.Location,
@@ -2569,7 +2863,7 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 			"Title": "Job Application Successfull",
 			"Description": svr.StringToHTML(
 				fmt.Sprintf(
-					"Thank you for applying for <b>%s with %s - %s</b><br /><a href=\"%s%s/job/%s\">%s%s/job/%s</a>. <br /><br />Your CV has been forwarded to company HR. <br />Consider joining our Golang Cafe Developer community where companies can apply to you",
+					"Thank you for applying for <b>%s with %s - %s</b><br><a href=\"%s%s/job/%s\">%s%s/job/%s</a>. <br><br>Your CV has been forwarded to company HR. <br>Consider joining our Golang Cafe Developer community where companies can apply to you",
 					jobPost.JobTitle,
 					jobPost.Company,
 					jobPost.Location,
@@ -2633,6 +2927,69 @@ func SubmitJobPostWithoutPaymentHandler(svr server.Server, jobRepo *job.Reposito
 	)
 }
 
+func DeveloperDirectoryUpsellPageHandler(svr server.Server, jobRepo *job.Repository, paymentRepo *payment.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			decoder := json.NewDecoder(r.Body)
+			upsellRq := &struct{
+				RecruiterID string `json:"recruiter_id"`
+				PlanDuration int64 `json:"plan_duration"`
+				ItemPrice int64 `json:"item_price"`
+			}{}
+			if err := decoder.Decode(&upsellRq); err != nil {
+				svr.Log(err, "unable to decode request")
+				svr.JSON(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to retrieve user from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			sess, err := paymentRepo.CreateDevDirectorySession(profile.Email, upsellRq.RecruiterID, int64(upsellRq.ItemPrice*100), int64(upsellRq.PlanDuration), true)
+			if err != nil {
+				svr.Log(err, "unable to create payment session")
+			}
+			err = svr.GetEmail().SendHTMLEmail(
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+				email.Address{Email: svr.GetEmail().DefaultAdminAddress()},
+				email.Address{Email: profile.Email},
+				fmt.Sprintf("New Dev Directory Subscriber Renew on %s", svr.GetConfig().SiteName),
+				fmt.Sprintf(
+					"Hey! There is a new Developer Directory Subscription Renew on %s. Developer Directory Subscription %d Months Plan @ US$%d/month, Email: %s",
+					svr.GetConfig().SiteName,
+					upsellRq.PlanDuration,
+					upsellRq.ItemPrice,
+					profile.Email,
+				),
+			)
+			if err != nil {
+				svr.Log(err, "unable to send email to admin while creating subscription")
+			}
+			if sess != nil {
+				err = database.InitiatePaymentEventForDeveloperDirectoryAccess(
+					svr.Conn,
+					sess.ID,
+					int64(upsellRq.ItemPrice*upsellRq.PlanDuration*100),
+					fmt.Sprintf("Developer Directory Subscription %d Months Plan @ US$%d/month", upsellRq.PlanDuration, upsellRq.ItemPrice),
+					upsellRq.RecruiterID,
+					profile.Email,
+					int64(upsellRq.PlanDuration),
+				)
+				if err != nil {
+					svr.Log(err, "unable to save payment initiated event")
+				}
+				svr.JSON(w, http.StatusOK, map[string]string{"s_id": sess.ID})
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
 func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repository, paymentRepo *payment.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
@@ -2664,7 +3021,7 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 		case job.JobPlanTypePlatinum:
 			monthlyAmount = svr.GetConfig().PlanID3Price
 		}
-		sess, err := paymentRepo.CreateSession(
+		sess, err := paymentRepo.CreateJobAdSession(
 			&job.JobRq{
 				PlanType:     jobRq.PlanType,
 				PlanDuration: jobRq.PlanDuration,
@@ -2699,7 +3056,7 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		err = database.InitiatePaymentEvent(
+		err = database.InitiatePaymentEventForJobAd(
 			svr.Conn,
 			sess.ID,
 			payment.PlanTypeAndDurationToAmount(
@@ -2709,7 +3066,6 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 				int64(svr.GetConfig().PlanID1Price),
 				int64(svr.GetConfig().PlanID1Price),
 			),
-			"USD",
 			payment.PlanTypeAndDurationToDescription(
 				jobRq.PlanType,
 				int64(jobRq.PlanDuration),
@@ -2723,7 +3079,6 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 			svr.Log(err, "unable to save payment initiated event")
 		}
 		svr.JSON(w, http.StatusOK, map[string]string{"s_id": sess.ID})
-
 	}
 }
 
@@ -2829,7 +3184,7 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 		case job.JobPlanTypePlatinum:
 			monthlyAmount = svr.GetConfig().PlanID3Price
 		}
-		sess, err := paymentRepo.CreateSession(jobRq, randomTokenStr, int64(monthlyAmount), int64(jobRq.PlanDuration))
+		sess, err := paymentRepo.CreateJobAdSession(jobRq, randomTokenStr, int64(monthlyAmount), int64(jobRq.PlanDuration))
 		if err != nil {
 			svr.Log(err, "unable to create payment session")
 		}
@@ -2850,7 +3205,7 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 			svr.Log(err, "unable to send email to admin while posting job ad")
 		}
 		if sess != nil {
-			err = database.InitiatePaymentEvent(
+			err = database.InitiatePaymentEventForJobAd(
 				svr.Conn,
 				sess.ID,
 				payment.PlanTypeAndDurationToAmount(
@@ -2860,7 +3215,6 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 					int64(svr.GetConfig().PlanID2Price),
 					int64(svr.GetConfig().PlanID3Price),
 				),
-				jobRq.CurrencyCode,
 				payment.PlanTypeAndDurationToDescription(
 					jobRq.PlanType,
 					int64(jobRq.PlanDuration),
@@ -3280,8 +3634,13 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to marshal stats for job id %d", jobID))
 		}
+		applicants, err := jobRepo.GetApplicantsForJob(jobID)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to retrieve job applicants for job id %d", jobPost.ID))
+		}
 		svr.Render(r, w, http.StatusOK, "edit.html", map[string]interface{}{
 			"Job":                        jobPost,
+			"HowToApplyIsURL":		      !svr.IsEmail(jobPost.HowToApply),
 			"Stats":                      string(statsSet),
 			"Purchases":                  purchaseEvents,
 			"JobPerksEscaped":            svr.JSEscapeString(jobPost.Perks),
@@ -3295,6 +3654,7 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			"PaymentSuccess":             paymentSuccess,
 			"DefaultPlanExpiration":      time.Now().UTC().AddDate(0, 0, 30),
 			"StripePublishableKey":       svr.GetConfig().StripePublishableKey,
+			"Applicants":                 applicants,
 		})
 	}
 }
@@ -3352,6 +3712,10 @@ func ManageJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.H
 			if clickoutCount > 0 && viewCount > 0 {
 				conversionRate = fmt.Sprintf("%.2f", float64(float64(clickoutCount)/float64(viewCount)*100))
 			}
+			applicants, err := jobRepo.GetApplicantsForJob(jobID)
+			if err != nil {
+				svr.Log(err, fmt.Sprintf("unable to retrieve job applicants for job id %d", jobID))
+			}
 			svr.Render(r, w, http.StatusOK, "manage.html", map[string]interface{}{
 				"Job":                        jobPost,
 				"JobPerksEscaped":            svr.JSEscapeString(jobPost.Perks),
@@ -3361,9 +3725,32 @@ func ManageJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.H
 				"ViewCount":                  viewCount,
 				"ClickoutCount":              clickoutCount,
 				"ConversionRate":             conversionRate,
+				"Applicants":                 applicants,
 			})
 		},
 	)
+}
+
+func DownloadJobApplicationCvHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		vars := mux.Vars(r)
+		token := vars["token"]
+		applicant, err := jobRepo.GetApplicantByApplyToken(token)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to find job application by applicant token: %s", token))
+			svr.JSON(w, http.StatusNotFound, nil)
+			return
+		}
+		w.Header().Set("Content-Type", "application/pdf")
+		w.Header().Set("Content-Length", fmt.Sprintf("%d", applicant.CvSize))
+
+		_, err = w.Write(applicant.Cv)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to serve job application CV for applicant token: %s", token))
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+	}
 }
 
 func GetBlogPostBySlugHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {
@@ -3682,6 +4069,7 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 					"ProfileID":     rec.ID,
 					"UserType":      profile.Type,
 					"Recruiter":     rec,
+					"StripePublishableKey": svr.GetConfig().StripePublishableKey,
 				})
 			case user.UserTypeAdmin:
 				dev, err := devRepo.DeveloperProfileByEmail(profile.Email)
@@ -3700,6 +4088,22 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 					"Developer":     dev,
 				})
 			}
+		},
+	)
+}
+
+func TriggerExpiredUserSignOnTokensTask(svr server.Server, userRepo *user.Repository) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				err := userRepo.DeleteExpiredUserSignOnTokens()
+				if err != nil {
+					svr.Log(err, "unable to delete expired user_sign_on_tokens")
+					return
+				}
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
 	)
 }

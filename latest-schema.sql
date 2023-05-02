@@ -818,3 +818,32 @@ ALTER TABLE ONLY public.users ADD COLUMN user_type VARCHAR(20) DEFAULT 'develope
 ALTER TABLE ONLY public.developer_profile ADD COLUMN hourly_rate INTEGER DEFAULT 0;
 ALTER TABLE ONLY public.recruiter_profile DROP COLUMN company;
 ALTER TABLE ONLY public.recruiter_profile DROP COLUMN title;
+ALTER TABLE ONLY public.user_sign_on_token ADD COLUMN created_at TIMESTAMP DEFAULT NOW();
+
+CREATE TYPE public.valid_developer_metadata_type AS ENUM ('experience', 'education', 'github');
+
+CREATE TABLE IF NOT EXISTS public.developer_metadata (
+    id CHAR(27) NOT NULL,
+    developer_profile_id CHAR(27) NOT NULL REFERENCES public.developer_profile(id),
+    type public.valid_developer_metadata_type,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    link CHAR(54) NULL,
+    created_at TIMESTAMP DEFAULT current_timestamp,
+    updated_at TIMESTAMP DEFAULT NULL
+);
+
+CREATE TABLE public.developer_directory_purchase_event (
+    stripe_session_id character varying(255) NOT NULL,
+    amount integer NOT NULL,
+    currency character(3) NOT NULL,
+    description character varying(255) NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    expired_at timestamp without time zone NOT NULL,
+    completed_at timestamp without time zone,
+    recruiter_id character(27) NOT NULL,
+    email varchar(255) NOT NULL,
+    duration integer NOT NULL
+);
+
+ALTER TABLE public.recruiter_profile ADD COLUMN plan_expired_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();

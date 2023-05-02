@@ -175,6 +175,10 @@ type JobApplyURL struct {
 }
 
 type Applicant struct {
-	Cv    []byte
-	Email string
+	Token       string
+	Cv          []byte
+	Email       string
+	CreatedAt   time.Time
+	ConfirmedAt pq.NullTime
+	CvSize      int
 }

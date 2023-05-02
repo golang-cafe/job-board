@@ -621,6 +621,7 @@ func (s Server) RenderPageForProfileRegistration(w http.ResponseWriter, r *http.
 		"DeveloperMessagesSentLastMonth":     messagesSentLastMonth,
 		"DevelopersRegisteredLastMonth":      devsRegisteredLastMonth,
 		"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
+		"StripePublishableKey": s.GetConfig().StripePublishableKey,
 		"MonthAndYear":                       time.Now().UTC().Format("January 2006"),
 		"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
 		"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
@@ -651,7 +652,14 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 	if strings.EqualFold(location, "remote") {
 		locSearch = ""
 	}
-	developersForPage, totalDevelopersCount, err := devRepo.DevelopersByLocationAndTag(locSearch, tag, pageID, s.cfg.DevelopersPerPage)
+
+	profile, _ := middleware.GetUserFromJWT(r, s.SessionStore, s.GetJWTSigningKey())
+	var recruiterFilters developer.RecruiterFilters
+	if profile != nil && (profile.IsRecruiter || profile.IsAdmin) {
+		recruiterFilters = developer.ParseRecruiterFiltersFromQuery(r.URL.Query())
+	}
+
+	developersForPage, totalDevelopersCount, err := devRepo.DevelopersByLocationAndTag(locSearch, tag, pageID, s.cfg.DevelopersPerPage, recruiterFilters)
 	if err != nil {
 		s.Log(err, "unable to get developers by location and tag")
 		s.JSON(w, http.StatusInternalServerError, "Oops! An internal error has occurred")
@@ -659,7 +667,7 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 	}
 	if len(developersForPage) == 0 {
 		complementaryRemote = true
-		developersForPage, totalDevelopersCount, err = devRepo.DevelopersByLocationAndTag("", "", pageID, s.cfg.DevelopersPerPage)
+		developersForPage, totalDevelopersCount, err = devRepo.DevelopersByLocationAndTag("", "", pageID, s.cfg.DevelopersPerPage, developer.RecruiterFilters{})
 	}
 	pages := []int{}
 	pageLinksPerPage := 8
@@ -726,6 +734,9 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		s.Log(err, "GetDeveloperProfilePageViewsLastMonth")
 	}
 
+	developerRoleLevels := developer.SortedRoleLevels()
+	developerRoleTypes := developer.SortedRoleTypes()
+
 	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
 		"Developers":                         developersForPage,
 		"TopDeveloperSkills":                 textifyGeneric(topDeveloperSkills),
@@ -754,6 +765,9 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
 		"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
 		"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
+		"DeveloperRoleLevels":                developerRoleLevels,
+		"DeveloperRoleTypes":                 developerRoleTypes,
+		"RecruiterFilters":                   recruiterFilters,
 	})
 
 }
@@ -1080,6 +1094,9 @@ func (s Server) Render(r *http.Request, w http.ResponseWriter, status int, htmlV
 	dataMap["Plan1IDPrice"] = s.GetConfig().PlanID1Price / 100
 	dataMap["Plan2IDPrice"] = s.GetConfig().PlanID2Price / 100
 	dataMap["Plan3IDPrice"] = s.GetConfig().PlanID3Price / 100
+	dataMap["DevDirectoryPlan1IDPrice"] = s.GetConfig().DevDirectoryPlanID1Price / 100
+	dataMap["DevDirectoryPlan2IDPrice"] = s.GetConfig().DevDirectoryPlanID2Price / 100
+	dataMap["DevDirectoryPlan3IDPrice"] = s.GetConfig().DevDirectoryPlanID3Price / 100
 	dataMap["MonthAndYear"] = time.Now().UTC().Format("January 2006")
 
 	return s.tmpl.Render(w, status, htmlView, dataMap)

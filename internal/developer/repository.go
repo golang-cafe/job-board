@@ -89,6 +89,28 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 	return dev, nil
 }
 
+func (r *Repository) DeveloperMetadataByProfileID(metadata_type string, profile_id string) ([]DeveloperMetadata, error) {
+	rows, err := r.db.Query(`SELECT id, title, description, link from developer_metadata WHERE developer_profile_id = $1 AND type = $2 ORDER BY created_at DESC`, profile_id, metadata_type)
+	devMetadata := []DeveloperMetadata{}
+	if err != nil {
+		return devMetadata, nil
+	}
+	for rows.Next() {
+		var devMeta DeveloperMetadata
+		err := rows.Scan(
+			&devMeta.ID,
+			&devMeta.Title,
+			&devMeta.Description,
+			&devMeta.Link,
+		)
+		if err != nil {
+			return devMetadata, err
+		}
+		devMetadata = append(devMetadata, devMeta)
+	}
+	return devMetadata, nil
+}
+
 func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
@@ -187,25 +209,77 @@ func (r *Repository) MarkDeveloperMessageAsSent(id string) error {
 	return err
 }
 
-func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSize int) ([]Developer, int, error) {
+func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSize int, recruiterFilters RecruiterFilters) ([]Developer, int, error) {
 	var rows *sql.Rows
 	var err error
 	offset := pageID*pageSize - pageSize
 	var developers []Developer
-	switch {
-	case tag != "" && loc != "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND skills ILIKE '%' || $2 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $3 OFFSET $4`, loc, tag, pageSize, offset)
-	case tag != "" && loc == "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE skills ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, tag, pageSize, offset)
-	case tag == "" && loc != "":
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE location ILIKE '%' || $1 || '%' AND created_at != updated_at ORDER BY updated_at DESC LIMIT $2 OFFSET $3`, loc, pageSize, offset)
-	default:
-		rows, err = r.db.Query(`SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE created_at != updated_at ORDER BY updated_at DESC LIMIT $1 OFFSET $2`, pageSize, offset)
+
+	query := `SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE created_at != updated_at`
+	var args []interface{}
+	argIndex := 1
+
+	if tag != "" {
+		query += fmt.Sprintf(` AND skills ILIKE '%%' || $%d || '%%'`, argIndex)
+		args = append(args, tag)
+		argIndex++
 	}
+
+	if loc != "" {
+		query += fmt.Sprintf(` AND location ILIKE '%%' || $%d || '%%'`, argIndex)
+		args = append(args, loc)
+		argIndex++
+	}
+
+	if recruiterFilters.HourlyMin > 0 {
+		query += fmt.Sprintf(` AND hourly_rate >= $%d`, argIndex)
+		args = append(args, recruiterFilters.HourlyMin)
+		argIndex++
+	}
+
+	if recruiterFilters.HourlyMax > 0 {
+		query += fmt.Sprintf(` AND hourly_rate <= $%d`, argIndex)
+		args = append(args, recruiterFilters.HourlyMax)
+		argIndex++
+	}
+
+	if len(recruiterFilters.RoleLevels) > 0 {
+		keys := make([]interface{}, 0, len(recruiterFilters.RoleLevels))
+		placeholders := make([]string, 0, len(recruiterFilters.RoleLevels))
+		for k := range recruiterFilters.RoleLevels {
+			keys = append(keys, k)
+			placeholders = append(placeholders, fmt.Sprintf(`$%d`, argIndex))
+			argIndex++
+		}
+
+		query += fmt.Sprintf(` AND role_level IN (%s)`, strings.Join(placeholders, `, `))
+		args = append(args, keys...)
+	}
+
+	if len(recruiterFilters.RoleTypes) > 0 {
+		keys := make([]interface{}, 0, len(recruiterFilters.RoleTypes))
+		placeholders := make([]string, 0, len(recruiterFilters.RoleTypes))
+		for k := range recruiterFilters.RoleTypes {
+			keys = append(keys, k)
+			placeholders = append(placeholders, fmt.Sprintf(`$%d`, argIndex))
+			argIndex++
+		}
+
+		query += fmt.Sprintf(` AND string_to_array(role_types, ',') && ARRAY[%s]`, strings.Join(placeholders, `, `))
+		args = append(args, keys...)
+	}
+
+	query += fmt.Sprintf(` ORDER BY updated_at DESC LIMIT $%d OFFSET $%d`, argIndex, argIndex+1)
+	args = append(args, pageSize, offset)
+	argIndex += 2
+
+	rows, err = r.db.Query(query, args...)
 	if err == sql.ErrNoRows {
 		return developers, 0, nil
 	}
+
 	var fullRowsCount int
+	defer rows.Close()
 	for rows.Next() {
 		var dev Developer
 		var roleTypes string
@@ -230,7 +304,6 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 			&dev.RoleLevel,
 			&roleTypes,
 		)
-		fmt.Printf("found dev %s and hourly rate %d\n", dev.ID, dev.HourlyRate)
 		dev.RoleTypes = strings.Split(roleTypes, ",")
 		if err != nil {
 			return developers, fullRowsCount, err
@@ -278,6 +351,21 @@ func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 		dev.SearchStatus,
 		dev.DetectedLocationID,
 	)
+	return err
+}
+
+func (r *Repository) SaveDeveloperMetadata(devMetadata DeveloperMetadata) error {
+	_, err := r.db.Exec(`INSERT INTO developer_metadata (id, developer_profile_id, type, title, description, link) VALUES ($1, $2, $3, $4, $5, $6)`, devMetadata.ID, devMetadata.DeveloperProfileID, devMetadata.MetadataType, devMetadata.Title, devMetadata.Description, devMetadata.Link)
+	return err
+}
+
+func (r *Repository) DeleteDeveloperMetadata(id string, developer_profile_id string) error {
+	_, err := r.db.Exec(`DELETE FROM developer_metadata WHERE id = $1 and developer_profile_id = $2`, id, developer_profile_id)
+	return err
+}
+
+func (r *Repository) UpdateDeveloperMetadata(devMetadata DeveloperMetadata) error {
+	_, err := r.db.Exec(`UPDATE developer_metadata SET title = $1, description = $2, link = $3 WHERE id = $4`, devMetadata.Title, devMetadata.Description, devMetadata.Link, devMetadata.ID)
 	return err
 }
 
