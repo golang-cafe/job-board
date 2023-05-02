@@ -260,6 +260,7 @@ background-color: #FF6600
     {{ template "header-html" . }}
   <section style="margin: 30px auto;">
     <div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
+    {{ template "apply-box-developer" . }}
     <article class="apply-box" id="apply-box-0">
         <h3 style="margin-top: 10px;">{{ if .LoggedUser }}1-Click Apply{{ else }}2-Click Apply{{ end }}</h3>
         <div>
@@ -484,6 +485,12 @@ background-color: #FF6600
             }
         }
         function bookmark(el, jobId) {
+          var loggedInUser = {{ if .LoggedUser }}true{{ else }}false{{ end}};
+          if (!loggedInUser) {
+            showDeveloperPopup();
+            return;
+          }
+
           el.disabled = true;
           el.value = "Saving...";
 
@@ -551,8 +558,13 @@ background-color: #FF6600
                 alert('There was an error while saving your application. Please try again later');
             });
         }
+        function showDeveloperPopup() {
+          document.getElementById('apply-box-developer').style.display = 'block';
+          document.getElementById('overlay-0').style.display = 'block';
+        }
         function closeApplyPopup() {
             document.getElementById('apply-box-0').style.display = 'none';
+            document.getElementById('apply-box-developer').style.display = 'none';
             document.getElementById('overlay-0').style.display = 'none';
         }
     </script>

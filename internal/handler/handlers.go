@@ -315,8 +315,8 @@ func DeleteDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposi
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			req := &struct {
-				ID                 string  `json:"id"`
-				DeveloperProfileID string  `json:"developer_profile_id"`
+				ID                 string `json:"id"`
+				DeveloperProfileID string `json:"developer_profile_id"`
 			}{}
 
 			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -1783,7 +1783,7 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 		if profile != nil && profile.Type == "recruiter" {
 			expTime, err := recruiterRepo.RecruiterProfilePlanExpiration(profile.Email)
 			if err == nil && expTime.Before(time.Now().UTC()) {
-				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))	
+				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
 				return
 			}
 
@@ -1808,11 +1808,11 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 		dev.UpdatedAtHumanized = dev.UpdatedAt.UTC().Format("January 2006")
 		dev.SkillsArray = strings.Split(dev.Skills, ",")
 		svr.Render(r, w, http.StatusOK, "view-developer-profile.html", map[string]interface{}{
-			"DeveloperProfile": dev,
+			"DeveloperProfile":        dev,
 			"DeveloperExperiences":    devExps,
 			"DeveloperEducation":      devEducation,
 			"DeveloperGithubProjects": devProjects,
-			"MonthAndYear":     time.Now().UTC().Format("January 2006"),
+			"MonthAndYear":            time.Now().UTC().Format("January 2006"),
 		})
 	}
 }
@@ -1824,7 +1824,7 @@ func CompaniesForLocationHandler(svr server.Server, companyRepo *company.Reposit
 	}
 }
 
-func IndexPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func IndexPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		location := r.URL.Query().Get("l")
 		tag := r.URL.Query().Get("t")
@@ -1873,7 +1873,7 @@ func IndexPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFu
 			return
 		}
 
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, "", "", page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, "", "", page, salary, currency, "landing.html")
 	}
 }
 
@@ -2140,7 +2140,7 @@ func PostAJobForLocationFromURLPageHandler(svr server.Server, companyRepo *compa
 	}
 }
 
-func JobBySlugPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func JobBySlugPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		slug := vars["slug"]
@@ -2174,21 +2174,44 @@ func JobBySlugPageHandler(svr server.Server, jobRepo *job.Repository) http.Handl
 				relevantJobs[i].IsQuickApply = true
 			}
 		}
+
+		messagesSentLastMonth, err := devRepo.GetDeveloperMessagesSentLastMonth()
+		if err != nil {
+			svr.Log(err, "GetDeveloperMessagesSentLastMonth")
+		}
+		devsRegisteredLastMonth, err := devRepo.GetDevelopersRegisteredLastMonth()
+		if err != nil {
+			svr.Log(err, "GetDevelopersRegisteredLastMonth")
+		}
+		devPageViewsLastMonth, err := devRepo.GetDeveloperProfilePageViewsLastMonth()
+		if err != nil {
+			svr.Log(err, "GetDeveloperProfilePageViewsLastMonth")
+		}
+		lastDevUpdatedAt, err := devRepo.GetLastDevUpdatedAt()
+		if err != nil {
+			svr.Log(err, "unable to retrieve last developer joined at")
+		}
+
 		svr.Render(r, w, http.StatusOK, "job.html", map[string]interface{}{
-			"Job":                     jobPost,
-			"JobURIEncoded":           url.QueryEscape(jobPost.Slug),
-			"IsQuickApply":            isQuickApply,
-			"HTMLJobDescription":      svr.MarkdownToHTML(jobPost.JobDescription),
-			"HTMLJobPerks":            svr.MarkdownToHTML(jobPost.Perks),
-			"HTMLJobInterviewProcess": svr.MarkdownToHTML(jobPost.InterviewProcess),
-			"LocationFilter":          location,
-			"ExternalJobId":           jobPost.ExternalID,
-			"MonthAndYear":            time.Unix(jobPost.CreatedAt, 0).UTC().Format("January 2006"),
-			"GoogleJobCreatedAt":      time.Unix(jobPost.CreatedAt, 0).Format(time.RFC3339),
-			"GoogleJobValidThrough":   time.Unix(jobPost.CreatedAt, 0).AddDate(0, 5, 0),
-			"GoogleJobLocation":       jobLocations[0],
-			"GoogleJobDescription":    strconv.Quote(strings.ReplaceAll(string(svr.MarkdownToHTML(jobPost.JobDescription)), "\n", "")),
-			"RelevantJobs":            relevantJobs,
+			"Job":                                jobPost,
+			"JobURIEncoded":                      url.QueryEscape(jobPost.Slug),
+			"IsQuickApply":                       isQuickApply,
+			"HTMLJobDescription":                 svr.MarkdownToHTML(jobPost.JobDescription),
+			"HTMLJobPerks":                       svr.MarkdownToHTML(jobPost.Perks),
+			"HTMLJobInterviewProcess":            svr.MarkdownToHTML(jobPost.InterviewProcess),
+			"LocationFilter":                     location,
+			"ExternalJobId":                      jobPost.ExternalID,
+			"MonthAndYear":                       time.Unix(jobPost.CreatedAt, 0).UTC().Format("January 2006"),
+			"GoogleJobCreatedAt":                 time.Unix(jobPost.CreatedAt, 0).Format(time.RFC3339),
+			"GoogleJobValidThrough":              time.Unix(jobPost.CreatedAt, 0).AddDate(0, 5, 0),
+			"GoogleJobLocation":                  jobLocations[0],
+			"GoogleJobDescription":               strconv.Quote(strings.ReplaceAll(string(svr.MarkdownToHTML(jobPost.JobDescription)), "\n", "")),
+			"RelevantJobs":                       relevantJobs,
+			"DeveloperMessagesSentLastMonth":     messagesSentLastMonth,
+			"DevelopersRegisteredLastMonth":      devsRegisteredLastMonth,
+			"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
+			"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
+			"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
 		})
 	}
 }
@@ -2230,50 +2253,50 @@ func CompanyBySlugPageHandler(svr server.Server, companyRepo *company.Repository
 	}
 }
 
-func LandingPageForLocationHandler(svr server.Server, jobRepo *job.Repository, location string) http.HandlerFunc {
+func LandingPageForLocationHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, location, "", page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, location, "", page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForLocationAndSkillPlaceholderHandler(svr server.Server, jobRepo *job.Repository, location string) http.HandlerFunc {
+func LandingPageForLocationAndSkillPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, location, skill, page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, location, skill, page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func LandingPageForLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		loc := strings.ReplaceAll(vars["location"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, loc, "", page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, loc, "", page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForSkillPlaceholderHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func LandingPageForSkillPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, "", skill, page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, "", skill, page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForSkillAndLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func LandingPageForSkillAndLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
@@ -2281,7 +2304,7 @@ func LandingPageForSkillAndLocationPlaceholderHandler(svr server.Server, jobRepo
 		loc := strings.ReplaceAll(vars["location"], "-", " ")
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, loc, skill, page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, loc, skill, page, salary, currency, "landing.html")
 	}
 }
 
@@ -2391,7 +2414,7 @@ func StripePaymentConfirmationWebhookHandler(svr server.Server, jobRepo *job.Rep
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-	
+
 			expiration, err := jobRepo.PlanTypeAndDurationToExpirations(
 				purchaseEvent.PlanType,
 				purchaseEvent.PlanDuration,
@@ -2571,15 +2594,15 @@ func SalaryLandingPageLocationHandler(svr server.Server, jobRepo *job.Repository
 	}
 }
 
-func ViewNewsletterPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func ViewNewsletterPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, "", "", "", "", "", "newsletter.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, "", "", "", "", "", "newsletter.html")
 	}
 }
 
-func ViewCommunityNewsletterPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func ViewCommunityNewsletterPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, "", "", "", "", "", "news.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, "", "", "", "", "", "news.html")
 	}
 }
 
@@ -2594,9 +2617,9 @@ func DisableDirListing(next http.Handler) http.Handler {
 	})
 }
 
-func ViewSupportPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func ViewSupportPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, "", "", "", "", "", "support.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, "", "", "", "", "", "support.html")
 	}
 }
 
@@ -2742,7 +2765,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository, bookmark
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		
+
 		// Bookmark applied jobs for the user
 		err = bookmarkRepo.BookmarkJob(profile.UserID, jobPost.ID, true)
 		if err != nil {
@@ -2935,10 +2958,10 @@ func DeveloperDirectoryUpsellPageHandler(svr server.Server, jobRepo *job.Reposit
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			decoder := json.NewDecoder(r.Body)
-			upsellRq := &struct{
-				RecruiterID string `json:"recruiter_id"`
-				PlanDuration int64 `json:"plan_duration"`
-				ItemPrice int64 `json:"item_price"`
+			upsellRq := &struct {
+				RecruiterID  string `json:"recruiter_id"`
+				PlanDuration int64  `json:"plan_duration"`
+				ItemPrice    int64  `json:"item_price"`
 			}{}
 			if err := decoder.Decode(&upsellRq); err != nil {
 				svr.Log(err, "unable to decode request")
@@ -3642,7 +3665,7 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 		}
 		svr.Render(r, w, http.StatusOK, "edit.html", map[string]interface{}{
 			"Job":                        jobPost,
-			"HowToApplyIsURL":		      !svr.IsEmail(jobPost.HowToApply),
+			"HowToApplyIsURL":            !svr.IsEmail(jobPost.HowToApply),
 			"Stats":                      string(statsSet),
 			"Purchases":                  purchaseEvents,
 			"JobPerksEscaped":            svr.JSEscapeString(jobPost.Perks),
@@ -4028,13 +4051,13 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 					return
 				}
 				svr.Render(r, w, http.StatusOK, "profile-home.html", map[string]interface{}{
-					"IsAdmin":       profile.IsAdmin,
-					"UserID":        profile.UserID,
-					"UserEmail":     profile.Email,
-					"UserCreatedAt": profile.CreatedAt,
-					"ProfileID":     rec.ID,
-					"UserType":      profile.Type,
-					"Recruiter":     rec,
+					"IsAdmin":              profile.IsAdmin,
+					"UserID":               profile.UserID,
+					"UserEmail":            profile.Email,
+					"UserCreatedAt":        profile.CreatedAt,
+					"ProfileID":            rec.ID,
+					"UserType":             profile.Type,
+					"Recruiter":            rec,
 					"StripePublishableKey": svr.GetConfig().StripePublishableKey,
 				})
 			case user.UserTypeAdmin:
