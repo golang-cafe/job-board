@@ -61,6 +61,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to read security.txt placeholder file: %w", err)
 	}
+	adsTxtContent, err := os.ReadFile("./static/ads.txt")
+	if err != nil {
+		log.Fatalf("unable to read security.txt placeholder file: %w", err)
+	}
 
 	devRepo := developer.NewRepository(conn)
 	recRepo := recruiter.NewRepository(conn)
@@ -82,6 +86,7 @@ func main() {
 	svr.RegisterRoute("/sitemap.xml", handler.SitemapIndexHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/sitemap-{number}.xml", handler.SitemapHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/robots.txt", handler.RobotsTXTHandler(svr, robotsTxtContent), []string{"GET"})
+	svr.RegisterRoute("/ads.txt", handler.AdsTXTHandler(svr, adsTxtContent), []string{"GET"})
 	svr.RegisterRoute("/.well-known/security.txt", handler.WellKnownSecurityHandler(svr, securityTxtContent), []string{"GET"})
 
 	svr.RegisterPathPrefix("/s/", http.StripPrefix("/s/", http.FileServer(http.Dir("./static/assets"))), []string{"GET"})

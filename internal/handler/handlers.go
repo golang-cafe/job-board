@@ -2531,6 +2531,12 @@ func RobotsTXTHandler(svr server.Server, robotsTxtContent []byte) http.HandlerFu
 	}
 }
 
+func AdsTXTHandler(svr server.Server, adsTxtContent []byte) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		svr.TEXT(w, http.StatusOK, string(adsTxtContent))
+	}
+}
+
 func WellKnownSecurityHandler(svr server.Server, securityTxtContent []byte) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		contentWithHost := strings.ReplaceAll(string(securityTxtContent), "__host_placeholder__", svr.GetConfig().SiteHost)
