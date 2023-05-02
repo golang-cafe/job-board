@@ -82,6 +82,10 @@ body{background:#ffffff;}
 		      <li><b>Account Type:</b> {{ .UserType }}</li>
 			  {{ if eq .UserType "recruiter" }}
 			  <li><b>Subscription:</b> {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}Your Developer Director Access Has Expired on {{ .Recruiter.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}. Please continue below to renew your access.{{ else }}{{ .Recruiter.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}{{ end }}</li>
+        {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}
+          <li><a href="/profile/jobs">View Your Job Posts</a></li>
+          <li><a onclick="logout();">Logout</a></li>
+        {{ end }}
 		  </ul>
 			  {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}
 			  <h2>Your Developers Directory Access Has Expired</h2>
@@ -156,6 +160,7 @@ body{background:#ffffff;}
       {{ end }}
       
       {{ if eq .UserType "recruiter" }}
+      <span>{{ .Recruiter.PlanExpiredAt }}</span>
       {{ if isTimeAfterNow .Recruiter.PlanExpiredAt }}
         <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
         <ul>
