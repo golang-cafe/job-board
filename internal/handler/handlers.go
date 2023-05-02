@@ -1983,7 +1983,7 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *j
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		userType, err := userRepo.GetUserTypeByEmailOrCreateUserIfRecruit(req.Email, jobRepo)
+		userType, err := userRepo.GetUserTypeByEmailOrCreateUserIfRecruiter(req.Email, jobRepo)
 		if err != nil {
 			svr.JSON(w, http.StatusNotFound, nil)
 			return

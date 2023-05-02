@@ -123,14 +123,17 @@ func (r *Repository) CreateUserWithEmail(email, user_type string) (User, error) 
 
 // GetOrCreateUserIfRecruit seeks a user in the users table or creates one if the user has a job posting
 // returns user struct and an error
-func (r *Repository) GetUserTypeByEmailOrCreateUserIfRecruit(email string, jobRepo *job.Repository) (string, error) {
+func (r *Repository) GetUserTypeByEmailOrCreateUserIfRecruiter(email string, jobRepo *job.Repository) (string, error) {
 	u, err := r.GetUserTypeByEmail(email)
 	if err == nil {
 		return u, nil
 	}
 
-	hasPostedJob := jobRepo.JobExistsForEmail(email)
-	if hasPostedJob {
+	jobsCountByEmail, err := jobRepo.JobsCountByEmail(email)
+	if err != nil {
+		return "", err
+	}
+	if jobsCountByEmail > 0 {
 		user, err := r.CreateUserWithEmail(email, "recruiter")
 		if err == nil {
 			return user.Type, nil

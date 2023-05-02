@@ -27,13 +27,13 @@ func (r *Repository) TrackJobView(job *JobPost) error {
 	return err
 }
 
-func (r *Repository) JobExistsForEmail(email string) bool {
-	res := r.db.QueryRow(`SELECT id FROM purchase_event where email=$1 LIMIT 1`, email)
-	var job JobPost
-	err := res.Scan(
-		&job.ID,
-	)
-	return err != nil
+func (r *Repository) JobsCountByEmail(email string) (int, error) {
+	res := r.db.QueryRow(`SELECT count(*) as c FROM jobs WHERE company_email = $1`, email)
+	var c int
+	if err := res.Scan(&c); err != nil {
+		return 0, err
+	}
+	return c, nil
 }
 
 func (r *Repository) GetJobByApplyToken(token string) (JobPost, Applicant, error) {
