@@ -76,20 +76,13 @@ body{background:#ffffff;}
               <h1>{{ .SiteName }} User Account</h1>
 	      <p>This is your account information</p>
 	      <ul>
-		      <li><b>Account ID:</b> {{ .UserID }}</li>
+		      <li><b>Account ID:</b> {{ .UserID }} - {{ .ProfileID }}</li>
 		      <li><b>Account Email:</b> {{ .UserEmail }}</li>
 		      <li><b>Account Created At:</b> {{ .UserCreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}</li>
 		      <li><b>Account Type:</b> {{ .UserType }}</li>
+		  </ul>
 			  {{ if eq .UserType "recruiter" }}
 			  <li><b>Subscription:</b> {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}Your Developer Director Access Has Expired on {{ .Recruiter.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}. Please continue below to renew your access.{{ else }}{{ .Recruiter.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}{{ end }}</li>
-		  </ul>
-        {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}
-          <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
-          <ul>
-            <li><a href="/profile/jobs">View Your Job Posts</a></li>
-            <li><a onclick="logout();">Logout</a></li>
-          </ul>
-        {{ end }}
 			  {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}
 			  <h2>Your Developers Directory Access Has Expired</h2>
 			  <div style="margin-bottom:20px;">
@@ -163,7 +156,6 @@ body{background:#ffffff;}
       {{ end }}
       
       {{ if eq .UserType "recruiter" }}
-      {{ if isTimeAfterNow .Recruiter.PlanExpiredAt }}
         <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
         <ul>
         <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Info</a></li>
@@ -174,7 +166,6 @@ body{background:#ffffff;}
         <li><a href="/support">Contact Support</a></li>
         <li><a onclick="logout();">Logout</a></li>
         </ul>
-        {{ end }}
       {{ end }}
 
 		  {{ if eq .UserType "admin" }}
