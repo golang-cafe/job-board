@@ -311,6 +311,7 @@ background-color: #FF6600
                 {{ else }}
                   <a target="_blank" rel="noreferrer noopener" href="/x/r?j={{ .Job.ExternalID }}" style="float:right;" class="apply-link">Apply</a>
                 {{ end }}
+                <input type="submit" style="float:right;" class="bookmark-btn" value="Save Job" onclick="bookmark(this, '{{ .Job.ExternalID }}');">
 		{{ else }}
 		  <input type="submit" disabled class="right-btn" value="Job Expired">
 		{{ end }}
@@ -481,6 +482,24 @@ background-color: #FF6600
                     cb(xhr.status);
                 }
             }
+        }
+        function bookmark(el, jobId) {
+          el.disabled = true;
+          el.value = "Saving...";
+
+          var formData = new FormData();
+          formData.append('job-id', jobId);
+          post('/x/bookmark', formData, function(status) {
+            if (status == 201) {
+              el.value = "Saved job";
+              alert('Saved job');
+              return;
+            }
+
+            el.disabled = false;
+            el.value = "Save Job"
+            alert('There was a problem saving this job. Please try again later.');
+          });
         }
         function apply() {
           http('{{ .Job.ExternalID }}', function() {

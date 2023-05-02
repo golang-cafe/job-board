@@ -986,6 +986,7 @@
 				<a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow"
 					class="apply-link">Apply</a>
 				{{ end }}
+                <input type="submit" style="float:right;" class="bookmark-btn" value="Save Job" onclick="bookmark(this, '{{ .ExternalID }}');">
 				<a class="copy-to-clipboard" data-link="https://{{ $siteHost }}/job/{{ .Slug }}"
 					style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398; Copy Link</a>
 				<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank"
@@ -1049,6 +1050,7 @@
 				<a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow"
 					class="apply-link">Apply</a>
 				{{ end }}
+                <input type="submit" style="float:right;" class="bookmark-btn" value="Save Job" onclick="bookmark(this, '{{ .ExternalID }}');">
 				{{ else }}
 				<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired">
 				{{ end }}
@@ -1350,6 +1352,24 @@
 				}
 			}
 		}
+        function bookmark(el, jobId) {
+          el.disabled = true;
+          el.value = "Saving...";
+
+          var formData = new FormData();
+          formData.append('job-id', jobId);
+          post('/x/bookmark', formData, function(status) {
+            if (status == 201) {
+              el.value = "Saved job";
+              alert('Saved job');
+              return;
+            }
+
+            el.disabled = false;
+            el.value = "Save Job"
+            alert('There was a problem saving this job. Please try again later.');
+          });
+        }
 		function apply(howToApply, jobID) {
 			get('/x/j/c/' + jobID, function () {
 				document.getElementById('apply-job-id').value = jobID;

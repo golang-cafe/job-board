@@ -253,7 +253,8 @@ func main() {
 	svr.RegisterRoute("/company/{slug}", handler.CompanyBySlugPageHandler(svr, companyRepo, jobRepo), []string{"GET"})
 
 	// bookmarks (saved jobs)
-	svr.RegisterRoute("/bookmarks", bookmark.BookmarksHandler(svr, bookmarkRepo), []string{"GET"})
+	svr.RegisterRoute("/bookmarks", bookmark.BookmarkListHandler(svr, bookmarkRepo), []string{"GET"})
+	svr.RegisterRoute("/x/bookmark", bookmark.BookmarkJobHandler(svr, bookmarkRepo, jobRepo), []string{"POST"})
 
 	//
 	// auth routes

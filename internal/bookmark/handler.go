@@ -3,11 +3,12 @@ package bookmark
 import (
 	"net/http"
 
+	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/middleware"
 	"github.com/golang-cafe/job-board/internal/server"
 )
 
-func BookmarksHandler(svr server.Server, bookmarkRepo *Repository) http.HandlerFunc {
+func BookmarkListHandler(svr server.Server, bookmarkRepo *Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
 		if err != nil {
@@ -27,5 +28,33 @@ func BookmarksHandler(svr server.Server, bookmarkRepo *Repository) http.HandlerF
 		if err != nil {
 			svr.Log(err, "unable to render bookmarks page")
 		}
+	}
+}
+
+func BookmarkJobHandler(svr server.Server, bookmarkRepo *Repository, jobRepo *job.Repository) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		if err != nil {
+			svr.Log(err, "unable to retrieve user from JWT")
+			svr.JSON(w, http.StatusForbidden, nil)
+			return
+		}
+
+		externalID := r.FormValue("job-id")
+		job, err := jobRepo.GetJobByExternalID(externalID)
+		if err != nil {
+			svr.Log(err, "BookmarkJob")
+			svr.JSON(w, http.StatusBadRequest, nil)
+			return
+		}
+
+		err = bookmarkRepo.BookmarkJob(profile.UserID, job.ID, false)
+		if err != nil {
+			svr.Log(err, "BookmarkJob")
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+
+		svr.JSON(w, http.StatusCreated, nil)
 	}
 }
