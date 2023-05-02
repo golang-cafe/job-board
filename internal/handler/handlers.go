@@ -33,6 +33,7 @@ import (
 	"github.com/snabb/sitemap"
 
 	"github.com/golang-cafe/job-board/internal/blog"
+	"github.com/golang-cafe/job-board/internal/bookmark"
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/database"
 	"github.com/golang-cafe/job-board/internal/developer"
@@ -2613,7 +2614,7 @@ func PostAJobFailurePageHandler(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository, bookmarkRepo *bookmark.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		// limits upload form size to 5mb
 		maxPdfSize := 5 * 1024 * 1024
@@ -2741,6 +2742,13 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
+		
+		// Bookmark applied jobs for the user
+		err = bookmarkRepo.BookmarkJob(profile.UserID, jobPost.ID, true)
+		if err != nil {
+			svr.Log(err, "error bookmarking job during application")
+		}
+
 		retrievedJobPost, applicant, err := jobRepo.GetJobByApplyToken(randomTokenStr)
 		if err != nil {
 			svr.Render(r, w, http.StatusBadRequest, "apply-message.html", map[string]interface{}{

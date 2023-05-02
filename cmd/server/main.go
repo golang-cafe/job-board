@@ -206,7 +206,7 @@ func main() {
 	svr.RegisterRoute("/x/email/confirm/{token}", handler.ConfirmEmailSubscriberHandler(svr), []string{"GET"})
 
 	// apply for job
-	svr.RegisterRoute("/x/a/e", handler.ApplyForJobPageHandler(svr, jobRepo), []string{"POST"})
+	svr.RegisterRoute("/x/a/e", handler.ApplyForJobPageHandler(svr, jobRepo, bookmarkRepo), []string{"POST"})
 
 	// apply to job confirmation
 	svr.RegisterRoute("/apply/{token}", handler.ApplyToJobConfirmation(svr, jobRepo), []string{"GET"})

@@ -49,3 +49,19 @@ func (r *Repository) GetBookmarksForUser(userID string) ([]*Bookmark, error) {
 	}
 	return bookmarks, nil
 }
+
+func (r *Repository) BookmarkJob(userID string, jobID int, setApplied bool) error {
+	appliedAtExpr := "NULL"
+	if setApplied {
+		appliedAtExpr = "NOW()"
+	}
+
+	stmt := `
+		INSERT INTO bookmark (user_id, job_id, created_at, applied_at)
+		VALUES ($1, $2, NOW(), ` + appliedAtExpr + `)
+		ON CONFLICT (user_id, job_id) DO UPDATE
+			SET applied_at = EXCLUDED.applied_at
+			WHERE bookmark.applied_at IS NULL`
+	_, err := r.db.Exec(stmt, userID, jobID)
+	return err
+}
