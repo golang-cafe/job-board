@@ -163,7 +163,6 @@ body{background:#ffffff;}
       {{ end }}
       
       {{ if eq .UserType "recruiter" }}
-      <span>{{ .Recruiter.PlanExpiredAt }}</span>
       {{ if isTimeAfterNow .Recruiter.PlanExpiredAt }}
         <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
         <ul>
