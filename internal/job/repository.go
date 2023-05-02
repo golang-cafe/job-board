@@ -28,7 +28,7 @@ func (r *Repository) TrackJobView(job *JobPost) error {
 }
 
 func (r *Repository) JobsCountByEmail(email string) (int, error) {
-	res := r.db.QueryRow(`SELECT count(*) as c FROM jobs WHERE company_email = $1`, email)
+	res := r.db.QueryRow(`SELECT count(*) as c FROM job WHERE company_email = $1`, email)
 	var c int
 	if err := res.Scan(&c); err != nil {
 		return 0, err
