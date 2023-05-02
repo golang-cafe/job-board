@@ -73,8 +73,8 @@ body{background:#ffffff;}
 	</div>
     <section style="margin: 30px auto;">
             <article>
-              <h1>{{ .SiteName }} User Account</h1>
-	      <p>This is your account information</p>
+              <h1>{{ .SiteName }} Dashboard</h1>
+	      <h3>Account Information</h3>
 	      <ul>
 		      <li><b>Account ID:</b> {{ .UserID }}</li>
 		      <li><b>Account Email:</b> {{ .UserEmail }}</li>
@@ -85,7 +85,7 @@ body{background:#ffffff;}
 			  {{ end}}
 		  </ul>
 	  {{ if eq .UserType "developer" }}
-		<p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
+		<h3>Account Actions</h3>
 		<ul>
         <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Developer Profile</a></li>
         <li><a href="/support">Contact Support</a></li>
@@ -94,7 +94,7 @@ body{background:#ffffff;}
       {{ end }}
       
       {{ if eq .UserType "recruiter" }}
-        <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
+        <h3>Account Dashboard</h3>
         <ul>
         <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Info</a></li>
         <li><a href="/{{ .SiteJobCategory }}-Developers">Browse & Message Developers</a></li>
@@ -107,7 +107,7 @@ body{background:#ffffff;}
       {{ end }}
 
 		  {{ if eq .UserType "admin" }}
-		  <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
+		  <h3>Account Dashboard</h3>
 		  <ul>
           <li><a href="/profile/blog/list">View Your Blog Posts</a></li>
           <li><a href="/profile/blog/create">Create Blog Post</a></li>
@@ -119,7 +119,7 @@ body{background:#ffffff;}
 				
 				{{ if eq .UserType "recruiter" }}
 		  {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}
-		  <h2>Your Developers Directory Access Has Expired</h2>
+		  <h3 id="developer-subscription">Developer Directory Access</h3>
 		  <div style="margin-bottom:20px;">
 				Please choose one of the options below. You will only be billed once. This is not a subscription. Consider choosing a longer plan to lock in a lower price.
 				</div>
