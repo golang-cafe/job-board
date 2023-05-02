@@ -806,14 +806,28 @@ func (r *Repository) GetLastNJobs(max int, loc string) ([]*JobPost, error) {
 func (r *Repository) GetLastNJobsFromID(max, jobID int) ([]*JobPost, error) {
 	var jobs []*JobPost
 	var rows *sql.Rows
-	rows, err := r.db.Query(`SELECT id, job_title, company, salary_range, location, slug, salary_currency, company_icon_image_id, external_id, salary_period FROM job WHERE id > $1 AND approved_at IS NOT NULL LIMIT $2`, jobID, max)
+	rows, err := r.db.Query(`SELECT id, job_title, company, salary_range, location, slug, salary_currency, company_icon_image_id, external_id, salary_period, social_media_eligibility_expired_at, newsletter_eligibility_expired_at, blog_eligibility_expired_at FROM job WHERE id > $1 AND approved_at IS NOT NULL LIMIT $2`, jobID, max)
 	if err != nil {
 		return jobs, err
 	}
 	for rows.Next() {
 		job := &JobPost{}
 		var companyIcon sql.NullString
-		err := rows.Scan(&job.ID, &job.JobTitle, &job.Company, &job.SalaryRange, &job.Location, &job.Slug, &job.SalaryCurrency, &companyIcon, &job.ExternalID, &job.SalaryPeriod)
+		err := rows.Scan(
+			&job.ID,
+			&job.JobTitle,
+			&job.Company,
+			&job.SalaryRange,
+			&job.Location,
+			&job.Slug,
+			&job.SalaryCurrency,
+			&companyIcon,
+			&job.ExternalID,
+			&job.SalaryPeriod,
+			&job.SocialMediaEligibilityExpiredAt,
+			&job.NewsletterEligibilityExpiredAt,
+			&job.BlogEligibilityExpiredAt,
+		)
 		if companyIcon.Valid {
 			job.CompanyIconID = companyIcon.String
 		}

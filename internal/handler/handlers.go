@@ -997,10 +997,19 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 
 				lastJobID := lastTwittedJobID
 				for _, j := range jobPosts {
+					if j.SocialMediaEligibilityExpiredAt.Before(time.Now()) {
+						log.Printf("skipping job id %d because eligibility is not active\n", j.ID)
+						lastJobID = j.ID
+						continue
+					}
 					tweetStr := fmt.Sprintf("{\"text\":\"%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s%s/job/%s\"", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug)
-					_, err := httpClient.Post(tweetPostPath, contentType, strings.NewReader(tweetStr))
+					res, err := httpClient.Post(tweetPostPath, contentType, strings.NewReader(tweetStr))
 					if err != nil {
 						svr.Log(err, "unable to post tweet")
+						continue
+					}
+					if res.StatusCode > http.StatusCreated {
+						svr.Log(errors.New("invalid status code when posting to twitter"), fmt.Sprintf("unable to post tweet status code %d expected %d", res.StatusCode, http.StatusCreated))
 						continue
 					}
 					lastJobID = j.ID

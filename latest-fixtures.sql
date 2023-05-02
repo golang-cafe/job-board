@@ -34,3 +34,4 @@ INSERT INTO seo_skill (name) values ('JavaScript');
 INSERT INTO seo_skill (name) values ('TypeScript');
 INSERT INTO seo_skill (name) values ('Rust');
 INSERT INTO seo_skill (name) values ('C#');
+INSERT INTO "public"."meta" ("key", "value") VALUES ('last_twitted_job_id', '1');
