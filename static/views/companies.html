@@ -93,35 +93,7 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 			<h2 style="font-size:12pt;font-weight:100;margin-top:20px">Explore <b>{{ .TextJobCount }} companies</b> hiring {{ .SiteJobCategory }} developers {{ if .LocationFilter }} in <b>{{ .LocationFilter }}{{ if .Region }}, {{ .Region }}{{ end }}{{ if .Country }}, {{ .Country }}{{ end }}</b>{{ end }} in {{ .MonthAndYear }} like <b>{{ .TextCompanies }}</b> hiring <b>{{ .TextJobTitles }}</b>. Last post <time datetime="{{ .LastJobPostedAt }}">{{ .LastJobPostedAtHumanized }}</time></h2>
 			</div>
 			<div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
-      <article class="apply-box" id="apply-box-0">
-          <h3 id="apply-box-title" style="margin-top: 10px;">Create your profile to continue</h3>
-        <div id="apply-box-container">
-        <p id="profile-info"></p>
-        <div style="margin-bottom: 20px; text-align: center;">
-          {{ range $i, $j := .TopDevelopers }}
-          <img width="50" height="50" style="margin-left:-20px;border-radius: 50px; border: 1px solid #aaa;"
-            src="/x/s/m/{{ .ImageID }}?w=50&h=50" title="{{ .Name }}" alt="{{ .Name }}">
-          {{ end }}
-        </div>
-        <ul>
-          {{ if .DeveloperMessagesSentLastMonth }}
-          <li><b>{{ .DeveloperMessagesSentLastMonth }}</b> direct messages sent by companies to developers on {{ .SiteName }} in the last 30 days</li>
-          {{ end }}
-          {{ if .DevelopersRegisteredLastMonth }}
-          <li><b>{{ .DevelopersRegisteredLastMonth }}</b> developers joined {{ .SiteName }} in the last 30 days
-          </li>
-          {{ end }}
-          {{ if .DeveloperProfilePageViewsLastMonth }}
-          <li><b>{{ humannumber .DeveloperProfilePageViewsLastMonth }}</b> developer profiles page views in the
-            last 30 days</li>
-          {{ end }}
-          <li>Get access to our <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote" target="_blank">Salary Explorer</a></li>
-          <li>Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></li>
-        </ul>
-              <br>
-              <input type="submit" id="apply-submit" value="Create Profile" onclick="window.location.href='/Join-{{ .SiteJobCategory }}-Community';" style="float: right;">
-        </div>
-          </article>
+			{{ template "apply-box-developer" . }}
 			<div style="margin-bottom:10px;">
 				<div id="search-location-container">
 					<input autocomplete="off" type="text" value="{{ .LocationFilter }}" placeholder="City, Country" id="search-location">
@@ -286,11 +258,11 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
             return re.test(email);
         }
 		function closeApplyPopup() {
-			document.getElementById('apply-box-0').style.display = 'none';
+			document.getElementById('apply-box-developer').style.display = 'none';
 			document.getElementById('overlay-0').style.display = 'none';
 		}
 		function showPopup() {
-			document.getElementById('apply-box-0').style.display = 'block';
+			document.getElementById('apply-box-developer').style.display = 'block';
 			document.getElementById('overlay-0').style.display = 'block';
 		}
         var getJSON = function(uri, cb) {
@@ -328,7 +300,7 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
         function apply(howToApply, jobID) {
           get('/x/j/c/'+jobID, function() {
             document.getElementById('apply-job-id').value = jobID;
-            document.getElementById('apply-box-0').style.display = 'block';
+            document.getElementById('apply-box-developer').style.display = 'block';
             document.getElementById('overlay-0').style.display = 'block';
             document.getElementById('apply-email-poster').innerHTML = howToApply;
           })
