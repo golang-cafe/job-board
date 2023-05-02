@@ -847,3 +847,13 @@ CREATE TABLE public.developer_directory_purchase_event (
 );
 
 ALTER TABLE public.recruiter_profile ADD COLUMN plan_expired_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW();
+
+CREATE TABLE public.bookmark (
+    user_id bpchar(27) NOT NULL,
+    job_id int4 NOT NULL,
+    created_at timestamp(6) NOT NULL,
+    applied_at timestamp(6) NULL,
+    CONSTRAINT "bookmark_pkey" PRIMARY KEY ("user_id", "job_id"),
+    CONSTRAINT bookmark_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
+    CONSTRAINT bookmark_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.job(id)
+)
