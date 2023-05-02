@@ -2409,7 +2409,15 @@ func StripePaymentConfirmationWebhookHandler(svr server.Server, jobRepo *job.Rep
 				email.Address{Email: purchaseEvent.Email},
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 				fmt.Sprintf("Your Job Ad is live on %s", svr.GetConfig().SiteName),
-				fmt.Sprintf("Your Job Ad has been approved and it's now live. You can edit the Job Ad at any time and check page views and clickouts by following this link %s%s/edit/%s", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, jobToken))
+				fmt.Sprintf("Your Job Ad has been approved and it's now live. You can edit the Job Ad at any time and check page views and clickouts by following this link %s%s/edit/%s. You can also create an account by following this link: %s%s/auth?email=%s",
+					svr.GetConfig().URLProtocol,
+					svr.GetConfig().SiteHost,
+					jobToken,
+					svr.GetConfig().URLProtocol,
+					svr.GetConfig().SiteHost,
+					purchaseEvent.Email,
+				),
+			)
 			if err != nil {
 				svr.Log(err, "unable to send email while upgrading job ad")
 			}
@@ -3498,7 +3506,7 @@ func ApproveJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Hand
 				email.Address{Email: jobRq.Email},
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 				fmt.Sprintf("Your Job Ad on %s", svr.GetConfig().SiteName),
-				fmt.Sprintf("Thanks for using %s,\n\nYour Job Ad has been approved and it's currently live on %s: %s%s.\n\nYou can track your Ad performance and renew your Ad via this edit link: %s%s/edit/%s\n.\n\nI am always available to answer any questions you may have,\n\nBest,\n\n%s\n%s", svr.GetConfig().SiteName, svr.GetConfig().SiteName, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, jobRq.Token, svr.GetConfig().SiteName, svr.GetConfig().AdminEmail),
+				fmt.Sprintf("Thanks for using %s,\n\nYour Job Ad has been approved and it's currently live on %s: %s%s.\n\nYou can track your Ad performance and renew your Ad via this edit link: %s%s/edit/%s\n.", svr.GetConfig().SiteName, svr.GetConfig().SiteName, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, jobRq.Token),
 			)
 			if err != nil {
 				svr.Log(err, "unable to send email while approving job ad")

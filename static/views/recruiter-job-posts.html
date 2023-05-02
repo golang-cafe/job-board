@@ -57,7 +57,7 @@ body{background:#ffffff;}
         <ul>
           {{ range $i, $j := .Jobs }}
           <li>
-            <a href="/edit/{{ $j.EditToken }}" target="_blank"><b>{{ .JobTitle }}</b><br>
+            <a href="/edit/{{ $j.EditToken }}" target="_blank"><b>{{ .JobTitle }} - {{ .Company }} - {{ .Location }}</b><br>
           </li>
           {{ end }}
         </ul>
