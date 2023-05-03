@@ -30,15 +30,7 @@ body{background:#ffffff;}
     {{ template "google-analytics" }}
   </head>
   <body>
-    <header>
-      <nav class="menu-header">
-        <small>
-                  <a href="/profile/home">Profile Home</a> &bull;
-		  <a href="/" target="_blank">{{ .SiteName }}</a>
-          <br>
-        </small>
-      </nav>
-    </header>
+      {{ template "header-html" . }}
         <div id="spinner-0">
             <div class="overlay-effect"></div>
             <div class="spinner-box"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
