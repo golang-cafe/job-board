@@ -97,7 +97,7 @@ func DevelopersHandler(svr server.Server, devRepo *developer.Repository, recruit
 		if profile != nil && profile.Type == "recruiter" {
 			expTime, err := recruiterRepo.RecruiterProfilePlanExpiration(profile.Email)
 			if err == nil && expTime.Before(time.Now().UTC()) {
-				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
+				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home#developer-subscription", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
 				fmt.Println(expTime)
 				return
 			}
@@ -314,8 +314,8 @@ func DeleteDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposi
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			req := &struct {
-				ID                 string  `json:"id"`
-				DeveloperProfileID string  `json:"developer_profile_id"`
+				ID                 string `json:"id"`
+				DeveloperProfileID string `json:"developer_profile_id"`
 			}{}
 
 			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -866,35 +866,35 @@ func TriggerCloudflareStatsExport(svr server.Server) http.HandlerFunc {
 				req := graphql.NewRequest(
 					`query {
   viewer {
-    zones(filter: {zoneTag: $zoneTag}) {
-      httpRequests1dGroups(orderBy: [date_ASC]  filter: { date_gt: $fromDate } limit: 10000) {
-        dimensions {
-          date
-        }
-      sum {
-        pageViews
-        requests
-        bytes
-        cachedBytes
-        threats
-        countryMap {
-          clientCountryName
-          requests
-          threats
-        }
-	browserMap {
-          uaBrowserFamily
-          pageViews
-        }
-        responseStatusMap {
-          edgeResponseStatus
-          requests
-        }
-      }
-        uniq {
-          uniques
-        }
-    }
+	zones(filter: {zoneTag: $zoneTag}) {
+  	httpRequests1dGroups(orderBy: [date_ASC]  filter: { date_gt: $fromDate } limit: 10000) {
+    	dimensions {
+      	date
+    	}
+  	sum {
+    	pageViews
+    	requests
+    	bytes
+    	cachedBytes
+    	threats
+    	countryMap {
+      	clientCountryName
+      	requests
+      	threats
+    	}
+    browserMap {
+      	uaBrowserFamily
+      	pageViews
+    	}
+    	responseStatusMap {
+      	edgeResponseStatus
+      	requests
+    	}
+  	}
+    	uniq {
+      	uniques
+    	}
+	}
   }
 }
 }`,
@@ -1047,12 +1047,12 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
 				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `</p>
 ` + jobsHTML + `
-	<p>Check out more jobs at <a title="` + svr.GetConfig().SiteName + `" href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `">` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `</a></p>
-	<p>Get companies apply to you, join the ` + svr.GetConfig().SiteJobCategory + ` Developer Community <a title="` + svr.GetConfig().SiteName + ` Community" href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community">` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community</a></p>
-	<p>` + svr.GetConfig().SiteName + `</p>
-	<hr />`
+    <p>Check out more jobs at <a title="` + svr.GetConfig().SiteName + `" href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `">` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `</a></p>
+    <p>Get companies apply to you, join the ` + svr.GetConfig().SiteJobCategory + ` Developer Community <a title="` + svr.GetConfig().SiteName + ` Community" href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community">` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community</a></p>
+    <p>` + svr.GetConfig().SiteName + `</p>
+    <hr />`
 				unsubscribeLink := `
-	<h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br>This email was sent to <strong>%s</strong> | <a href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
+    <h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br>This email was sent to <strong>%s</strong> | <a href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
 
 				for _, s := range subscribers {
 					err = svr.GetEmail().SendHTMLEmail(
@@ -1782,7 +1782,7 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 		if profile != nil && profile.Type == "recruiter" {
 			expTime, err := recruiterRepo.RecruiterProfilePlanExpiration(profile.Email)
 			if err == nil && expTime.Before(time.Now().UTC()) {
-				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))	
+				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home#developer-subscription", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
 				return
 			}
 
@@ -1807,11 +1807,11 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 		dev.UpdatedAtHumanized = dev.UpdatedAt.UTC().Format("January 2006")
 		dev.SkillsArray = strings.Split(dev.Skills, ",")
 		svr.Render(r, w, http.StatusOK, "view-developer-profile.html", map[string]interface{}{
-			"DeveloperProfile": dev,
+			"DeveloperProfile":        dev,
 			"DeveloperExperiences":    devExps,
 			"DeveloperEducation":      devEducation,
 			"DeveloperGithubProjects": devProjects,
-			"MonthAndYear":     time.Now().UTC().Format("January 2006"),
+			"MonthAndYear":            time.Now().UTC().Format("January 2006"),
 		})
 	}
 }
@@ -1971,7 +1971,7 @@ func SendFeedbackMessage(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.HandlerFunc {
+func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *job.Repository, recRepo *recruiter.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
 			Email string `json:"email"`
@@ -1984,7 +1984,7 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.Handl
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		userType, err := userRepo.GetUserTypeByEmail(req.Email)
+		userType, err := userRepo.GetUserTypeByEmailOrCreateUserIfRecruiter(req.Email, jobRepo, recRepo)
 		if err != nil {
 			svr.JSON(w, http.StatusNotFound, nil)
 			return
@@ -2390,7 +2390,7 @@ func StripePaymentConfirmationWebhookHandler(svr server.Server, jobRepo *job.Rep
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-	
+
 			expiration, err := jobRepo.PlanTypeAndDurationToExpirations(
 				purchaseEvent.PlanType,
 				purchaseEvent.PlanDuration,
@@ -2410,7 +2410,15 @@ func StripePaymentConfirmationWebhookHandler(svr server.Server, jobRepo *job.Rep
 				email.Address{Email: purchaseEvent.Email},
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 				fmt.Sprintf("Your Job Ad is live on %s", svr.GetConfig().SiteName),
-				fmt.Sprintf("Your Job Ad has been approved and it's now live. You can edit the Job Ad at any time and check page views and clickouts by following this link %s%s/edit/%s", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, jobToken))
+				fmt.Sprintf("Your Job Ad has been approved and it's now live. You can edit the Job Ad at any time and check page views and clickouts by following this link %s%s/edit/%s. You can also create an account by following this link: %s%s/auth?email=%s",
+					svr.GetConfig().URLProtocol,
+					svr.GetConfig().SiteHost,
+					jobToken,
+					svr.GetConfig().URLProtocol,
+					svr.GetConfig().SiteHost,
+					purchaseEvent.Email,
+				),
+			)
 			if err != nil {
 				svr.Log(err, "unable to send email while upgrading job ad")
 			}
@@ -2933,10 +2941,10 @@ func DeveloperDirectoryUpsellPageHandler(svr server.Server, jobRepo *job.Reposit
 		svr.GetJWTSigningKey(),
 		func(w http.ResponseWriter, r *http.Request) {
 			decoder := json.NewDecoder(r.Body)
-			upsellRq := &struct{
-				RecruiterID string `json:"recruiter_id"`
-				PlanDuration int64 `json:"plan_duration"`
-				ItemPrice int64 `json:"item_price"`
+			upsellRq := &struct {
+				RecruiterID  string `json:"recruiter_id"`
+				PlanDuration int64  `json:"plan_duration"`
+				ItemPrice    int64  `json:"item_price"`
 			}{}
 			if err := decoder.Decode(&upsellRq); err != nil {
 				svr.Log(err, "unable to decode request")
@@ -3506,7 +3514,7 @@ func ApproveJobPageHandler(svr server.Server, jobRepo *job.Repository) http.Hand
 				email.Address{Email: jobRq.Email},
 				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
 				fmt.Sprintf("Your Job Ad on %s", svr.GetConfig().SiteName),
-				fmt.Sprintf("Thanks for using %s,\n\nYour Job Ad has been approved and it's currently live on %s: %s%s.\n\nYou can track your Ad performance and renew your Ad via this edit link: %s%s/edit/%s\n.\n\nI am always available to answer any questions you may have,\n\nBest,\n\n%s\n%s", svr.GetConfig().SiteName, svr.GetConfig().SiteName, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, jobRq.Token, svr.GetConfig().SiteName, svr.GetConfig().AdminEmail),
+				fmt.Sprintf("Thanks for using %s,\n\nYour Job Ad has been approved and it's currently live on %s: %s%s.\n\nYou can track your Ad performance and renew your Ad via this edit link: %s%s/edit/%s\n.", svr.GetConfig().SiteName, svr.GetConfig().SiteName, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, jobRq.Token),
 			)
 			if err != nil {
 				svr.Log(err, "unable to send email while approving job ad")
@@ -3592,7 +3600,7 @@ func TrackJobClickoutAndRedirectToJobPage(svr server.Server, jobRepo *job.Reposi
 	}
 }
 
-func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository, recRepo *recruiter.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		token := vars["token"]
@@ -3638,9 +3646,13 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to retrieve job applicants for job id %d", jobPost.ID))
 		}
+
+		profile, _ := recRepo.RecruiterProfileByEmail(jobPost.CompanyEmail)
+		isSignedOn := middleware.IsSignedOn(r, svr.SessionStore, svr.GetJWTSigningKey())
+
 		svr.Render(r, w, http.StatusOK, "edit.html", map[string]interface{}{
 			"Job":                        jobPost,
-			"HowToApplyIsURL":		      !svr.IsEmail(jobPost.HowToApply),
+			"HowToApplyIsURL":            !svr.IsEmail(jobPost.HowToApply),
 			"Stats":                      string(statsSet),
 			"Purchases":                  purchaseEvents,
 			"JobPerksEscaped":            svr.JSEscapeString(jobPost.Perks),
@@ -3655,6 +3667,8 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			"DefaultPlanExpiration":      time.Now().UTC().AddDate(0, 0, 30),
 			"StripePublishableKey":       svr.GetConfig().StripePublishableKey,
 			"Applicants":                 applicants,
+			"HasProfile":                 profile.ID != "",
+			"IsSignedOn":                 isSignedOn,
 		})
 	}
 }
@@ -4026,13 +4040,13 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 					return
 				}
 				svr.Render(r, w, http.StatusOK, "profile-home.html", map[string]interface{}{
-					"IsAdmin":       profile.IsAdmin,
-					"UserID":        profile.UserID,
-					"UserEmail":     profile.Email,
-					"UserCreatedAt": profile.CreatedAt,
-					"ProfileID":     rec.ID,
-					"UserType":      profile.Type,
-					"Recruiter":     rec,
+					"IsAdmin":              profile.IsAdmin,
+					"UserID":               profile.UserID,
+					"UserEmail":            profile.Email,
+					"UserCreatedAt":        profile.CreatedAt,
+					"ProfileID":            rec.ID,
+					"UserType":             profile.Type,
+					"Recruiter":            rec,
 					"StripePublishableKey": svr.GetConfig().StripePublishableKey,
 				})
 			case user.UserTypeAdmin:
@@ -4070,4 +4084,46 @@ func TriggerExpiredUserSignOnTokensTask(svr server.Server, userRepo *user.Reposi
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
 	)
+}
+
+func RecruiterJobPosts(svr server.Server, devRepo *developer.Repository, recRepo *recruiter.Repository, jobRepo *job.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			rec, err := recRepo.RecruiterProfileByEmail(profile.Email)
+			if err != nil {
+				svr.Log(err, "unable to find recruiter profile")
+				svr.JSON(w, http.StatusNotFound, nil)
+				return
+			}
+			page := r.URL.Query().Get("p")
+			pageID, err := strconv.Atoi(page)
+			if err != nil {
+				pageID = 1
+			}
+			jobsForPage, totalJobCount, err := jobRepo.JobsForRecruiter(profile.Email, pageID, svr.GetConfig().JobsPerPage)
+			if err != nil {
+				svr.Log(err, "unable to get jobs for recruiter")
+				svr.JSON(w, http.StatusInternalServerError, "Oops! An internal error has occurred")
+				return
+			}
+			svr.Render(r, w, http.StatusOK, "recruiter-job-posts.html", map[string]interface{}{
+				"Jobs":          jobsForPage,
+				"totalJobCount": totalJobCount,
+				"IsAdmin":       profile.IsAdmin,
+				"UserID":        profile.UserID,
+				"UserEmail":     profile.Email,
+				"UserCreatedAt": profile.CreatedAt,
+				"ProfileID":     rec.ID,
+				"UserType":      profile.Type,
+				"Recruiter":     rec,
+			})
+		})
 }

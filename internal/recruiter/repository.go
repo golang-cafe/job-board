@@ -3,9 +3,12 @@ package recruiter
 import (
 	"database/sql"
 	"fmt"
+	"strings"
 	"time"
 
+	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/gosimple/slug"
+	"github.com/segmentio/ksuid"
 )
 
 type Repository struct {
@@ -98,4 +101,25 @@ func (r *Repository) SaveRecruiterProfile(dev Recruiter) error {
 		dev.Slug,
 	)
 	return err
+}
+
+func (r *Repository) CreateRecruiterProfileBasedOnLastJobPosted(email string, jobRepo *job.Repository) error {
+	k, err := ksuid.NewRandom()
+	if err != nil {
+		return err
+	}
+
+	job, err := jobRepo.LastJobPostedByEmail(email)
+	if err != nil {
+		return err
+	}
+
+	username := strings.Split(email, "@")[0]
+	rec := Recruiter{
+		ID:         k.String(),
+		Email:      strings.ToLower(email),
+		Name:       username,
+		CompanyURL: job.CompanyURL,
+	}
+	return r.SaveRecruiterProfile(rec)
 }
