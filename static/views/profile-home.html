@@ -71,7 +71,7 @@ body{background:#ffffff;}
 	  {{ if eq .UserType "developer" }}
 		<h3>Account Actions</h3>
 		<ul>
-		<li><a href="/bookmarks">Saved Jobs</a></li>
+		<li><a href="/profile/bookmarks">Saved Jobs</a></li>
         <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Developer Profile</a></li>
         <li><a href="/support">Contact Support</a></li>
         <li><a onclick="logout();">Logout</a></li>
@@ -82,7 +82,7 @@ body{background:#ffffff;}
         <h3>Account Actions</h3>
         <ul>
         <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Info</a></li>
-        <li><a href="/bookmarks">Saved Jobs</a></li>
+        <li><a href="/profile/bookmarks">Saved Jobs</a></li>
         <li><a href="/{{ .SiteJobCategory }}-Developers">Browse & Message Developers</a></li>
         <li><a href="/ad">Post a Job Post</a></li>
         <li><a href="/profile/jobs">View Your Job Posts</a></li>
@@ -96,7 +96,7 @@ body{background:#ffffff;}
 		  <h3>Account Actions</h3>
 		  <ul>
           <li><a href="/profile/blog/list">View Your Blog Posts</a></li>
-          <li><a href="/bookmarks">Saved Jobs</a></li>
+          <li><a href="/profile/bookmarks">Saved Jobs</a></li>
           <li><a href="/profile/blog/create">Create Blog Post</a></li>
 		  <li><a href="/manage/list">List Job Posts</a></li>
 		  <li><a href="/manage/new">Create Job Post</a></li>
