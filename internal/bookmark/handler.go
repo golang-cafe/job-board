@@ -48,13 +48,24 @@ func BookmarkJobHandler(svr server.Server, bookmarkRepo *Repository, jobRepo *jo
 			return
 		}
 
-		err = bookmarkRepo.BookmarkJob(profile.UserID, job.ID, false)
-		if err != nil {
-			svr.Log(err, "BookmarkJob")
-			svr.JSON(w, http.StatusInternalServerError, nil)
-			return
-		}
+		switch r.Method {
+		case http.MethodPost:
+			err = bookmarkRepo.BookmarkJob(profile.UserID, job.ID, false)
+			if err != nil {
+				svr.Log(err, "BookmarkJob")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusCreated, nil)
 
-		svr.JSON(w, http.StatusCreated, nil)
+		case http.MethodDelete:
+			err = bookmarkRepo.RemoveBookmark(profile.UserID, job.ID)
+			if err != nil {
+				svr.Log(err, "RemoveBookmark")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusNoContent, nil)
+		}
 	}
 }

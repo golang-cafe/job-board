@@ -59,6 +59,7 @@
                         <th>Company</th>
                         <th>Saved at</th>
                         <th>Applied at</th>
+                        <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -70,6 +71,9 @@
                             <td>
                               <span>{{ if .AppliedAt.Valid }}{{ .AppliedAt.Time.Format "Jan 02, 2006 15:04:05 UTC" }}{{ end }}</span>
                               {{ if .HasApplyRecord }}<span>(via Quick Apply)</span>{{ end }}
+                            </td>
+                            <td>
+                              <button onclick="removeBookmark(this, '{{ .JobExternalID }}');" {{ if .HasApplyRecord }}disabled{{ end }}>Remove</button>
                             </td>
                         </tr>
                     {{ end }}
@@ -104,5 +108,35 @@
         </ul>
       </nav>
     </footer>
+    <script>
+      var xhrDelete  = function(uri, formData, cb) {
+            var xhr = new XMLHttpRequest();
+            xhr.open('DELETE', uri, true);
+            xhr.send(formData);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState === 4) {
+                    cb(xhr.status);
+                }
+            }
+        }
+        function removeBookmark(el, jobId) {
+          el.disabled = true;
+          el.value = "Removing...";
+
+          var formData = new FormData();
+          formData.append('job-id', jobId);
+          xhrDelete ('/x/bookmark', formData, function(status) {
+            if (status == 204) {
+              el.closest('tr').remove();
+              alert('Removed job');
+              return;
+            }
+
+            el.disabled = false;
+            el.value = "Remove"
+            alert('There was a problem removing this saved job. Please try again later.');
+          });
+        }
+    </script>
   </body>
 </html>

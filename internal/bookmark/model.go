@@ -12,9 +12,10 @@ type Bookmark struct {
 	CreatedAt time.Time
 	AppliedAt pq.NullTime
 
-	JobSlug     string
-	JobTitle    string
-	CompanyName string
+	JobSlug       string
+	JobTitle      string
+	CompanyName   string
+	JobExternalID string
 
 	HasApplyRecord bool
 }

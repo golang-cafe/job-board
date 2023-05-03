@@ -259,7 +259,7 @@ func main() {
 
 	// bookmarks (saved jobs)
 	svr.RegisterRoute("/bookmarks", bookmark.BookmarkListHandler(svr, bookmarkRepo), []string{"GET"})
-	svr.RegisterRoute("/x/bookmark", bookmark.BookmarkJobHandler(svr, bookmarkRepo, jobRepo), []string{"POST"})
+	svr.RegisterRoute("/x/bookmark", bookmark.BookmarkJobHandler(svr, bookmarkRepo, jobRepo), []string{"POST", "DELETE"})
 
 	//
 	// auth routes

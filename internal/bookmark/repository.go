@@ -23,14 +23,15 @@ func (r *Repository) GetBookmarksForUser(userID string) ([]*Bookmark, error) {
 			MAX(slug) AS slug,
 			MAX(job_title) AS job_title,
 			MAX(company) AS company,
+			MAX(external_id) AS external_id,
 			MAX(apply_token_entry) AS apply_token_entry
 		FROM (
-				SELECT b.user_id, b.job_id, b.created_at, b.applied_at, j.slug, j.job_title, j.company, 0 as apply_token_entry
+				SELECT b.user_id, b.job_id, b.created_at, b.applied_at, j.slug, j.job_title, j.company, j.external_id, 0 as apply_token_entry
 				FROM bookmark b
 				LEFT JOIN job j ON j.id = b.job_id
 				WHERE b.user_id = $1
 				UNION
-				SELECT u.id, a.job_id, a.created_at, a.created_at, j.slug, j.job_title, j.company, 1 as apply_token_entry
+				SELECT u.id, a.job_id, a.created_at, a.created_at, j.slug, j.job_title, j.company, j.external_id, 1 as apply_token_entry
 				FROM apply_token a
 				LEFT JOIN job j ON j.id = a.job_id
 				LEFT JOIN users u ON u.email = a.email
@@ -55,6 +56,7 @@ func (r *Repository) GetBookmarksForUser(userID string) ([]*Bookmark, error) {
 			&bookmark.JobSlug,
 			&bookmark.JobTitle,
 			&bookmark.CompanyName,
+			&bookmark.JobExternalID,
 			&bookmark.HasApplyRecord,
 		)
 		if err != nil {
@@ -83,5 +85,14 @@ func (r *Repository) BookmarkJob(userID string, jobID int, setApplied bool) erro
 			SET applied_at = EXCLUDED.applied_at
 			WHERE bookmark.applied_at IS NULL`
 	_, err := r.db.Exec(stmt, userID, jobID)
+	return err
+}
+
+func (r *Repository) RemoveBookmark(userID string, jobID int) error {
+	_, err := r.db.Exec(
+		`DELETE FROM bookmark WHERE user_id = $1 AND job_id = $2`,
+		userID,
+		jobID,
+	)
 	return err
 }
