@@ -52,12 +52,13 @@ body{background:#ffffff;}
         <h2>Jobs Posted</h2>
         {{ $jobsFound := len .Jobs }}
 		    {{ if eq $jobsFound 0 }}
-          <p>No jobs posted yet. <a href="/Hire-Golang-Developers">Post a job</a></p>
-        {{ end }}
+              <p>No jobs posted yet</p>
+              <input type="submit" onclick="window.location='/ad'" value="Post A Job">
+            {{ end }}
         <ul>
           {{ range $i, $j := .Jobs }}
           <li>
-            <a href="/edit/{{ $j.EditToken }}" target="_blank"><b>{{ .JobTitle }} - {{ .Company }} - {{ .Location }}</b><br>
+            <a href="/edit/{{ $j.EditToken }}" target="_blank"><b>{{ .JobTitle }} - {{ .Company }} - {{ .Location }}</b></a> - {{ .TimeAgo }}<br>
           </li>
           {{ end }}
         </ul>
