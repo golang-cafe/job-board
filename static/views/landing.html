@@ -1011,7 +1011,7 @@
 		{{ end }}
 
 		{{ range $i, $j := .Jobs }}
-		<article class="line-item">
+		<article class="line-item" {{ if jobOlderThanMonths .TimeAgo 6 }}style="background:#eaeaea;"{{ end }}>
 			{{ if .CompanyIconID }}
 			<img loading="lazy" width="60" height="60" src="/x/s/m/{{ .CompanyIconID }}?w=100&h=100" class="job-icon"
 				alt="{{ .Company }} Logo" title="{{ .Company }} Logo">
@@ -1025,6 +1025,10 @@
 				{{ if gt .LastWeekClickouts 0 }}
 				<br>
 				<small>{{ .LastWeekClickouts }} Applicants This Week</small>
+				{{ if jobOlderThanMonths .TimeAgo 6 }}
+				<br>
+				<span style="background: #ffa782;border-radius:5px;padding:5px;font-size:11pt;">More Than 6 Months Old</span>
+				{{ end }}
 				{{ end }}
 			</div>
 			<div class="job-desc" id="{{ .Slug }}" data-toggle="off">

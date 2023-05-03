@@ -55,6 +55,13 @@ func NewTemplate() *Template {
 		"mul": func(a int, b int) int {
 			return a*b
 		},
+		"jobOlderThanMonths": func(monthYearCreated string, monthsAgo int) bool {
+			t, err := time.Parse("January 2006", monthYearCreated)
+			if err != nil {
+				return false
+			}
+			return t.Before(time.Now().AddDate(0, -monthsAgo, 0))
+		},
 		"currencysymbol": func(currency string) string {
 			symbols := map[string]string{
 				"USD": "$",
