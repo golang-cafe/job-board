@@ -2,6 +2,7 @@ package bookmark
 
 import (
 	"database/sql"
+	"net/url"
 )
 
 type Repository struct {
@@ -24,14 +25,18 @@ func (r *Repository) GetBookmarksForUser(userID string) ([]*Bookmark, error) {
 			MAX(job_title) AS job_title,
 			MAX(company) AS company,
 			MAX(external_id) AS external_id,
+			MAX(location) as location,
+			MAX(salary_range) as salary_range,
+			MAX(salary_period) as salary_period,
+			MAX(created_at) as job_created_at,
 			MAX(apply_token_entry) AS apply_token_entry
 		FROM (
-				SELECT b.user_id, b.job_id, b.created_at, b.applied_at, j.slug, j.job_title, j.company, j.external_id, 0 as apply_token_entry
+				SELECT b.user_id, b.job_id, b.created_at, b.applied_at, j.slug, j.job_title, j.company, j.external_id, j.location, j.salary_range, j.salary_period, j.created_at as job_created_at, 0 as apply_token_entry
 				FROM bookmark b
 				LEFT JOIN job j ON j.id = b.job_id
 				WHERE b.user_id = $1
 				UNION
-				SELECT u.id, a.job_id, a.created_at, a.created_at, j.slug, j.job_title, j.company, j.external_id, 1 as apply_token_entry
+				SELECT u.id, a.job_id, a.created_at, a.created_at, j.slug, j.job_title, j.company, j.external_id, j.location, j.salary_range, j.salary_period, j.created_at as job_created_at, 1 as apply_token_entry
 				FROM apply_token a
 				LEFT JOIN job j ON j.id = a.job_id
 				LEFT JOIN users u ON u.email = a.email
@@ -57,11 +62,17 @@ func (r *Repository) GetBookmarksForUser(userID string) ([]*Bookmark, error) {
 			&bookmark.JobTitle,
 			&bookmark.CompanyName,
 			&bookmark.JobExternalID,
+			&bookmark.JobLocation,
+			&bookmark.JobSalaryRange,
+			&bookmark.JobSalaryPeriod,
+			&bookmark.JobCreatedAt,
 			&bookmark.HasApplyRecord,
 		)
 		if err != nil {
 			return bookmarks, err
 		}
+		bookmark.JobTimeAgo = bookmark.JobCreatedAt.UTC().Format("January 2006")
+		bookmark.CompanyURLEnc = url.PathEscape(bookmark.CompanyName)
 
 		bookmarks = append(bookmarks, bookmark)
 	}

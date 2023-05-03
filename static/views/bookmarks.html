@@ -56,21 +56,29 @@
                 <thead>
                     <tr>
                         <th>Job</th>
-                        <th>Company</th>
-                        <th>Saved at</th>
-                        <th>Applied at</th>
+                        <th>Dates</th>
                         <th>Actions</th>
                     </tr>
                 </thead>
                 <tbody>
+                  {{ $siteJobCatURLEnc := .SiteJobCategoryURLEncoded }}
                     {{ range $i, $j := .Bookmarks }}
                         <tr>
-                            <td><a href="/job/{{ .JobSlug }}">{{ .JobTitle }}</a></td>
-                            <td>{{ .CompanyName }}</td>
-                            <td>{{ .CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}</td>
+                            <td style="width: 280px">
+                              <a href="/job/{{ .JobSlug }}">{{ .JobTitle }}</a><br>
+                              <a style="font-size:12pt;" href="/{{ $siteJobCatURLEnc }}-{{ .CompanyURLEnc }}-Jobs" target="_blank">{{ .CompanyName }}</a><br>
+                              <b>{{ .JobLocation }}</b><br>{{ .JobSalaryRange }} a {{ .JobSalaryPeriod }}
+                              <br>
+                              <small>{{ .JobTimeAgo }}</small>
+                            </td>
                             <td>
-                              <span>{{ if .AppliedAt.Valid }}{{ .AppliedAt.Time.Format "Jan 02, 2006 15:04:05 UTC" }}{{ end }}</span>
-                              {{ if .HasApplyRecord }}<span>(via Quick Apply)</span>{{ end }}
+                              <span>Saved: {{ .CreatedAt.Format "Jan 02, 2006" }}</span>
+                              {{ if .AppliedAt.Valid }}
+                                <span>
+                                  Applied: {{ .AppliedAt.Time.Format "Jan 02, 2006" }}
+                                  {{ if .HasApplyRecord }}<small>(via Quick Apply)</small>{{ end }}
+                                </span>
+                                {{ end }}
                             </td>
                             <td>
                               <button onclick="removeBookmark(this, '{{ .JobExternalID }}');" {{ if .HasApplyRecord }}disabled{{ end }}>Remove</button>
