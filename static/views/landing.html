@@ -1025,10 +1025,10 @@
 				{{ if gt .LastWeekClickouts 0 }}
 				<br>
 				<small>{{ .LastWeekClickouts }} Applicants This Week</small>
+				{{ end }}
 				{{ if jobOlderThanMonths .TimeAgo 6 }}
 				<br>
 				<span style="background: #ffa782;border-radius:5px;padding:5px;font-size:11pt;">More Than 6 Months Old</span>
-				{{ end }}
 				{{ end }}
 			</div>
 			<div class="job-desc" id="{{ .Slug }}" data-toggle="off">
