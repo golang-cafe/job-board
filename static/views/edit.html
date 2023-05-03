@@ -59,6 +59,29 @@ body{background:#ffffff;}
 	  <a href="/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers">Post a Job</a> 
         </small>
     </p>
+    {{ if not .IsSignedOn }}
+        {{ if not .HasProfile }}
+            <article style="margin-bottom: 30px;">
+                <p>
+                    <h3>Login to your Dashboard</h3>
+                    <p>
+                        Login to your dashboard to easily manage jobs, and access the developers directory
+                    </p>
+                    <input type="submit" id="disapprove" value="Login" onclick="window.location.href='/auth?email={{ .Job.CompanyEmail }}';" style="background-color: #25a79b;">
+                </p>
+            </article>
+        {{ else }}
+            <article style="margin-bottom: 30px;">
+                <p>
+                    <h3>Verify Your Profile</h3>
+                    <p>
+                        Verify your profile to access more features, like managing job posts, getting access to the dashboard and to the developers directory
+                    </p>
+                    <input type="submit" id="disapprove" value="Verify Profile" onclick="window.location.href='/auth?email={{ .Job.CompanyEmail }}';" style="background-color: #25a79b;">
+                </p>
+            </article>
+        {{ end }}
+    {{ end }}
     {{ if .IsCallback }}
     <article style="margin-bottom: 30px;">
     <p>

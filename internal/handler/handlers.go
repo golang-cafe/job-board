@@ -3592,7 +3592,7 @@ func TrackJobClickoutAndRedirectToJobPage(svr server.Server, jobRepo *job.Reposi
 	}
 }
 
-func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository, recRepo *recruiter.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		token := vars["token"]
@@ -3638,6 +3638,10 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 		if err != nil {
 			svr.Log(err, fmt.Sprintf("unable to retrieve job applicants for job id %d", jobPost.ID))
 		}
+
+		profile, _ := recRepo.RecruiterProfileByEmail(jobPost.CompanyEmail)
+		isSignedOn := middleware.IsSignedOn(r, svr.SessionStore, svr.GetJWTSigningKey())
+
 		svr.Render(r, w, http.StatusOK, "edit.html", map[string]interface{}{
 			"Job":                        jobPost,
 			"HowToApplyIsURL":            !svr.IsEmail(jobPost.HowToApply),
@@ -3655,6 +3659,8 @@ func EditJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.Han
 			"DefaultPlanExpiration":      time.Now().UTC().AddDate(0, 0, 30),
 			"StripePublishableKey":       svr.GetConfig().StripePublishableKey,
 			"Applicants":                 applicants,
+			"HasProfile":                 profile.ID != "",
+			"IsSignedOn":                 isSignedOn,
 		})
 	}
 }
