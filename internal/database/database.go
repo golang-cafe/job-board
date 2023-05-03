@@ -615,13 +615,19 @@ func GetPurchaseEvents(conn *sql.DB, jobID int) ([]PurchaseEvent, error) {
 	return purchases, nil
 }
 
-func InitiatePaymentEvent(conn *sql.DB, sessionID string, amount int64, currency string, description string, email string, jobID int, planType string, planDuration int64) error {
+func InitiatePaymentEventForJobAd(conn *sql.DB, sessionID string, amount int64, description string, email string, jobID int, planType string, planDuration int64) error {
 	stmt := `INSERT INTO purchase_event (stripe_session_id, amount, currency, description, ad_type, email, job_id, created_at, plan_type, plan_duration) VALUES ($1, $2, $3, $4, $5, $6, $7, NOW(), $8, $9)`
-	_, err := conn.Exec(stmt, sessionID, amount, currency, description, 0, email, jobID, planType, planDuration)
+	_, err := conn.Exec(stmt, sessionID, amount, "USD", description, 0, email, jobID, planType, planDuration)
 	return err
 }
 
-func SaveSuccessfulPayment(conn *sql.DB, sessionID string) (int, error) {
+func InitiatePaymentEventForDeveloperDirectoryAccess(conn *sql.DB, sessionID string, amount int64, description string, recruiterID string, email string, planDuration int64) error {
+	stmt := `INSERT INTO developer_directory_purchase_event (stripe_session_id, amount, currency, description, created_at, expired_at, recruiter_id, email, duration) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
+	_, err := conn.Exec(stmt, sessionID, amount, "USD", description, time.Now().UTC(), time.Now().UTC().AddDate(0, int(planDuration), 0), recruiterID, email, planDuration)
+	return err
+}
+
+func SaveSuccessfulPaymentForJobAd(conn *sql.DB, sessionID string) (int, error) {
 	res := conn.QueryRow(`WITH rows AS (UPDATE purchase_event SET completed_at = NOW() WHERE stripe_session_id = $1 AND completed_at IS NULL RETURNING 1) SELECT count(*) as c FROM rows;`, sessionID)
 	var affected int
 	err := res.Scan(&affected)
@@ -631,7 +637,61 @@ func SaveSuccessfulPayment(conn *sql.DB, sessionID string) (int, error) {
 	return affected, nil
 }
 
-func GetPurchaseEventBySessionID(conn *sql.DB, sessionID string) (PurchaseEvent, error) {
+func SaveSuccessfulPaymentForDevDirectory(conn *sql.DB, sessionID string) (int, error) {
+	res := conn.QueryRow(`WITH rows AS (UPDATE developer_directory_purchase_event SET completed_at = NOW() WHERE stripe_session_id = $1 AND completed_at IS NULL RETURNING 1) SELECT count(*) as c FROM rows;`, sessionID)
+	var affected int
+	err := res.Scan(&affected)
+	if err != nil {
+		return 0, err
+	}
+	return affected, nil
+}
+
+func IsJobAdPaymentEvent(conn *sql.DB, sessionID string) (bool, error) {
+	res := conn.QueryRow(`SELECT count(*) = 1 as found FROM purchase_event WHERE stripe_session_id = $1`, sessionID)
+	var found bool
+	err := res.Scan(&found)
+	if err != nil {
+		return false, err
+	}
+	return found, nil
+}
+
+func IsDevDirectoryPaymentEvent(conn *sql.DB, sessionID string) (bool, error) {
+	res := conn.QueryRow(`SELECT count(*) = 1 as found FROM developer_directory_purchase_event WHERE stripe_session_id = $1`, sessionID)
+	var found bool
+	err := res.Scan(&found)
+	if err != nil {
+		return false, err
+	}
+	return found, nil
+}
+
+type DevDirectoryPurchaseEvent struct {
+	StripeSessionID string
+	CreatedAt time.Time
+	CompletedAt time.Time
+	ExpiredAt time.Time
+	Email string
+	Amount int64
+	Currency string
+	Description string
+	RecruiterID string
+	Duration int64
+}
+
+func GetDevDirectoryPurchaseEventBySessionID(conn *sql.DB, sessionID string) (DevDirectoryPurchaseEvent, error) {
+	res := conn.QueryRow(`SELECT stripe_session_id, created_at, completed_at, expired_at, email, amount, currency, description, recruiter_id, duration FROM developer_directory_purchase_event WHERE stripe_session_id = $1`, sessionID)
+	var p DevDirectoryPurchaseEvent
+	err := res.Scan(&p.StripeSessionID, &p.CreatedAt, &p.CompletedAt, &p.ExpiredAt, &p.Email, &p.Amount, &p.Currency, &p.Description, &p.RecruiterID, &p.Duration)
+	if err != nil {
+		return p, err
+	}
+
+	return p, nil
+}
+
+func GetJobAdPurchaseEventBySessionID(conn *sql.DB, sessionID string) (PurchaseEvent, error) {
 	res := conn.QueryRow(`SELECT stripe_session_id, created_at, completed_at, email, amount, currency, description, plan_type, plan_duration FROM purchase_event WHERE stripe_session_id = $1`, sessionID)
 	var p PurchaseEvent
 	err := res.Scan(&p.StripeSessionID, &p.CreatedAt, &p.CompletedAt, &p.Email, &p.Amount, &p.Currency, &p.Description, &p.PlanType, &p.PlanDuration)

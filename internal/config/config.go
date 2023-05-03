@@ -61,9 +61,11 @@ type Config struct {
 	PlanID1Price             int // price in cents
 	PlanID2Price             int // price in cents
 	PlanID3Price             int // price in cents
+	DevDirectoryPlanID1Price int // price in cents
+	DevDirectoryPlanID2Price int // price in cents
+	DevDirectoryPlanID3Price int // price in cents
 	DevelopersBannerLink     string
 	DevelopersBannerText     string
-	IsLocal                  bool
 	URLProtocol              string
 }
 
@@ -265,13 +267,32 @@ func LoadConfig() (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
 	}
+	devDirectoryPlanID1PriceStr := os.Getenv("DEV_DIRECTORY_PLAN_ID_1_PRICE")
+	if devDirectoryPlanID1PriceStr == "" {
+		return Config{}, fmt.Errorf("DEV_DIRECTORY_PLAN_ID_1_PRICE cannot be empty")
+	}
+	devDirectoryPlanID1Price, err := strconv.Atoi(devDirectoryPlanID1PriceStr)
+	if err != nil {
+		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
+	}
+	devDirectoryPlanID2PriceStr := os.Getenv("DEV_DIRECTORY_PLAN_ID_2_PRICE")
+	if devDirectoryPlanID2PriceStr == "" {
+		return Config{}, fmt.Errorf("DEV_DIRECTORY_PLAN_ID_2_PRICE cannot be empty")
+	}
+	devDirectoryPlanID2Price, err := strconv.Atoi(devDirectoryPlanID2PriceStr)
+	if err != nil {
+		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
+	}
+	devDirectoryPlanID3PriceStr := os.Getenv("DEV_DIRECTORY_PLAN_ID_3_PRICE")
+	if devDirectoryPlanID3PriceStr == "" {
+		return Config{}, fmt.Errorf("DEV_DIRECTORY_PLAN_ID_3_PRICE cannot be empty")
+	}
+	devDirectoryPlanID3Price, err := strconv.Atoi(devDirectoryPlanID3PriceStr)
+	if err != nil {
+		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
+	}
 	developersBannerLink := os.Getenv("DEVELOPERS_BANNER_LINK")
 	developersBannerText := os.Getenv("DEVELOPERS_BANNER_TEXT")
-	var isLocalBool bool
-	isLocal := os.Getenv("IS_LOCAL")
-	if isLocal != "" {
-		isLocalBool = true
-	}
 	urlProtocol := "http://"
 	if !strings.EqualFold(env, "dev") {
 		urlProtocol = "https://"
@@ -328,9 +349,11 @@ func LoadConfig() (Config, error) {
 		PlanID1Price:             planID1Price,
 		PlanID2Price:             planID2Price,
 		PlanID3Price:             planID3Price,
+		DevDirectoryPlanID1Price: devDirectoryPlanID1Price,
+		DevDirectoryPlanID2Price: devDirectoryPlanID2Price,
+		DevDirectoryPlanID3Price: devDirectoryPlanID3Price,
 		DevelopersBannerLink:     developersBannerLink,
 		DevelopersBannerText:     developersBannerText,
-		IsLocal:                  isLocalBool,
 		URLProtocol:              urlProtocol,
 	}, nil
 }

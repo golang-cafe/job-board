@@ -47,7 +47,7 @@ func main() {
 		cfg.SupportEmail,
 		cfg.NoReplyEmail,
 		cfg.SiteName,
-		cfg.IsLocal,
+		cfg.Env == "dev",
 	)
 	if err != nil {
 		log.Fatalf("unable to connect to sparkpost API: %v", err)
@@ -61,6 +61,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("unable to read security.txt placeholder file: %w", err)
 	}
+	adsTxtContent, err := os.ReadFile("./static/ads.txt")
+	if err != nil {
+		log.Fatalf("unable to read security.txt placeholder file: %w", err)
+	}
 
 	devRepo := developer.NewRepository(conn)
 	recRepo := recruiter.NewRepository(conn)
@@ -68,7 +72,7 @@ func main() {
 	userRepo := user.NewRepository(conn)
 	companyRepo := company.NewRepository(conn)
 	jobRepo := job.NewRepository(conn)
-	paymentRepo := payment.NewRepository(cfg.StripeKey, cfg.SiteName, cfg.SiteHost)
+	paymentRepo := payment.NewRepository(cfg.StripeKey, cfg.SiteName, cfg.SiteHost, cfg.URLProtocol)
 
 	svr := server.NewServer(
 		cfg,
@@ -82,6 +86,7 @@ func main() {
 	svr.RegisterRoute("/sitemap.xml", handler.SitemapIndexHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/sitemap-{number}.xml", handler.SitemapHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/robots.txt", handler.RobotsTXTHandler(svr, robotsTxtContent), []string{"GET"})
+	svr.RegisterRoute("/ads.txt", handler.AdsTXTHandler(svr, adsTxtContent), []string{"GET"})
 	svr.RegisterRoute("/.well-known/security.txt", handler.WellKnownSecurityHandler(svr, securityTxtContent), []string{"GET"})
 
 	svr.RegisterPathPrefix("/s/", http.StripPrefix("/s/", http.FileServer(http.Dir("./static/assets"))), []string{"GET"})
@@ -110,22 +115,22 @@ func main() {
 	// developers pages
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-Developers", strings.Title(cfg.SiteJobCategory)),
-		handler.DevelopersHandler(svr, devRepo),
+		handler.DevelopersHandler(svr, devRepo, recRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-Developers-In-{location}", strings.Title(cfg.SiteJobCategory)),
-		handler.DevelopersHandler(svr, devRepo),
+		handler.DevelopersHandler(svr, devRepo, recRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-{tag}-Developers", strings.Title(cfg.SiteJobCategory)),
-		handler.DevelopersHandler(svr, devRepo),
+		handler.DevelopersHandler(svr, devRepo, recRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-{tag}-Developers-In-{location}", strings.Title(cfg.SiteJobCategory)),
-		handler.DevelopersHandler(svr, devRepo),
+		handler.DevelopersHandler(svr, devRepo, recRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
@@ -148,7 +153,7 @@ func main() {
 		handler.SubmitRecruiterProfileHandler(svr, devRepo),
 		[]string{"GET"},
 	)
-	svr.RegisterRoute("/x/srp", handler.SaveRecruiterProfileHandler(svr, recRepo, userRepo), []string{"POST"})
+	svr.RegisterRoute("/x/srp", handler.SaveRecruiterProfileHandler(svr, recRepo, userRepo, paymentRepo), []string{"POST"})
 	svr.RegisterRoute("/x/sdp", handler.SaveDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/sdm", handler.SaveDeveloperMetadataHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/udp", handler.UpdateDeveloperProfileHandler(svr, devRepo), []string{"POST"})
@@ -156,7 +161,7 @@ func main() {
 	svr.RegisterRoute("/x/ddm", handler.DeleteDeveloperMetadataHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/ddp", handler.DeleteDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/smdp/{id}", handler.SendMessageDeveloperProfileHandler(svr, devRepo), []string{"POST"})
-	svr.RegisterRoute("/developer/{slug}", handler.ViewDeveloperProfileHandler(svr, devRepo), []string{"GET"})
+	svr.RegisterRoute("/developer/{slug}", handler.ViewDeveloperProfileHandler(svr, devRepo, recRepo), []string{"GET"})
 	svr.RegisterRoute("/x/auth/message/{id}", handler.DeliverMessageDeveloperProfileHandler(svr, devRepo), []string{"GET"})
 
 	// blog
@@ -214,6 +219,8 @@ func main() {
 
 	// re-submit job post payment for upsell
 	svr.RegisterRoute("/x/s/upsell", handler.SubmitJobPostPaymentUpsellPageHandler(svr, jobRepo, paymentRepo), []string{"POST"})
+	// dev directory upsell/renew
+	svr.RegisterRoute("/x/s/d/upsell", handler.DeveloperDirectoryUpsellPageHandler(svr, jobRepo, paymentRepo), []string{"POST"})
 
 	// save media file
 	svr.RegisterRoute("/x/s/m", handler.SaveMediaPageHandler(svr), []string{"POST"})
@@ -228,7 +235,7 @@ func main() {
 	svr.RegisterRoute("/x/s/m/meta/{id}", handler.RetrieveMediaMetaPageHandler(svr, jobRepo), []string{"GET"})
 
 	// stripe payment confirmation webhook
-	svr.RegisterRoute("/x/stripe/checkout/completed", handler.StripePaymentConfirmationWebookHandler(svr, jobRepo), []string{"POST"})
+	svr.RegisterRoute("/x/stripe/checkout/completed", handler.StripePaymentConfirmationWebhookHandler(svr, jobRepo, recRepo), []string{"POST"})
 
 	// send feedback message
 	svr.RegisterRoute("/x/s/message", handler.SendFeedbackMessage(svr), []string{"POST"})

@@ -71,7 +71,10 @@ func GetAuthPageHandler(svr server.Server) http.HandlerFunc {
 			svr.Redirect(w, r, http.StatusMovedPermanently, fmt.Sprintf("%s%s/", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
 			return
 		}
-		svr.Render(r, w, http.StatusOK, "auth.html", nil)
+		email := r.URL.Query().Get("email")
+		svr.Render(r, w, http.StatusOK, "auth.html", map[string]interface{}{
+			"DefaultEmail": email,
+		})
 	}
 }
 
@@ -84,12 +87,21 @@ func CompaniesHandler(svr server.Server, companyRepo *company.Repository, jobRep
 	}
 }
 
-func DevelopersHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+func DevelopersHandler(svr server.Server, devRepo *developer.Repository, recruiterRepo *recruiter.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		location := vars["location"]
 		tag := vars["tag"]
 		page := r.URL.Query().Get("p")
+		profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		if profile != nil && profile.Type == "recruiter" {
+			expTime, err := recruiterRepo.RecruiterProfilePlanExpiration(profile.Email)
+			if err == nil && expTime.Before(time.Now().UTC()) {
+				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
+				fmt.Println(expTime)
+				return
+			}
+		}
 		svr.RenderPageForDevelopers(w, r, devRepo, location, tag, page, "developers.html")
 	}
 }
@@ -118,12 +130,14 @@ func SubmitRecruiterProfileHandler(svr server.Server, devRepo *developer.Reposit
 	}
 }
 
-func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repository, userRepo tokenSaver) http.HandlerFunc {
+func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repository, userRepo tokenSaver, paymentRepo *payment.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
-			Fullname   string `json:"fullname"`
-			CompanyURL string `json:"company_url"`
-			Email      string `json:"email"`
+			Fullname     string `json:"fullname"`
+			CompanyURL   string `json:"company_url"`
+			Email        string `json:"email"`
+			PlanDuration int    `json:"plan_duration"`
+			ItemPrice    int    `json:"item_price"`
 		}{}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			svr.JSON(w, http.StatusBadRequest, "request is invalid")
@@ -193,6 +207,43 @@ func SaveRecruiterProfileHandler(svr server.Server, recRepo *recruiter.Repositor
 		if err != nil {
 			svr.Log(err, "unable to send email while submitting recruiter profile")
 			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+		sess, err := paymentRepo.CreateDevDirectorySession(rec.Email, rec.ID, int64(req.ItemPrice*100), int64(req.PlanDuration), false)
+		if err != nil {
+			svr.Log(err, "unable to create payment session")
+		}
+		err = svr.GetEmail().SendHTMLEmail(
+			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+			email.Address{Email: svr.GetEmail().DefaultAdminAddress()},
+			email.Address{Email: req.Email},
+			fmt.Sprintf("New Dev Directory Subscriber on %s", svr.GetConfig().SiteName),
+			fmt.Sprintf(
+				"Hey! There is a new Developer Directory Subscription on %s. Developer Directory Subscription %d Months Plan @ US$%d/month, Email: %s, Company: %s",
+				svr.GetConfig().SiteName,
+				req.PlanDuration,
+				req.ItemPrice,
+				rec.Email,
+				rec.CompanyURL,
+			),
+		)
+		if err != nil {
+			svr.Log(err, "unable to send email to admin while creating subscription")
+		}
+		if sess != nil {
+			err = database.InitiatePaymentEventForDeveloperDirectoryAccess(
+				svr.Conn,
+				sess.ID,
+				int64(req.ItemPrice*req.PlanDuration*100),
+				fmt.Sprintf("Developer Directory Subscription %d Months Plan @ US$%d/month", req.PlanDuration, req.ItemPrice),
+				rec.ID,
+				rec.Email,
+				int64(req.PlanDuration),
+			)
+			if err != nil {
+				svr.Log(err, "unable to save payment initiated event")
+			}
+			svr.JSON(w, http.StatusOK, map[string]string{"s_id": sess.ID})
 			return
 		}
 		svr.JSON(w, http.StatusOK, nil)
@@ -1727,10 +1778,19 @@ func EditProfileHandler(svr server.Server, devRepo *developer.Repository, recRep
 	)
 }
 
-func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repository, recruiterRepo *recruiter.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		profileSlug := vars["slug"]
+		profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		if profile != nil && profile.Type == "recruiter" {
+			expTime, err := recruiterRepo.RecruiterProfilePlanExpiration(profile.Email)
+			if err == nil && expTime.Before(time.Now().UTC()) {
+				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))	
+				return
+			}
+
+		}
 		dev, err := devRepo.DeveloperProfileBySlug(profileSlug)
 		if err != nil {
 			svr.Log(err, "unable to find developer profile by slug "+profileSlug)
@@ -1928,7 +1988,7 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.Handl
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		u, err := userRepo.GetUser(req.Email)
+		userType, err := userRepo.GetUserTypeByEmail(req.Email)
 		if err != nil {
 			svr.JSON(w, http.StatusNotFound, nil)
 			return
@@ -1939,7 +1999,7 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository) http.Handl
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		err = userRepo.SaveTokenSignOn(req.Email, k.String(), u.Type)
+		err = userRepo.SaveTokenSignOn(req.Email, k.String(), userType)
 		if err != nil {
 			svr.Log(err, "unable to save sign on token")
 			svr.JSON(w, http.StatusBadRequest, nil)
@@ -2275,7 +2335,7 @@ func ServeRSSFeed(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	}
 }
 
-func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+func StripePaymentConfirmationWebhookHandler(svr server.Server, jobRepo *job.Repository, recruiterRepo *recruiter.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, req *http.Request) {
 		const MaxBodyBytes = int64(65536)
 		req.Body = http.MaxBytesReader(w, req.Body, MaxBodyBytes)
@@ -2287,14 +2347,25 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 		}
 
 		stripeSig := req.Header.Get("Stripe-Signature")
+		svr.Log(nil, fmt.Sprintf("got session %v", string(body)))
 		sess, err := payment.HandleCheckoutSessionComplete(body, svr.GetConfig().StripeEndpointSecret, stripeSig)
 		if err != nil {
 			svr.Log(err, "error while handling checkout session complete")
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		if sess != nil {
-			affectedRows, err := database.SaveSuccessfulPayment(svr.Conn, sess.ID)
+		if sess == nil {
+			svr.JSON(w, http.StatusNotFound, nil)
+			return
+		}
+		isJobAd, err := database.IsJobAdPaymentEvent(svr.Conn, sess.ID)
+		if err != nil {
+			svr.Log(err, "IsJobAdPaymentEvent: error")
+			svr.JSON(w, http.StatusInternalServerError, map[string]interface{}{"erorr": err.Error()})
+			return
+		}
+		if isJobAd {
+			affectedRows, err := database.SaveSuccessfulPaymentForJobAd(svr.Conn, sess.ID)
 			if err != nil {
 				svr.Log(err, "error while saving successful payment")
 				svr.JSON(w, http.StatusBadRequest, nil)
@@ -2311,7 +2382,7 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			purchaseEvent, err := database.GetPurchaseEventBySessionID(svr.Conn, sess.ID)
+			purchaseEvent, err := database.GetJobAdPurchaseEventBySessionID(svr.Conn, sess.ID)
 			if err != nil {
 				svr.Log(errors.New("unable to find purchase event by stripe session id"), fmt.Sprintf("session id %s", sess.ID))
 				svr.JSON(w, http.StatusBadRequest, nil)
@@ -2323,7 +2394,7 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-
+	
 			expiration, err := jobRepo.PlanTypeAndDurationToExpirations(
 				purchaseEvent.PlanType,
 				purchaseEvent.PlanDuration,
@@ -2353,8 +2424,49 @@ func StripePaymentConfirmationWebookHandler(svr server.Server, jobRepo *job.Repo
 			svr.JSON(w, http.StatusOK, nil)
 			return
 		}
-
-		svr.JSON(w, http.StatusOK, nil)
+		isDevDirectory, err := database.IsDevDirectoryPaymentEvent(svr.Conn, sess.ID)
+		if err != nil {
+			svr.Log(err, "IsDevDirectoryPaymentEvent: error")
+			svr.JSON(w, http.StatusInternalServerError, map[string]interface{}{"erorr": err.Error()})
+			return
+		}
+		if isDevDirectory {
+			affectedRows, err := database.SaveSuccessfulPaymentForDevDirectory(svr.Conn, sess.ID)
+			if err != nil {
+				svr.Log(err, "error while saving successful payment for dev directory")
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			if affectedRows != 1 {
+				svr.Log(errors.New("invalid number of rows affected when saving payment"), fmt.Sprintf("got %d expected 1", affectedRows))
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			purchaseEvent, err := database.GetDevDirectoryPurchaseEventBySessionID(svr.Conn, sess.ID)
+			if err != nil {
+				svr.Log(errors.New("unable to find purchase event by stripe session id"), fmt.Sprintf("session id %s", sess.ID))
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			if err := recruiterRepo.UpdateRecruiterPlanExpiration(purchaseEvent.Email, purchaseEvent.ExpiredAt); err != nil {
+				svr.Log(errors.New("unable to update job to new ad type"), fmt.Sprintf("unable to update recruiter developer directory access for session id %s", sess.ID))
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			err = svr.GetEmail().SendHTMLEmail(
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
+				email.Address{Email: purchaseEvent.Email},
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().SupportSenderAddress()},
+				fmt.Sprintf("Your Developer Directory Access is active on %s", svr.GetConfig().SiteName),
+				fmt.Sprintf("Your payment has been received successfully and you can now access the Developer Directory. Please follow this link to login %s%s/auth?email=%s", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, purchaseEvent.Email))
+			if err != nil {
+				svr.Log(err, "unable to send email while activating recruiter developer directory plan")
+			}
+			svr.JSON(w, http.StatusOK, nil)
+			return
+		}
+		svr.JSON(w, http.StatusInternalServerError, map[string]interface{}{"error": "sessionID is not dev or job ad type"})
+		return
 	}
 }
 
@@ -2420,6 +2532,12 @@ func SitemapHandler(svr server.Server) http.HandlerFunc {
 func RobotsTXTHandler(svr server.Server, robotsTxtContent []byte) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		svr.TEXT(w, http.StatusOK, strings.ReplaceAll(string(robotsTxtContent), "__host_placeholder__", svr.GetConfig().SiteHost))
+	}
+}
+
+func AdsTXTHandler(svr server.Server, adsTxtContent []byte) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		svr.TEXT(w, http.StatusOK, string(adsTxtContent))
 	}
 }
 
@@ -2813,6 +2931,69 @@ func SubmitJobPostWithoutPaymentHandler(svr server.Server, jobRepo *job.Reposito
 	)
 }
 
+func DeveloperDirectoryUpsellPageHandler(svr server.Server, jobRepo *job.Repository, paymentRepo *payment.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			decoder := json.NewDecoder(r.Body)
+			upsellRq := &struct{
+				RecruiterID string `json:"recruiter_id"`
+				PlanDuration int64 `json:"plan_duration"`
+				ItemPrice int64 `json:"item_price"`
+			}{}
+			if err := decoder.Decode(&upsellRq); err != nil {
+				svr.Log(err, "unable to decode request")
+				svr.JSON(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to retrieve user from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			sess, err := paymentRepo.CreateDevDirectorySession(profile.Email, upsellRq.RecruiterID, int64(upsellRq.ItemPrice*100), int64(upsellRq.PlanDuration), true)
+			if err != nil {
+				svr.Log(err, "unable to create payment session")
+			}
+			err = svr.GetEmail().SendHTMLEmail(
+				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+				email.Address{Email: svr.GetEmail().DefaultAdminAddress()},
+				email.Address{Email: profile.Email},
+				fmt.Sprintf("New Dev Directory Subscriber Renew on %s", svr.GetConfig().SiteName),
+				fmt.Sprintf(
+					"Hey! There is a new Developer Directory Subscription Renew on %s. Developer Directory Subscription %d Months Plan @ US$%d/month, Email: %s",
+					svr.GetConfig().SiteName,
+					upsellRq.PlanDuration,
+					upsellRq.ItemPrice,
+					profile.Email,
+				),
+			)
+			if err != nil {
+				svr.Log(err, "unable to send email to admin while creating subscription")
+			}
+			if sess != nil {
+				err = database.InitiatePaymentEventForDeveloperDirectoryAccess(
+					svr.Conn,
+					sess.ID,
+					int64(upsellRq.ItemPrice*upsellRq.PlanDuration*100),
+					fmt.Sprintf("Developer Directory Subscription %d Months Plan @ US$%d/month", upsellRq.PlanDuration, upsellRq.ItemPrice),
+					upsellRq.RecruiterID,
+					profile.Email,
+					int64(upsellRq.PlanDuration),
+				)
+				if err != nil {
+					svr.Log(err, "unable to save payment initiated event")
+				}
+				svr.JSON(w, http.StatusOK, map[string]string{"s_id": sess.ID})
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
 func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repository, paymentRepo *payment.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		decoder := json.NewDecoder(r.Body)
@@ -2844,7 +3025,7 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 		case job.JobPlanTypePlatinum:
 			monthlyAmount = svr.GetConfig().PlanID3Price
 		}
-		sess, err := paymentRepo.CreateSession(
+		sess, err := paymentRepo.CreateJobAdSession(
 			&job.JobRq{
 				PlanType:     jobRq.PlanType,
 				PlanDuration: jobRq.PlanDuration,
@@ -2879,7 +3060,7 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		err = database.InitiatePaymentEvent(
+		err = database.InitiatePaymentEventForJobAd(
 			svr.Conn,
 			sess.ID,
 			payment.PlanTypeAndDurationToAmount(
@@ -2889,7 +3070,6 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 				int64(svr.GetConfig().PlanID1Price),
 				int64(svr.GetConfig().PlanID1Price),
 			),
-			"USD",
 			payment.PlanTypeAndDurationToDescription(
 				jobRq.PlanType,
 				int64(jobRq.PlanDuration),
@@ -2903,7 +3083,6 @@ func SubmitJobPostPaymentUpsellPageHandler(svr server.Server, jobRepo *job.Repos
 			svr.Log(err, "unable to save payment initiated event")
 		}
 		svr.JSON(w, http.StatusOK, map[string]string{"s_id": sess.ID})
-
 	}
 }
 
@@ -3009,7 +3188,7 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 		case job.JobPlanTypePlatinum:
 			monthlyAmount = svr.GetConfig().PlanID3Price
 		}
-		sess, err := paymentRepo.CreateSession(jobRq, randomTokenStr, int64(monthlyAmount), int64(jobRq.PlanDuration))
+		sess, err := paymentRepo.CreateJobAdSession(jobRq, randomTokenStr, int64(monthlyAmount), int64(jobRq.PlanDuration))
 		if err != nil {
 			svr.Log(err, "unable to create payment session")
 		}
@@ -3030,7 +3209,7 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 			svr.Log(err, "unable to send email to admin while posting job ad")
 		}
 		if sess != nil {
-			err = database.InitiatePaymentEvent(
+			err = database.InitiatePaymentEventForJobAd(
 				svr.Conn,
 				sess.ID,
 				payment.PlanTypeAndDurationToAmount(
@@ -3040,7 +3219,6 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 					int64(svr.GetConfig().PlanID2Price),
 					int64(svr.GetConfig().PlanID3Price),
 				),
-				jobRq.CurrencyCode,
 				payment.PlanTypeAndDurationToDescription(
 					jobRq.PlanType,
 					int64(jobRq.PlanDuration),
@@ -3939,6 +4117,7 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 					"ProfileID":     rec.ID,
 					"UserType":      profile.Type,
 					"Recruiter":     rec,
+					"StripePublishableKey": svr.GetConfig().StripePublishableKey,
 				})
 			case user.UserTypeAdmin:
 				dev, err := devRepo.DeveloperProfileByEmail(profile.Email)

@@ -74,11 +74,26 @@ func (r *Repository) DeleteExpiredUserSignOnTokens() error {
 	return err
 }
 
-func (r *Repository) GetUser(email string) (User, error) {
-	u := User{}
-	row := r.db.QueryRow(`SELECT id, email, created_at, user_type FROM users WHERE email = $1`, email)
-	if err := row.Scan(&u.ID, &u.Email, &u.CreatedAt, &u.Type); err != nil {
-		return u, err
+func (r *Repository) GetUserTypeByEmail(email string) (string, error) {
+	var userType string
+	row := r.db.QueryRow(`SELECT user_type FROM users WHERE email = $1`, email)
+	err := row.Scan(&userType)
+	if err == sql.ErrNoRows {
+		// check if user is unverified recruiter/developer
+		row = r.db.QueryRow(`SELECT 'recruiter' FROM recruiter_profile WHERE email = $1`, email)
+		err = row.Scan(&userType)
+		if err == nil {
+			return userType, nil
+		}
+		row = r.db.QueryRow(`SELECT 'developer' FROM developer_profile WHERE email = $1`, email)
+		err = row.Scan(&userType)
+		if err == nil {
+			return userType, nil
+		}
+		return userType, err
 	}
-	return u, nil
+	if err != nil {
+		return userType, err
+	}
+	return userType, nil
 }

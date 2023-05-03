@@ -806,7 +806,7 @@
             <h1 style="margin-top:0;">Login to your {{ .SiteName }} account</h1>
             <p style="margin-top: 20px;">Use your account email to receive a sign-in token. If you haven't registered already you can <a href="/Join-{{ .SiteJobCategory }}-Community">sign-up for free</a></p>
                 <div style="width: 100%;">
-                <input type="email" name="email" id="email" class="email-subscribe-item"
+                <input type="email" name="email" id="email" {{ if .DefaultEmail }}value="{{ .DefaultEmail }}"{{ end }} class="email-subscribe-item"
                     style="border: 1px solid #d9d9d9;margin:10px auto;display:block;width:300px;" placeholder="Email Address">
                 <div style="width:100%;">
                 <input type="submit" onclick="auth()" class="email-subscribe-item" value="Send Magic Link"
@@ -881,8 +881,18 @@
                 }
                 auth();
             });
+        function checkPaymentStatus() {
+          const urlParams = new URLSearchParams(window.location.search);
+          const paymentValue = urlParams.get('payment');
+          
+          if (paymentValue === '1') {
+            alert('Your payment was successful, please confirm your profile by signing-in on this page and access your account.');
+          } else if (paymentValue === '0') {
+            alert('Your account has been created successfully, but we could not process your payment. Please sign-in to your account and try your payment again.');
+          }
+        }
+        
+        window.addEventListener('load', checkPaymentStatus);
     </script>
-
 </body>
-
 </html>

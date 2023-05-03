@@ -39,13 +39,27 @@ func (r *Repository) RecruiterProfileByID(id string) (Recruiter, error) {
 	return obj, nil
 }
 
+func (r *Repository) RecruiterProfilePlanExpiration(email string) (time.Time, error) {
+	var expTime time.Time
+	row := r.db.QueryRow(`SELECT plan_expired_at FROM recruiter_profile WHERE email = $1`, email)
+	if err := row.Scan(&expTime); err != nil {
+		return expTime, err
+	}
+	return expTime, nil
+}
+
+func (r *Repository) UpdateRecruiterPlanExpiration(email string, expiredAt time.Time) error {
+	_, err := r.db.Exec(`UPDATE recruiter_profile SET plan_expired_at = $1 WHERE email = $2`, expiredAt, email)
+	return err
+}
+
 func (r *Repository) ActivateRecruiterProfile(email string) error {
 	_, err := r.db.Exec(`UPDATE recruiter_profile SET updated_at = NOW() WHERE email = $1`, email)
 	return err
 }
 
 func (r *Repository) RecruiterProfileByEmail(email string) (Recruiter, error) {
-	row := r.db.QueryRow(`SELECT id, email, name, company_url, slug, created_at, updated_at FROM recruiter_profile WHERE email = $1`, email)
+	row := r.db.QueryRow(`SELECT id, email, name, company_url, slug, created_at, updated_at, plan_expired_at FROM recruiter_profile WHERE email = $1`, email)
 	obj := Recruiter{}
 	var nullTime sql.NullTime
 	err := row.Scan(
@@ -56,6 +70,7 @@ func (r *Repository) RecruiterProfileByEmail(email string) (Recruiter, error) {
 		&obj.Slug,
 		&obj.CreatedAt,
 		&nullTime,
+		&obj.PlanExpiredAt,
 	)
 	if nullTime.Valid {
 		obj.UpdatedAt = nullTime.Time
