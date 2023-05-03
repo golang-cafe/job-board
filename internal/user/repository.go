@@ -140,7 +140,7 @@ func (r *Repository) GetUserTypeByEmailOrCreateUserIfRecruiter(email string, job
 		if err == nil {
 			err = recRepo.CreateRecruiterProfileBasedOnLastJobPosted(user.Email, jobRepo)
 			if err != nil {
-				svr.Log(err, "unable to create recruiter profile")
+				return "", err
 			}
 			return user.Type, nil
 		} else {
