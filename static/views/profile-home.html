@@ -79,7 +79,7 @@ body{background:#ffffff;}
       {{ end }}
       
       {{ if eq .UserType "recruiter" }}
-        <h3>Account Dashboard</h3>
+        <h3>Account Actions</h3>
         <ul>
         <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Info</a></li>
         <li><a href="/bookmarks">Saved Jobs</a></li>
@@ -93,7 +93,7 @@ body{background:#ffffff;}
       {{ end }}
 
 		  {{ if eq .UserType "admin" }}
-		  <h3>Account Dashboard</h3>
+		  <h3>Account Actions</h3>
 		  <ul>
           <li><a href="/profile/blog/list">View Your Blog Posts</a></li>
           <li><a href="/bookmarks">Saved Jobs</a></li>
