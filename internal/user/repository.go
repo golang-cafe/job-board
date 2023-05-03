@@ -114,7 +114,7 @@ func (r *Repository) CreateUserWithEmail(email, user_type string) (User, error) 
 	u.ID = userID.String()
 	u.Email = email
 	u.CreatedAt = time.Now()
-	u.Type = user_type
+	u.Type = userType
 	u.CreatedAtHumanised = humanize.Time(u.CreatedAt.UTC())
 	if _, err := r.db.Exec(`INSERT INTO users (id, email, created_at, user_type) VALUES ($1, $2, $3, $4)`, u.ID, u.Email, u.CreatedAt, u.Type); err != nil {
 		return User{}, err
