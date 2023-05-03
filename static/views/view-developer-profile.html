@@ -364,7 +364,7 @@ background-color: #FF6600
        </ul>
       {{ end }}
 
-
+        {{ if and (.LoggedUser) (eq .LoggedUser.Type "admin") }}<input type="submit" style="float:right;" onclick="window.location.href='/profile/edit/{{ .ID }}'" value="Edit Profile">{{ end }}
 		<input type="hidden" value="{{ .DeveloperProfile.ID }}" id="profile-id">
 		  <input class="send-message" style="float:right;" type="submit" {{ if not .DeveloperProfile.Available }}disabled {{ else }}onclick="sendMessage('{{ .DeveloperProfile.ID }}', '{{ .DeveloperProfile.Name }}');" {{ end }}value="Send Message">
             </article>
