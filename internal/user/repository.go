@@ -8,7 +8,6 @@ import (
 	"github.com/dustin/go-humanize"
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/recruiter"
-	"github.com/golang-cafe/job-board/internal/server"
 	"github.com/segmentio/ksuid"
 )
 
@@ -103,7 +102,7 @@ func (r *Repository) GetUserTypeByEmail(email string) (string, error) {
 
 // CreateUserWithEmail creates a new user with given email and user_type
 // returns the user struct, and an error
-func (r *Repository) CreateUserWithEmail(email, user_type string) (User, error) {
+func (r *Repository) CreateUserWithEmail(email, userType string) (User, error) {
 	u := User{}
 
 	userID, err := ksuid.NewRandom()
@@ -114,7 +113,7 @@ func (r *Repository) CreateUserWithEmail(email, user_type string) (User, error) 
 	u.ID = userID.String()
 	u.Email = email
 	u.CreatedAt = time.Now()
-	u.Type = user_type
+	u.Type = userType
 	u.CreatedAtHumanised = humanize.Time(u.CreatedAt.UTC())
 	if _, err := r.db.Exec(`INSERT INTO users (id, email, created_at, user_type) VALUES ($1, $2, $3, $4)`, u.ID, u.Email, u.CreatedAt, u.Type); err != nil {
 		return User{}, err
@@ -125,7 +124,7 @@ func (r *Repository) CreateUserWithEmail(email, user_type string) (User, error) 
 
 // GetUserTypeByEmailOrCreateUserIfRecruiter seeks a user in the users table or creates one and recruiter profile if the user has a job posting
 // returns user struct and an error
-func (r *Repository) GetUserTypeByEmailOrCreateUserIfRecruiter(email string, jobRepo *job.Repository, recRepo *recruiter.Repository, svr server.Server) (string, error) {
+func (r *Repository) GetUserTypeByEmailOrCreateUserIfRecruiter(email string, jobRepo *job.Repository, recRepo *recruiter.Repository) (string, error) {
 	u, err := r.GetUserTypeByEmail(email)
 	if err == nil {
 		return u, nil
@@ -140,7 +139,7 @@ func (r *Repository) GetUserTypeByEmailOrCreateUserIfRecruiter(email string, job
 		if err == nil {
 			err = recRepo.CreateRecruiterProfileBasedOnLastJobPosted(user.Email, jobRepo)
 			if err != nil {
-				svr.Log(err, "unable to create recruiter profile")
+				return "", err
 			}
 			return user.Type, nil
 		} else {
