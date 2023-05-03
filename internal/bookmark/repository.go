@@ -41,10 +41,10 @@ func (r *Repository) GetBookmarksForUser(userID string) ([]*Bookmark, error) {
 				LEFT JOIN job j ON j.id = a.job_id
 				LEFT JOIN users u ON u.email = a.email
 				WHERE u.id = $1
-				ORDER BY created_at ASC
+				ORDER BY created_at DESC
 			) AS subquery
 		GROUP BY user_id, job_id
-		ORDER BY first_created_at ASC;`,
+		ORDER BY first_created_at DESC;`,
 		userID)
 	if err != nil {
 		return bookmarks, err
