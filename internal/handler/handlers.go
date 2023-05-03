@@ -97,7 +97,7 @@ func DevelopersHandler(svr server.Server, devRepo *developer.Repository, recruit
 		if profile != nil && profile.Type == "recruiter" {
 			expTime, err := recruiterRepo.RecruiterProfilePlanExpiration(profile.Email)
 			if err == nil && expTime.Before(time.Now().UTC()) {
-				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
+				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home#developer-subscription", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
 				fmt.Println(expTime)
 				return
 			}
@@ -1781,7 +1781,7 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 		if profile != nil && profile.Type == "recruiter" {
 			expTime, err := recruiterRepo.RecruiterProfilePlanExpiration(profile.Email)
 			if err == nil && expTime.Before(time.Now().UTC()) {
-				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
+				svr.Redirect(w, r, http.StatusTemporaryRedirect, fmt.Sprintf("%s%s/profile/home#developer-subscription", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost))
 				return
 			}
 
