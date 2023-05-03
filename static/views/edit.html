@@ -67,7 +67,8 @@ body{background:#ffffff;}
                     <p>
                         Login to your dashboard to easily manage jobs, and access the developers directory
                     </p>
-                    <input type="submit" id="disapprove" value="Login" onclick="window.location.href='/auth?email={{ .Job.CompanyEmail }}';" style="background-color: #25a79b;">
+                    <input type="submit" id="disapprove" value="Login" onclick="window.location='/auth?email={{ .Job.CompanyEmail }}';" style="background-color: #25a79b;">
+                    <a href="/auth?email={{ .Job.CompanyEmail }}" style="background-color: #25a79b;">Login</a>
                 </p>
             </article>
         {{ else }}
@@ -77,7 +78,7 @@ body{background:#ffffff;}
                     <p>
                         Verify your profile to access more features, like managing job posts, getting access to the dashboard and to the developers directory
                     </p>
-                    <input type="submit" id="disapprove" value="Verify Profile" onclick="window.location.href='/auth?email={{ .Job.CompanyEmail }}';" style="background-color: #25a79b;">
+                    <input type="submit" id="disapprove" value="Verify Profile" onclick="window.location='/auth?email={{ .Job.CompanyEmail }}';" style="background-color: #25a79b;">
                 </p>
             </article>
         {{ end }}
