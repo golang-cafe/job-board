@@ -16,7 +16,7 @@ docker rm -f golangcafepsql
 
 echo 'Starting database...';
 
-docker run --name golangcafepsql --rm -e POSTGRES_USER="${DB_USER}" -e POSTGRES_DB="${DB_NAME}" -e POSTGRES_PASSWORD="${DB_PASS}" -p 0.0.0.0:9999:5432 -d postgres
+docker run --name golangcafepsql --rm -e POSTGRES_USER="${DB_USER}" -e POSTGRES_DB="${DB_NAME}" -e POSTGRES_PASSWORD="${DB_PASS}" -p 0.0.0.0:9998:5432 -d postgres
 
 echo 'Waiting for database to be ready...';
 

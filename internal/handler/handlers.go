@@ -1002,7 +1002,7 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 						lastJobID = j.ID
 						continue
 					}
-					tweetStr := fmt.Sprintf("{\"text\":\"%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s%s/job/%s\"", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug)
+					tweetStr := fmt.Sprintf("{\"text\":\"%s with %s - %s | %s\\n\\n#%s #%sjobs\\n\\n%s%s/job/%s\"}", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug)
 					res, err := httpClient.Post(tweetPostPath, contentType, strings.NewReader(tweetStr))
 					if err != nil {
 						svr.Log(err, "unable to post tweet")
