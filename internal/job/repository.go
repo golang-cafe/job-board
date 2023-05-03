@@ -1096,6 +1096,33 @@ func (r *Repository) LastJobPosted() (time.Time, error) {
 	return last, nil
 }
 
+func (r *Repository) LastJobPostedByEmail(email string) (*JobPost, error) {
+	row := r.db.QueryRow(`SELECT id, job_title, company, company_url, location, description, how_to_apply, slug, salary_range, salary_min, salary_max, salary_currency, external_id, salary_period, expired FROM job WHERE company_email = $1 ORDER BY created_at DESC LIMIT 1`, email)
+	job := &JobPost{}
+	err := row.Scan(
+		&job.ID,
+		&job.JobTitle,
+		&job.Company,
+		&job.CompanyURL,
+		&job.Location,
+		&job.JobDescription,
+		&job.HowToApply,
+		&job.Slug,
+		&job.SalaryRange,
+		&job.SalaryMin,
+		&job.SalaryMax,
+		&job.SalaryCurrency,
+		&job.ExternalID,
+		&job.SalaryPeriod,
+		&job.Expired,
+	)
+	if err != nil {
+		return job, err
+	}
+
+	return job, nil
+}
+
 func (r *Repository) SaveTokenForJob(token string, jobID int) error {
 	_, err := r.db.Exec(`INSERT INTO edit_token (token, job_id, created_at) VALUES ($1, $2, $3)`, token, jobID, time.Now().UTC())
 	if err != nil {

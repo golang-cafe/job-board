@@ -1970,7 +1970,7 @@ func SendFeedbackMessage(svr server.Server) http.HandlerFunc {
 	}
 }
 
-func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *job.Repository) http.HandlerFunc {
+func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *job.Repository, recRepo *recruiter.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
 			Email string `json:"email"`
@@ -1983,7 +1983,7 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *j
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		userType, err := userRepo.GetUserTypeByEmailOrCreateUserIfRecruiter(req.Email, jobRepo)
+		userType, err := userRepo.GetUserTypeByEmailOrCreateUserIfRecruiter(req.Email, jobRepo, recRepo, svr)
 		if err != nil {
 			svr.JSON(w, http.StatusNotFound, nil)
 			return

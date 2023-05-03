@@ -261,7 +261,7 @@ func main() {
 	svr.RegisterRoute("/auth", handler.GetAuthPageHandler(svr), []string{"GET"})
 
 	// sign on email link
-	svr.RegisterRoute("/x/auth/link", handler.RequestTokenSignOn(svr, userRepo, jobRepo), []string{"POST"})
+	svr.RegisterRoute("/x/auth/link", handler.RequestTokenSignOn(svr, userRepo, jobRepo, recRepo), []string{"POST"})
 	svr.RegisterRoute("/x/auth/{token}", handler.VerifyTokenSignOn(svr, userRepo, devRepo, recRepo, cfg.AdminEmail), []string{"GET"})
 
 	//

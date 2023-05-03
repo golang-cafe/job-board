@@ -7,6 +7,8 @@ import (
 
 	"github.com/dustin/go-humanize"
 	"github.com/golang-cafe/job-board/internal/job"
+	"github.com/golang-cafe/job-board/internal/recruiter"
+	"github.com/golang-cafe/job-board/internal/server"
 	"github.com/segmentio/ksuid"
 )
 
@@ -121,9 +123,9 @@ func (r *Repository) CreateUserWithEmail(email, user_type string) (User, error) 
 	return u, nil
 }
 
-// GetOrCreateUserIfRecruit seeks a user in the users table or creates one if the user has a job posting
+// GetUserTypeByEmailOrCreateUserIfRecruiter seeks a user in the users table or creates one and recruiter profile if the user has a job posting
 // returns user struct and an error
-func (r *Repository) GetUserTypeByEmailOrCreateUserIfRecruiter(email string, jobRepo *job.Repository) (string, error) {
+func (r *Repository) GetUserTypeByEmailOrCreateUserIfRecruiter(email string, jobRepo *job.Repository, recRepo *recruiter.Repository, svr server.Server) (string, error) {
 	u, err := r.GetUserTypeByEmail(email)
 	if err == nil {
 		return u, nil
@@ -136,6 +138,10 @@ func (r *Repository) GetUserTypeByEmailOrCreateUserIfRecruiter(email string, job
 	if jobsCountByEmail > 0 {
 		user, err := r.CreateUserWithEmail(email, "recruiter")
 		if err == nil {
+			err = recRepo.CreateRecruiterProfileBasedOnLastJobPosted(user.Email, jobRepo)
+			if err != nil {
+				svr.Log(err, "unable to create recruiter profile")
+			}
 			return user.Type, nil
 		} else {
 			return "", err
