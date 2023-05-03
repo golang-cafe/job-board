@@ -14,6 +14,7 @@ body{background:#ffffff;}
         .lds-ring {display: inline-block; position: relative; width: 64px; height: 64px;}.lds-ring div {box-sizing: border-box; display: block; position: absolute; width: 51px; height: 51px; margin: 6px; border: 6px solid #000; border-radius: 50%; animation: lds-ring 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite; border-color: #000 transparent transparent transparent;}
         .lds-ring div:nth-child(1) {animation-delay: -0.45s;}.lds-ring div:nth-child(2) {animation-delay: -0.3s;}.lds-ring div:nth-child(3) {animation-delay: -0.15s;}
         .clearfix::after {content: "";clear: both;display: table;}
+        .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
         @keyframes lds-ring {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}#spinner-0{display: none;}input[type="checkbox"]{-webkit-appearance: checkbox;-moz-appearance: checkbox;appearance: checkbox;}
         .line {
           fill: none;
@@ -47,18 +48,12 @@ body{background:#ffffff;}
     {{ template "google-analytics" }}
   </head>
   <body>
+    {{ template "header-html" }}
         <div id="spinner-0">
             <div class="overlay-effect"></div>
             <div class="spinner-box"><div class="lds-ring"><div></div><div></div><div></div><div></div></div></div>
         </div>
   <section>
-    <p>
-        <small>
-		<a href="/">{{ .SiteName }}</a> |
-          <a href="/support">Contact Support</a> |
-	  <a href="/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers">Post a Job</a> 
-        </small>
-    </p>
     {{ if .IsCallback }}
     <article style="margin-bottom: 30px;">
     <p>
@@ -225,6 +220,29 @@ body{background:#ffffff;}
                         );
       }
     </script>
+    {{ if not .IsSignedOn }}
+        {{ if .HasProfile }}
+            <article style="margin-bottom: 30px;">
+                <p>
+                    <h3>Login to your Dashboard</h3>
+                    <p>
+                        Login to your dashboard to easily manage jobs, and access the developers directory
+                    </p>
+                    <input type="submit" value="Login" onclick="window.location.href='/auth?email={{ .Job.CompanyEmail }}';" style="background-color: #25a79b;">
+                </p>
+            </article>
+        {{ else }}
+            <article style="margin-bottom: 30px;">
+                <p>
+                    <h3>Verify Your Profile</h3>
+                    <p>
+                        Verify your profile to access more features, like managing job posts, getting access to the dashboard and to the developers directory
+                    </p>
+                    <input type="submit" id="disapprove" value="Verify Profile" onclick="window.location='/auth?email={{ .Job.CompanyEmail }}';" style="background-color: #25a79b;">
+                </p>
+            </article>
+        {{ end }}
+    {{ end }}
     <article style="margin-bottom: 30px;">
         <p>
             <h3>Job Dashboard</h3>

@@ -179,6 +179,9 @@ func main() {
 	svr.RegisterRoute("/blog/{slug}", handler.GetBlogPostBySlugHandler(svr, blogRepo), []string{"GET"})
 	svr.RegisterRoute("/blog", handler.GetAllPublishedBlogPostsHandler(svr, blogRepo), []string{"GET"})
 
+	// recruite
+	svr.RegisterRoute("/profile/jobs", handler.RecruiterJobPosts(svr, devRepo, recRepo, jobRepo), []string{"GET"})
+
 	// tasks
 	svr.RegisterRoute("/x/task/weekly-newsletter", handler.TriggerWeeklyNewsletter(svr, jobRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/ads-manager", handler.TriggerAdsManager(svr, jobRepo), []string{"POST"})
@@ -269,7 +272,7 @@ func main() {
 	svr.RegisterRoute("/auth", handler.GetAuthPageHandler(svr), []string{"GET"})
 
 	// sign on email link
-	svr.RegisterRoute("/x/auth/link", handler.RequestTokenSignOn(svr, userRepo), []string{"POST"})
+	svr.RegisterRoute("/x/auth/link", handler.RequestTokenSignOn(svr, userRepo, jobRepo, recRepo), []string{"POST"})
 	svr.RegisterRoute("/x/auth/{token}", handler.VerifyTokenSignOn(svr, userRepo, devRepo, recRepo, cfg.AdminEmail), []string{"GET"})
 
 	//
@@ -281,7 +284,7 @@ func main() {
 	svr.RegisterRoute("/x/u", handler.UpdateJobPageHandler(svr, jobRepo), []string{"POST"})
 
 	// @private: view edit job by token
-	svr.RegisterRoute("/edit/{token}", handler.EditJobViewPageHandler(svr, jobRepo), []string{"GET"})
+	svr.RegisterRoute("/edit/{token}", handler.EditJobViewPageHandler(svr, jobRepo, recRepo), []string{"GET"})
 
 	// @private: download an applicants cv by applicant token
 	svr.RegisterRoute("/download-cv/{token}", handler.DownloadJobApplicationCvHandler(svr, jobRepo), []string{"GET"})

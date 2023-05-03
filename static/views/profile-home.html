@@ -57,8 +57,8 @@ body{background:#ffffff;}
 	</div>
     <section style="margin: 30px auto;">
             <article>
-              <h1>{{ .SiteName }} User Account</h1>
-	      <p>This is your account information</p>
+              <h1>{{ .SiteName }} Dashboard</h1>
+	      <h3>Account Information</h3>
 	      <ul>
 		      <li><b>Account ID:</b> {{ .UserID }}</li>
 		      <li><b>Account Email:</b> {{ .UserEmail }}</li>
@@ -66,12 +66,47 @@ body{background:#ffffff;}
 		      <li><b>Account Type:</b> {{ .UserType }}</li>
 			  {{ if eq .UserType "recruiter" }}
 			  <li><b>Subscription:</b> {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}Your Developer Director Access Has Expired on {{ .Recruiter.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}. Please continue below to renew your access.{{ else }}{{ .Recruiter.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}{{ end }}</li>
+			  {{ end}}
 		  </ul>
-			  {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}
-			  <h2>Your Developers Directory Access Has Expired</h2>
-			  <div style="margin-bottom:20px;">
-					Please choose one of the options below. You will only be billed once. This is not a subscription. Consider choosing a longer plan to lock in a lower price.
-					</div>
+	  {{ if eq .UserType "developer" }}
+		<h3>Account Actions</h3>
+		<ul>
+        <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Developer Profile</a></li>
+        <li><a href="/support">Contact Support</a></li>
+        <li><a onclick="logout();">Logout</a></li>
+		</ul>
+      {{ end }}
+      
+      {{ if eq .UserType "recruiter" }}
+        <h3>Account Dashboard</h3>
+        <ul>
+        <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Info</a></li>
+        <li><a href="/{{ .SiteJobCategory }}-Developers">Browse & Message Developers</a></li>
+        <li><a href="/ad">Post a Job Post</a></li>
+        <li><a href="/profile/jobs">View Your Job Posts</a></li>
+        <li><a onclick="alert('This functionality is not available yet. We are working on it.');">Create Company Page</a></li>
+        <li><a href="/support">Contact Support</a></li>
+        <li><a onclick="logout();">Logout</a></li>
+        </ul>
+      {{ end }}
+
+		  {{ if eq .UserType "admin" }}
+		  <h3>Account Dashboard</h3>
+		  <ul>
+          <li><a href="/profile/blog/list">View Your Blog Posts</a></li>
+          <li><a href="/profile/blog/create">Create Blog Post</a></li>
+		  <li><a href="/manage/list">List Job Posts</a></li>
+		  <li><a href="/manage/new">Create Job Post</a></li>
+	      <li><a onclick="logout();">Logout</a></li>
+          </ul>
+		  {{ end }}
+				
+				{{ if eq .UserType "recruiter" }}
+		  {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}
+		  <h3 id="developer-subscription">Developer Directory Access</h3>
+		  <div style="margin-bottom:20px;">
+				Please choose one of the options below. You will only be billed once. This is not a subscription. Consider choosing a longer plan to lock in a lower price.
+				</div>
                 <div style="width:100%;margin-bottom: 30px;">
                     <article class="plan-container" style="padding:20px 10px;height: auto;margin-right:5%;float:left;">
                         <h2 style="margin-top:0;text-align:center;">3 Months</h2>
@@ -125,43 +160,10 @@ body{background:#ffffff;}
                     </article>
                 </div>
                 <div class="clearfix"></div>
-				<p style="line-height:1rem;float:left;width:50%;text-align:left;font-size:9pt;margin-bottom:0px;margin-top:10px;">This is not a subscription. You will only be charged once. By continuing you accept the <a href="/terms-of-service" target="_blank">Terms of Service</a></p>
+			<p style="line-height:1rem;float:left;width:50%;text-align:left;font-size:9pt;margin-bottom:0px;margin-top:10px;">This is not a subscription. You will only be charged once. By continuing you accept the <a href="/terms-of-service" target="_blank">Terms of Service</a></p>
                 <div class="clearfix"></div>
                 <br>
-			  {{ end }}
-			  {{ end }}
-	  {{ if eq .UserType "developer" }}
-		<p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
-		<ul>
-        <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Developer Profile</a></li>
-        <li><a href="/support">Contact Support</a></li>
-        <li><a onclick="logout();">Logout</a></li>
-		</ul>
-      {{ end }}
-      
-      {{ if eq .UserType "recruiter" }}
-      {{ if isTimeAfterNow .Recruiter.PlanExpiredAt }}
-        <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
-        <ul>
-        <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Info</a></li>
-        <li><a href="/{{ .SiteJobCategory }}-Developers">Browse & Message Developers</a></li>
-        <li><a href="/ad">Post a Job Post</a></li>
-        <li><a onclick="alert('This functionality is not available yet. We are working on it.');">Create Company Page</a></li>
-        <li><a href="/support">Contact Support</a></li>
-        <li><a onclick="logout();">Logout</a></li>
-        </ul>
-        {{ end }}
-      {{ end }}
-
-		  {{ if eq .UserType "admin" }}
-		  <p>This is your {{ .SiteName }} profile home page. Please find useful links below</p>
-		  <ul>
-          <li><a href="/profile/blog/list">View Your Blog Posts</a></li>
-          <li><a href="/profile/blog/create">Create Blog Post</a></li>
-		  <li><a href="/manage/list">List Job Posts</a></li>
-		  <li><a href="/manage/new">Create Job Post</a></li>
-	      <li><a onclick="logout();">Logout</a></li>
-          </ul>
+		  {{ end }}
 		  {{ end }}
               <br>
             </article>

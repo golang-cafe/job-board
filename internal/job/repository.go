@@ -27,6 +27,15 @@ func (r *Repository) TrackJobView(job *JobPost) error {
 	return err
 }
 
+func (r *Repository) JobsCountByEmail(email string) (int, error) {
+	res := r.db.QueryRow(`SELECT count(*) as c FROM job WHERE company_email = $1`, email)
+	var c int
+	if err := res.Scan(&c); err != nil {
+		return 0, err
+	}
+	return c, nil
+}
+
 func (r *Repository) GetJobByApplyToken(token string) (JobPost, Applicant, error) {
 	res := r.db.QueryRow(`SELECT t.cv, t.email, j.id, j.job_title, j.company, company_url, salary_range, location, how_to_apply, slug, j.external_id
 	FROM job j JOIN apply_token t ON t.job_id = j.id AND t.token = $1 WHERE j.approved_at IS NOT NULL AND t.created_at < NOW() + INTERVAL '3 days' AND t.confirmed_at IS NULL`, token)
@@ -783,6 +792,83 @@ func (r *Repository) JobsByQuery(location, tag string, pageId, salary int, curre
 	return jobs, fullRowsCount, nil
 }
 
+func (r *Repository) JobsForRecruiter(posterEmail string, pageId, jobsPerPage int) ([]*JobPost, int, error) {
+	jobs := []*JobPost{}
+	var rows *sql.Rows
+	offset := pageId*jobsPerPage - jobsPerPage
+
+	rows, err := r.db.Query(`
+		SELECT count(*) OVER() AS full_count, id, job_title, company, company_url, salary_range, location, description, perks, interview_process, how_to_apply, job.created_at, url_id, slug, salary_min, salary_max, salary_currency, company_icon_image_id, external_id, salary_period, expired, last_week_clickouts, plan_type, plan_duration, blog_eligibility_expired_at, company_page_eligibility_expired_at, front_page_eligibility_expired_at, newsletter_eligibility_expired_at, plan_expired_at, social_media_eligibility_expired_at, edit_token.token
+		FROM public.job
+		JOIN public.edit_token 
+		ON edit_token.job_id = id
+		WHERE company_email = $1
+		ORDER BY job.created_at DESC LIMIT $3 OFFSET $2`, posterEmail, offset, jobsPerPage)
+
+	if err != nil {
+		return jobs, 0, err
+	}
+	defer rows.Close()
+	var fullRowsCount int
+	for rows.Next() {
+		job := &JobPost{}
+		var createdAt time.Time
+		var perks, interview, companyIcon sql.NullString
+		err = rows.Scan(
+			&fullRowsCount,
+			&job.ID,
+			&job.JobTitle,
+			&job.Company,
+			&job.CompanyURL,
+			&job.SalaryRange,
+			&job.Location,
+			&job.JobDescription,
+			&perks,
+			&interview,
+			&job.HowToApply,
+			&createdAt,
+			&job.CreatedAt,
+			&job.Slug,
+			&job.SalaryMin,
+			&job.SalaryMax,
+			&job.SalaryCurrency,
+			&companyIcon,
+			&job.ExternalID,
+			&job.SalaryPeriod,
+			&job.Expired,
+			&job.LastWeekClickouts,
+			&job.PlanType,
+			&job.PlanDuration,
+			&job.BlogEligibilityExpiredAt,
+			&job.CompanyPageEligibilityExpiredAt,
+			&job.FrontPageEligibilityExpiredAt,
+			&job.NewsletterEligibilityExpiredAt,
+			&job.PlanExpiredAt,
+			&job.SocialMediaEligibilityExpiredAt,
+			&job.EditToken,
+		)
+		if companyIcon.Valid {
+			job.CompanyIconID = companyIcon.String
+		}
+		if perks.Valid {
+			job.Perks = perks.String
+		}
+		if interview.Valid {
+			job.InterviewProcess = interview.String
+		}
+		job.TimeAgo = createdAt.UTC().Format("January 2006")
+		if err != nil {
+			return jobs, fullRowsCount, err
+		}
+		jobs = append(jobs, job)
+	}
+	err = rows.Err()
+	if err != nil {
+		return jobs, fullRowsCount, err
+	}
+	return jobs, fullRowsCount, nil
+}
+
 func (r *Repository) TokenByJobID(jobID int) (string, error) {
 	tokenRow := r.db.QueryRow(
 		`SELECT token
@@ -1008,6 +1094,33 @@ func (r *Repository) LastJobPosted() (time.Time, error) {
 	}
 
 	return last, nil
+}
+
+func (r *Repository) LastJobPostedByEmail(email string) (*JobPost, error) {
+	row := r.db.QueryRow(`SELECT id, job_title, company, company_url, location, description, how_to_apply, slug, salary_range, salary_min, salary_max, salary_currency, external_id, salary_period, expired FROM job WHERE company_email = $1 ORDER BY created_at DESC LIMIT 1`, email)
+	job := &JobPost{}
+	err := row.Scan(
+		&job.ID,
+		&job.JobTitle,
+		&job.Company,
+		&job.CompanyURL,
+		&job.Location,
+		&job.JobDescription,
+		&job.HowToApply,
+		&job.Slug,
+		&job.SalaryRange,
+		&job.SalaryMin,
+		&job.SalaryMax,
+		&job.SalaryCurrency,
+		&job.ExternalID,
+		&job.SalaryPeriod,
+		&job.Expired,
+	)
+	if err != nil {
+		return job, err
+	}
+
+	return job, nil
 }
 
 func (r *Repository) SaveTokenForJob(token string, jobID int) error {
