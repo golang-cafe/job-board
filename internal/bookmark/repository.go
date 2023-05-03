@@ -16,11 +16,30 @@ func (r *Repository) GetBookmarksForUser(userID string) ([]*Bookmark, error) {
 	bookmarks := []*Bookmark{}
 	var rows *sql.Rows
 	rows, err := r.db.Query(
-		`SELECT b.user_id, b.job_id, b.created_at, b.applied_at, j.slug, j.job_title, j.company
-		FROM bookmark b
-		LEFT JOIN job j ON j.id = b.job_id
-		WHERE b.user_id = $1
-		ORDER BY b.created_at ASC`, userID)
+		`SELECT user_id,
+			job_id,
+			MIN(created_at) AS first_created_at,
+			MIN(applied_at) AS first_applied_at,
+			MAX(slug) AS slug,
+			MAX(job_title) AS job_title,
+			MAX(company) AS company,
+			MAX(apply_token_entry) AS apply_token_entry
+		FROM (
+				SELECT b.user_id, b.job_id, b.created_at, b.applied_at, j.slug, j.job_title, j.company, 0 as apply_token_entry
+				FROM bookmark b
+				LEFT JOIN job j ON j.id = b.job_id
+				WHERE b.user_id = $1
+				UNION
+				SELECT u.id, a.job_id, a.created_at, a.created_at, j.slug, j.job_title, j.company, 1 as apply_token_entry
+				FROM apply_token a
+				LEFT JOIN job j ON j.id = a.job_id
+				LEFT JOIN users u ON u.email = a.email
+				WHERE u.id = $1
+				ORDER BY created_at ASC
+			) AS subquery
+		GROUP BY user_id, job_id
+		ORDER BY first_created_at ASC;`,
+		userID)
 	if err != nil {
 		return bookmarks, err
 	}
@@ -36,6 +55,7 @@ func (r *Repository) GetBookmarksForUser(userID string) ([]*Bookmark, error) {
 			&bookmark.JobSlug,
 			&bookmark.JobTitle,
 			&bookmark.CompanyName,
+			&bookmark.HasApplyRecord,
 		)
 		if err != nil {
 			return bookmarks, err

@@ -15,4 +15,6 @@ type Bookmark struct {
 	JobSlug     string
 	JobTitle    string
 	CompanyName string
+
+	HasApplyRecord bool
 }
