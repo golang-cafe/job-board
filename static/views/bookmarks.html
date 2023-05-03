@@ -76,7 +76,6 @@
                               {{ if .AppliedAt.Valid }}
                                 <span>
                                   Applied: {{ .AppliedAt.Time.Format "Jan 02, 2006" }}
-                                  {{ if .HasApplyRecord }}<small>(via Quick Apply)</small>{{ end }}
                                 </span>
                                 {{ end }}
                             </td>
