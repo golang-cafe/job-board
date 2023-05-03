@@ -491,6 +491,10 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		s.Log(err, "unable to retrieve last developer joined at")
 	}
+	topDevelopers, err := devRepo.GetTopDevelopers(10)
+	if err != nil {
+		s.Log(err, "unable to retrieve top developers")
+	}
 
 	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
 		"Jobs":                               jobsForPage,
@@ -508,6 +512,7 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		"CurrentPage":                        pageID,
 		"ShowPage":                           showPage,
 		"PageSize":                           s.cfg.JobsPerPage,
+		"TopDevelopers": topDevelopers,
 		"PageIndexes":                        pages,
 		"TotalJobCount":                      totalJobCount,
 		"TextJobCount":                       textifyJobCount(totalJobCount),
