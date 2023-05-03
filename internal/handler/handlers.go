@@ -1811,6 +1811,7 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 			"DeveloperExperiences":    devExps,
 			"DeveloperEducation":      devEducation,
 			"DeveloperGithubProjects": devProjects,
+			"IsAdmin":                 profile != nil && profile.Type == "admin",
 			"MonthAndYear":            time.Now().UTC().Format("January 2006"),
 		})
 	}
