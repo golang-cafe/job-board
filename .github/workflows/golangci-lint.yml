@@ -22,7 +22,6 @@ jobs:
         uses: golangci/golangci-lint-action@v2
         with:
           version: v1.29
-          working-directory: somedir # Optional: useful for monorepos
           args: --issues-exit-code=0 # Optional: golangci-lint command line arguments.
           only-new-issues: true # Optional: show only new issues if it's a pull request.
           skip-go-installation: true # Optional: use pre-installed Go.
