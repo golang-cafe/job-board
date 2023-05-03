@@ -118,22 +118,7 @@ body{background:#ffffff;}
   <body>
     {{ template "feedback-box-html" . }}
 	{{ template "newsletter-banner-html" . }}
-    <header>
-        <nav class="menu-header">
-            <img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
-            <small style="display:block;float:left;margin-bottom:10px;">
-					<a href="/">Jobs</a>&bull;
-					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
-					<a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
-					<a style="text-decoration: underline;" href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
-					<br>
-				</small>
-			<div style="float: right;">
-				{{ if .LoggedUser }}<a href="/profile/home">Dashboard</a>{{ else }}<a href="/auth">Login</a>{{ end }}
-			</div>
-			<div style="clear: both;"></div>
-        </nav>
-      </header>
+	{{ template "header-html" . }}    
   <section style="padding: 0 10px;">
     {{ if not .LoggedUser }}<input type="submit" value="Join the Community" id="post-btn" onclick="window.location.href='/Join-{{ .SiteJobCategoryURLEncoded }}-Community';">{{ end }}
 	<h1 class="main-title">{{ .SiteJobCategory }} {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers {{ if .LocationFilter }}in {{ .LocationFilter }}{{ end }} </h1><br>
@@ -200,7 +185,7 @@ body{background:#ffffff;}
         <div><a href="{{ .DevelopersBannerLink }}" target="_blank" style="font-weight: bold;">💎 {{ .DevelopersBannerText }}</a></div>
     </article>{{ end }}
 
-    <article class="apply-box" id="apply-box-0">
+    <article class="apply-box" id="apply-box-recruiter">
 	{{ if .LoggedUser }}
     <h3 id="apply-box-title" style="margin-top: 10px;">Send a Message to <span id="message-to"></span></h3>
 	<div id="apply-box-container-new-recruiter">
@@ -224,35 +209,7 @@ body{background:#ffffff;}
 	</div>
     {{ end }}
     </article>
-    <article class="apply-box" id="apply-box-1">
-        <h3 id="apply-box-title-new-developer-profile" style="margin-top: 10px;">Create your profile to continue</h3>
-      <div id="apply-box-container-view-developers">
-      <p id="profile-info"></p>
-      <div style="margin-bottom: 20px; text-align: center;">
-        {{ range $i, $j := .TopDevelopers }}
-        <img width="50" height="50" style="margin-left:-20px;border-radius: 50px; border: 1px solid #aaa;"
-          src="/x/s/m/{{ .ImageID }}?w=50&h=50" title="{{ .Name }}" alt="{{ .Name }}">
-        {{ end }}
-      </div>
-      <ul>
-        {{ if .DeveloperMessagesSentLastMonth }}
-        <li><b>{{ .DeveloperMessagesSentLastMonth }}</b> direct messages sent by companies to developers on {{ .SiteName }} in the last 30 days</li>
-        {{ end }}
-        {{ if .DevelopersRegisteredLastMonth }}
-        <li><b>{{ .DevelopersRegisteredLastMonth }}</b> developers joined {{ .SiteName }} in the last 30 days
-        </li>
-        {{ end }}
-        {{ if .DeveloperProfilePageViewsLastMonth }}
-        <li><b>{{ humannumber .DeveloperProfilePageViewsLastMonth }}</b> developer profiles page views in the
-          last 30 days</li>
-        {{ end }}
-        <li>Get access to our <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote" target="_blank">Salary Explorer</a></li>
-        <li>Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></li>
-      </ul>
-            <br>
-            <input type="submit" id="apply-submit" value="Create Profile" onclick="window.location.href='/Join-{{ .SiteJobCategory }}-Community';" style="float: right;">
-      </div>
-        </article>
+    {{ template "apply-box-developer" . }}
           {{ if .ComplementaryRemote }}
 	  <small><b>No {{ if .TagFilter }}{{ .TagFilter }} {{ end }}Developers</b> found in {{ .LocationFilter }}{{ if .Country }}, {{ .Country }}{{ end }} &bull; Showing {{ len .Developers }} of {{ .TotalDevelopersCount }} {{ if .TagFilter }}<b>{{ .TagFilter }}</b> {{ else }}{{ .SiteJobCategory }} {{ end }}Developers for hire available <b>Remotely</b> &bull; Sort by <b>Last Updated</b></small><br>
 	  {{ else }}
@@ -436,11 +393,11 @@ body{background:#ffffff;}
             document.getElementById('profile-id').value = profileID;
             document.getElementById('message-to').innerHTML = profileName;
 	        document.getElementById('profile-info').innerHTML = 'Current Location <b>'+document.getElementById('location-'+profileID).innerHTML+'</b><br>'+document.getElementById('skills-'+profileID).innerHTML;
-            document.getElementById('apply-box-0').style.display = 'block';
+            document.getElementById('apply-box-recruiter').style.display = 'block';
             document.getElementById('overlay-0').style.display = 'block';
         }
         function showPopup() {
-            document.getElementById('apply-box-1').style.display = 'block';
+            document.getElementById('apply-box-developer').style.display = 'block';
             document.getElementById('overlay-0').style.display = 'block';
         }
         function hitSend() {
@@ -467,8 +424,8 @@ body{background:#ffffff;}
             });
         }
         function closeApplyPopup() {
-            document.getElementById('apply-box-0').style.display = 'none';
-            document.getElementById('apply-box-1').style.display = 'none';
+            document.getElementById('apply-box-recruiter').style.display = 'none';
+            document.getElementById('apply-box-developer').style.display = 'none';
             document.getElementById('overlay-0').style.display = 'none';
         }
     document

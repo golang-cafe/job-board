@@ -12,6 +12,7 @@ import (
 	"github.com/gorilla/sessions"
 
 	"github.com/golang-cafe/job-board/internal/blog"
+	"github.com/golang-cafe/job-board/internal/bookmark"
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/config"
 	"github.com/golang-cafe/job-board/internal/database"
@@ -73,6 +74,7 @@ func main() {
 	companyRepo := company.NewRepository(conn)
 	jobRepo := job.NewRepository(conn)
 	paymentRepo := payment.NewRepository(cfg.StripeKey, cfg.SiteName, cfg.SiteHost, cfg.URLProtocol)
+	bookmarkRepo := bookmark.NewRepository(conn)
 
 	svr := server.NewServer(
 		cfg,
@@ -95,7 +97,7 @@ func main() {
 	svr.RegisterRoute("/privacy-policy", handler.PrivacyPolicyPageHandler(svr), []string{"GET"})
 	svr.RegisterRoute("/terms-of-service", handler.TermsOfServicePageHandler(svr), []string{"GET"})
 
-	svr.RegisterRoute("/", handler.IndexPageHandler(svr, jobRepo), []string{"GET"})
+	svr.RegisterRoute("/", handler.IndexPageHandler(svr, jobRepo, devRepo), []string{"GET"})
 	svr.RegisterRoute(
 		fmt.Sprintf("/Companies-Using-%s", strings.Title(cfg.SiteJobCategory)),
 		handler.CompaniesHandler(svr, companyRepo, jobRepo, devRepo),
@@ -195,10 +197,10 @@ func main() {
 	svr.RegisterRoute("/x/task/expire-sign-on-tokens", handler.TriggerExpiredUserSignOnTokensTask(svr, userRepo), []string{"POST"})
 
 	// view newsletter
-	svr.RegisterRoute("/newsletter", handler.ViewNewsletterPageHandler(svr, jobRepo), []string{"GET"})
+	svr.RegisterRoute("/newsletter", handler.ViewNewsletterPageHandler(svr, jobRepo, devRepo), []string{"GET"})
 
 	// view support
-	svr.RegisterRoute("/support", handler.ViewSupportPageHandler(svr, jobRepo), []string{"GET"})
+	svr.RegisterRoute("/support", handler.ViewSupportPageHandler(svr, jobRepo, devRepo), []string{"GET"})
 
 	// post a job succeeded
 	svr.RegisterRoute("/x/j/p/1", handler.PostAJobSuccessPageHandler(svr), []string{"GET"})
@@ -212,7 +214,7 @@ func main() {
 	svr.RegisterRoute("/x/email/confirm/{token}", handler.ConfirmEmailSubscriberHandler(svr), []string{"GET"})
 
 	// apply for job
-	svr.RegisterRoute("/x/a/e", handler.ApplyForJobPageHandler(svr, jobRepo), []string{"POST"})
+	svr.RegisterRoute("/x/a/e", handler.ApplyForJobPageHandler(svr, jobRepo, bookmarkRepo), []string{"POST"})
 
 	// apply to job confirmation
 	svr.RegisterRoute("/apply/{token}", handler.ApplyToJobConfirmation(svr, jobRepo), []string{"GET"})
@@ -253,10 +255,14 @@ func main() {
 	svr.RegisterRoute("/x/skill/autocomplete", handler.AutocompleteSkill(svr), []string{"GET"})
 
 	// view job by slug
-	svr.RegisterRoute("/job/{slug}", handler.JobBySlugPageHandler(svr, jobRepo), []string{"GET"})
+	svr.RegisterRoute("/job/{slug}", handler.JobBySlugPageHandler(svr, jobRepo, devRepo), []string{"GET"})
 
 	// view company by slug
 	svr.RegisterRoute("/company/{slug}", handler.CompanyBySlugPageHandler(svr, companyRepo, jobRepo), []string{"GET"})
+
+	// bookmarks (saved jobs)
+	svr.RegisterRoute("/bookmarks", bookmark.BookmarkListHandler(svr, bookmarkRepo), []string{"GET"})
+	svr.RegisterRoute("/x/bookmark", bookmark.BookmarkJobHandler(svr, bookmarkRepo, jobRepo), []string{"POST", "DELETE"})
 
 	//
 	// auth routes
@@ -328,87 +334,87 @@ func main() {
 	// Remote Landing Page No Skill
 	svr.RegisterRoute(
 		fmt.Sprintf("/Remote-%s-Jobs", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForLocationHandler(svr, jobRepo, "Remote"),
+		handler.LandingPageForLocationHandler(svr, jobRepo, devRepo, "Remote"),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/Remote-%s-Jobs-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForLocationHandler(svr, jobRepo, "Remote"),
+		handler.LandingPageForLocationHandler(svr, jobRepo, devRepo, "Remote"),
 		[]string{"GET"},
 	)
 
 	// Salary Only Landing Page
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-Jobs-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
-		handler.IndexPageHandler(svr, jobRepo),
+		handler.IndexPageHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 
 	// Remote Landing Page Skill
 	svr.RegisterRoute(
 		fmt.Sprintf("/Remote-%s-{skill}-Jobs", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForLocationAndSkillPlaceholderHandler(svr, jobRepo, "Remote"),
+		handler.LandingPageForLocationAndSkillPlaceholderHandler(svr, jobRepo, devRepo, "Remote"),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/Remote-%s-{skill}-Jobs-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForLocationAndSkillPlaceholderHandler(svr, jobRepo, "Remote"),
+		handler.LandingPageForLocationAndSkillPlaceholderHandler(svr, jobRepo, devRepo, "Remote"),
 		[]string{"GET"},
 	)
 
 	// Location Only Landing Page
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-Jobs-In-{location}-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo),
+		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-Jobs-in-{location}-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo),
+		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-Jobs-In-{location}", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo),
+		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-Jobs-in-{location}", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo),
+		handler.LandingPageForLocationPlaceholderHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 
 	// Skill Only Landing Page
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-{skill}-Jobs", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForSkillPlaceholderHandler(svr, jobRepo),
+		handler.LandingPageForSkillPlaceholderHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-{skill}-Jobs-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForSkillPlaceholderHandler(svr, jobRepo),
+		handler.LandingPageForSkillPlaceholderHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 
 	// Skill And Location Landing Page
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-{skill}-Jobs-In-{location}-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
+		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-{skill}-Jobs-in-{location}-Paying-{salary}-{currency}-year", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
+		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-{skill}-Jobs-In-{location}", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
+		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 	svr.RegisterRoute(
 		fmt.Sprintf("/%s-{skill}-Jobs-in-{location}", strings.Title(cfg.SiteJobCategory)),
-		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo),
+		handler.LandingPageForSkillAndLocationPlaceholderHandler(svr, jobRepo, devRepo),
 		[]string{"GET"},
 	)
 

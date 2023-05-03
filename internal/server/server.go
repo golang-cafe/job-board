@@ -261,7 +261,7 @@ func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, 
 	})
 }
 
-func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Request, jobRepo *job.Repository, location, tag, page, salary, currency, htmlView string) {
+func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Request, jobRepo *job.Repository, devRepo *developer.Repository, location, tag, page, salary, currency, htmlView string) {
 	var validSalary bool
 	for _, band := range s.GetConfig().AvailableSalaryBands {
 		if fmt.Sprintf("%d", band) == salary {
@@ -475,43 +475,70 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		s.Log(err, "database.CountEmailSubscribers")
 	}
 
+	messagesSentLastMonth, err := devRepo.GetDeveloperMessagesSentLastMonth()
+	if err != nil {
+		s.Log(err, "GetDeveloperMessagesSentLastMonth")
+	}
+	devsRegisteredLastMonth, err := devRepo.GetDevelopersRegisteredLastMonth()
+	if err != nil {
+		s.Log(err, "GetDevelopersRegisteredLastMonth")
+	}
+	devPageViewsLastMonth, err := devRepo.GetDeveloperProfilePageViewsLastMonth()
+	if err != nil {
+		s.Log(err, "GetDeveloperProfilePageViewsLastMonth")
+	}
+	lastDevUpdatedAt, err := devRepo.GetLastDevUpdatedAt()
+	if err != nil {
+		s.Log(err, "unable to retrieve last developer joined at")
+	}
+	topDevelopers, err := devRepo.GetTopDevelopers(10)
+	if err != nil {
+		s.Log(err, "unable to retrieve top developers")
+	}
+
 	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
-		"Jobs":                      jobsForPage,
-		"PinnedJobs":                pinnedJobs,
-		"JobsMinusOne":              len(jobsForPage) - 1,
-		"LocationFilter":            strings.Title(location),
-		"LocationFilterWithCountry": locationWithCountry,
-		"LocationFilterURLEnc":      url.PathEscape(strings.Title(location)),
-		"TagFilter":                 tag,
-		"SalaryFilter":              salaryInt,
-		"CurrencyFilter":            currency,
-		"AvailableCurrencies":       s.GetConfig().AvailableCurrencies,
-		"AvailableSalaryBands":      s.GetConfig().AvailableSalaryBands,
-		"TagFilterURLEnc":           url.PathEscape(tag),
-		"CurrentPage":               pageID,
-		"ShowPage":                  showPage,
-		"PageSize":                  s.cfg.JobsPerPage,
-		"PageIndexes":               pages,
-		"TotalJobCount":             totalJobCount,
-		"TextJobCount":              textifyJobCount(totalJobCount),
-		"TextCompanies":             textifyCompanies(location, pinnedJobs, jobsForPage),
-		"TextJobTitles":             textifyJobTitles(jobsForPage),
-		"LastJobPostedAt":           lastJobPosted.Format(time.RFC3339),
-		"LastJobPostedAtHumanized":  humanize.Time(lastJobPosted),
-		"HasSalaryInfo":             maxSalary > 0,
-		"MinSalary":                 fmt.Sprintf("%s%s", locFromDB.Currency, humanize.Comma(minSalary)),
-		"MaxSalary":                 fmt.Sprintf("%s%s", locFromDB.Currency, humanize.Comma(maxSalary)),
-		"LocationFromDB":            locFromDB.Name,
-		"CountryFromDB":             locFromDB.Country,
-		"RegionFromDB":              locFromDB.Region,
-		"PopulationFromDB":          locFromDB.Population,
-		"LocationEmojiFromDB":       locFromDB.Emoji,
-		"RelatedLocations":          relatedLocations,
-		"ComplementaryRemote":       complementaryRemote,
-		"MonthAndYear":              time.Now().UTC().Format("January 2006"),
-		"NewJobsLastWeek":           newJobsLastWeek,
-		"NewJobsLastMonth":          newJobsLastMonth,
-		"EmailSubscribersCount":     humanize.Comma(int64(emailSubscribersCount)),
+		"Jobs":                               jobsForPage,
+		"PinnedJobs":                         pinnedJobs,
+		"JobsMinusOne":                       len(jobsForPage) - 1,
+		"LocationFilter":                     strings.Title(location),
+		"LocationFilterWithCountry":          locationWithCountry,
+		"LocationFilterURLEnc":               url.PathEscape(strings.Title(location)),
+		"TagFilter":                          tag,
+		"SalaryFilter":                       salaryInt,
+		"CurrencyFilter":                     currency,
+		"AvailableCurrencies":                s.GetConfig().AvailableCurrencies,
+		"AvailableSalaryBands":               s.GetConfig().AvailableSalaryBands,
+		"TagFilterURLEnc":                    url.PathEscape(tag),
+		"CurrentPage":                        pageID,
+		"ShowPage":                           showPage,
+		"PageSize":                           s.cfg.JobsPerPage,
+		"TopDevelopers": topDevelopers,
+		"PageIndexes":                        pages,
+		"TotalJobCount":                      totalJobCount,
+		"TextJobCount":                       textifyJobCount(totalJobCount),
+		"TextCompanies":                      textifyCompanies(location, pinnedJobs, jobsForPage),
+		"TextJobTitles":                      textifyJobTitles(jobsForPage),
+		"LastJobPostedAt":                    lastJobPosted.Format(time.RFC3339),
+		"LastJobPostedAtHumanized":           humanize.Time(lastJobPosted),
+		"HasSalaryInfo":                      maxSalary > 0,
+		"MinSalary":                          fmt.Sprintf("%s%s", locFromDB.Currency, humanize.Comma(minSalary)),
+		"MaxSalary":                          fmt.Sprintf("%s%s", locFromDB.Currency, humanize.Comma(maxSalary)),
+		"LocationFromDB":                     locFromDB.Name,
+		"CountryFromDB":                      locFromDB.Country,
+		"RegionFromDB":                       locFromDB.Region,
+		"PopulationFromDB":                   locFromDB.Population,
+		"LocationEmojiFromDB":                locFromDB.Emoji,
+		"RelatedLocations":                   relatedLocations,
+		"ComplementaryRemote":                complementaryRemote,
+		"MonthAndYear":                       time.Now().UTC().Format("January 2006"),
+		"NewJobsLastWeek":                    newJobsLastWeek,
+		"NewJobsLastMonth":                   newJobsLastMonth,
+		"EmailSubscribersCount":              humanize.Comma(int64(emailSubscribersCount)),
+		"DeveloperMessagesSentLastMonth":     messagesSentLastMonth,
+		"DevelopersRegisteredLastMonth":      devsRegisteredLastMonth,
+		"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
+		"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
+		"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
 	})
 }
 
@@ -621,7 +648,7 @@ func (s Server) RenderPageForProfileRegistration(w http.ResponseWriter, r *http.
 		"DeveloperMessagesSentLastMonth":     messagesSentLastMonth,
 		"DevelopersRegisteredLastMonth":      devsRegisteredLastMonth,
 		"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
-		"StripePublishableKey": s.GetConfig().StripePublishableKey,
+		"StripePublishableKey":               s.GetConfig().StripePublishableKey,
 		"MonthAndYear":                       time.Now().UTC().Format("January 2006"),
 		"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
 		"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),

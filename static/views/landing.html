@@ -877,24 +877,7 @@
 <body>
 	{{ template "feedback-box-html" . }}
 	{{ template "newsletter-banner-html" . }}
-	<header>
-		<nav class="menu-header">
-			<div style="float: left;">
-				<img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
-				<small style="display:block;float:left;margin-bottom:10px;">
-					<a style="text-decoration: underline;" href="/">Jobs</a>&bull;
-					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
-					<a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
-					<a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
-					<br>
-				</small>
-			</div>
-			<div style="float: right;">
-				{{ if .LoggedUser }}<a href="/profile/home">Dashboard</a>{{ else }}<a href="/auth">Login</a>{{ end }}
-			</div>
-			<div style="clear: both;"></div>
-		</nav>
-	</header>
+	{{ template "header-html" . }}
 	<section style="padding: 0 10px;">
 		<div>
 			<input type="submit" value="Post a Job" id="post-btn"
@@ -943,6 +926,7 @@
 			</div>
 		</div>
 		<div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
+		{{ template "apply-box-developer" . }}
 		<article class="apply-box" id="apply-box-0">
 			<h3 style="margin-top: 10px;">{{ if .LoggedUser }}1-Click Apply{{ else }}2-Click Apply{{ end }}</h3>
 			<div>
@@ -1003,6 +987,7 @@
 				<a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow"
 					class="apply-link">Apply</a>
 				{{ end }}
+                <input type="submit" style="float:right;" class="bookmark-btn" value="Save Job" onclick="bookmark(this, '{{ .ExternalID }}');">
 				<a class="copy-to-clipboard" data-link="https://{{ $siteHost }}/job/{{ .Slug }}"
 					style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398; Copy Link</a>
 				<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank"
@@ -1066,6 +1051,7 @@
 				<a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow"
 					class="apply-link">Apply</a>
 				{{ end }}
+                <input type="submit" style="float:right;" class="bookmark-btn" value="Save Job" onclick="bookmark(this, '{{ .ExternalID }}');">
 				{{ else }}
 				<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired">
 				{{ end }}
@@ -1367,6 +1353,30 @@
 				}
 			}
 		}
+        function bookmark(el, jobId) {
+          var loggedInUser = {{ if .LoggedUser }}true{{ else }}false{{ end}};
+          if (!loggedInUser) {
+            showDeveloperPopup();
+            return;
+          }
+
+          el.disabled = true;
+          el.value = "Saving...";
+
+          var formData = new FormData();
+          formData.append('job-id', jobId);
+          post('/x/bookmark', formData, function(status) {
+            if (status == 201) {
+              el.value = "Saved job";
+              alert('Saved job');
+              return;
+            }
+
+            el.disabled = false;
+            el.value = "Save Job"
+            alert('There was a problem saving this job. Please try again later.');
+          });
+        }
 		function apply(howToApply, jobID) {
 			get('/x/j/c/' + jobID, function () {
 				document.getElementById('apply-job-id').value = jobID;
@@ -1428,8 +1438,13 @@
 				alert('There was an error while saving your application. Please try again later');
 			});
 		}
+        function showDeveloperPopup() {
+          document.getElementById('apply-box-developer').style.display = 'block';
+          document.getElementById('overlay-0').style.display = 'block';
+        }
 		function closeApplyPopup() {
 			document.getElementById('apply-box-0').style.display = 'none';
+			document.getElementById('apply-box-developer').style.display = 'none';
 			document.getElementById('overlay-0').style.display = 'none';
 		}
 		document

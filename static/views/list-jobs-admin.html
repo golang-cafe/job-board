@@ -22,23 +22,7 @@ body{background:#ffffff;}
     {{ template "google-analytics" }}
   </head>
   <body>
-    <header>
-        <nav class="menu-header">
-          <div style="float: left;">
-            <small>
-              <a href="/">Jobs</a>&bull;
-              <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
-              <a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
-              <a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
-              <br>
-            </small>
-          </div>
-          <div style="float: right;">
-            {{ if .LoggedUser }}<a style="text-decoration: underline;" href="/profile/home">Dashboard</a>{{ else }}<a href="/auth">Login</a>{{ end }}
-          </div>
-          <div style="clear: both;"></div>
-        </nav>
-      </header>
+    {{ template "header-html" . }}
   <section style="padding: 0 10px;">
     <div>
         <input type="text" value="{{ .TagFilter }}" placeholder="Skills, Company" id="search-tag">

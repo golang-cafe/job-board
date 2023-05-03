@@ -257,26 +257,10 @@ background-color: #FF6600
     {{ template "google-analytics" }}
   </head>
   <body>
-    <header>
-      <nav class="menu-header">
-        <div style="float: left;">
-          <img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
-          <small style="display:block;float:left;margin-bottom:10px;">
-            <a style="text-decoration: underline;" href="/">Jobs</a>&bull;
-            <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
-            <a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
-            <a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
-            <br>
-          </small>
-        </div>
-        <div style="float: right;">
-          {{ if .LoggedUser }}<a href="/profile/home">Dashboard</a>{{ else }}<a href="/auth">Login</a>{{ end }}
-        </div>
-        <div style="clear: both;"></div>
-      </nav>
-    </header>
+    {{ template "header-html" . }}
   <section style="margin: 30px auto;">
     <div class="overlay-effect" id="overlay-0" onclick="closeApplyPopup();"></div>
+    {{ template "apply-box-developer" . }}
     <article class="apply-box" id="apply-box-0">
         <h3 style="margin-top: 10px;">{{ if .LoggedUser }}1-Click Apply{{ else }}2-Click Apply{{ end }}</h3>
         <div>
@@ -328,6 +312,7 @@ background-color: #FF6600
                 {{ else }}
                   <a target="_blank" rel="noreferrer noopener" href="/x/r?j={{ .Job.ExternalID }}" style="float:right;" class="apply-link">Apply</a>
                 {{ end }}
+                <input type="submit" style="float:right;" class="bookmark-btn" value="Save Job" onclick="bookmark(this, '{{ .Job.ExternalID }}');">
 		{{ else }}
 		  <input type="submit" disabled class="right-btn" value="Job Expired">
 		{{ end }}
@@ -499,6 +484,30 @@ background-color: #FF6600
                 }
             }
         }
+        function bookmark(el, jobId) {
+          var loggedInUser = {{ if .LoggedUser }}true{{ else }}false{{ end}};
+          if (!loggedInUser) {
+            showDeveloperPopup();
+            return;
+          }
+
+          el.disabled = true;
+          el.value = "Saving...";
+
+          var formData = new FormData();
+          formData.append('job-id', jobId);
+          post('/x/bookmark', formData, function(status) {
+            if (status == 201) {
+              el.value = "Saved job";
+              alert('Saved job');
+              return;
+            }
+
+            el.disabled = false;
+            el.value = "Save Job"
+            alert('There was a problem saving this job. Please try again later.');
+          });
+        }
         function apply() {
           http('{{ .Job.ExternalID }}', function() {
             document.getElementById('apply-job-id').value = '{{ .Job.ExternalID }}';
@@ -549,8 +558,13 @@ background-color: #FF6600
                 alert('There was an error while saving your application. Please try again later');
             });
         }
+        function showDeveloperPopup() {
+          document.getElementById('apply-box-developer').style.display = 'block';
+          document.getElementById('overlay-0').style.display = 'block';
+        }
         function closeApplyPopup() {
             document.getElementById('apply-box-0').style.display = 'none';
+            document.getElementById('apply-box-developer').style.display = 'none';
             document.getElementById('overlay-0').style.display = 'none';
         }
     </script>

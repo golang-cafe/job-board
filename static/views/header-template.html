@@ -1,0 +1,22 @@
+{{ define "header-html" }}
+<header>
+    <nav class="menu-header">
+        <img src="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" alt="{{ .SiteName }} Logo" class="hover-pointer" onclick="javascript:window.location.href='/'" style="width: 30px; margin-right: 10px; border-radius: 50px; margin-top: 0px; border: 1px solid #000; float: left;">
+        <small style="display:block;float:left;margin-bottom:10px;">
+            <a href="/">Jobs</a>&bull;
+            <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote">Salaries</a>&bull;
+            <a href="/Companies-Using-{{ .SiteJobCategoryURLEncoded }}">Companies</a>&bull;
+            <a href="/{{ .SiteJobCategoryURLEncoded }}-Developers">Developers</a>
+            <br>
+        </small>
+        <div style="float: right;">
+            {{ if .LoggedUser }}
+                <a href="/profile/home">Dashboard</a>
+            {{ else }}
+                <a href="/auth">Login</a>
+            {{ end }}
+        </div>
+        <div style="clear: both;"></div>
+    </nav>
+  </header>
+{{ end }}
