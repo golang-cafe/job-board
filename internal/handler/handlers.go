@@ -1988,7 +1988,7 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *j
 		}
 
 		attempts := svr.GetSignOnAttempts(req.Email)
-		if attempts > 5 {
+		if attempts >= 5 {
 			svr.JSON(w, http.StatusTooManyRequests, "Too many requests today.")
 			return
 		}

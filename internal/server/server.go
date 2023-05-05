@@ -1236,7 +1236,7 @@ func (s Server) IsEmail(val string) bool {
 }
 
 func (s Server) GetSignOnAttempts(email string) int {
-	numberOfAttempts := 1
+	numberOfAttempts := 0
 	attempts, found := s.CacheGet(email)
 	if found {
 		numberOfAttempts, err := strconv.Atoi(string(attempts))
