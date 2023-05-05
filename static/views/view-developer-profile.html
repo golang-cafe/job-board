@@ -462,8 +462,7 @@ background-color: #FF6600
                 closeApplyPopup();
                 if (status == 200) {
                     alert('Message sent.');
-		    document.getElementById('message-content').value = "";
-		    document.getElementById('company-email').value = "";
+		                document.getElementById('message-content').value = "";
                     return;
                 }
                 if (status == 422) {

@@ -96,12 +96,15 @@ func (d Developer) RoleTypeAsString() string {
 }
 
 type DeveloperMessage struct {
-	ID        string
-	Email     string
-	Content   string
-	ProfileID string
-	CreatedAt time.Time
-	SentAt    time.Time
+	ID            string
+	Email         string
+	Content       string
+	RecipientName string
+	ProfileID     string
+	ProfileSlug   string
+	CreatedAt     time.Time
+	SentAt        time.Time
+	SenderID      string
 }
 
 type DeveloperMetadata struct {
