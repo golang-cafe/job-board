@@ -83,6 +83,21 @@ func (r *Repository) GetBookmarksForUser(userID string) ([]*Bookmark, error) {
 	return bookmarks, nil
 }
 
+// GetBookmarksByJobId can be used to quickly & efficiently check whether a job has previously been bookmarked by a user
+func (r *Repository) GetBookmarksByJobId(userID string) (map[int]*Bookmark, error) {
+	bookmarksByJobId := make(map[int]*Bookmark)
+	bookmarks, err := r.GetBookmarksForUser(userID)
+	if err != nil {
+		return bookmarksByJobId, err
+	}
+
+	for _, b := range bookmarks {
+		bookmarksByJobId[b.JobPostID] = b
+	}
+
+	return bookmarksByJobId, nil
+}
+
 func (r *Repository) BookmarkJob(userID string, jobID int, setApplied bool) error {
 	appliedAtExpr := "NULL"
 	if setApplied {

@@ -21,6 +21,7 @@ import (
 
 	"github.com/aclements/go-moremath/stats"
 	"github.com/dustin/go-humanize"
+	"github.com/golang-cafe/job-board/internal/bookmark"
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/config"
 	"github.com/golang-cafe/job-board/internal/database"
@@ -261,7 +262,7 @@ func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, 
 	})
 }
 
-func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Request, jobRepo *job.Repository, devRepo *developer.Repository, location, tag, page, salary, currency, htmlView string) {
+func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Request, jobRepo *job.Repository, devRepo *developer.Repository, bookmarkRepo *bookmark.Repository, location, tag, page, salary, currency, htmlView string) {
 	var validSalary bool
 	for _, band := range s.GetConfig().AvailableSalaryBands {
 		if fmt.Sprintf("%d", band) == salary {
@@ -496,6 +497,15 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		s.Log(err, "unable to retrieve top developers")
 	}
 
+	profile, _ := middleware.GetUserFromJWT(r, s.SessionStore, s.GetJWTSigningKey())
+	bookmarksByJobId := make(map[int]*bookmark.Bookmark)
+	if profile != nil {
+		bookmarksByJobId, err = bookmarkRepo.GetBookmarksByJobId(profile.UserID)
+		if err != nil {
+			s.Log(err, "GetBookmarksByJobId")
+		}
+	}
+
 	s.Render(r, w, http.StatusOK, htmlView, map[string]interface{}{
 		"Jobs":                               jobsForPage,
 		"PinnedJobs":                         pinnedJobs,
@@ -512,7 +522,7 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		"CurrentPage":                        pageID,
 		"ShowPage":                           showPage,
 		"PageSize":                           s.cfg.JobsPerPage,
-		"TopDevelopers": topDevelopers,
+		"TopDevelopers":                      topDevelopers,
 		"PageIndexes":                        pages,
 		"TotalJobCount":                      totalJobCount,
 		"TextJobCount":                       textifyJobCount(totalJobCount),
@@ -539,6 +549,7 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
 		"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
 		"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
+		"BookmarksByJobId":                   bookmarksByJobId,
 	})
 }
 
