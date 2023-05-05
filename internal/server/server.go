@@ -1234,24 +1234,3 @@ func (s Server) SeenSince(r *http.Request, timeAgo time.Duration) bool {
 func (s Server) IsEmail(val string) bool {
 	return s.emailRe.MatchString(val)
 }
-
-func (s Server) GetSignOnAttempts(email string) int {
-	numberOfAttempts := 0
-	attempts, found := s.CacheGet(email)
-	if found {
-		numberOfAttempts, err := strconv.Atoi(string(attempts))
-		if err == nil {
-			return numberOfAttempts
-		}
-	}
-
-	return numberOfAttempts
-}
-
-func (s Server) SaveSignOnAttempts(email string) {
-	numberOfAttempts := s.GetSignOnAttempts(email)
-	numberOfAttempts = numberOfAttempts + 1
-
-	attemptsByte := []byte(strconv.Itoa(numberOfAttempts))
-	s.CacheSet(email, attemptsByte)
-}

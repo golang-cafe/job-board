@@ -1987,9 +1987,17 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *j
 			return
 		}
 
-		attempts := svr.GetSignOnAttempts(req.Email)
-		if attempts >= 5 {
-			svr.JSON(w, http.StatusTooManyRequests, "Too many requests today.")
+		numberOfAttempts := 0
+		attempts, found := svr.CacheGet(req.Email)
+		if found {
+			attempts, err := strconv.Atoi(string(attempts))
+			if err == nil {
+				numberOfAttempts = attempts
+			}
+		}
+
+		if numberOfAttempts >= 5 {
+			svr.JSON(w, http.StatusTooManyRequests, nil)
 			return
 		}
 
@@ -2010,7 +2018,10 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *j
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
-		svr.SaveSignOnAttempts(req.Email)
+
+		numberOfAttempts = numberOfAttempts + 1
+		attemptsByte := []byte(strconv.Itoa(numberOfAttempts))
+		svr.CacheSet(req.Email, attemptsByte)
 
 		token := k.String()
 		err = svr.GetEmail().SendHTMLEmail(
