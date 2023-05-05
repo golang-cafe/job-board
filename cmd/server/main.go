@@ -179,8 +179,9 @@ func main() {
 	svr.RegisterRoute("/blog/{slug}", handler.GetBlogPostBySlugHandler(svr, blogRepo), []string{"GET"})
 	svr.RegisterRoute("/blog", handler.GetAllPublishedBlogPostsHandler(svr, blogRepo), []string{"GET"})
 
-	// recruite
+	// recruiter
 	svr.RegisterRoute("/profile/jobs", handler.RecruiterJobPosts(svr, devRepo, recRepo, jobRepo), []string{"GET"})
+	svr.RegisterRoute("/profile/sent", handler.SentMessages(svr), []string{"GET"})
 
 	// tasks
 	svr.RegisterRoute("/x/task/weekly-newsletter", handler.TriggerWeeklyNewsletter(svr, jobRepo), []string{"POST"})
