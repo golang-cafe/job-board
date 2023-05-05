@@ -846,13 +846,13 @@
                 document.getElementById("spinner-0").style.display = "none";
                 return;
             }
-            post({ email: email }, function (success) {
+            post({ email: email }, function (success, response) {
                 document.getElementById("spinner-0").style.display = "none";
                 if (success) {
                     alert("Check your inbox");
                     document.getElementById("email").value = "";
                 } else {
-                    alert('Oops, this email looks incorrect');
+                    alert(response || 'Oops, this email looks incorrect');
                 }
             });
         }
