@@ -178,6 +178,7 @@ func (r *Repository) MarkDeveloperMessageAsSent(id string) error {
 	_, err := r.db.Exec(`UPDATE developer_profile_message SET sent_at = NOW() WHERE id = $1`, id)
 	return err
 }
+
 func (r *Repository) GetDeveloperMessagesSentFrom(userID string) ([]*DeveloperMessage, error) {
 	messages := []*DeveloperMessage{}
 	var rows *sql.Rows
@@ -195,6 +196,53 @@ func (r *Repository) GetDeveloperMessagesSentFrom(userID string) ([]*DeveloperMe
 		WHERE dpm.sender_id = $1
 		ORDER BY dpm.created_at DESC`,
 		userID)
+	if err != nil {
+		return messages, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		message := &DeveloperMessage{}
+		err := rows.Scan(
+			&message.ID,
+			&message.Email,
+			&message.Content,
+			&message.RecipientName,
+			&message.ProfileID,
+			&message.ProfileSlug,
+			&message.CreatedAt,
+			&message.SenderID,
+		)
+		if err != nil {
+			return messages, err
+		}
+
+		messages = append(messages, message)
+	}
+	err = rows.Err()
+	if err != nil {
+		return messages, err
+	}
+	return messages, nil
+}
+
+func (r *Repository) GetDeveloperMessagesSentTo(devID string) ([]*DeveloperMessage, error) {
+	messages := []*DeveloperMessage{}
+	var rows *sql.Rows
+	rows, err := r.db.Query(
+		`SELECT dpm.id,
+			dpm.email,
+			dpm.content,
+			dp.name,
+			dpm.profile_id,
+			dp.slug,
+			dpm.created_at,
+			dpm.sender_id
+		FROM developer_profile_message dpm
+			JOIN developer_profile dp ON dp.id = dpm.profile_id
+		WHERE dpm.profile_id = $1
+		ORDER BY dpm.created_at DESC`,
+		devID)
 	if err != nil {
 		return messages, err
 	}

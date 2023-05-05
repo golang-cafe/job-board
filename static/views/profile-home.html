@@ -71,7 +71,8 @@ body{background:#ffffff;}
 	  {{ if eq .UserType "developer" }}
 		<h3>Account Actions</h3>
 		<ul>
-		<li><a href="/profile/bookmarks">Saved Jobs</a></li>
+        <li><a href="/profile/bookmarks">Saved Jobs</a></li>
+        <li><a href="/profile/messages">Messages</a></li>
         <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Developer Profile</a></li>
         <li><a href="/support">Contact Support</a></li>
         <li><a onclick="logout();">Logout</a></li>

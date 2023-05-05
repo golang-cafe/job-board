@@ -183,6 +183,9 @@ func main() {
 	svr.RegisterRoute("/profile/jobs", handler.RecruiterJobPosts(svr, devRepo, recRepo, jobRepo), []string{"GET"})
 	svr.RegisterRoute("/profile/sent", handler.SentMessages(svr, devRepo), []string{"GET"})
 
+	// developer
+	svr.RegisterRoute("/profile/messages", handler.ReceivedMessages(svr, devRepo), []string{"GET"})
+
 	// tasks
 	svr.RegisterRoute("/x/task/weekly-newsletter", handler.TriggerWeeklyNewsletter(svr, jobRepo), []string{"POST"})
 	svr.RegisterRoute("/x/task/ads-manager", handler.TriggerAdsManager(svr, jobRepo), []string{"POST"})
