@@ -308,11 +308,19 @@ background-color: #FF6600
                 {{ end }}
 		{{ if not .Job.Expired }}
                 {{ if .IsQuickApply }}
-                  <input type="submit" style="float:right;" class="apply-btn" value="Quick Apply" onclick="apply();">
+                <input type="submit" style="float:right;" class="apply-btn"
+                  value="{{ with $bookmark := index .BookmarksByJobId .Job.ID }}{{ if $bookmark.HasApplyRecord }}Applied{{ else }}Quick Apply{{ end }}{{ else }}Quick Apply{{ end }}"
+                  onclick="apply();"
+                  {{ with $bookmark := index .BookmarksByJobId .Job.ID }}{{ if $bookmark.HasApplyRecord }}disabled{{ end }}{{ end }}
+                />
                 {{ else }}
                   <a target="_blank" rel="noreferrer noopener" href="/x/r?j={{ .Job.ExternalID }}" style="float:right;" class="apply-link">Apply</a>
                 {{ end }}
-                <input type="submit" style="float:right;" class="bookmark-btn" value="Save Job" onclick="bookmark(this, '{{ .Job.ExternalID }}');">
+                <input type="submit" style="float:right;" class="bookmark-btn" 
+                  value="{{ if index .BookmarksByJobId .Job.ID }}Saved{{ else }}Save Job{{ end }}"
+                  onclick="bookmark(this, '{{ .Job.ExternalID }}');"
+                  {{ if index .BookmarksByJobId .Job.ID }}disabled{{ end }}
+                />
 		{{ else }}
 		  <input type="submit" disabled class="right-btn" value="Job Expired">
 		{{ end }}

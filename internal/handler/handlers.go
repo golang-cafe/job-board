@@ -1825,7 +1825,7 @@ func CompaniesForLocationHandler(svr server.Server, companyRepo *company.Reposit
 	}
 }
 
-func IndexPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
+func IndexPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, bookmarkRepo *bookmark.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		location := r.URL.Query().Get("l")
 		tag := r.URL.Query().Get("t")
@@ -1874,7 +1874,7 @@ func IndexPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *devel
 			return
 		}
 
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, "", "", page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, bookmarkRepo, "", "", page, salary, currency, "landing.html")
 	}
 }
 
@@ -2141,7 +2141,7 @@ func PostAJobForLocationFromURLPageHandler(svr server.Server, companyRepo *compa
 	}
 }
 
-func JobBySlugPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
+func JobBySlugPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, bookmarkRepo *bookmark.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		slug := vars["slug"]
@@ -2193,6 +2193,15 @@ func JobBySlugPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *d
 			svr.Log(err, "unable to retrieve last developer joined at")
 		}
 
+		profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		bookmarksByJobId := make(map[int]*bookmark.Bookmark)
+		if profile != nil {
+			bookmarksByJobId, err = bookmarkRepo.GetBookmarksByJobId(profile.UserID)
+			if err != nil {
+				svr.Log(err, "GetBookmarksByJobId")
+			}
+		}
+
 		svr.Render(r, w, http.StatusOK, "job.html", map[string]interface{}{
 			"Job":                                jobPost,
 			"JobURIEncoded":                      url.QueryEscape(jobPost.Slug),
@@ -2213,6 +2222,7 @@ func JobBySlugPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *d
 			"DeveloperProfilePageViewsLastMonth": devPageViewsLastMonth,
 			"LastDevCreatedAt":                   lastDevUpdatedAt.Format(time.RFC3339),
 			"LastDevCreatedAtHumanized":          humanize.Time(lastDevUpdatedAt),
+			"BookmarksByJobId":                   bookmarksByJobId,
 		})
 	}
 }
@@ -2254,50 +2264,50 @@ func CompanyBySlugPageHandler(svr server.Server, companyRepo *company.Repository
 	}
 }
 
-func LandingPageForLocationHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, location string) http.HandlerFunc {
+func LandingPageForLocationHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, bookmarkRepo *bookmark.Repository, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, location, "", page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, bookmarkRepo, location, "", page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForLocationAndSkillPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, location string) http.HandlerFunc {
+func LandingPageForLocationAndSkillPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, bookmarkRepo *bookmark.Repository, location string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, location, skill, page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, bookmarkRepo, location, skill, page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
+func LandingPageForLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, bookmarkRepo *bookmark.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		loc := strings.ReplaceAll(vars["location"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, loc, "", page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, bookmarkRepo, loc, "", page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForSkillPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
+func LandingPageForSkillPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, bookmarkRepo *bookmark.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
 		currency := vars["currency"]
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, "", skill, page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, bookmarkRepo, "", skill, page, salary, currency, "landing.html")
 	}
 }
 
-func LandingPageForSkillAndLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
+func LandingPageForSkillAndLocationPlaceholderHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, bookmarkRepo *bookmark.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
 		salary := vars["salary"]
@@ -2305,7 +2315,7 @@ func LandingPageForSkillAndLocationPlaceholderHandler(svr server.Server, jobRepo
 		loc := strings.ReplaceAll(vars["location"], "-", " ")
 		skill := strings.ReplaceAll(vars["skill"], "-", " ")
 		page := r.URL.Query().Get("p")
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, loc, skill, page, salary, currency, "landing.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, bookmarkRepo, loc, skill, page, salary, currency, "landing.html")
 	}
 }
 
@@ -2609,15 +2619,15 @@ func SalaryLandingPageLocationHandler(svr server.Server, jobRepo *job.Repository
 	}
 }
 
-func ViewNewsletterPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
+func ViewNewsletterPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, bookmarkRepo *bookmark.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, "", "", "", "", "", "newsletter.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, bookmarkRepo, "", "", "", "", "", "newsletter.html")
 	}
 }
 
-func ViewCommunityNewsletterPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
+func ViewCommunityNewsletterPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, bookmarkRepo *bookmark.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, "", "", "", "", "", "news.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, bookmarkRepo, "", "", "", "", "", "news.html")
 	}
 }
 
@@ -2632,9 +2642,9 @@ func DisableDirListing(next http.Handler) http.Handler {
 	})
 }
 
-func ViewSupportPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository) http.HandlerFunc {
+func ViewSupportPageHandler(svr server.Server, jobRepo *job.Repository, devRepo *developer.Repository, bookmarkRepo *bookmark.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, "", "", "", "", "", "support.html")
+		svr.RenderPageForLocationAndTag(w, r, jobRepo, devRepo, bookmarkRepo, "", "", "", "", "", "support.html")
 	}
 }
 

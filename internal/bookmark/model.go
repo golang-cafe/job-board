@@ -8,7 +8,7 @@ import (
 
 type Bookmark struct {
 	UserID    string
-	JobPostID string
+	JobPostID int
 	CreatedAt time.Time
 	AppliedAt pq.NullTime
 

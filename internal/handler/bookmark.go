@@ -1,14 +1,15 @@
-package bookmark
+package handler
 
 import (
 	"net/http"
 
+	"github.com/golang-cafe/job-board/internal/bookmark"
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/middleware"
 	"github.com/golang-cafe/job-board/internal/server"
 )
 
-func BookmarkListHandler(svr server.Server, bookmarkRepo *Repository) http.HandlerFunc {
+func BookmarkListHandler(svr server.Server, bookmarkRepo *bookmark.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
 		if err != nil {
@@ -31,7 +32,7 @@ func BookmarkListHandler(svr server.Server, bookmarkRepo *Repository) http.Handl
 	}
 }
 
-func BookmarkJobHandler(svr server.Server, bookmarkRepo *Repository, jobRepo *job.Repository) http.HandlerFunc {
+func BookmarkJobHandler(svr server.Server, bookmarkRepo *bookmark.Repository, jobRepo *job.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
 		if err != nil {

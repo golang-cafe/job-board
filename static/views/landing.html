@@ -951,6 +951,7 @@
 		{{ $tagFilter := .TagFilter }}
 		{{ $siteJobCatURLEnc := .SiteJobCategoryURLEncoded }}
 		{{ $siteHost := .SiteHost }}
+		{{ $bookmarksByJobId := .BookmarksByJobId }}
 		{{ range $i, $j := .PinnedJobs }}
 		<article class="line-item line-item-sponsored-1">
 			{{ if .CompanyIconID }}
@@ -981,13 +982,21 @@
 				{{ .InterviewProcess }}
 				{{ end }}
 				{{ if .IsQuickApply }}
-				<input type="submit" style="float:right;" class="apply-btn" value="Quick Apply"
-					onclick="apply('{{ .HowToApply }}', '{{ .ExternalID }}');">
+				<input type="submit" style="float:right;" class="apply-btn"
+					value="{{ with $bookmark := index $bookmarksByJobId .ID }}{{ if $bookmark.HasApplyRecord }}Applied{{ else }}Quick Apply{{ end }}{{ else }}Quick Apply{{ end }}"
+					onclick="apply('{{ .HowToApply }}', '{{ .ExternalID }}');"
+					{{ with $bookmark := index $bookmarksByJobId .ID }}{{ if $bookmark.HasApplyRecord }}disabled{{ end }}{{ end }}
+				/>
 				{{ else }}
 				<a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow"
 					class="apply-link">Apply</a>
 				{{ end }}
-                <input type="submit" style="float:right;" class="bookmark-btn" value="Save Job" onclick="bookmark(this, '{{ .ExternalID }}');">
+                <input type="submit" style="float:right;" class="bookmark-btn"
+					value="{{ if index $bookmarksByJobId .ID }}Saved{{ else }}Save Job{{ end }}"
+					onclick="bookmark(this, '{{ .ExternalID }}');"
+					{{ if index $bookmarksByJobId .ID }}disabled{{ end }}
+				/>
+
 				<a class="copy-to-clipboard" data-link="https://{{ $siteHost }}/job/{{ .Slug }}"
 					style="font-size: 10pt;padding: 6.525px 23.4px; float: right;">&#x2398; Copy Link</a>
 				<a href="/job/{{ .Slug }}" rel="noreferrer" target="_blank"
@@ -1049,13 +1058,21 @@
 				{{ end }}
 				{{ if not .Expired }}
 				{{ if .IsQuickApply }}
-				<input type="submit" style="float:right;" class="apply-btn" value="Quick Apply"
-					onclick="apply('{{ .HowToApply }}', '{{ .ExternalID }}');">
+				<input type="submit" style="float:right;" class="apply-btn"
+					value="{{ with $bookmark := index $bookmarksByJobId .ID }}{{ if $bookmark.HasApplyRecord }}Applied{{ else }}Quick Apply{{ end }}{{ else }}Quick Apply{{ end }}"
+					onclick="apply('{{ .HowToApply }}', '{{ .ExternalID }}');"
+					{{ with $bookmark := index $bookmarksByJobId .ID }}{{ if $bookmark.HasApplyRecord }}disabled{{ end }}{{ end }}
+				/>
 				{{ else }}
 				<a href="/x/r?j={{ .ExternalID }}" style="float:right;" target="_blank" rel="noopener nofollow"
 					class="apply-link">Apply</a>
 				{{ end }}
-                <input type="submit" style="float:right;" class="bookmark-btn" value="Save Job" onclick="bookmark(this, '{{ .ExternalID }}');">
+                
+                <input type="submit" style="float:right;" class="bookmark-btn" 
+					value="{{ if index $bookmarksByJobId .ID }}Saved{{ else }}Save Job{{ end }}" 
+					onclick="bookmark(this, '{{ .ExternalID }}');"
+					{{ if index $bookmarksByJobId .ID }}disabled{{ end }}
+				/>
 				{{ else }}
 				<input type="submit" style="float:right;" class="apply-btn" disabled value="Job Expired">
 				{{ end }}
