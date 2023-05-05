@@ -834,7 +834,7 @@
             xhr.send(JSON.stringify(body));
             xhr.onreadystatechange = function () {
                 if (xhr.readyState === 4) {
-                    cb(xhr.status === 200, xhr.response);
+                    cb(xhr.status, xhr.response);
                 }
             }
         };
@@ -846,13 +846,18 @@
                 document.getElementById("spinner-0").style.display = "none";
                 return;
             }
-            post({ email: email }, function (success) {
+            post({ email: email }, function (status) {
                 document.getElementById("spinner-0").style.display = "none";
-                if (success) {
-                    alert("Check your inbox");
-                    document.getElementById("email").value = "";
-                } else {
-                    alert('Oops, this email looks incorrect');
+                switch(status) {
+                    case 200:
+                        alert("Check your inbox");
+                        document.getElementById("email").value = "";
+                        break;
+                    case 429:
+                        alert("Please try again later, you sent too many login requests")
+                        break;
+                    default:
+                        alert('Oops, this email looks incorrect');
                 }
             });
         }
