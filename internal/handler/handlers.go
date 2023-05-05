@@ -2020,7 +2020,6 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *j
 		}
 
 		numberOfAttempts = numberOfAttempts + 1
-		attemptsByte := []byte(strconv.Itoa(numberOfAttempts))
 		svr.CacheSet(req.Email, attemptsByte)
 
 		token := k.String()
