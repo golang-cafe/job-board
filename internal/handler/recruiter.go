@@ -3,11 +3,12 @@ package handler
 import (
 	"net/http"
 
+	"github.com/golang-cafe/job-board/internal/developer"
 	"github.com/golang-cafe/job-board/internal/middleware"
 	"github.com/golang-cafe/job-board/internal/server"
 )
 
-func SentMessages(svr server.Server) http.HandlerFunc {
+func SentMessages(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
 	return middleware.UserAuthenticatedMiddleware(
 		svr.SessionStore,
 		svr.GetJWTSigningKey(),
@@ -17,6 +18,17 @@ func SentMessages(svr server.Server) http.HandlerFunc {
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
 			}
-			svr.Render(r, w, http.StatusOK, "sent-messages.html", map[string]interface{}{})
+
+			messages, err := devRepo.GetDeveloperMessagesSentFrom(profile.UserID)
+			if err != nil {
+				svr.Log(err, "GetDeveloperMessagesSentFrom")
+			}
+
+			err = svr.Render(r, w, http.StatusOK, "sent-messages.html", map[string]interface{}{
+				"Messages": messages,
+			})
+			if err != nil {
+				svr.Log(err, "unable to render sent messages page")
+			}
 		})
 }
