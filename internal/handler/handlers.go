@@ -1988,7 +1988,7 @@ func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *j
 		}
 
 		numberOfAttempts := 0
-		cachedAttempts, found := svr.CacheGet(req.Email)
+		cachedAttempts, found := svr.CacheGet(fmt.Sprintf("sign-on-request-%s", req.Email))
 		if found {
 			attempts, err := strconv.Atoi(string(cachedAttempts))
 			if err == nil {
