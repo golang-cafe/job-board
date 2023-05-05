@@ -856,4 +856,8 @@ CREATE TABLE public.bookmark (
     CONSTRAINT "bookmark_pkey" PRIMARY KEY ("user_id", "job_id"),
     CONSTRAINT bookmark_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id),
     CONSTRAINT bookmark_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.job(id)
-)
+);
+
+ALTER TABLE public.developer_profile_message
+    ADD COLUMN sender_id bpchar(27) NOT NULL,
+    ADD CONSTRAINT developer_profile_message_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id);
