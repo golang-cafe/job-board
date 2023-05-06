@@ -562,3 +562,66 @@ func (r *Repository) TrackDeveloperProfileMessageSent(dev Developer) error {
 	_, err := r.db.Exec(stmt, developerProfileEventMessageSent, dev.ID)
 	return err
 }
+
+func (r *Repository) GetViewCountForProfile(profileID string) (int, error) {
+	var count int
+	row := r.db.QueryRow(`
+		SELECT count(*) AS c
+		FROM developer_profile_event
+		WHERE developer_profile_event.event_type = 'developer_profile_page_view'
+			AND developer_profile_event.developer_profile_id = $1`,
+		profileID)
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, err
+}
+
+func (r *Repository) GetMessagesCountForJob(profileID string) (int, error) {
+	var count int
+	row := r.db.QueryRow(`
+		SELECT count(*) AS c
+		FROM developer_profile_event
+		WHERE developer_profile_event.event_type = 'developer_profile_message_sent'
+			AND developer_profile_event.developer_profile_id = $1`,
+		profileID)
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, err
+}
+
+func (r *Repository) GetStatsForProfile(profileID string) ([]DevStat, error) {
+	var stats []DevStat
+	rows, err := r.db.Query(`
+		SELECT COUNT(*) FILTER (
+				WHERE event_type = 'developer_profile_message_sent'
+			) AS messages,
+			COUNT(*) FILTER (
+				WHERE event_type = 'developer_profile_page_view'
+			) AS pageview,
+			TO_CHAR(DATE_TRUNC('day', created_at), 'YYYY-MM-DD')
+		FROM developer_profile_event
+		WHERE developer_profile_id = $1
+		GROUP BY DATE_TRUNC('day', created_at)
+		ORDER BY DATE_TRUNC('day', created_at) ASC`,
+		profileID)
+	if err == sql.ErrNoRows {
+		return stats, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var s DevStat
+		if err := rows.Scan(&s.SentMessages, &s.PageViews, &s.Date); err != nil {
+			return stats, err
+		}
+		stats = append(stats, s)
+	}
+
+	return stats, nil
+}

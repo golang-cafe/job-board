@@ -115,3 +115,9 @@ type DeveloperMetadata struct {
 	Description        string
 	Link               *string
 }
+
+type DevStat struct {
+	Date         string `json:"date"`
+	PageViews    int    `json:"pageviews"`
+	SentMessages int    `json:"messages"`
+}
