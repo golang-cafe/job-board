@@ -1,27 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <title>{{ .SiteName }} Sent Messages | {{ .MonthAndYear }}</title>
+    <title>{{ .SiteName }} Messages | {{ .MonthAndYear }}</title>
     <link href="/x/s/m/{{ .SiteLogoImageID }}?w=50&h=50" rel="shortcut icon" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="title" content="{{ .SiteName }} Sent Messages | {{ .MonthAndYear }}" />
+    <meta name="title" content="{{ .SiteName }} Messages | {{ .MonthAndYear }}" />
     <meta
       name="keywords"
       content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} software engineer, remote {{ .SiteJobCategory }}"
     />
-    <meta name="description" content="{{ .SiteName }} Sent Messages | {{ .MonthAndYear }}" />
-    <meta itemprop="name" content="{{ .SiteName }} Sent Messages | {{ .MonthAndYear }}" />
-    <meta itemprop="description" content="{{ .SiteName }} Sent Messages | {{ .MonthAndYear }}" />
+    <meta name="description" content="{{ .SiteName }} Messages | {{ .MonthAndYear }}" />
+    <meta itemprop="name" content="{{ .SiteName }} Messages | {{ .MonthAndYear }}" />
+    <meta itemprop="description" content="{{ .SiteName }} Messages | {{ .MonthAndYear }}" />
     <meta itemprop="image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}" />
     <meta property="og:url" content="https://{{ .SiteHost }}" />
     <meta property="og:type" content="website" />
-    <meta property="og:title" content="{{ .SiteName }} Sent Messages | {{ .MonthAndYear }}" />
-    <meta property="og:description" content="{{ .SiteName }} Sent Messages | {{ .MonthAndYear }}" />
+    <meta property="og:title" content="{{ .SiteName }} Messages | {{ .MonthAndYear }}" />
+    <meta property="og:description" content="{{ .SiteName }} Messages | {{ .MonthAndYear }}" />
     <meta property="og:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="{{ .SiteName }} Sent Messages | {{ .MonthAndYear }}" />
-    <meta name="twitter:description" content="{{ .SiteName }} Sent Messages | {{ .MonthAndYear }}" />
-    <link rel="canonical" href="https://{{ .SiteHost }}/profile/sent" />
+    <meta name="twitter:title" content="{{ .SiteName }} Messages | {{ .MonthAndYear }}" />
+    <meta name="twitter:description" content="{{ .SiteName }} Messages | {{ .MonthAndYear }}" />
+    <link rel="canonical" href="https://{{ .SiteHost }}/profile/messages" />
     <meta name="twitter:image" content="https://{{ .SiteHost }}/x/s/m/{{ .SiteLogoImageID }}" />
     <meta name="twitter:site" content="@{{ .SiteTwitter }}" />
     <style>
@@ -40,29 +40,56 @@
     @keyframes lds-ring {0% {transform: rotate(0deg);} 100% {transform: rotate(360deg);}}#spinner-0{display: none;}
     .apply-box {z-index: 100000;display: none;width: 50%; height: auto;position: fixed;margin: 5% auto; top: 40px; left: 0; right: 0;background: #fff;}@media only screen and (max-width: 768px) {.apply-box{width: 90%;}}
     footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}.hover-pointer{cursor: pointer;}
+    .line {
+          fill: none;
+          stroke: steelblue;
+          stroke-width: 2px;
+        }
     </style>
     {{ template "google-analytics" }}
   </head>
   <body>
     {{ template "header-html" . }}
     <section style="margin: 30px auto">
-      <h1>Sent Messages</h1>
+      <h1>Messages</h1>
       
       {{ if not .Messages }}
         <article class="line-item">
-          <p>You haven't sent any messages.</p>
+          <p>You haven't received any messages.</p>
         </article>
       {{ else }}
         {{ range $i, $j := .Messages }}
           <article class="line-item">
-              <span><strong>To:</strong> <a href="/developer/{{ .ProfileSlug }}" target="_blank">{{ .RecipientName }}</a></span><br>
-              <span><strong>From:</strong> <span>{{ .Email }}</span><br>
+              <span><strong>From:</strong> <a href="mailto:{{ .Email }}">{{ .Email }}</a><br>
               <span><strong>Sent:</strong> <span>{{ .CreatedAt.Format "Jan 02, 2006 15:04:05 UTC" }}</span></span><br><br>
               <span><strong>Message:</strong></span><br>
               <blockquote style="border: none">{{ .Content }}</blockquote>
           </article>
         {{ end }}
       {{ end }}
+
+      <article>
+        <h3>Stats</h3>
+
+        <small>
+            {{ if .ViewCount }}
+                <b>Total Profile Views:</b> {{ .ViewCount }}<br>
+            {{ end }}
+            {{ if .MessagesCount }}
+                <b>Total Received Messages:</b> {{ .MessagesCount }}<br>
+            {{ end }}
+        </small>
+
+        <div style="margin-top: 2em;">
+          {{ if .ViewCount }}
+            {{ template "pageviews-chart" .}}
+          {{ end }}
+          
+          {{ if .MessagesCount }}
+            {{ template "messages-chart" .}}
+          {{ end }}
+        </div>
+      </article>
     </section>
     <footer>
       <h4 style="margin-left: 9px">{{ .SiteName }}</h4>
@@ -90,5 +117,15 @@
         </ul>
       </nav>
     </footer>
+
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+
+    {{ if .ViewCount }}
+        {{ template "pageviews-chart-js" .}}
+    {{ end }}
+    
+    {{ if .MessagesCount }}
+        {{ template "messages-chart-js" .}}
+    {{ end }}
   </body>
 </html>

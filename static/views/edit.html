@@ -154,31 +154,33 @@ body{background:#ffffff;}
     {{ end }}
     <script>
         var durations = document.getElementById("duration-field-select");
-        durations.addEventListener("change", function() {
-            var baseVal = document.getElementById("plan-1-item-price").value;
-            document.getElementById("plan-1-total-price").value = baseVal*durations.value;
-            document.getElementById("plan-1-label-price").innerText = "US$"+baseVal*durations.value;
-            document.getElementById("plan-1-live-days").innerText = parseInt(document.getElementById("plan-1-live-days-base").value)*durations.value;
+        if (durations) {
+            durations.addEventListener("change", function() {
+                var baseVal = document.getElementById("plan-1-item-price").value;
+                document.getElementById("plan-1-total-price").value = baseVal*durations.value;
+                document.getElementById("plan-1-label-price").innerText = "US$"+baseVal*durations.value;
+                document.getElementById("plan-1-live-days").innerText = parseInt(document.getElementById("plan-1-live-days-base").value)*durations.value;
 
-            var baseVal = document.getElementById("plan-2-item-price").value;
-            document.getElementById("plan-2-total-price").value = baseVal*durations.value;
-            document.getElementById("plan-2-label-price").innerText = "US$"+baseVal*durations.value;
-            document.getElementById("plan-2-featured-days").innerText = parseInt(document.getElementById("plan-2-featured-days-base").value)*durations.value;
-            document.getElementById("plan-2-live-days").innerText = parseInt(document.getElementById("plan-2-live-days-base").value)*durations.value;
+                var baseVal = document.getElementById("plan-2-item-price").value;
+                document.getElementById("plan-2-total-price").value = baseVal*durations.value;
+                document.getElementById("plan-2-label-price").innerText = "US$"+baseVal*durations.value;
+                document.getElementById("plan-2-featured-days").innerText = parseInt(document.getElementById("plan-2-featured-days-base").value)*durations.value;
+                document.getElementById("plan-2-live-days").innerText = parseInt(document.getElementById("plan-2-live-days-base").value)*durations.value;
 
-            var baseVal = document.getElementById("plan-3-item-price").value;
-            document.getElementById("plan-3-total-price").value = baseVal*durations.value;
-            document.getElementById("plan-3-label-price").innerText = "US$"+baseVal*durations.value;
-            document.getElementById("plan-3-featured-days").innerText = parseInt(document.getElementById("plan-3-featured-days-base").value)*durations.value;
-            document.getElementById("plan-3-live-days").innerText = parseInt(document.getElementById("plan-3-live-days-base").value)*durations.value;
-            
-            var planExpirationDate = new Date();
-            planExpirationDate.setDate(planExpirationDate.getDate() + 30 * durations.value);
-            var monthNames = ["January", "February", "March", "April", "May", "June",
-              "July", "August", "September", "October", "November", "December"
-            ];
-            document.getElementById("plan-expiration-date").innerHTML = planExpirationDate.getDate()+" "+monthNames[planExpirationDate.getMonth()]+" "+planExpirationDate.getFullYear();
-        });
+                var baseVal = document.getElementById("plan-3-item-price").value;
+                document.getElementById("plan-3-total-price").value = baseVal*durations.value;
+                document.getElementById("plan-3-label-price").innerText = "US$"+baseVal*durations.value;
+                document.getElementById("plan-3-featured-days").innerText = parseInt(document.getElementById("plan-3-featured-days-base").value)*durations.value;
+                document.getElementById("plan-3-live-days").innerText = parseInt(document.getElementById("plan-3-live-days-base").value)*durations.value;
+                
+                var planExpirationDate = new Date();
+                planExpirationDate.setDate(planExpirationDate.getDate() + 30 * durations.value);
+                var monthNames = ["January", "February", "March", "April", "May", "June",
+                "July", "August", "September", "October", "November", "December"
+                ];
+                document.getElementById("plan-expiration-date").innerHTML = planExpirationDate.getDate()+" "+monthNames[planExpirationDate.getMonth()]+" "+planExpirationDate.getFullYear();
+            });
+        }
       function renew(planType) {
         var planDuration = document.getElementById("duration-field-select").value;
         var email = document.getElementById("company-email").value;
@@ -262,13 +264,11 @@ body{background:#ffffff;}
             </small><br><br>
             
             {{ if .ViewCount }}
-                <h3>Pageviews</h3>
-                <div id="job-stats-pageviews"></div>
+                {{ template "pageviews-chart" .}}
             {{ end }}
-
+            
             {{ if .ClickoutCount }}
-                <h3>Clickouts</h3>
-                <div id="job-stats-clickouts"></div>
+                {{ template "clickout-chart" .}}
             {{ end }}
         </p>
     </article>
@@ -660,87 +660,15 @@ body{background:#ffffff;}
             return !isThere;
         };
 
-{{ if and .ClickoutCount .ViewCount }}
-// set the dimensions and margins of the graph
-var margin = {top: 20, right: 20, bottom: 30, left: 50},
-    width = 600 - margin.left - margin.right,
-    height = 500 - margin.top - margin.bottom;
-
-// parse the date / time
-var parseTime = d3.timeParse("%Y-%m-%d");
-
-// set the ranges
-var x = d3.scaleTime().range([0, width]);
-var y = d3.scaleLinear().range([height, 0]);
-
-// define the 1st line
-var clickouts = d3.line()
-    .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.clickouts); });
-
-// define the 2nd line
-var pageviews = d3.line()
-    .x(function(d) { return x(d.date); })
-    .y(function(d) { return y(d.pageviews); });
-
-
-var pageviewsSvg = d3.select("#job-stats-pageviews").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
-
-var data = {{ .Stats }};
-data.forEach(function (d) { d.date = parseTime(d.date);})
-
-// Scale the range of the data
-x.domain(d3.extent(data, function(d) { return d.date; }));
-  y.domain([0, d3.max(data, function(d) { return d.pageviews })]);
-
-  // Add the valueline path.
-  pageviewsSvg.append("path")
-      .data([data])
-      .attr("class", "line")
-      .attr("d", pageviews);
-
-  // Add the X Axis
-  pageviewsSvg.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
-
-  // Add the Y Axis
-  pageviewsSvg.append("g")
-      .call(d3.axisLeft(y));
-
-var clickoutsSvg = d3.select("#job-stats-clickouts").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height", height + margin.top + margin.bottom)
-  .append("g")
-    .attr("transform",
-          "translate(" + margin.left + "," + margin.top + ")");
-
-
-// Scale the range of the data
-x.domain(d3.extent(data, function(d) { return d.date; }));
-  y.domain([0, d3.max(data, function(d) { return d.clickouts })]);
-
-  // Add the valueline path.
-  clickoutsSvg.append("path")
-      .data([data])
-      .attr("class", "line")
-      .attr("d", clickouts);
-
-  // Add the X Axis
-  clickoutsSvg.append("g")
-      .attr("transform", "translate(0," + height + ")")
-      .call(d3.axisBottom(x));
-
-  // Add the Y Axis
-  clickoutsSvg.append("g")
-      .call(d3.axisLeft(y));
-      {{ end }}
     </script>
+    
+{{ if .ViewCount }}
+    {{ template "pageviews-chart-js" .}}
+{{ end }}
+
+{{ if .ClickoutCount }}
+    {{ template "clickout-chart-js" .}}
+{{ end }}
   
 </body>
 </html>

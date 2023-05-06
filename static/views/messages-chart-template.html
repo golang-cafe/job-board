@@ -1,0 +1,58 @@
+{{ define "messages-chart" }}
+    <h3>Received Messages</h3>
+    <div id="stats-messages"></div>
+{{ end }}
+
+{{ define "messages-chart-js" }}
+<script>
+    var data = {{ .Stats }};
+
+    // set the dimensions and margins of the graph
+    var margin = {top: 20, right: 20, bottom: 30, left: 50},
+        width = 600 - margin.left - margin.right,
+        height = 500 - margin.top - margin.bottom;
+
+    // parse the date / time
+    var parseTime = d3.timeParse("%Y-%m-%d");
+    data.forEach(function (d) { d.date = parseTime(d.date);})
+
+    // set the ranges
+    var x = d3.scaleTime().range([0, width]);
+    var y = d3.scaleLinear().range([height, 0]);
+
+    // define the 1st line
+    var clickouts = d3.line()
+        .x(function(d) { return x(d.date); })
+        .y(function(d) { return y(d.clickouts); });
+
+    // define the 2nd line
+    var messages = d3.line()
+        .x(function(d) { return x(d.date); })
+        .y(function(d) { return y(d.messages); });
+
+    var messagesSvg = d3.select("#stats-messages").append("svg")
+        .attr("width", width + margin.left + margin.right)
+        .attr("height", height + margin.top + margin.bottom)
+        .append("g")
+        .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+    // Scale the range of the data
+    x.domain(d3.extent(data, function(d) { return d.date; }));
+    y.domain([0, d3.max(data, function(d) { return d.messages })]);
+
+    // Add the valueline path.
+    messagesSvg.append("path")
+        .data([data])
+        .attr("class", "line")
+        .attr("d", messages);
+
+    // Add the X Axis
+    messagesSvg.append("g")
+        .attr("transform", "translate(0," + height + ")")
+        .call(d3.axisBottom(x));
+
+    // Add the Y Axis
+    messagesSvg.append("g")
+        .call(d3.axisLeft(y));
+</script>
+{{ end }}

@@ -178,6 +178,7 @@ func (r *Repository) MarkDeveloperMessageAsSent(id string) error {
 	_, err := r.db.Exec(`UPDATE developer_profile_message SET sent_at = NOW() WHERE id = $1`, id)
 	return err
 }
+
 func (r *Repository) GetDeveloperMessagesSentFrom(userID string) ([]*DeveloperMessage, error) {
 	messages := []*DeveloperMessage{}
 	var rows *sql.Rows
@@ -195,6 +196,53 @@ func (r *Repository) GetDeveloperMessagesSentFrom(userID string) ([]*DeveloperMe
 		WHERE dpm.sender_id = $1
 		ORDER BY dpm.created_at DESC`,
 		userID)
+	if err != nil {
+		return messages, err
+	}
+
+	defer rows.Close()
+	for rows.Next() {
+		message := &DeveloperMessage{}
+		err := rows.Scan(
+			&message.ID,
+			&message.Email,
+			&message.Content,
+			&message.RecipientName,
+			&message.ProfileID,
+			&message.ProfileSlug,
+			&message.CreatedAt,
+			&message.SenderID,
+		)
+		if err != nil {
+			return messages, err
+		}
+
+		messages = append(messages, message)
+	}
+	err = rows.Err()
+	if err != nil {
+		return messages, err
+	}
+	return messages, nil
+}
+
+func (r *Repository) GetDeveloperMessagesSentTo(devID string) ([]*DeveloperMessage, error) {
+	messages := []*DeveloperMessage{}
+	var rows *sql.Rows
+	rows, err := r.db.Query(
+		`SELECT dpm.id,
+			dpm.email,
+			dpm.content,
+			dp.name,
+			dpm.profile_id,
+			dp.slug,
+			dpm.created_at,
+			dpm.sender_id
+		FROM developer_profile_message dpm
+			JOIN developer_profile dp ON dp.id = dpm.profile_id
+		WHERE dpm.profile_id = $1
+		ORDER BY dpm.created_at DESC`,
+		devID)
 	if err != nil {
 		return messages, err
 	}
@@ -513,4 +561,67 @@ func (r *Repository) TrackDeveloperProfileMessageSent(dev Developer) error {
 	stmt := `INSERT INTO developer_profile_event (event_type, developer_profile_id, created_at) VALUES ($1, $2, NOW())`
 	_, err := r.db.Exec(stmt, developerProfileEventMessageSent, dev.ID)
 	return err
+}
+
+func (r *Repository) GetViewCountForProfile(profileID string) (int, error) {
+	var count int
+	row := r.db.QueryRow(`
+		SELECT count(*) AS c
+		FROM developer_profile_event
+		WHERE developer_profile_event.event_type = 'developer_profile_page_view'
+			AND developer_profile_event.developer_profile_id = $1`,
+		profileID)
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, err
+}
+
+func (r *Repository) GetMessagesCountForJob(profileID string) (int, error) {
+	var count int
+	row := r.db.QueryRow(`
+		SELECT count(*) AS c
+		FROM developer_profile_event
+		WHERE developer_profile_event.event_type = 'developer_profile_message_sent'
+			AND developer_profile_event.developer_profile_id = $1`,
+		profileID)
+	err := row.Scan(&count)
+	if err != nil {
+		return 0, err
+	}
+	return count, err
+}
+
+func (r *Repository) GetStatsForProfile(profileID string) ([]DevStat, error) {
+	var stats []DevStat
+	rows, err := r.db.Query(`
+		SELECT COUNT(*) FILTER (
+				WHERE event_type = 'developer_profile_message_sent'
+			) AS messages,
+			COUNT(*) FILTER (
+				WHERE event_type = 'developer_profile_page_view'
+			) AS pageview,
+			TO_CHAR(DATE_TRUNC('day', created_at), 'YYYY-MM-DD')
+		FROM developer_profile_event
+		WHERE developer_profile_id = $1
+		GROUP BY DATE_TRUNC('day', created_at)
+		ORDER BY DATE_TRUNC('day', created_at) ASC`,
+		profileID)
+	if err == sql.ErrNoRows {
+		return stats, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		var s DevStat
+		if err := rows.Scan(&s.SentMessages, &s.PageViews, &s.Date); err != nil {
+			return stats, err
+		}
+		stats = append(stats, s)
+	}
+
+	return stats, nil
 }
