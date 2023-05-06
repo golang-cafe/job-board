@@ -1131,21 +1131,6 @@ func (r *Repository) SaveTokenForJob(token string, jobID int) error {
 	return err
 }
 
-func (r *Repository) GetValue(key string) (string, error) {
-	res := r.db.QueryRow(`SELECT value FROM meta WHERE key = $1`, key)
-	var val string
-	err := res.Scan(&val)
-	if err != nil {
-		return "", err
-	}
-	return val, nil
-}
-
-func (r *Repository) SetValue(key, val string) error {
-	_, err := r.db.Exec(`UPDATE meta SET value = $1 WHERE key = $2`, val, key)
-	return err
-}
-
 func (r *Repository) ApplyToJob(jobID int, cv []byte, email, token string) error {
 	stmt := `INSERT INTO apply_token (token, job_id, created_at, email, cv) VALUES ($1, $2, NOW(), $3, $4)`
 	_, err := r.db.Exec(stmt, token, jobID, email, cv)

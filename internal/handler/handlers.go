@@ -1019,7 +1019,7 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
-				lastJobIDStr, err := jobRepo.GetValue("last_sent_job_id_weekly")
+				lastJobIDStr, err := svr.MetaRepo.GetValue("last_sent_job_id_weekly")
 				if err != nil {
 					svr.Log(err, "unable to retrieve last newsletter weekly job id")
 					return
@@ -1069,7 +1069,7 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 					}
 				}
 				lastJobIDStr = strconv.Itoa(lastJobID)
-				err = jobRepo.SetValue("last_sent_job_id_weekly", lastJobIDStr)
+				err = svr.MetaRepo.SetValue("last_sent_job_id_weekly", lastJobIDStr)
 				if err != nil {
 					svr.Log(err, "unable to save last weekly newsletter job id to db")
 					return
@@ -1085,7 +1085,7 @@ func TriggerTelegramScheduler(svr server.Server, jobRepo *job.Repository) http.H
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
-				lastTelegramJobIDStr, err := jobRepo.GetValue("last_telegram_job_id")
+				lastTelegramJobIDStr, err := svr.MetaRepo.GetValue("last_telegram_job_id")
 				if err != nil {
 					svr.Log(err, "unable to retrieve last telegram job id")
 					return
@@ -1112,7 +1112,7 @@ func TriggerTelegramScheduler(svr server.Server, jobRepo *job.Repository) http.H
 					lastJobID = j.ID
 				}
 				lastJobIDStr := strconv.Itoa(lastJobID)
-				err = jobRepo.SetValue("last_telegram_job_id", lastJobIDStr)
+				err = svr.MetaRepo.SetValue("last_telegram_job_id", lastJobIDStr)
 				if err != nil {
 					svr.Log(err, fmt.Sprintf("unable to save last telegram job id to db as %s", lastJobIDStr))
 					return
@@ -1182,7 +1182,7 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
-				lastTwittedJobIDStr, err := jobRepo.GetValue("last_twitted_job_id")
+				lastTwittedJobIDStr, err := svr.MetaRepo.GetValue("last_twitted_job_id")
 				if err != nil {
 					svr.Log(err, "unable to retrieve last twitter job id")
 					return
@@ -1208,7 +1208,7 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 					lastJobID = j.ID
 				}
 				lastJobIDStr := strconv.Itoa(lastJobID)
-				err = jobRepo.SetValue("last_twitted_job_id", lastJobIDStr)
+				err = svr.MetaRepo.SetValue("last_twitted_job_id", lastJobIDStr)
 				if err != nil {
 					svr.Log(err, fmt.Sprintf("unable to save last twitter job id to db as %s", lastJobIDStr))
 					return

@@ -20,6 +20,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/email"
 	"github.com/golang-cafe/job-board/internal/handler"
 	"github.com/golang-cafe/job-board/internal/job"
+	"github.com/golang-cafe/job-board/internal/meta"
 	"github.com/golang-cafe/job-board/internal/payment"
 	"github.com/golang-cafe/job-board/internal/recruiter"
 	"github.com/golang-cafe/job-board/internal/server"
@@ -75,6 +76,7 @@ func main() {
 	jobRepo := job.NewRepository(conn)
 	paymentRepo := payment.NewRepository(cfg.StripeKey, cfg.SiteName, cfg.SiteHost, cfg.URLProtocol)
 	bookmarkRepo := bookmark.NewRepository(conn)
+	metaRepo := meta.NewRepository(conn)
 
 	svr := server.NewServer(
 		cfg,
@@ -83,6 +85,7 @@ func main() {
 		template.NewTemplate(),
 		emailClient,
 		sessionStore,
+		metaRepo,
 	)
 
 	svr.RegisterRoute("/sitemap.xml", handler.SitemapIndexHandler(svr), []string{"GET"})

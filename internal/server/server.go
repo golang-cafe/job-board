@@ -28,6 +28,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/developer"
 	"github.com/golang-cafe/job-board/internal/email"
 	"github.com/golang-cafe/job-board/internal/job"
+	"github.com/golang-cafe/job-board/internal/meta"
 	"github.com/golang-cafe/job-board/internal/middleware"
 	"github.com/golang-cafe/job-board/internal/template"
 	"github.com/gorilla/mux"
@@ -51,6 +52,7 @@ type Server struct {
 	SessionStore *sessions.CookieStore
 	bigCache     *bigcache.BigCache
 	emailRe      *regexp.Regexp
+	MetaRepo     *meta.Repository
 }
 
 func NewServer(
@@ -60,6 +62,7 @@ func NewServer(
 	t *template.Template,
 	emailClient email.Client,
 	sessionStore *sessions.CookieStore,
+	metaRepo *meta.Repository,
 ) Server {
 	bigCache, err := bigcache.NewBigCache(bigcache.DefaultConfig(12 * time.Hour))
 	svr := Server{
@@ -71,6 +74,7 @@ func NewServer(
 		SessionStore: sessionStore,
 		bigCache:     bigCache,
 		emailRe:      regexp.MustCompile("^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"),
+		MetaRepo:     metaRepo,
 	}
 	if err != nil {
 		svr.Log(err, "unable to initialise big cache")
