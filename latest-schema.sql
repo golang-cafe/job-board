@@ -336,7 +336,7 @@ ALTER SEQUENCE public.job_id_seq OWNED BY public.job.id;
 
 CREATE TABLE public.meta (
     key character varying(255) NOT NULL,
-    value character varying(255) NOT NULL
+    value TEXT NOT NULL
 );
 
 

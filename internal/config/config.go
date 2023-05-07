@@ -67,6 +67,8 @@ type Config struct {
 	DevelopersBannerLink     string
 	DevelopersBannerText     string
 	URLProtocol              string
+	LinkedInClientID         string
+	LinkedInClientSecret     string
 }
 
 func LoadConfig() (Config, error) {
@@ -297,6 +299,14 @@ func LoadConfig() (Config, error) {
 	if !strings.EqualFold(env, "dev") {
 		urlProtocol = "https://"
 	}
+	linkedInClientID := os.Getenv("LINKEDIN_CLIENT_ID")
+	if linkedInClientID == "" {
+		return Config{}, fmt.Errorf("LINKEDIN_CLIENT_ID cannot be empty")
+	}
+	linkedInClientSecret := os.Getenv("LINKEDIN_CLIENT_SECRET")
+	if linkedInClientSecret == "" {
+		return Config{}, fmt.Errorf("LINKEDIN_CLIENT_SECRET cannot be empty")
+	}
 
 	return Config{
 		Port:                     port,
@@ -355,5 +365,7 @@ func LoadConfig() (Config, error) {
 		DevelopersBannerLink:     developersBannerLink,
 		DevelopersBannerText:     developersBannerText,
 		URLProtocol:              urlProtocol,
+		LinkedInClientID:         linkedInClientID,
+		LinkedInClientSecret:     linkedInClientSecret,
 	}, nil
 }

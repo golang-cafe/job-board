@@ -40,6 +40,7 @@ require (
 	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/stripe/stripe-go v62.10.0+incompatible
 	golang.org/x/image v0.5.0 // indirect
+	golang.org/x/oauth2 v0.7.0 // indirect
 	gopkg.in/russross/blackfriday.v2 v2.0.0
 	gopkg.in/stretchr/testify.v1 v1.2.2 // indirect
 )

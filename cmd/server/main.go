@@ -492,6 +492,12 @@ func main() {
 	// @admin: view job as admin (alias to manage/edit/{token})
 	svr.RegisterRoute("/manage/job/{slug}", handler.ManageJobBySlugViewPageHandler(svr, jobRepo), []string{"GET"})
 
+	// @admin: Manage LinkedIn authentication
+	svr.RegisterRoute("/manage/linkedin", handler.LinkedInAuthManage(svr), []string{"GET"})
+	svr.RegisterRoute("/manage/linkedin/auth", handler.LinkedInAuthInit(svr), []string{"GET"})
+	svr.RegisterRoute("/manage/linkedin/callback", handler.LinkedInAuthCallback(svr), []string{"GET"})
+	svr.RegisterRoute("/manage/linkedin/disconnect", handler.LinkedInAuthDisconnect(svr), []string{"GET"})
+
 	// @admin: view manage job page
 	svr.RegisterRoute("/manage/{token}", handler.ManageJobViewPageHandler(svr, jobRepo), []string{"GET"})
 

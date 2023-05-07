@@ -45,6 +45,9 @@ These are basic requirements with the respective versions have been tested to wo
 - **Sparkpost Mail** emails are sent using http requests through Sparkpost APIs. This is not enabled in local development mode.
 - **Telegram API** telegram updates are sent through the Job Board official Telegram channel. This is not enabled in local development mode.
 - **Twitter API** twitter updates are sent through the Job Board official page. This is not enabled in local development mode.
+- **LinkedIn API** LinkedIn updates are sent through the Job Board official page. This is not enabled in local development mode. Requires:
+  - "Share on LinkedIn" product
+  - "Sign In with LinkedIn" product, with `<siteUrl>/manage/linkedin/callback` set as an "Authorized redirect URLs for your app"
 - **FX API** a minimal set of Foreign Currency Exchange data is kept up-to-date to filter out salary ranges. This is not enabled in local development mode.
 
 **Setup Guide**
