@@ -33,6 +33,7 @@ func NewFromServer(svr server.Server) *LinkedInOAuth {
 		RedirectURL:  fmt.Sprintf("%s%s/manage/linkedin/callback", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost),
 		Scopes: []string{
 			ScopeMemberSocial,
+			// ScopeOrganizationSocial,
 			ScopeLiteProfile,
 		},
 	})
@@ -73,22 +74,20 @@ func (lo *LinkedInOAuth) GetUser(ctx context.Context, token *oauth2.Token) (*Lin
 }
 
 func (lo *LinkedInOAuth) SharePost(ctx context.Context, token *oauth2.Token, authorUser *LinkedInUser, text string, visibility Visibility) error {
+	// The version of the LinkedIn API this method was written against.
+	// Update this when migrating to newer versions.
+	linkedInVersion := "202304"
+
 	client := lo.config.Client(ctx, token)
 
-	postRequest := PostRequest{
-		Author:         fmt.Sprintf("urn:li:person:%s", authorUser.ID),
+	postRequest := TextPostRequest{
+		Author:     fmt.Sprintf("urn:li:person:%s", authorUser.ID),
+		Commentary: text,
+		Visibility: VisibilityPublic,
+		Distribution: DistributionStruct{
+			FeedDistribution: FeedDistributionMainFeed,
+		},
 		LifecycleState: LifecyclePublished,
-		SpecificContent: SpecificContent{
-			ShareContent: ShareContent{
-				ShareCommentary: ShareCommentary{
-					Text: text,
-				},
-				ShareMediaCategory: ShareMediaCategoryNone,
-			},
-		},
-		Visibility: VisibilityStruct{
-			Visibility: VisibilityPublic,
-		},
 	}
 
 	postJson, err := json.Marshal(postRequest)
@@ -100,6 +99,8 @@ func (lo *LinkedInOAuth) SharePost(ctx context.Context, token *oauth2.Token, aut
 	if err != nil {
 		return err
 	}
+
+	request.Header.Add("LinkedIn-Version", linkedInVersion)
 	request.Header.Add("X-Restli-Protocol-Version", "2.0.0")
 	resp, err := client.Do(request)
 	if err != nil {

@@ -46,8 +46,10 @@ These are basic requirements with the respective versions have been tested to wo
 - **Telegram API** telegram updates are sent through the Job Board official Telegram channel. This is not enabled in local development mode.
 - **Twitter API** twitter updates are sent through the Job Board official page. This is not enabled in local development mode.
 - **LinkedIn API** LinkedIn updates are sent through the Job Board official page. This is not enabled in local development mode. Requires:
-  - "Share on LinkedIn" product
-  - "Sign In with LinkedIn" product, with `<siteUrl>/manage/linkedin/callback` set as an "Authorized redirect URLs for your app"
+  - Create a LinkedIn app, linked to your Company page
+  - In the app settings, verify the Company association
+  - In the products tab, enable the "Community Management API" product
+  - (To be completed)
 - **FX API** a minimal set of Foreign Currency Exchange data is kept up-to-date to filter out salary ranges. This is not enabled in local development mode.
 
 **Setup Guide**

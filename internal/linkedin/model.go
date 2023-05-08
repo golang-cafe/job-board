@@ -6,10 +6,11 @@ import (
 
 const (
 	userInfoURL = "https://api.linkedin.com/v2/me"
-	postsURL    = "https://api.linkedin.com/v2/ugcPosts"
+	postsURL    = "https://api.linkedin.com/rest/posts"
 
-	ScopeMemberSocial = "w_member_social" // Create, modify, and delete posts, comments, and reactions on your behalf
-	ScopeLiteProfile  = "r_liteprofile"   // Use your name and photo
+	ScopeMemberSocial       = "w_member_social"       // Create, modify, and delete posts, comments, and reactions on your behalf
+	ScopeOrganizationSocial = "w_organization_social" // Post, comment and like posts on behalf of an organization. Restricted to organizations in which the authenticated member has one of the following company page roles:, ADMINISTRATOR, DIRECT_SPONSORED_CONTENT_POSTER, CONTENT_ADMIN
+	ScopeLiteProfile        = "r_liteprofile"         // Use your name and photo
 
 	MetaToken = "linkedin_token"
 )
@@ -44,34 +45,23 @@ const (
 	VisibilityConnections Visibility = "CONNECTIONS"
 )
 
-type ShareMediaCategory string
+type FeedDistribution string
 
 const (
-	ShareMediaCategoryNone    ShareMediaCategory = "NONE"
-	ShareMediaCategoryArticle ShareMediaCategory = "ARTICLE"
-	ShareMediaCategoryImage   ShareMediaCategory = "IMAGE"
+	FeedDistributionNone     FeedDistribution = "NONE"
+	FeedDistributionMainFeed FeedDistribution = "MAIN_FEED"
 )
 
-type ShareCommentary struct {
-	Text string `json:"text"`
+type DistributionStruct struct {
+	FeedDistribution               FeedDistribution `json:"feedDistribution"`
+	TargetEntities                 []interface{}    `json:"targetEntities,omitempty"`
+	ThirdPartyDistributionChannels []interface{}    `json:"thirdPartyDistributionChannels,omitempty"`
 }
 
-type ShareContent struct {
-	ShareCommentary    ShareCommentary    `json:"shareCommentary"`
-	ShareMediaCategory ShareMediaCategory `json:"shareMediaCategory"`
-}
-
-type SpecificContent struct {
-	ShareContent ShareContent `json:"com.linkedin.ugc.ShareContent"`
-}
-
-type VisibilityStruct struct {
-	Visibility Visibility `json:"com.linkedin.ugc.MemberNetworkVisibility"`
-}
-
-type PostRequest struct {
-	Author          string           `json:"author"`
-	LifecycleState  LifecycleState   `json:"lifecycleState"`
-	SpecificContent SpecificContent  `json:"specificContent"`
-	Visibility      VisibilityStruct `json:"visibility"`
+type TextPostRequest struct {
+	Author         string             `json:"author"`
+	Commentary     string             `json:"commentary"` // type "little text"?
+	Visibility     Visibility         `json:"visibility"`
+	Distribution   DistributionStruct `json:"distribution"`
+	LifecycleState LifecycleState     `json:"lifecycleState"`
 }
