@@ -1,6 +1,7 @@
 package linkedin
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
 	"errors"
@@ -69,4 +70,45 @@ func (lo *LinkedInOAuth) GetUser(ctx context.Context, token *oauth2.Token) (*Lin
 	}
 
 	return &user, nil
+}
+
+func (lo *LinkedInOAuth) SharePost(ctx context.Context, token *oauth2.Token, authorUser *LinkedInUser, text string, visibility Visibility) error {
+	client := lo.config.Client(ctx, token)
+
+	postRequest := PostRequest{
+		Author:         fmt.Sprintf("urn:li:person:%s", authorUser.ID),
+		LifecycleState: LifecyclePublished,
+		SpecificContent: SpecificContent{
+			ShareContent: ShareContent{
+				ShareCommentary: ShareCommentary{
+					Text: text,
+				},
+				ShareMediaCategory: ShareMediaCategoryNone,
+			},
+		},
+		Visibility: VisibilityStruct{
+			Visibility: VisibilityPublic,
+		},
+	}
+
+	postJson, err := json.Marshal(postRequest)
+	if err != nil {
+		return err
+	}
+
+	request, err := http.NewRequestWithContext(ctx, "POST", postsURL, bytes.NewBuffer(postJson))
+	if err != nil {
+		return err
+	}
+	request.Header.Add("X-Restli-Protocol-Version", "2.0.0")
+	resp, err := client.Do(request)
+	if err != nil {
+		return err
+	}
+
+	if resp.StatusCode != http.StatusCreated {
+		return errors.New("Unable to create LinkedIn post")
+	}
+
+	return nil
 }
