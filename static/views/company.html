@@ -43,7 +43,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 		<section style="margin: 30px auto;">
 			<article style="padding-bottom: 80px;">
 				<p>
-				<h1>{{ .Company.Name }}</h1>
+				<h1 style="margin-top:0px;">{{ .Company.Name }}</h1>
 				{{ if .Company.IconImageID }}
 				<img src="/x/s/m/{{ .Company.IconImageID }}?w=100&h=100" width="100" height="100" title="{{ .Company.Name }} Logo" alt="{{ .Company.Name }} Logo" style="border-radius: 50px; border: 1px solid #ccc;"/><br>
 				{{ end }}

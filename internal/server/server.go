@@ -412,8 +412,8 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 	if location != "" && !strings.EqualFold(location, "remote") {
 		locFromDB, err = database.GetLocation(s.Conn, location)
 		if err != nil {
-			locFromDB.Name = "Remote"
-			locFromDB.Currency = "$"
+			s.Redirect(w, r, http.StatusMovedPermanently, "/")
+			return
 		}
 	}
 	var minSalary int64 = 1<<63 - 1
@@ -734,9 +734,9 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		}()
 	}
 	loc, err := database.GetLocation(s.Conn, location)
-	if err != nil {
-		loc.Name = "Remote"
-		loc.Currency = "$"
+	if err != nil && location != "" {
+		s.Redirect(w, r, http.StatusFound, fmt.Sprintf("/%s-Developers", strings.Title(s.GetConfig().SiteJobCategory)))
+		return
 	}
 	topDevelopers, err := devRepo.GetTopDevelopers(10)
 	if err != nil {
