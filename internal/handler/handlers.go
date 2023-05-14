@@ -1345,8 +1345,7 @@ func TriggerAdsManager(svr server.Server, jobRepo *job.Repository) http.HandlerF
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
-			// TODO: add column to jobs and send emails
-			// get jobs if plan_expired_at is less than now and last_email_sent is between 2 weeks ago and now
+			// select * from job where plan_expired_at >= current_date - interval '30' day and plan_expired_at < NOW() and approved_at is not null and company_email != '<support email>'
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
 	)

@@ -861,3 +861,5 @@ CREATE TABLE public.bookmark (
 ALTER TABLE public.developer_profile_message
     ADD COLUMN sender_id bpchar(27) NOT NULL,
     ADD CONSTRAINT developer_profile_message_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id);
+
+ALTER TABLE public.job ADD COLUMN last_email_sent_at TIMESTAMP DEFAULT NULL;
