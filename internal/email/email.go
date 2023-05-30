@@ -105,6 +105,7 @@ func (e Client) SendHTMLEmail(from, to, replyTo Address, subject, text string) e
 
 	err := smtp.SendMail(e.smtpHost+":25", auth, e.smtpUser, []string{to.Email}, []byte(message))
 	if err != nil {
+		log.Println("error send mail", err.Error())
 		return err
 	}
 
