@@ -886,12 +886,10 @@
 	<link rel="canonical" href="https://{{ .SiteHost }}/Hire-{{ .SiteJobCategoryURLEncoded }}-Developers">
 	<script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
 	<script src="https://js.stripe.com/v3/"></script>
-	{{ template "feedback-box-css" . }}
 	{{ template "google-analytics" }}
 </head>
 
 <body>
-	{{ template "feedback-box-html" . }}
 	<div id="spinner-0">
 		<div class="overlay-effect"></div>
 		<div class="spinner-box">
@@ -1305,37 +1303,6 @@
 				}
 			}
 		};
-		document.getElementById('feedback-submit').addEventListener('click', function (event) {
-			var email = document.getElementById('feedback-email').value;
-			var message = document.getElementById('feedback-message').value;
-			if (empty(email, message)) {
-				alert('Email and message cannot be blank');
-				return;
-			}
-			if (!isEmail(email)) {
-				alert('Please enter a valid email address');
-				return;
-			}
-			postMessage({ email: email, message: message }, function (status) {
-				if (status) {
-					alert('Thanks for your message!');
-				} else {
-					alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
-				}
-				document.getElementById('feedback-email').value = '';
-				document.getElementById('feedback-message').value = '';
-				document.getElementById('feedback-box').style.display = 'none';
-				document.getElementById('feedback').style.display = 'block';
-			})
-		});
-		document.getElementById('feedback').addEventListener('click', function (event) {
-			document.getElementById('feedback').style.display = 'none';
-			document.getElementById('feedback-box').style.display = 'block';
-		});
-		document.getElementById('feedback-title').addEventListener('click', function (event) {
-			document.getElementById('feedback-box').style.display = 'none';
-			document.getElementById('feedback').style.display = 'block';
-		});
 		var getJSON = function (uri, cb) {
 			var xhr = new XMLHttpRequest();
 			xhr.open('GET', uri, true);

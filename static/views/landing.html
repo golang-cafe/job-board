@@ -871,11 +871,9 @@
 		}
 	</style>
 	{{ template "newsletter-banner-css" . }}
-	{{ template "feedback-box-css" . }}
 	{{ template "google-analytics" }}
 </head>
 <body>
-	{{ template "feedback-box-html" . }}
 	{{ template "newsletter-banner-html" . }}
 	{{ template "header-html" . }}
 	<section style="padding: 0 10px;">
@@ -1619,37 +1617,6 @@
 				}
 			}
 		};
-		document.getElementById('feedback-submit').addEventListener('click', function (event) {
-			var email = document.getElementById('feedback-email').value;
-			var message = document.getElementById('feedback-message').value;
-			if (empty(email, message)) {
-				alert('Email and message cannot be blank');
-				return;
-			}
-			if (!isEmail(email)) {
-				alert('Please enter a valid email address');
-				return;
-			}
-			postMessage({ email: email, message: message }, function (status) {
-				if (status) {
-					alert('Thanks for your message!');
-				} else {
-					alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
-				}
-				document.getElementById('feedback-email').value = '';
-				document.getElementById('feedback-message').value = '';
-				document.getElementById('feedback-box').style.display = 'none';
-				document.getElementById('feedback').style.display = 'block';
-			})
-		});
-		document.getElementById('feedback').addEventListener('click', function (event) {
-			document.getElementById('feedback').style.display = 'none';
-			document.getElementById('feedback-box').style.display = 'block';
-		});
-		document.getElementById('feedback-title').addEventListener('click', function (event) {
-			document.getElementById('feedback-box').style.display = 'none';
-			document.getElementById('feedback').style.display = 'block';
-		});
 	</script>
 	{{ template "newsletter-banner-js" . }}
 </body>

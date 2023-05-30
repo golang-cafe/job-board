@@ -1936,42 +1936,6 @@ func PostAJobWithoutPaymentPageHandler(svr server.Server) http.HandlerFunc {
 	)
 }
 
-func SendFeedbackMessage(svr server.Server) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		req := &struct {
-			Email   string `json:"email"`
-			Message string `json:"message"`
-		}{}
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			svr.JSON(w, http.StatusBadRequest, nil)
-			return
-		}
-		if !svr.IsEmail(req.Email) {
-			svr.JSON(w, http.StatusBadRequest, nil)
-			return
-		}
-		if svr.SeenSince(r, time.Duration(1*time.Hour)) {
-			svr.JSON(w, http.StatusBadRequest, nil)
-			return
-		}
-		err := svr.
-			GetEmail().
-			SendHTMLEmail(
-				email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-				email.Address{Email: svr.GetEmail().DefaultAdminAddress()},
-				email.Address{Email: req.Email},
-				"New Feedback Message",
-				fmt.Sprintf("From: %s\nMessage: %s", req.Email, req.Message),
-			)
-		if err != nil {
-			svr.Log(err, "unable to send email for feedback message")
-			svr.JSON(w, http.StatusBadRequest, nil)
-			return
-		}
-		svr.JSON(w, http.StatusOK, nil)
-	}
-}
-
 func RequestTokenSignOn(svr server.Server, userRepo *user.Repository, jobRepo *job.Repository, recRepo *recruiter.Repository) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {

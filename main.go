@@ -248,9 +248,6 @@ func main() {
 	// stripe payment confirmation webhook
 	svr.RegisterRoute("/x/stripe/checkout/completed", handler.StripePaymentConfirmationWebhookHandler(svr, jobRepo, recRepo), []string{"POST"})
 
-	// send feedback message
-	svr.RegisterRoute("/x/s/message", handler.SendFeedbackMessage(svr), []string{"POST"})
-
 	// track job clickout
 	svr.RegisterRoute("/x/j/c/{id}", handler.TrackJobClickoutPageHandler(svr, jobRepo), []string{"GET"})
 

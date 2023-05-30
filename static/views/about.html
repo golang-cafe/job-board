@@ -12,7 +12,6 @@ input,textarea,select,button,option,html,body{font-family:Helvetica;font-size:18
 .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}
 footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: left;float: left;font-size: 12pt;}.subnav ul {text-align:left;}.subnav ul li {width:90%;} @media only screen and (max-witdh: 768px) {.subnav ul li {width: 100%;}}
 		</style>
-		{{ template "feedback-box-css" . }}
 		<meta charset="utf-8">
 		<meta name="title" content="About - {{ .SiteName }}" >
 		<meta name="keywords" content="{{ .SiteJobCategory }}, {{ .SiteJobCategory }} jobs, {{ .SiteJobCategory }} programming language, {{ .SiteJobCategory }} job board, find {{ .SiteJobCategory }} job, {{ .SiteJobCategory }} job board" >
@@ -35,7 +34,6 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 		{{ template "google-analytics" }}
 	</head>
 	<body>
-		{{ template "feedback-box-html" . }}
 		{{ template "header-html" . }}
 		<section style="margin: 30px auto;">
 			<article>
@@ -112,36 +110,5 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 										}
 							}
 				};
-		document.getElementById('feedback-submit').addEventListener('click', function(event) {
-					var email = document.getElementById('feedback-email').value;
-					var message = document.getElementById('feedback-message').value;
-					if (empty(email, message)) {
-								alert('Email and message cannot be blank');
-								return;
-							}
-					if (!isEmail(email)) {
-								alert('Please enter a valid email address');
-								return;
-							}
-					postMessage({email: email, message: message}, function(status) {
-								if (status) {
-											alert('Thanks for your message!');
-										} else {
-													alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
-												}
-								document.getElementById('feedback-email').value = '';
-								document.getElementById('feedback-message').value = '';
-								document.getElementById('feedback-box').style.display = 'none';
-								document.getElementById('feedback').style.display = 'block';
-							})
-				});
-		document.getElementById('feedback').addEventListener('click', function(event) {
-					document.getElementById('feedback').style.display = 'none';
-					document.getElementById('feedback-box').style.display = 'block';
-				});
-		document.getElementById('feedback-title').addEventListener('click', function(event) {
-					document.getElementById('feedback-box').style.display = 'none';
-					document.getElementById('feedback').style.display = 'block';
-				});
 	</script>
 </html>

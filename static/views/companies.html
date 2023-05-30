@@ -73,12 +73,10 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
 .apply-link {font-size: 18px;font-weight: 400;line-height: 29.7px;border-radius: 3.6px;background: {{ .PrimaryColor }};color: #fff;cursor: pointer;display: inline;margin-bottom: 18px;margin-right: 7.2px;padding: 6.525px 23.4px;text-align: center;}.apply-link:hover {text-decoration:none;background:{{ .SecondaryColor }};color:#ffffff;}
 .menu-header{text-align:left;width: 100%;margin:20px auto;border-bottom:1px solid #d9d9d9;}.menu-header a {white-space:pre;color: black;font-size: 12pt;font-weight: bold;padding-right: 5px;}header{padding:0 10px;width:780px;margin:auto;}.hover-pointer{cursor:pointer;}
 		</style>
-		{{ template "feedback-box-css" . }}
 		{{ template "newsletter-banner-css" . }}
 		{{ template "google-analytics" }}
 	</head>
 	<body>
-		{{ template "feedback-box-html" . }}
 		{{ template "newsletter-banner-html" . }}
 		{{ template "header-html" . }}
 		<section style="padding: 0 10px;">
@@ -416,37 +414,7 @@ a:hover{cursor:pointer;}.main-title{font-weight: bold;margin: 0 0 auto;width:80%
                 }
             }
         };
-        document.getElementById('feedback-submit').addEventListener('click', function(event) {
-		var email = document.getElementById('feedback-email').value;
-		var message = document.getElementById('feedback-message').value;
-		if (empty(email, message)) {
-			alert('Email and message cannot be blank');
-			return;
-		}
-		if (!isEmail(email)) {
-			alert('Please enter a valid email address');
-			return;
-		}
-		postMessage({email: emaile}, function(status) {
-			if (status) {
-				alert('Thanks for your message!');
-			} else {
-					    alert('There was a problem posting your message. Please try again later or contact {{ .SupportEmail }}');
-			}
-			document.getElementById('feedback-email').value = '';
-			document.getElementById('feedback-message').value = '';
-			document.getElementById('feedback-box').style.display = 'none';
-			document.getElementById('feedback').style.display = 'block';
-		})
-	});
-    	document.getElementById('feedback').addEventListener('click', function(event) {
-		document.getElementById('feedback').style.display = 'none';
-		document.getElementById('feedback-box').style.display = 'block';
-    	});
-    	document.getElementById('feedback-title').addEventListener('click', function(event) {
-		document.getElementById('feedback-box').style.display = 'none';
-		document.getElementById('feedback').style.display = 'block';
-    	});
+        
     </script>
     {{ template "newsletter-banner-js" . }}
 </body>
