@@ -3,22 +3,21 @@ package template
 import (
 	"net/http"
 	"strings"
+	"embed"
 	"time"
 
 	stdtemplate "html/template"
-
-	customtemplate "github.com/alecthomas/template"
 	humanize "github.com/dustin/go-humanize"
 	blackfriday "gopkg.in/russross/blackfriday.v2"
 )
 
 type Template struct {
-	templates *customtemplate.Template
+	templates *stdtemplate.Template
 	funcMap   stdtemplate.FuncMap
 }
 
-func NewTemplate() *Template {
-	funcMap := customtemplate.FuncMap{
+func NewTemplate(fs embed.FS) *Template {
+	funcMap := stdtemplate.FuncMap{
 		"add": func(a, b int) int {
 			return a + b
 		},
@@ -31,7 +30,7 @@ func NewTemplate() *Template {
 			}
 			return a[len(a)-1]
 		},
-		"jsescape":  customtemplate.JSEscapeString,
+		"jsescape":  stdtemplate.JSEscapeString,
 		"humantime": humanize.Time,
 		"humannumber": func(n int) string {
 			return humanize.Comma(int64(n))
@@ -93,12 +92,12 @@ func NewTemplate() *Template {
 		},
 	}
 	return &Template{
-		templates: customtemplate.Must(customtemplate.New("stdtmpl").Funcs(funcMap).ParseGlob("static/views/*.html")),
+		templates: stdtemplate.Must(stdtemplate.New("stdtmpl").Funcs(funcMap).ParseFS(fs, "static/views/*.html")),
 	}
 }
 
 func (t *Template) JSEscapeString(s string) string {
-	return customtemplate.JSEscapeString(s)
+	return stdtemplate.JSEscapeString(s)
 }
 
 func (t *Template) Render(w http.ResponseWriter, status int, name string, data interface{}) error {

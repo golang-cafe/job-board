@@ -5,8 +5,8 @@ import (
 	"log"
 	"net/http"
 	_ "net/http/pprof"
-	"os"
 	"strings"
+	"embed"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -26,6 +26,9 @@ import (
 	"github.com/golang-cafe/job-board/internal/template"
 	"github.com/golang-cafe/job-board/internal/user"
 )
+
+//go:embed static/*
+var staticFS embed.FS
 
 func main() {
 	cfg, err := config.LoadConfig()
@@ -56,15 +59,15 @@ func main() {
 		log.Fatalf("unable to connect to sparkpost API: %v", err)
 	}
 	sessionStore := sessions.NewCookieStore(cfg.SessionKey)
-	robotsTxtContent, err := os.ReadFile("./static/robots.txt")
+	robotsTxtContent, err := staticFS.ReadFile("static/robots.txt")
 	if err != nil {
 		log.Fatalf("unable to read robots.txt placeholder file: %w", err)
 	}
-	securityTxtContent, err := os.ReadFile("./static/security.txt")
+	securityTxtContent, err := staticFS.ReadFile("static/security.txt")
 	if err != nil {
 		log.Fatalf("unable to read security.txt placeholder file: %w", err)
 	}
-	adsTxtContent, err := os.ReadFile("./static/ads.txt")
+	adsTxtContent, err := staticFS.ReadFile("static/ads.txt")
 	if err != nil {
 		log.Fatalf("unable to read security.txt placeholder file: %w", err)
 	}
@@ -82,7 +85,7 @@ func main() {
 		cfg,
 		conn,
 		mux.NewRouter(),
-		template.NewTemplate(),
+		template.NewTemplate(staticFS),
 		emailClient,
 		sessionStore,
 	)
