@@ -101,6 +101,7 @@ func (e Client) SendHTMLEmail(from, to, replyTo Address, subject, text string) e
 	for k, v := range header {
 		message += fmt.Sprintf("%s: %s\r\n", k, v)
 	}
+	log.Printf("from: %s, to: %s, user: %s, pass: %s, host: %s, msg: %s", from.Email, to.Email, e.smtpUser, e.smtpPassword, e.smtpHost, text)
 	message += "\r\n" + base64.StdEncoding.EncodeToString([]byte(text))
 
 	err := smtp.SendMail(e.smtpHost+":25", auth, from.Email, []string{to.Email}, []byte(message))
