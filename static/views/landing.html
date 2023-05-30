@@ -971,15 +971,15 @@
 			</div>
 			<div class="job-desc" id="{{ .Slug }}" data-toggle="off">
 				<h3>Job Description</h3>
-				{{ .JobDescription }}
+				{{ .JobDescriptionHTML }}
 				<br>
-				{{ if .Perks }}
+				{{ if .PerksHTML }}
 				<h3>Perks & Benefits</h3>
-				{{ .Perks }}
+				{{ .PerksHTML }}
 				{{ end }}
-				{{ if .InterviewProcess }}
+				{{ if .InterviewProcessHTML }}
 				<h3>Interview Process</h3>
-				{{ .InterviewProcess }}
+				{{ .InterviewProcessHTML }}
 				{{ end }}
 				{{ if .IsQuickApply }}
 				<input type="submit" style="float:right;" class="apply-btn"
@@ -1046,15 +1046,15 @@
 					style="width: 100%;text-align: center;font-size: 14pt;padding: 10px;color: black;background: #e9e9e9;line-height: 1.5rem;">This job posting is no longer available</code>
 				{{ end }}
 				<h3>Job Description</h3>
-				{{ .JobDescription }}
+				{{ .JobDescriptionHTML }}
 				<br>
-				{{ if .Perks }}
+				{{ if .PerksHTML }}
 				<h3>Perks & Benefits</h3>
-				{{ .Perks }}
+				{{ .PerksHTML }}
 				{{ end }}
-				{{ if .InterviewProcess }}
+				{{ if .InterviewProcessHTML }}
 				<h3>Interview Process</h3>
-				{{ .InterviewProcess }}
+				{{ .InterviewProcessHTML }}
 				{{ end }}
 				{{ if not .Expired }}
 				{{ if .IsQuickApply }}

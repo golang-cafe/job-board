@@ -352,10 +352,10 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 			}
 			for i, j := range pinnedJobs {
 				pinnedJobs[i].CompanyURLEnc = url.PathEscape(j.Company)
-				pinnedJobs[i].JobDescription = string(s.tmpl.MarkdownToHTML(j.JobDescription))
-				pinnedJobs[i].Perks = string(s.tmpl.MarkdownToHTML(j.Perks))
+				pinnedJobs[i].JobDescriptionHTML = s.MarkdownToHTML(j.JobDescription)
+				pinnedJobs[i].PerksHTML = s.MarkdownToHTML(j.Perks)
 				pinnedJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
-				pinnedJobs[i].InterviewProcess = string(s.tmpl.MarkdownToHTML(j.InterviewProcess))
+				pinnedJobs[i].InterviewProcessHTML = s.MarkdownToHTML(j.InterviewProcess)
 				if s.IsEmail(j.HowToApply) {
 					pinnedJobs[i].IsQuickApply = true
 				}
@@ -420,10 +420,10 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 	var maxSalary int64 = 0
 	for i, j := range jobsForPage {
 		jobsForPage[i].CompanyURLEnc = url.PathEscape(j.Company)
-		jobsForPage[i].JobDescription = string(s.tmpl.MarkdownToHTML(j.JobDescription))
+		jobsForPage[i].JobDescriptionHTML = s.MarkdownToHTML(j.JobDescription)
 		jobsForPage[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
-		jobsForPage[i].Perks = string(s.tmpl.MarkdownToHTML(j.Perks))
-		jobsForPage[i].InterviewProcess = string(s.tmpl.MarkdownToHTML(j.InterviewProcess))
+		jobsForPage[i].PerksHTML = s.tmpl.MarkdownToHTML(j.Perks)
+		jobsForPage[i].InterviewProcessHTML = s.tmpl.MarkdownToHTML(j.InterviewProcess)
 		if s.IsEmail(j.HowToApply) {
 			jobsForPage[i].IsQuickApply = true
 		}
@@ -1014,19 +1014,19 @@ func (s Server) RenderPageForLocationAndTagAdmin(r *http.Request, w http.Respons
 		pages = append(pages, i)
 	}
 	for i, j := range jobsForPage {
-		jobsForPage[i].JobDescription = string(s.tmpl.MarkdownToHTML(j.JobDescription))
-		jobsForPage[i].Perks = string(s.tmpl.MarkdownToHTML(j.Perks))
+		jobsForPage[i].JobDescriptionHTML = s.MarkdownToHTML(j.JobDescription)
+		jobsForPage[i].PerksHTML = s.MarkdownToHTML(j.Perks)
 		jobsForPage[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
-		jobsForPage[i].InterviewProcess = string(s.tmpl.MarkdownToHTML(j.InterviewProcess))
+		jobsForPage[i].InterviewProcessHTML = s.MarkdownToHTML(j.InterviewProcess)
 		if s.IsEmail(j.HowToApply) {
 			jobsForPage[i].IsQuickApply = true
 		}
 	}
 	for i, j := range pinnedJobs {
-		pinnedJobs[i].JobDescription = string(s.tmpl.MarkdownToHTML(j.JobDescription))
-		pinnedJobs[i].Perks = string(s.tmpl.MarkdownToHTML(j.Perks))
+		pinnedJobs[i].JobDescriptionHTML = s.MarkdownToHTML(j.JobDescription)
+		pinnedJobs[i].PerksHTML = s.MarkdownToHTML(j.Perks)
 		pinnedJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
-		pinnedJobs[i].InterviewProcess = string(s.tmpl.MarkdownToHTML(j.InterviewProcess))
+		pinnedJobs[i].InterviewProcessHTML = s.MarkdownToHTML(j.InterviewProcess)
 		if s.IsEmail(j.HowToApply) {
 			pinnedJobs[i].IsQuickApply = true
 		}

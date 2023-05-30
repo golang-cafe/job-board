@@ -142,6 +142,9 @@ type JobPost struct {
 	FrontPageEligibilityExpiredAt   time.Time
 	CompanyPageEligibilityExpiredAt time.Time
 	PlanExpiredAt                   time.Time
+	JobDescriptionHTML              interface{}
+	InterviewProcessHTML            interface{}
+	PerksHTML                       interface{}
 }
 
 type JobPostForEdit struct {
