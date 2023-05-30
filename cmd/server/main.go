@@ -44,7 +44,9 @@ func main() {
 		log.Fatalf("unable to connect to postgres: %v", err)
 	}
 	emailClient, err := email.NewClient(
-		cfg.Email2APIKey,
+		cfg.SmtpUser,
+		cfg.SmtpPassword,
+		cfg.SmtpHost,
 		cfg.SupportEmail,
 		cfg.NoReplyEmail,
 		cfg.SiteName,

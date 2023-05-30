@@ -1,12 +1,9 @@
 package email
 
 import (
-	"bytes"
 	"encoding/base64"
-	"encoding/json"
-	"errors"
+	"net/smtp"
 	"fmt"
-	"io/ioutil"
 	"log"
 	"net/http"
 )
@@ -16,7 +13,9 @@ type Client struct {
 	noReplyAddress string
 	siteName       string
 	client         http.Client
-	apiKey         string
+	smtpUser       string
+	smtpPassword   string
+	smtpHost       string
 	baseURL        string
 	isLocal        bool
 }
@@ -45,10 +44,12 @@ type EmailMessageWithAttachment struct {
 	Attachment []Attachment `json:"attachment,omitempty"`
 }
 
-func NewClient(apiKey, senderAddress, noReplyAddress, siteName string, isLocal bool) (Client, error) {
+func NewClient(smtpUser, smtpPassword, smtpHost, senderAddress, noReplyAddress, siteName string, isLocal bool) (Client, error) {
 	return Client{
 		client:         *http.DefaultClient,
-		apiKey:         apiKey,
+		smtpUser:       smtpUser,
+		smtpPassword:   smtpPassword,
+		smtpHost:       smtpHost,
 		senderAddress:  senderAddress,
 		siteName:       siteName,
 		noReplyAddress: noReplyAddress,
@@ -88,84 +89,24 @@ func (e Client) SendHTMLEmail(from, to, replyTo Address, subject, text string) e
 		)
 		return nil
 	}
-	msg := EmailMessage{
-		Sender:      from,
-		ReplyTo:     replyTo,
-		Subject:     subject,
-		To:          []Address{to},
-		HtmlContent: text,
+	auth := smtp.PlainAuth("", e.smtpUser, e.smtpPassword, e.smtpHost)
+	header := make(map[string]string)
+	header["From"] = from.Email
+	header["To"] = to.Email
+	header["Subject"] = subject
+	header["MIME-Version"] = "1.0"
+	header["Content-Type"] = "text/plain; charset=\"utf-8\""
+	header["Content-Transfer-Encoding"] = "base64"
+	message := ""
+	for k, v := range header {
+		message += fmt.Sprintf("%s: %s\r\n", k, v)
 	}
-	reqData, err := json.Marshal(msg)
-	if err != nil {
-		return err
-	}
-	req, err := http.NewRequest(http.MethodPost, e.baseURL+"/v3/smtp/email", bytes.NewReader(reqData))
-	if err != nil {
-		return err
-	}
-	req.Header.Add("api-key", e.apiKey)
-	req.Header.Add("content-type", "application/json")
-	res, err := e.client.Do(req)
-	if err != nil {
-		return err
-	}
-	if res.StatusCode >= http.StatusBadRequest {
-		errBody, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			errBody = []byte(`unable to read body`)
-		}
-		return errors.New(fmt.Sprintf("got status code %d when sending email: err %s", res.StatusCode, string(errBody)))
-	}
-	return nil
-}
+	message += "\r\n" + base64.StdEncoding.EncodeToString([]byte(text))
 
-func (e Client) SendEmailWithPDFAttachment(from, to, replyTo Address, subject, text string, attachment []byte, fileName string) error {
-	if e.isLocal {
-		log.Printf(
-			"EmailWithPDF: from: %v, to: %s, replyTo: %v, subject: %s, text: %s, attachment: len=%d, fileName: %s",
-			from,
-			to,
-			replyTo,
-			subject,
-			text,
-			len(attachment),
-			fileName,
-		)
-		return nil
-	}
-	msg := EmailMessageWithAttachment{
-		EmailMessage: EmailMessage{
-			Sender:      from,
-			ReplyTo:     replyTo,
-			Subject:     subject,
-			To:          []Address{to},
-			HtmlContent: text,
-		},
-		Attachment: []Attachment{{
-			Name:    fileName,
-			B64Data: base64.StdEncoding.EncodeToString(attachment),
-		}},
-	}
-	reqData, err := json.Marshal(msg)
+	err := smtp.SendMail(e.smtpHost+":25", auth, from.Email, []string{to.Email}, []byte(message))
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequest(http.MethodPost, e.baseURL+"/v3/smtp/email", bytes.NewReader(reqData))
-	if err != nil {
-		return err
-	}
-	req.Header.Add("api-key", e.apiKey)
-	req.Header.Add("content-type", "application/json")
-	res, err := e.client.Do(req)
-	if err != nil {
-		return err
-	}
-	if res.StatusCode >= http.StatusBadRequest {
-		errBody, err := ioutil.ReadAll(res.Body)
-		if err != nil {
-			errBody = []byte(`unable to read body`)
-		}
-		return errors.New(fmt.Sprintf("got status code %d when sending email: err %s", res.StatusCode, string(errBody)))
-	}
+
 	return nil
 }

@@ -21,9 +21,10 @@ type Config struct {
 	StripeKey                string // stripe secret API Key
 	StripeEndpointSecret     string // stripe endpoint webhook secret token
 	StripePublishableKey     string // stripe publishable API key
-	EmailAPIKey              string // sparkpost email API Key
-	Email2APIKey             string // sparkpost email API Key
-	AdminEmail               string // used to log on to the management dashboard
+	SmtpUser                 string
+	SmtpPassword             string
+	SmtpHost                 string
+	AdminEmail               string
 	SupportEmail             string // displayed on the site for support queries
 	NoReplyEmail             string // used for transactional emails
 	SessionKey               []byte
@@ -110,13 +111,17 @@ func LoadConfig() (Config, error) {
 	if stripePublishableKey == "" {
 		return Config{}, fmt.Errorf("STRIPE_PUBLISHABLE_KEY cannot be empty")
 	}
-	emailAPIKey := os.Getenv("EMAIL_API_KEY")
-	if emailAPIKey == "" {
-		return Config{}, fmt.Errorf("EMAIL_API_KEY cannot be empty")
+	smtpUser := os.Getenv("SMTP_USER")
+	if smtpUser == "" {
+		return Config{}, fmt.Errorf("SMTP_USER cannot be empty")
 	}
-	email2APIKey := os.Getenv("EMAIL2_API_KEY")
-	if email2APIKey == "" {
-		return Config{}, fmt.Errorf("EMAIL2_API_KEY cannot be empty")
+	smtpPassword := os.Getenv("SMTP_PASSWORD")
+	if smtpPassword == "" {
+		return Config{}, fmt.Errorf("SMTP_PASSWORD cannot be empty")
+	}
+	smtpHost := os.Getenv("SMTP_HOST")
+	if smtpHost == "" {
+		return Config{}, fmt.Errorf("SMTP_HOST cannot be empty")
 	}
 	env := strings.ToLower(os.Getenv("ENV"))
 	if env == "" {
@@ -309,8 +314,9 @@ func LoadConfig() (Config, error) {
 		StripeKey:                stripeKey,
 		StripeEndpointSecret:     stripeEndpointSecret,
 		StripePublishableKey:     stripePublishableKey,
-		EmailAPIKey:              emailAPIKey,
-		Email2APIKey:             email2APIKey,
+		SmtpUser:                 smtpUser,
+		SmtpPassword:             smtpPassword,
+		SmtpHost:                 smtpHost,
 		AdminEmail:               adminEmail,
 		SupportEmail:             supportEmail,
 		NoReplyEmail:             noReplyEmail,

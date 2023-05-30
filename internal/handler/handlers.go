@@ -1042,18 +1042,18 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 				}
 				var jobsHTMLArr []string
 				for _, j := range jobPosts {
-					jobsHTMLArr = append(jobsHTMLArr, `<p><b>Job Title:</b> `+j.JobTitle+`<br><b>Company:</b> `+j.Company+`<br><b>Location:</b> `+j.Location+`<br><b>Salary:</b> `+j.SalaryRange+`<br><b>Detail:</b> <a href="`+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`">`+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug+`</a></p>`)
+					jobsHTMLArr = append(jobsHTMLArr, `Job Title: `+j.JobTitle+`\r\nCompany: `+j.Company+`\r\nLocation: `+j.Location+`\r\nSalary: `+j.SalaryRange+`\r\nDetail: `+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug)
 					lastJobID = j.ID
 				}
 				jobsHTML := strings.Join(jobsHTMLArr, " ")
-				campaignContentHTML := `<p>Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `</p>
+				campaignContentHTML := `Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `\r\n
 ` + jobsHTML + `
-    <p>Check out more jobs at <a title="` + svr.GetConfig().SiteName + `" href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `">` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `</a></p>
-    <p>Get companies apply to you, join the ` + svr.GetConfig().SiteJobCategory + ` Developer Community <a title="` + svr.GetConfig().SiteName + ` Community" href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community">` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community</a></p>
-    <p>` + svr.GetConfig().SiteName + `</p>
-    <hr />`
+    Check out more jobs at ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `
+    Get companies apply to you, join the ` + strings.ToUpper(svr.GetConfig().SiteJobCategory) + ` Developer Community ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community
+    ` + svr.GetConfig().SiteName + `
+    `
 				unsubscribeLink := `
-    <h6><strong> ` + svr.GetConfig().SiteName + `</strong> | London, United Kingdom<br>This email was sent to <strong>%s</strong> | <a href="` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s">Unsubscribe</a></h6>`
+    ` + svr.GetConfig().SiteName + ` | London, United Kingdom\r\nThis email was sent to %s | ` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s"`
 
 				for _, s := range subscribers {
 					err = svr.GetEmail().SendHTMLEmail(
@@ -2823,13 +2823,13 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository, bookmark
 			})
 			return
 		}
-		err = svr.GetEmail().SendEmailWithPDFAttachment(
+		err = svr.GetEmail().SendHTMLEmail(
 			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 			email.Address{Email: retrievedJobPost.HowToApply},
 			email.Address{Email: applicant.Email},
 			fmt.Sprintf("New Applicant from %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"Hi, there is a new applicant for your position on %s: %s with %s - %s (%s%s/job/%s). Applicant's Email: %s. Please find applicant's CV attached below",
+				"Hi, there is a new applicant for your position on %s: %s with %s - %s (%s%s/job/%s). Applicant's Email: %s. Please find applicant's CV on your job dashboard",
 				svr.GetConfig().SiteName,
 				retrievedJobPost.JobTitle,
 				retrievedJobPost.Company,
@@ -2839,8 +2839,6 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository, bookmark
 				retrievedJobPost.Slug,
 				applicant.Email,
 			),
-			applicant.Cv,
-			"cv.pdf",
 		)
 		if err != nil {
 			svr.Log(err, "unable to send email while applying to job")
@@ -2891,13 +2889,13 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 			})
 			return
 		}
-		err = svr.GetEmail().SendEmailWithPDFAttachment(
+		err = svr.GetEmail().SendHTMLEmail(
 			email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
 			email.Address{Email: jobPost.HowToApply},
 			email.Address{Email: applicant.Email},
 			fmt.Sprintf("New Applicant from %s", svr.GetConfig().SiteName),
 			fmt.Sprintf(
-				"Hi, there is a new applicant for your position on %s: %s with %s - %s (%s%s/job/%s). Applicant's Email: %s. Please find applicant's CV attached below",
+				"Hi, there is a new applicant for your position on %s: %s with %s - %s (%s%s/job/%s). Applicant's Email: %s. Please find applicant's CV on your job dashboard",
 				svr.GetConfig().SiteName,
 				jobPost.JobTitle,
 				jobPost.Company,
@@ -2907,8 +2905,6 @@ func ApplyToJobConfirmation(svr server.Server, jobRepo *job.Repository) http.Han
 				jobPost.Slug,
 				applicant.Email,
 			),
-			applicant.Cv,
-			"cv.pdf",
 		)
 		if err != nil {
 			svr.Log(err, "unable to send email while applying to job")
