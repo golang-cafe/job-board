@@ -71,12 +71,15 @@ type Config struct {
 	DevOfferLink1            string
 	DevOfferLink2            string
 	DevOfferLink3            string
+	DevOfferLink4            string
 	DevOfferRate1            string
 	DevOfferRate2            string
 	DevOfferRate3            string
+	DevOfferRate4            string
 	DevOfferCode1            string
 	DevOfferCode2            string
 	DevOfferCode3            string
+	DevOfferCode4            string
 }
 
 func LoadConfig() (Config, error) {
@@ -314,12 +317,15 @@ func LoadConfig() (Config, error) {
 	devOfferLink1 := os.Getenv("DEV_OFFER_LINK_1")
 	devOfferLink2 := os.Getenv("DEV_OFFER_LINK_2")
 	devOfferLink3 := os.Getenv("DEV_OFFER_LINK_3")
+	devOfferLink4 := os.Getenv("DEV_OFFER_LINK_4")
 	devOfferRate1 := os.Getenv("DEV_OFFER_RATE_1")
 	devOfferRate2 := os.Getenv("DEV_OFFER_RATE_2")
 	devOfferRate3 := os.Getenv("DEV_OFFER_RATE_3")
+	devOfferRate4 := os.Getenv("DEV_OFFER_RATE_4")
 	devOfferCode1 := os.Getenv("DEV_OFFER_CODE_1")
 	devOfferCode2 := os.Getenv("DEV_OFFER_CODE_2")
 	devOfferCode3 := os.Getenv("DEV_OFFER_CODE_3")
+	devOfferCode4 := os.Getenv("DEV_OFFER_CODE_4")
 
 	return Config{
 		Port:                     port,
@@ -382,11 +388,14 @@ func LoadConfig() (Config, error) {
 		DevOfferLink1:            devOfferLink1,
 		DevOfferLink2:            devOfferLink2,
 		DevOfferLink3:            devOfferLink3,
+		DevOfferLink4:            devOfferLink4,
 		DevOfferRate1:            devOfferRate1,
 		DevOfferRate2:            devOfferRate2,
 		DevOfferRate3:            devOfferRate3,
+		DevOfferRate4:            devOfferRate4,
 		DevOfferCode1:            devOfferCode1,
 		DevOfferCode2:            devOfferCode2,
 		DevOfferCode3:            devOfferCode3,
+		DevOfferCode4:            devOfferCode4,
 	}, nil
 }
