@@ -343,36 +343,18 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 	var pinnedJobs []*job.JobPost
 	// only load pinned jobs for main landing page
 	if isLandingPage {
-		pinnedJobsCached, ok := s.CacheGet(CacheKeyPinnedJobs)
-		if !ok {
-			// load and cache jobs
-			pinnedJobs, err = jobRepo.GetPinnedJobs()
-			if err != nil {
-				s.Log(err, "unable to get pinned jobs")
-			}
-			for i, j := range pinnedJobs {
-				pinnedJobs[i].CompanyURLEnc = url.PathEscape(j.Company)
-				pinnedJobs[i].JobDescriptionHTML = s.MarkdownToHTML(j.JobDescription)
-				pinnedJobs[i].PerksHTML = s.MarkdownToHTML(j.Perks)
-				pinnedJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
-				pinnedJobs[i].InterviewProcessHTML = s.MarkdownToHTML(j.InterviewProcess)
-				if s.IsEmail(j.HowToApply) {
-					pinnedJobs[i].IsQuickApply = true
-				}
-			}
-			buf := &bytes.Buffer{}
-			enc := gob.NewEncoder(buf)
-			if err := enc.Encode(pinnedJobs); err != nil {
-				s.Log(err, "unable to encode pinned jobs")
-			}
-			if err := s.CacheSet(CacheKeyPinnedJobs, buf.Bytes()); err != nil {
-				s.Log(err, "unable to set pinnedJobs cache")
-			}
-		} else {
-			// pinned jobs are cached
-			dec := gob.NewDecoder(bytes.NewReader(pinnedJobsCached))
-			if err := dec.Decode(&pinnedJobs); err != nil {
-				s.Log(err, "unable to decode pinned jobs")
+		pinnedJobs, err = jobRepo.GetPinnedJobs()
+		if err != nil {
+			s.Log(err, "unable to get pinned jobs")
+		}
+		for i, j := range pinnedJobs {
+			pinnedJobs[i].CompanyURLEnc = url.PathEscape(j.Company)
+			pinnedJobs[i].JobDescriptionHTML = s.MarkdownToHTML(j.JobDescription)
+			pinnedJobs[i].PerksHTML = s.MarkdownToHTML(j.Perks)
+			pinnedJobs[i].SalaryRange = fmt.Sprintf("%s%s to %s%s", j.SalaryCurrency, humanize.Comma(j.SalaryMin), j.SalaryCurrency, humanize.Comma(j.SalaryMax))
+			pinnedJobs[i].InterviewProcessHTML = s.MarkdownToHTML(j.InterviewProcess)
+			if s.IsEmail(j.HowToApply) {
+				pinnedJobs[i].IsQuickApply = true
 			}
 		}
 	}
