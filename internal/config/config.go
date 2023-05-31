@@ -68,6 +68,12 @@ type Config struct {
 	DevelopersBannerLink     string
 	DevelopersBannerText     string
 	URLProtocol              string
+	DevOfferLink1            string
+	DevOfferLink2            string
+	DevOfferRate1            string
+	DevOfferRate2            string
+	DevOfferCode1            string
+	DevOfferCode2            string
 }
 
 func LoadConfig() (Config, error) {
@@ -302,6 +308,12 @@ func LoadConfig() (Config, error) {
 	if !strings.EqualFold(env, "dev") {
 		urlProtocol = "https://"
 	}
+	devOfferLink1 := os.Getenv("DEV_OFFER_LINK_1")
+	devOfferLink2 := os.Getenv("DEV_OFFER_LINK_2")
+	devOfferRate1 := os.Getenv("DEV_OFFER_RATE_1")
+	devOfferRate2 := os.Getenv("DEV_OFFER_RATE_2")
+	devOfferCode1 := os.Getenv("DEV_OFFER_CODE_1")
+	devOfferCode2 := os.Getenv("DEV_OFFER_CODE_2")
 
 	return Config{
 		Port:                     port,
@@ -361,5 +373,11 @@ func LoadConfig() (Config, error) {
 		DevelopersBannerLink:     developersBannerLink,
 		DevelopersBannerText:     developersBannerText,
 		URLProtocol:              urlProtocol,
+		DevOfferLink1:            devOfferLink1,
+		DevOfferLink2:            devOfferLink2,
+		DevOfferRate1:            devOfferRate1,
+		DevOfferRate2:            devOfferRate2,
+		DevOfferCode1:            devOfferCode1,
+		DevOfferCode2:            devOfferCode2,
 	}, nil
 }

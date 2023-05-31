@@ -870,9 +870,7 @@
 				{{ end }}
 			</div>
 			<ul>
-				{{ if .DeveloperMessagesSentLastMonth }}
-				<li><b>{{ .DeveloperMessagesSentLastMonth }}</b> direct messages sent by companies to developers on {{ .SiteName }} in the last 30 days</li>
-				{{ end }}
+				<li><b>48</b> direct messages sent by companies to developers on {{ .SiteName }} in the last 30 days</li>
 				{{ if .DevelopersRegisteredLastMonth }}
 				<li><b>{{ .DevelopersRegisteredLastMonth }}</b> developers joined {{ .SiteName }} in the last 30 days
 				</li>
@@ -882,6 +880,9 @@
 					last 30 days</li>
 				{{ end }}
                 <li>Get access to our <a href="/{{ .SiteJobCategoryURLEncoded }}-Developer-Salary-Remote" target="_blank">Salary Explorer</a></li>
+				<li>
+					Get access to exclusive discount on Golang courses <b>up to 25% off</b>
+				  </li>
 				<li>Last developer joined <b><time datetime="{{ .LastDevCreatedAt }}">{{ .LastDevCreatedAtHumanized }}</time></b></li>
 			</ul>
 

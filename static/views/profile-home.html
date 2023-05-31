@@ -68,6 +68,13 @@ body{background:#ffffff;}
 			  <li><b>Subscription:</b> {{ if isTimeBeforeNow .Recruiter.PlanExpiredAt }}Your Developer Director Access Has Expired on {{ .Recruiter.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}. Please continue below to renew your access.{{ else }}{{ .Recruiter.PlanExpiredAt.Format "Jan 02, 2006 15:04:05 UTC" }}{{ end }}</li>
 			  {{ end}}
 		  </ul>
+    {{ if .DevOfferLink1 }}
+    <h3>Offers</h3>
+    <ul>
+      <li>Get {{ .DevOfferRate1 }}% Off on <a href="{{ .DevOfferLink1 }}" target="_blank">{{ .DevOfferLink1 }}</a> using code <b>{{ .DevOfferCode1 }}</b></li>
+      <li>Get {{ .DevOfferRate2 }}% Off on <a href="{{ .DevOfferLink2 }}" target="_blank">{{ .DevOfferLink2 }}</a> using code <b>{{ .DevOfferCode2 }}</b></li>
+    </ul>
+    {{ end }}
 	  {{ if eq .UserType "developer" }}
 		<h3>Account Actions</h3>
 		<ul>
@@ -75,7 +82,7 @@ body{background:#ffffff;}
         <li><a href="/profile/messages">Messages</a></li>
         <li><a href="/profile/{{ .ProfileID }}/edit">Edit Your Developer Profile</a></li>
         <li><a href="/support">Contact Support</a></li>
-        <li><a onclick="logout();">Logout</a></li>
+        <li><a onclick="javascript:document.cookie='____gc=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';window.location.href='/';">Logout</a></li>
 		</ul>
       {{ end }}
       
@@ -90,7 +97,7 @@ body{background:#ffffff;}
         <li><a href="/profile/jobs">View Your Job Posts</a></li>
         <li><a onclick="alert('This functionality is not available yet. We are working on it.');">Create Company Page</a></li>
         <li><a href="/support">Contact Support</a></li>
-        <li><a onclick="logout();">Logout</a></li>
+        <li><a onclick="javascript:document.cookie='____gc=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';window.location.href='/';">Logout</a></li>
         </ul>
       {{ end }}
 
@@ -103,7 +110,7 @@ body{background:#ffffff;}
           <li><a href="/profile/blog/create">Create Blog Post</a></li>
 		      <li><a href="/manage/list">List Job Posts</a></li>
 		      <li><a href="/manage/new">Create Job Post</a></li>
-	      <li><a onclick="logout();">Logout</a></li>
+	        <li><a onclick="javascript:document.cookie='____gc=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';window.location.href='/';">Logout</a></li>
           </ul>
 		  {{ end }}
 				
@@ -185,6 +192,10 @@ body{background:#ffffff;}
 			</nav>
 		</footer>
     <script>
+      function logout() {
+        document.cookie = '____gc=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
+        window.location.href='/';
+      }
     {{ if (eq .UserType "recruiter") and (isTimeBeforeNow .Recruiter.PlanExpiredAt) }}
     var stripe = Stripe('{{ .StripePublishableKey }}');
 	var http = function (url, body, cb) {
@@ -264,10 +275,6 @@ body{background:#ffffff;}
     }
     
     window.addEventListener('load', checkPaymentStatus);
-      function logout() {
-        document.cookie = '____gc=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;';
-        window.location.href='/';
-      }
     </script>
 </body>
 </html>

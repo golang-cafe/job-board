@@ -4051,6 +4051,12 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 					"ProfileID":     dev.ID,
 					"UserType":      profile.Type,
 					"Developer":     dev,
+					"DevOfferLink1": svr.GetConfig().DevOfferLink1,
+					"DevOfferLink2": svr.GetConfig().DevOfferLink2,
+					"DevOfferRate1": svr.GetConfig().DevOfferRate1,
+					"DevOfferRate2": svr.GetConfig().DevOfferRate2,
+					"DevOfferCode1": svr.GetConfig().DevOfferCode1,
+					"DevOfferCode2": svr.GetConfig().DevOfferCode2,
 				})
 			case user.UserTypeRecruiter:
 				rec, err := recRepo.RecruiterProfileByEmail(profile.Email)
@@ -4084,6 +4090,12 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 					"ProfileID":     dev.ID,
 					"UserType":      profile.Type,
 					"Developer":     dev,
+					"DevOfferLink1": svr.GetConfig().DevOfferLink1,
+					"DevOfferLink2": svr.GetConfig().DevOfferLink2,
+					"DevOfferRate1": svr.GetConfig().DevOfferRate1,
+					"DevOfferRate2": svr.GetConfig().DevOfferRate2,
+					"DevOfferCode1": svr.GetConfig().DevOfferCode1,
+					"DevOfferCode2": svr.GetConfig().DevOfferCode2,
 				})
 			}
 		},
