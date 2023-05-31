@@ -37,7 +37,7 @@ body{background:#ffffff;}
                   width: 28%;
               }
     </style>
-    {{ if (eq .UserType "recruiter") and (isTimeBeforeNow .Recruiter.PlanExpiredAt) }}
+    {{ if and (eq .UserType "recruiter") (isTimeBeforeNow .Recruiter.PlanExpiredAt) }}
     <script src="https://js.stripe.com/v3/"></script>
     {{ end }}
     {{ template "google-analytics" }}
