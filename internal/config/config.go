@@ -70,10 +70,13 @@ type Config struct {
 	URLProtocol              string
 	DevOfferLink1            string
 	DevOfferLink2            string
+	DevOfferLink3            string
 	DevOfferRate1            string
 	DevOfferRate2            string
+	DevOfferRate3            string
 	DevOfferCode1            string
 	DevOfferCode2            string
+	DevOfferCode3            string
 }
 
 func LoadConfig() (Config, error) {
@@ -310,10 +313,13 @@ func LoadConfig() (Config, error) {
 	}
 	devOfferLink1 := os.Getenv("DEV_OFFER_LINK_1")
 	devOfferLink2 := os.Getenv("DEV_OFFER_LINK_2")
+	devOfferLink3 := os.Getenv("DEV_OFFER_LINK_3")
 	devOfferRate1 := os.Getenv("DEV_OFFER_RATE_1")
 	devOfferRate2 := os.Getenv("DEV_OFFER_RATE_2")
+	devOfferRate3 := os.Getenv("DEV_OFFER_RATE_3")
 	devOfferCode1 := os.Getenv("DEV_OFFER_CODE_1")
 	devOfferCode2 := os.Getenv("DEV_OFFER_CODE_2")
+	devOfferCode3 := os.Getenv("DEV_OFFER_CODE_3")
 
 	return Config{
 		Port:                     port,
@@ -375,9 +381,12 @@ func LoadConfig() (Config, error) {
 		URLProtocol:              urlProtocol,
 		DevOfferLink1:            devOfferLink1,
 		DevOfferLink2:            devOfferLink2,
+		DevOfferLink3:            devOfferLink3,
 		DevOfferRate1:            devOfferRate1,
 		DevOfferRate2:            devOfferRate2,
+		DevOfferRate3:            devOfferRate3,
 		DevOfferCode1:            devOfferCode1,
 		DevOfferCode2:            devOfferCode2,
+		DevOfferCode3:            devOfferCode3,
 	}, nil
 }

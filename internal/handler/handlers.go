@@ -4053,10 +4053,13 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 					"Developer":     dev,
 					"DevOfferLink1": svr.GetConfig().DevOfferLink1,
 					"DevOfferLink2": svr.GetConfig().DevOfferLink2,
+					"DevOfferLink3": svr.GetConfig().DevOfferLink3,
 					"DevOfferRate1": svr.GetConfig().DevOfferRate1,
 					"DevOfferRate2": svr.GetConfig().DevOfferRate2,
+					"DevOfferRate3": svr.GetConfig().DevOfferRate3,
 					"DevOfferCode1": svr.GetConfig().DevOfferCode1,
 					"DevOfferCode2": svr.GetConfig().DevOfferCode2,
+					"DevOfferCode3": svr.GetConfig().DevOfferCode3,
 				})
 			case user.UserTypeRecruiter:
 				rec, err := recRepo.RecruiterProfileByEmail(profile.Email)
@@ -4092,10 +4095,13 @@ func ProfileHomepageHandler(svr server.Server, devRepo *developer.Repository, re
 					"Developer":     dev,
 					"DevOfferLink1": svr.GetConfig().DevOfferLink1,
 					"DevOfferLink2": svr.GetConfig().DevOfferLink2,
+					"DevOfferLink3": svr.GetConfig().DevOfferLink3,
 					"DevOfferRate1": svr.GetConfig().DevOfferRate1,
 					"DevOfferRate2": svr.GetConfig().DevOfferRate2,
+					"DevOfferRate3": svr.GetConfig().DevOfferRate3,
 					"DevOfferCode1": svr.GetConfig().DevOfferCode1,
 					"DevOfferCode2": svr.GetConfig().DevOfferCode2,
+					"DevOfferCode3": svr.GetConfig().DevOfferCode3,
 				})
 			}
 		},
