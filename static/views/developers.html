@@ -584,17 +584,6 @@ body{background:#ffffff;}
             }
             return !isThere;
         };
-        var postMessage = function(body, cb) {
-            var xhr = new XMLHttpRequest();
-            xhr.open('POST', '/x/s/message', true);
-            xhr.setRequestHeader('Content-Type', 'application/json');
-            xhr.send(JSON.stringify(body));
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState === 4) {
-                    cb(xhr.status === 200);
-                }
-            }
-        };
     </script>
     {{ template "newsletter-banner-js" . }}
 </body>

@@ -1019,61 +1019,61 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
-				lastJobIDStr, err := jobRepo.GetValue("last_sent_job_id_weekly")
-				if err != nil {
-					svr.Log(err, "unable to retrieve last newsletter weekly job id")
-					return
-				}
-				lastJobID, err := strconv.Atoi(lastJobIDStr)
-				if err != nil {
-					svr.Log(err, fmt.Sprintf("unable to convert job str %s to id", lastJobIDStr))
-					return
-				}
-				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().NewsletterJobsToSend, lastJobID)
-				if len(jobPosts) < 1 {
-					log.Printf("found 0 new jobs for weekly newsletter. quitting")
-					return
-				}
-				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobPosts), svr.GetConfig().NewsletterJobsToSend)
-				subscribers, err := database.GetEmailSubscribers(svr.Conn)
-				if err != nil {
-					svr.Log(err, fmt.Sprintf("unable to retrieve subscribers"))
-					return
-				}
-				var jobsHTMLArr []string
-				for _, j := range jobPosts {
-					jobsHTMLArr = append(jobsHTMLArr, `Job Title: `+j.JobTitle+`\r\nCompany: `+j.Company+`\r\nLocation: `+j.Location+`\r\nSalary: `+j.SalaryRange+`\r\nDetail: `+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug)
-					lastJobID = j.ID
-				}
-				jobsHTML := strings.Join(jobsHTMLArr, " ")
-				campaignContentHTML := `Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `\r\n
-` + jobsHTML + `
-    Check out more jobs at ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `
-    Get companies apply to you, join the ` + strings.ToUpper(svr.GetConfig().SiteJobCategory) + ` Developer Community ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community
-    ` + svr.GetConfig().SiteName + `
-    `
-				unsubscribeLink := `
-    ` + svr.GetConfig().SiteName + ` | London, United Kingdom\r\nThis email was sent to %s | ` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s"`
+// 				lastJobIDStr, err := jobRepo.GetValue("last_sent_job_id_weekly")
+// 				if err != nil {
+// 					svr.Log(err, "unable to retrieve last newsletter weekly job id")
+// 					return
+// 				}
+// 				lastJobID, err := strconv.Atoi(lastJobIDStr)
+// 				if err != nil {
+// 					svr.Log(err, fmt.Sprintf("unable to convert job str %s to id", lastJobIDStr))
+// 					return
+// 				}
+// 				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().NewsletterJobsToSend, lastJobID)
+// 				if len(jobPosts) < 1 {
+// 					log.Printf("found 0 new jobs for weekly newsletter. quitting")
+// 					return
+// 				}
+// 				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobPosts), svr.GetConfig().NewsletterJobsToSend)
+// 				subscribers, err := database.GetEmailSubscribers(svr.Conn)
+// 				if err != nil {
+// 					svr.Log(err, fmt.Sprintf("unable to retrieve subscribers"))
+// 					return
+// 				}
+// 				var jobsHTMLArr []string
+// 				for _, j := range jobPosts {
+// 					jobsHTMLArr = append(jobsHTMLArr, `Job Title: `+j.JobTitle+`\r\nCompany: `+j.Company+`\r\nLocation: `+j.Location+`\r\nSalary: `+j.SalaryRange+`\r\nDetail: `+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug)
+// 					lastJobID = j.ID
+// 				}
+// 				jobsHTML := strings.Join(jobsHTMLArr, " ")
+// 				campaignContentHTML := `Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `\r\n
+// ` + jobsHTML + `
+//     Check out more jobs at ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `
+//     Get companies apply to you, join the ` + strings.ToUpper(svr.GetConfig().SiteJobCategory) + ` Developer Community ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community
+//     ` + svr.GetConfig().SiteName + `
+//     `
+// 				unsubscribeLink := `
+//     ` + svr.GetConfig().SiteName + ` | London, United Kingdom\r\nThis email was sent to %s | ` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s"`
 
-				for _, s := range subscribers {
-					err = svr.GetEmail().SendHTMLEmail(
-						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-						email.Address{Email: s.Email},
-						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobPosts)),
-						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
-					)
-					if err != nil {
-						svr.Log(err, fmt.Sprintf("unable to send email for newsletter email %s", s.Email))
-						continue
-					}
-				}
-				lastJobIDStr = strconv.Itoa(lastJobID)
-				err = jobRepo.SetValue("last_sent_job_id_weekly", lastJobIDStr)
-				if err != nil {
-					svr.Log(err, "unable to save last weekly newsletter job id to db")
-					return
-				}
+// 				for _, s := range subscribers {
+// 					err = svr.GetEmail().SendHTMLEmail(
+// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+// 						email.Address{Email: s.Email},
+// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+// 						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobPosts)),
+// 						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
+// 					)
+// 					if err != nil {
+// 						svr.Log(err, fmt.Sprintf("unable to send email for newsletter email %s", s.Email))
+// 						continue
+// 					}
+// 				}
+// 				lastJobIDStr = strconv.Itoa(lastJobID)
+// 				err = jobRepo.SetValue("last_sent_job_id_weekly", lastJobIDStr)
+// 				if err != nil {
+// 					svr.Log(err, "unable to save last weekly newsletter job id to db")
+// 					return
+// 				}
 			}()
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
@@ -1588,6 +1588,10 @@ func SendMessageDeveloperProfileHandler(svr server.Server, devRepo *developer.Re
 			sender, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
 			if err != nil {
 				svr.Log(err, "unable to get email from JWT")
+				svr.JSON(w, http.StatusUnauthorized, "unauthorized")
+				return
+			}
+			if sender.IsDeveloper {
 				svr.JSON(w, http.StatusUnauthorized, "unauthorized")
 				return
 			}
