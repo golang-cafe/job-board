@@ -3429,6 +3429,13 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			SubImage(r image.Rectangle) image.Image
 		}).SubImage(image.Rect(x, y, x+wi, y+he))
 		cutImageBytes := new(bytes.Buffer)
+
+		if ok, err := hasSingleFace(cutImage); !ok {
+			svr.Log(err, "unable to detect face")
+			svr.JSON(w, http.StatusBadRequest, nil)
+			return
+		}
+
 		switch contentType {
 		case "image/jpg", "image/jpeg":
 			if err := jpeg.Encode(cutImageBytes, cutImage, nil); err != nil {
