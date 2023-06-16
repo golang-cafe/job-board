@@ -669,15 +669,15 @@ func IsDevDirectoryPaymentEvent(conn *sql.DB, sessionID string) (bool, error) {
 
 type DevDirectoryPurchaseEvent struct {
 	StripeSessionID string
-	CreatedAt time.Time
-	CompletedAt time.Time
-	ExpiredAt time.Time
-	Email string
-	Amount int64
-	Currency string
-	Description string
-	RecruiterID string
-	Duration int64
+	CreatedAt       time.Time
+	CompletedAt     time.Time
+	ExpiredAt       time.Time
+	Email           string
+	Amount          int64
+	Currency        string
+	Description     string
+	RecruiterID     string
+	Duration        int64
 }
 
 func GetDevDirectoryPurchaseEventBySessionID(conn *sql.DB, sessionID string) (DevDirectoryPurchaseEvent, error) {
@@ -703,8 +703,9 @@ func GetJobAdPurchaseEventBySessionID(conn *sql.DB, sessionID string) (PurchaseE
 }
 
 type Media struct {
-	Bytes     []byte
-	MediaType string
+	Bytes              []byte
+	MediaType          string
+	DeveloperProfileID *string
 }
 
 func SaveMedia(conn *sql.DB, media Media) (string, error) {
@@ -801,10 +802,10 @@ func UpdateMedia(conn *sql.DB, media Media, mediaID string) error {
 func GetMediaByID(conn *sql.DB, mediaID string) (Media, error) {
 	var m Media
 	row := conn.QueryRow(
-		`SELECT bytes, media_type 
-		FROM image
-		WHERE id = $1`, mediaID)
-	err := row.Scan(&m.Bytes, &m.MediaType)
+		`SELECT bytes, media_type, dp.id
+		FROM image left join developer_profile dp on image.id = dp.image_id
+		WHERE image.id = $1`, mediaID)
+	err := row.Scan(&m.Bytes, &m.MediaType, &m.DeveloperProfileID)
 	if err != nil {
 		return Media{}, err
 	}

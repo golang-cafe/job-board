@@ -22,6 +22,7 @@ import (
 	"github.com/PuerkitoBio/goquery"
 	"github.com/bot-api/telegram"
 	"github.com/dgrijalva/jwt-go"
+	"github.com/disintegration/imaging"
 	"github.com/dustin/go-humanize"
 	"github.com/gorilla/feeds"
 	"github.com/gorilla/mux"
@@ -3306,6 +3307,12 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
+
+		// We blur the image if the user is not logged in
+		if profile, _ := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey()); profile == nil && media.DeveloperProfileID != nil {
+			decImage = imaging.Blur(decImage, 10)
+		}
+
 		m := resize.Resize(uint(wi), uint(he), decImage, resize.Lanczos3)
 		resizeImageBuf := new(bytes.Buffer)
 		switch media.MediaType {
