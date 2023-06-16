@@ -3453,7 +3453,7 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.Log(errors.New("content type not supported for encoding"), fmt.Sprintf("content type %s not supported for encoding", contentType))
 			svr.JSON(w, http.StatusInternalServerError, nil)
 		}
-		id, err := database.SaveMedia(svr.Conn, database.Media{cutImageBytes.Bytes(), contentType})
+		id, err := database.SaveMedia(svr.Conn, database.Media{Bytes: cutImageBytes.Bytes(), MediaType: contentType})
 		if err != nil {
 			svr.Log(err, "unable to save media image to db")
 			svr.JSON(w, http.StatusInternalServerError, nil)
