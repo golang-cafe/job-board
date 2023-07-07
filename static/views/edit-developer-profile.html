@@ -142,7 +142,6 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 
 </style>
     <meta charset="utf-8">
-    <meta name="title" content="{{ .Job.JobTitle }} at {{ .Job.Company }} | {{ .Job.Location }}">
     <script src="https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js"></script>
     <script src="https://js.stripe.com/v3/"></script>
     {{ template "google-analytics" }}
@@ -261,11 +260,11 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         </div>
         <br />
         <ul>
-          {{ range .DeveloperExperiences}}
+          {{ range $i, $j := .DeveloperExperiences}}
           <br />
           <li><div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b>
-            <div onclick="openDeveloperMetadataModal('experience', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
-            <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
+            <div onclick="openDeveloperMetadataModal('experience', '{{ .Title }}', '{{ .Description }}', '{{ .Link }}', '{{ .ID }}');" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
+            <div onclick="deleteDeveloperMetadata('{{ .ID }}');" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
           </div>
             <div>{{ .Description }}</div>
             <br>
@@ -280,12 +279,12 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         </div>
         <br />
         <ul>
-        {{ range .DeveloperEducation}}
+        {{ range $i, $j := .DeveloperEducation}}
         <br />
           <li>
             <div><b><a href="{{ .Link }}" target="_blank">{{ .Title }}</a></b>
-              <div onclick="openDeveloperMetadataModal('education', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
-              <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
+              <div onclick="openDeveloperMetadataModal('education', '{{ .Title }}', '{{ .Description }}', '{{ .Link }}', '{{ .ID }}');" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
+              <div onclick="deleteDeveloperMetadata('{{ .ID }}');" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
             </div>
             <div>{{ .Description }} </div></li>
           <br>
@@ -299,11 +298,11 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         </div>
         <br />
         <ul>
-        {{ range .DeveloperGithubProjects}}
+        {{ range $i, $j := .DeveloperGithubProjects}}
         <br />
           <li><div><b><a href="{{ .Link }}">{{ .Title }}</a></b>
-            <div onclick="openDeveloperMetadataModal('github', `{{ .Title }}`, `{{ .Description }}`, `{{ .Link }}`, `{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
-            <div onclick="deleteDeveloperMetadata(`{{ .ID }}`);" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
+            <div onclick="openDeveloperMetadataModal('github', '{{ .Title }}', '{{ .Description }}', '{{ .Link }}', '{{ .ID }}');" style="float:right; cursor: pointer;text-decoration: underline;margin-left:10px;font-size:10pt;">Edit</div>
+            <div onclick="deleteDeveloperMetadata('{{ .ID }}');" style="float:right; cursor: pointer;text-decoration: underline;font-size:10pt;">Delete</div>
           </div>
           <div>{{ .Description }} </div></li>
           <br>
