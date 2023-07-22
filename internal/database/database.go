@@ -4,9 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"math"
-	"regexp"
 	"strconv"
-	"strings"
 	"time"
 
 	"github.com/segmentio/ksuid"
@@ -298,21 +296,6 @@ func DuplicateImage(conn *sql.DB, oldID, newID string) error {
 
 func DeleteImageByID(conn *sql.DB, id string) error {
 	_, err := conn.Exec(`DELETE FROM image WHERE id = $1`, id)
-	return err
-}
-
-func TrackSearchEvent(conn *sql.DB, ua string, sessionID string, loc string, tag string, results int, typ string) error {
-	hasBot := regexp.MustCompile(`(?i)(googlebot|bingbot|slurp|baiduspider|duckduckbot|yandexbot|sogou|exabot|facebookexternalhit|facebot|ia_archiver|linkedinbot|python-urllib|python-requests|go-http-client|msnbot|ahrefs)`)
-	if hasBot.MatchString(ua) {
-		return nil
-	}
-	loc = strings.TrimSpace(loc)
-	tag = strings.TrimSpace(tag)
-	if loc == "" && tag == "" {
-		return nil
-	}
-	stmt := `INSERT INTO search_event (session_id, location, tag, results, type, created_at) VALUES ($1, NULLIF($2, ''), NULLIF($3, ''), $4, $5, NOW())`
-	_, err := conn.Exec(stmt, sessionID, loc, tag, results, typ)
 	return err
 }
 

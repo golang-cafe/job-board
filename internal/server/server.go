@@ -2,10 +2,8 @@ package server
 
 import (
 	"bytes"
-	"crypto/sha256"
 	"database/sql"
 	"encoding/gob"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -161,17 +159,6 @@ func (s Server) RenderSalaryForLocation(w http.ResponseWriter, r *http.Request, 
 	max = max + 30000
 	if min < 0 {
 		min = 0
-	}
-	ua := r.Header.Get("user-agent")
-	ref := r.Header.Get("referer")
-	ips := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
-	if len(ips) > 0 && strings.Contains(ref, s.GetConfig().SiteHost) {
-		hashedIP := sha256.Sum256([]byte(ips[0]))
-		go func() {
-			if err := database.TrackSearchEvent(s.Conn, ua, hex.EncodeToString(hashedIP[:]), location, "", len(set), job.SearchTypeSalary); err != nil {
-				fmt.Printf("err while saving loc: %s\n", err)
-			}
-		}()
 	}
 	jobPosts, err := jobRepo.TopNJobsByCurrencyAndLocation(loc.Currency, loc.Name, 3)
 	if err != nil {
@@ -415,18 +402,6 @@ func (s Server) RenderPageForLocationAndTag(w http.ResponseWriter, r *http.Reque
 		if j.SalaryPeriod == "year" && j.SalaryCurrency == locFromDB.Currency && maxSalary < j.SalaryMax {
 			maxSalary = j.SalaryMax
 		}
-	}
-
-	ua := r.Header.Get("user-agent")
-	ref := r.Header.Get("referer")
-	ips := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
-	if len(ips) > 0 && strings.Contains(ref, s.GetConfig().SiteHost) {
-		hashedIP := sha256.Sum256([]byte(ips[0]))
-		go func() {
-			if err := database.TrackSearchEvent(s.Conn, ua, hex.EncodeToString(hashedIP[:]), location, tag, len(jobsForPage), job.SearchTypeJob); err != nil {
-				fmt.Printf("err while saving event: %s\n", err)
-			}
-		}()
 	}
 
 	locationWithCountry := strings.Title(location)
@@ -704,17 +679,6 @@ func (s Server) RenderPageForDevelopers(w http.ResponseWriter, r *http.Request, 
 		developersForPage[i].UpdatedAtHumanized = j.UpdatedAt.UTC().Format("January 2006")
 		developersForPage[i].SkillsArray = strings.Split(j.Skills, ",")
 	}
-	ua := r.Header.Get("user-agent")
-	ref := r.Header.Get("referer")
-	ips := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
-	if len(ips) > 0 && strings.Contains(ref, s.GetConfig().SiteHost) {
-		hashedIP := sha256.Sum256([]byte(ips[0]))
-		go func() {
-			if err := database.TrackSearchEvent(s.Conn, ua, hex.EncodeToString(hashedIP[:]), location, "", len(developersForPage), developer.SearchTypeDeveloper); err != nil {
-				fmt.Printf("err while saving event: %s\n", err)
-			}
-		}()
-	}
 	loc, err := database.GetLocation(s.Conn, location)
 	if err != nil && location != "" {
 		s.Redirect(w, r, http.StatusFound, fmt.Sprintf("/%s-Developers", strings.Title(s.GetConfig().SiteJobCategory)))
@@ -834,18 +798,6 @@ func (s Server) RenderPageForCompanies(w http.ResponseWriter, r *http.Request, c
 	}
 	for i, j := firstPage, 1; i <= totalCompaniesCount/s.cfg.CompaniesPerPage+1 && j <= pageLinksPerPage; i, j = i+1, j+1 {
 		pages = append(pages, i)
-	}
-
-	ua := r.Header.Get("user-agent")
-	ref := r.Header.Get("referer")
-	ips := strings.Split(r.Header.Get("x-forwarded-for"), ", ")
-	if len(ips) > 0 && strings.Contains(ref, s.GetConfig().SiteHost) {
-		hashedIP := sha256.Sum256([]byte(ips[0]))
-		go func() {
-			if err := database.TrackSearchEvent(s.Conn, ua, hex.EncodeToString(hashedIP[:]), location, "", len(companiesForPage), company.SearchTypeCompany); err != nil {
-				fmt.Printf("err while saving event: %s\n", err)
-			}
-		}()
 	}
 	jobPosts, err := jobRepo.TopNJobsByCurrencyAndLocation(loc.Currency, loc.Name, 3)
 	if err != nil {

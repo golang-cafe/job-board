@@ -863,3 +863,6 @@ ALTER TABLE public.developer_profile_message
     ADD CONSTRAINT developer_profile_message_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id);
 
 ALTER TABLE public.job ADD COLUMN last_email_sent_at TIMESTAMP DEFAULT NULL;
+CREATE INDEX seo_location_name_lower_idx ON seo_location (LOWER(name));
+CREATE INDEX developer_profile_message_created_at_idx ON developer_profile_message (created_at);
+DROP TABLE search_event;
