@@ -865,4 +865,16 @@ ALTER TABLE public.developer_profile_message
 ALTER TABLE public.job ADD COLUMN last_email_sent_at TIMESTAMP DEFAULT NULL;
 CREATE INDEX seo_location_name_lower_idx ON seo_location (LOWER(name));
 CREATE INDEX developer_profile_message_created_at_idx ON developer_profile_message (created_at);
+CREATE INDEX developer_profile_created_at_idx ON developer_profile (created_at);
+CREATE INDEX developer_profile_updated_at_idx ON developer_profile (updated_at);
+CREATE INDEX developer_profile_event_created_at_idx ON developer_profile_event(created_at);
+CREATE INDEX developer_profile_event_event_type_idx ON developer_profile_event(event_type);
+CREATE INDEX email_subscribers_confirmed_at_idx ON email_subscribers(confirmed_at);
+CREATE INDEX job_created_at_idx ON job(created_at);
+CREATE INDEX job_approved_at_idx ON job(approved_at);
+CREATE INDEX fx_rate_target_idx ON fx_rate(target);
+CREATE INDEX job_event_event_type_idx ON job_event(event_type);
+CREATE INDEX job_event_created_at_idx ON job_event(created_at);
+CREATE INDEX users_email_idx ON users(email);
+CREATE INDEX job_event_job_id ON job_event (job_id);
 DROP TABLE search_event;
