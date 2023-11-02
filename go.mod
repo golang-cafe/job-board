@@ -7,7 +7,6 @@ require (
 	github.com/ChimeraCoder/tokenbucket v0.0.0-20131201223612-c5a927568de7 // indirect
 	github.com/PuerkitoBio/goquery v1.6.0
 	github.com/aclements/go-moremath v0.0.0-20161014184102-0ff62e0875ff
-	github.com/alecthomas/template v0.0.0-20160405071501-a0175ee3bccc
 	github.com/allegro/bigcache/v2 v2.2.5 // indirect
 	github.com/allegro/bigcache/v3 v3.0.0
 	github.com/azr/backoff v0.0.0-20160115115103-53511d3c7330 // indirect
@@ -39,7 +38,7 @@ require (
 	github.com/snabb/sitemap v0.0.0-20171225173334-36baa8b39ef4
 	github.com/stretchr/testify v1.8.0 // indirect
 	github.com/stripe/stripe-go v62.10.0+incompatible
-	golang.org/x/image v0.5.0 // indirect
+	golang.org/x/image v0.10.0 // indirect
 	gopkg.in/russross/blackfriday.v2 v2.0.0
 	gopkg.in/stretchr/testify.v1 v1.2.2 // indirect
 )
