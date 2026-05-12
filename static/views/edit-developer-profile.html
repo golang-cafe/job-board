@@ -171,7 +171,10 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" value="{{ .DeveloperProfile.Name }}"><br>
         <input type="text" name="location" id="location" placeholder="Job Location" style="width: 100%;" value="{{ .DeveloperProfile.Location }}"><br>
         <input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate in USD" style="width: 10%;" value="{{ if ne .DeveloperProfile.HourlyRate 0 }}{{ .DeveloperProfile.HourlyRate }}{{ end }}"> USD/hour<br>
-        <input type="url" name="linkedin-url" id="linkedin-url" placeholder="Linkedin URL" style="width: 100%;" value="{{ .DeveloperProfile.LinkedinURL }}"><br>
+        <input type="url" name="linkedin-url" id="linkedin-url" placeholder="Linkedin URL (optional)" style="width: 100%;" value="{{ .DeveloperProfile.LinkedinURL }}"><br>
+        <small>{{ if .DeveloperProfile.HasCV }}CV uploaded{{ else }}CV not uploaded{{ end }}</small><br>
+        <input type="file" name="cv" id="cv" accept="application/pdf" style="display: none;">
+        <label class="upload-file-label" id="cv-label" style="width:100%;border: 1px solid #595959; border-radius: 3.6px;border-style:dashed;padding: 5.4px 6.3px;display:block;" for="cv">Upload CV (PDF file only, max 5MB)</label><br>
         <div>
           <label for="profile-image" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload Profile Image</label>
           <div style="margin-bottom: 10px;float:left; width:100%;">
@@ -466,6 +469,51 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
               element.style.height = "5px";
               element.style.height = (element.scrollHeight)+"px";
             }
+      document.getElementById("cv").addEventListener("change", function () {
+              if (this.files && this.files[0]) {
+                      if (this.files[0].type !== "application/pdf" && this.files[0].name.split('.').pop().toLowerCase() !== "pdf") {
+                              alert("Only PDF files are allowed for CV upload");
+                              this.value = "";
+                              return;
+                            }
+                      if (this.files[0].size > 5 * 1024 * 1024) {
+                              alert("Max file size for CV is 5MB");
+                              this.value = "";
+                              return;
+                            }
+                      document.getElementById("cv-label").innerHTML = this.files[0].name.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+                              return '&#'+i.charCodeAt(0)+';';
+                            });
+                    }
+            });
+      function readCV(cb) {
+              var cvInput = document.getElementById("cv");
+              if (!cvInput || cvInput.files.length === 0) {
+                      cb("");
+                      return;
+                    }
+              var reader = new FileReader();
+              reader.onload = function() {
+                      cb(reader.result);
+                    };
+              reader.readAsDataURL(cvInput.files[0]);
+            }
+      function buildProfilePayload(profileImageId, cv) {
+              return {
+                      id: document.getElementById('profile-id').value,
+                      fullname: document.getElementById("full-name").value,
+                      current_location: document.getElementById("location").value,
+                      bio: document.getElementById("bio").value,
+                      hourly_rate: document.getElementById("hourly-rate").value,
+                      linkedin_url: document.getElementById("linkedin-url").value,
+                      email: document.getElementById("email").value,
+                      skills: document.getElementById("tags").value,
+                      search_status: document.getElementById("search-status").value,
+                      role_level: document.getElementById("role-level").value,
+                      profile_image_id: profileImageId,
+                      cv: cv
+                    };
+            }
       function sendReq(url, isDelete) {
               var fullName = document.getElementById("full-name").value;
               var currentLocation = document.getElementById("location").value;
@@ -476,7 +524,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
               var tags = document.getElementById("tags").value;
               var searchStatus = document.getElementById("search-status").value;
               var roleLevel = document.getElementById("role-level").value;
-              if (empty(fullName, currentLocation, linkedinURL, bio, tags, email)) {
+              if (empty(fullName, currentLocation, bio, tags, email)) {
                       alert('Please fill all the mandatory fields');
                       return;
                     }
@@ -488,8 +536,8 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				alert('Skills is too long. Please use 10 skills or less');
 				return;
 			}
-              if (!isURL(linkedinURL)) {
-                      alert('"How To Apply" must be either an email address or a URL');
+              if (linkedinURL && !isURL(linkedinURL)) {
+                      alert('Linkedin URL must be a valid URL');
                       return;
                     }
               if (!isEmail(email)) {
@@ -510,29 +558,19 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                       return;
                     }
               if (!hasFiles) {
-                      httpReq(
-                              url,
-                              {
-                                      id: document.getElementById('profile-id').value,
-                                      fullname: fullName,
-                                      current_location: currentLocation,
-                                      bio: bio,
-                                      hourly_rate: hourlyRate,
-                                      linkedin_url: linkedinURL,
-                                      email: email,
-                                      skills: tags,
-                                      search_status: searchStatus,
-                                      role_level: roleLevel,
-                                      profile_image_id: document.getElementById("profile-image-id").value
-                                    },
-                              function(bool) {
-                                      document.getElementById("spinner-0").style.display = "none";
-                                      if (bool) {
-                                              alert('Profile Updated Successfully');
-                                              window.location.reload();
-                                            } else alert('Woops there was a problem updating the profile');
-                                    }
-                            );
+                      readCV(function(cv) {
+                              httpReq(
+                                      url,
+                                      buildProfilePayload(document.getElementById("profile-image-id").value, cv),
+                                      function(bool) {
+                                              document.getElementById("spinner-0").style.display = "none";
+                                              if (bool) {
+                                                      alert('Profile Updated Successfully');
+                                                      window.location.reload();
+                                                    } else alert('Woops there was a problem updating the profile');
+                                            }
+                                    );
+                            });
                     } else {
                             // update existing image
                             var mediaFile = document.getElementById('profile-image').files[0];
@@ -553,29 +591,19 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                                                   }
                                       var res = JSON.parse(xhr.response);
                                       profileIconId = res.id;
-                                            httpReq(
-                                                    url,
-                                                    {
-                                                            id: document.getElementById('profile-id').value,
-                                                            fullname: fullName,
-                                                            current_location: currentLocation,
-                                                            bio: bio,
-                                                            hourly_rate: hourlyRate,
-                                                            linkedin_url: linkedinURL,
-                                                            email: email,
-                                                            skills: tags,
-                                                            search_status: searchStatus,
-                                                            role_level: roleLevel,
-                                                            profile_image_id: profileIconId,
-                                                          },
-                                                    function(bool) {
-                                                            document.getElementById("spinner-0").style.display = "none";
-                                                            if (bool) {
-                                                                    alert('Profile Updated Successfully');
-                                                                    window.location.reload();
-                                                                  } else alert('Woops there was a problem updating the profile');
-                                                          }
-                                                  );
+                                            readCV(function(cv) {
+                                                    httpReq(
+                                                            url,
+                                                            buildProfilePayload(profileIconId, cv),
+                                                            function(bool) {
+                                                                    document.getElementById("spinner-0").style.display = "none";
+                                                                    if (bool) {
+                                                                            alert('Profile Updated Successfully');
+                                                                            window.location.reload();
+                                                                          } else alert('Woops there was a problem updating the profile');
+                                                                  }
+                                                        );
+                                                  });
                                           }
                                   }
                           }

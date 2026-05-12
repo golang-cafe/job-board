@@ -816,6 +816,7 @@ ALTER TABLE ONLY public.developer_profile ADD COLUMN role_types VARCHAR(60) NOT 
 ALTER TABLE ONLY public.developer_profile ADD COLUMN detected_location_id VARCHAR(255) DEFAULT NULL;
 ALTER TABLE ONLY public.users ADD COLUMN user_type VARCHAR(20) DEFAULT 'developer';
 ALTER TABLE ONLY public.developer_profile ADD COLUMN hourly_rate INTEGER DEFAULT 0;
+ALTER TABLE ONLY public.developer_profile ADD COLUMN cv BYTEA DEFAULT NULL;
 ALTER TABLE ONLY public.recruiter_profile DROP COLUMN company;
 ALTER TABLE ONLY public.recruiter_profile DROP COLUMN title;
 ALTER TABLE ONLY public.user_sign_on_token ADD COLUMN created_at TIMESTAMP DEFAULT NOW();
@@ -858,6 +859,15 @@ CREATE TABLE public.bookmark (
     CONSTRAINT bookmark_job_id_fkey FOREIGN KEY (job_id) REFERENCES public.job(id)
 );
 
+CREATE TABLE public.developer_profile_cv_download (
+    id CHAR(27) NOT NULL,
+    developer_profile_id CHAR(27) NOT NULL REFERENCES public.developer_profile(id),
+    cv BYTEA NOT NULL,
+    user_id bpchar(27) NOT NULL REFERENCES public.users(id),
+    downloaded_at timestamp without time zone NOT NULL,
+    CONSTRAINT developer_profile_cv_download_pkey PRIMARY KEY (id)
+);
+
 ALTER TABLE public.developer_profile_message
     ADD COLUMN sender_id bpchar(27) NOT NULL,
     ADD CONSTRAINT developer_profile_message_sender_id_fkey FOREIGN KEY (sender_id) REFERENCES public.users(id);
@@ -869,6 +879,8 @@ CREATE INDEX developer_profile_created_at_idx ON developer_profile (created_at);
 CREATE INDEX developer_profile_updated_at_idx ON developer_profile (updated_at);
 CREATE INDEX developer_profile_event_created_at_idx ON developer_profile_event(created_at);
 CREATE INDEX developer_profile_event_event_type_idx ON developer_profile_event(event_type);
+CREATE INDEX developer_profile_cv_download_profile_idx ON developer_profile_cv_download(developer_profile_id);
+CREATE INDEX developer_profile_cv_download_user_idx ON developer_profile_cv_download(user_id);
 CREATE INDEX email_subscribers_confirmed_at_idx ON email_subscribers(confirmed_at);
 CREATE INDEX job_created_at_idx ON job(created_at);
 CREATE INDEX job_approved_at_idx ON job(approved_at);

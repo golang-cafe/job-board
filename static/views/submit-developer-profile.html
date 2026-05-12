@@ -951,7 +951,9 @@
 			</div>
 			<input type="hidden" id="detected-location-id" name="detected-location-id">
 			<input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate" style="width: 30%;"> <div class="tooltip">USD/hour<span class="tooltiptext">Your hourly rate is only visible to recruiters who are logged-in.</span></div>
-			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;">
+			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL (optional)" style="width: 100%;">
+			<input type="file" name="cv" id="cv" accept="application/pdf" style="display: none;">
+			<label class="upload-file-label" id="cv-label" style="width:100%;border: 1px solid #595959; border-radius: 3.6px;border-style:dashed;padding: 5.4px 6.3px;display:block;" for="cv">Upload CV (PDF file only, max 5MB)</label><br>
 			<select id="search-status" name="search-status" style="width:100%;">
 				<option default value="">Your Status</option>
 				<option value="actively-applying">Actively Looking</option>
@@ -1189,6 +1191,35 @@
 				});
 			}
 		});
+		document.getElementById("cv").addEventListener("change", function () {
+			if (this.files && this.files[0]) {
+				if (this.files[0].type !== "application/pdf" && this.files[0].name.split('.').pop().toLowerCase() !== "pdf") {
+					alert("Only PDF files are allowed for CV upload");
+					this.value = "";
+					return;
+				}
+				if (this.files[0].size > 5 * 1024 * 1024) {
+					alert("Max file size for CV is 5MB");
+					this.value = "";
+					return;
+				}
+				document.getElementById("cv-label").innerHTML = this.files[0].name.replace(/[\u00A0-\u9999<>\&]/gim, function(i) {
+					return '&#'+i.charCodeAt(0)+';';
+				});
+			}
+		});
+		function readCV(cb) {
+			var cvInput = document.getElementById("cv");
+			if (!cvInput || cvInput.files.length === 0) {
+				cb("");
+				return;
+			}
+			var reader = new FileReader();
+			reader.onload = function() {
+				cb(reader.result);
+			};
+			reader.readAsDataURL(cvInput.files[0]);
+		}
 		function post() {
 			var fullName = document.getElementById("full-name").value;
 			var linkedinURL = document.getElementById("linkedin-url").value;
@@ -1213,11 +1244,11 @@
 			if (document.getElementById("role-type-internship").checked) {
 				roleTypes.push('internship');
 			}
-			if (empty(tags, fullName, linkedinURL, bio, email, currentLocation, searchStatus, roleLevel, hourlyRate)) {
-				alert('You must fill all the mandatory fields (Full Name, Email, Linkedin URL, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
+			if (empty(tags, fullName, bio, email, currentLocation, searchStatus, roleLevel, hourlyRate)) {
+				alert('You must fill all the mandatory fields (Full Name, Email, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
 				return;
 			}
-			if (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL)) {
+			if (linkedinURL && (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL))) {
 				alert('Linkedin URL it\'s not a valid URL');
 				return;
 			}
@@ -1258,38 +1289,41 @@
 					}
 					var res = JSON.parse(xhr.response);
 					profileImageId = res.id;
-					var payload = {
-						fullname: fullName,
-						linkedin_url: linkedinURL,
-						bio: bio,
-						email: email,
-						tags: tags,
-						current_location: currentLocation,
-						profile_image_id: profileImageId,
-						search_status: searchStatus,
-						role_level: roleLevel,
-						role_types: roleTypes,
-						hourly_rate: hourlyRate,
-						detected_location_id: detectedLocationId,
-					};
-					http(
-						'/x/sdp',
-						payload,
-						function (success, body, statusCode) {
-							if (success) {
-								document.getElementById("spinner-0").style.display = "none";
-								alert('Please check your email to confirm your profile.');
-								window.location.href = '/Submit-Developer-Profile';
-							} else {
-								document.getElementById("spinner-0").style.display = "none";
-								if (statusCode == 400) {
-									alert('There was a problem with your request. ' + body);
+					readCV(function(cv) {
+						var payload = {
+							fullname: fullName,
+							linkedin_url: linkedinURL,
+							bio: bio,
+							email: email,
+							tags: tags,
+							current_location: currentLocation,
+							profile_image_id: profileImageId,
+							search_status: searchStatus,
+							role_level: roleLevel,
+							role_types: roleTypes,
+							hourly_rate: hourlyRate,
+							detected_location_id: detectedLocationId,
+							cv: cv,
+						};
+						http(
+							'/x/sdp',
+							payload,
+							function (success, body, statusCode) {
+								if (success) {
+									document.getElementById("spinner-0").style.display = "none";
+									alert('Please check your email to confirm your profile.');
+									window.location.href = '/Submit-Developer-Profile';
 								} else {
-									alert('There was a problem with your request, please try again later.');
+									document.getElementById("spinner-0").style.display = "none";
+									if (statusCode == 400) {
+										alert('There was a problem with your request. ' + body);
+									} else {
+										alert('There was a problem with your request, please try again later.');
+									}
 								}
 							}
-						}
-					);
+						);
+					});
 				}
 			}
 		}

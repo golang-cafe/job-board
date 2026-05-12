@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -63,6 +64,35 @@ type devGetSaver interface {
 
 type tokenSaver interface {
 	SaveTokenSignOn(email, token, userType string) error
+}
+
+const maxDeveloperCVSize = 5 * 1024 * 1024
+
+func decodeDeveloperCV(encodedCV string) ([]byte, error) {
+	if encodedCV == "" {
+		return nil, nil
+	}
+	if strings.HasPrefix(encodedCV, "data:") {
+		parts := strings.SplitN(encodedCV, ",", 2)
+		if len(parts) != 2 {
+			return nil, errors.New("invalid cv data")
+		}
+		if !strings.Contains(parts[0], "application/pdf") {
+			return nil, errors.New("cv must be a pdf file")
+		}
+		encodedCV = parts[1]
+	}
+	cv, err := base64.StdEncoding.DecodeString(encodedCV)
+	if err != nil {
+		return nil, err
+	}
+	if len(cv) > maxDeveloperCVSize {
+		return nil, errors.New("cv must be 5MB or smaller")
+	}
+	if len(cv) > 0 && !bytes.HasPrefix(cv, []byte("%PDF")) {
+		return nil, errors.New("cv must be a pdf file")
+	}
+	return cv, nil
 }
 
 func GetAuthPageHandler(svr server.Server) http.HandlerFunc {
@@ -427,6 +457,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			RoleLevel          string   `json:"role_level"`
 			RoleTypes          []string `json:"role_types"`
 			DetectedLocationID string   `json:"detected_location_id"`
+			CV                 string   `json:"cv,omitempty"`
 		}{}
 		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 			svr.JSON(w, http.StatusBadRequest, "request is invalid")
@@ -437,8 +468,13 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			return
 		}
 		linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
-		if !linkedinRe.MatchString(req.LinkedinURL) {
+		if req.LinkedinURL != "" && !linkedinRe.MatchString(req.LinkedinURL) {
 			svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
+			return
+		}
+		cv, err := decodeDeveloperCV(req.CV)
+		if err != nil {
+			svr.JSON(w, http.StatusBadRequest, err.Error())
 			return
 		}
 		req.Bio = bluemonday.StrictPolicy().Sanitize(req.Bio)
@@ -521,6 +557,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			RoleTypes:          req.RoleTypes,
 			RoleLevel:          req.RoleLevel,
 			DetectedLocationID: detectedLocationID,
+			CV:                 cv,
 		}
 		err = userRepo.SaveTokenSignOn(strings.ToLower(req.Email), k.String(), user.UserTypeDeveloper)
 		if err != nil {
@@ -1019,61 +1056,61 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
-// 				lastJobIDStr, err := jobRepo.GetValue("last_sent_job_id_weekly")
-// 				if err != nil {
-// 					svr.Log(err, "unable to retrieve last newsletter weekly job id")
-// 					return
-// 				}
-// 				lastJobID, err := strconv.Atoi(lastJobIDStr)
-// 				if err != nil {
-// 					svr.Log(err, fmt.Sprintf("unable to convert job str %s to id", lastJobIDStr))
-// 					return
-// 				}
-// 				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().NewsletterJobsToSend, lastJobID)
-// 				if len(jobPosts) < 1 {
-// 					log.Printf("found 0 new jobs for weekly newsletter. quitting")
-// 					return
-// 				}
-// 				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobPosts), svr.GetConfig().NewsletterJobsToSend)
-// 				subscribers, err := database.GetEmailSubscribers(svr.Conn)
-// 				if err != nil {
-// 					svr.Log(err, fmt.Sprintf("unable to retrieve subscribers"))
-// 					return
-// 				}
-// 				var jobsHTMLArr []string
-// 				for _, j := range jobPosts {
-// 					jobsHTMLArr = append(jobsHTMLArr, `Job Title: `+j.JobTitle+`\r\nCompany: `+j.Company+`\r\nLocation: `+j.Location+`\r\nSalary: `+j.SalaryRange+`\r\nDetail: `+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug)
-// 					lastJobID = j.ID
-// 				}
-// 				jobsHTML := strings.Join(jobsHTMLArr, " ")
-// 				campaignContentHTML := `Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `\r\n
-// ` + jobsHTML + `
-//     Check out more jobs at ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `
-//     Get companies apply to you, join the ` + strings.ToUpper(svr.GetConfig().SiteJobCategory) + ` Developer Community ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community
-//     ` + svr.GetConfig().SiteName + `
-//     `
-// 				unsubscribeLink := `
-//     ` + svr.GetConfig().SiteName + ` | London, United Kingdom\r\nThis email was sent to %s | ` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s"`
+				// 				lastJobIDStr, err := jobRepo.GetValue("last_sent_job_id_weekly")
+				// 				if err != nil {
+				// 					svr.Log(err, "unable to retrieve last newsletter weekly job id")
+				// 					return
+				// 				}
+				// 				lastJobID, err := strconv.Atoi(lastJobIDStr)
+				// 				if err != nil {
+				// 					svr.Log(err, fmt.Sprintf("unable to convert job str %s to id", lastJobIDStr))
+				// 					return
+				// 				}
+				// 				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().NewsletterJobsToSend, lastJobID)
+				// 				if len(jobPosts) < 1 {
+				// 					log.Printf("found 0 new jobs for weekly newsletter. quitting")
+				// 					return
+				// 				}
+				// 				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobPosts), svr.GetConfig().NewsletterJobsToSend)
+				// 				subscribers, err := database.GetEmailSubscribers(svr.Conn)
+				// 				if err != nil {
+				// 					svr.Log(err, fmt.Sprintf("unable to retrieve subscribers"))
+				// 					return
+				// 				}
+				// 				var jobsHTMLArr []string
+				// 				for _, j := range jobPosts {
+				// 					jobsHTMLArr = append(jobsHTMLArr, `Job Title: `+j.JobTitle+`\r\nCompany: `+j.Company+`\r\nLocation: `+j.Location+`\r\nSalary: `+j.SalaryRange+`\r\nDetail: `+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug)
+				// 					lastJobID = j.ID
+				// 				}
+				// 				jobsHTML := strings.Join(jobsHTMLArr, " ")
+				// 				campaignContentHTML := `Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `\r\n
+				// ` + jobsHTML + `
+				//     Check out more jobs at ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `
+				//     Get companies apply to you, join the ` + strings.ToUpper(svr.GetConfig().SiteJobCategory) + ` Developer Community ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community
+				//     ` + svr.GetConfig().SiteName + `
+				//     `
+				// 				unsubscribeLink := `
+				//     ` + svr.GetConfig().SiteName + ` | London, United Kingdom\r\nThis email was sent to %s | ` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s"`
 
-// 				for _, s := range subscribers {
-// 					err = svr.GetEmail().SendHTMLEmail(
-// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-// 						email.Address{Email: s.Email},
-// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-// 						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobPosts)),
-// 						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
-// 					)
-// 					if err != nil {
-// 						svr.Log(err, fmt.Sprintf("unable to send email for newsletter email %s", s.Email))
-// 						continue
-// 					}
-// 				}
-// 				lastJobIDStr = strconv.Itoa(lastJobID)
-// 				err = jobRepo.SetValue("last_sent_job_id_weekly", lastJobIDStr)
-// 				if err != nil {
-// 					svr.Log(err, "unable to save last weekly newsletter job id to db")
-// 					return
-// 				}
+				// 				for _, s := range subscribers {
+				// 					err = svr.GetEmail().SendHTMLEmail(
+				// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+				// 						email.Address{Email: s.Email},
+				// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+				// 						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobPosts)),
+				// 						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
+				// 					)
+				// 					if err != nil {
+				// 						svr.Log(err, fmt.Sprintf("unable to send email for newsletter email %s", s.Email))
+				// 						continue
+				// 					}
+				// 				}
+				// 				lastJobIDStr = strconv.Itoa(lastJobID)
+				// 				err = jobRepo.SetValue("last_sent_job_id_weekly", lastJobIDStr)
+				// 				if err != nil {
+				// 					svr.Log(err, "unable to save last weekly newsletter job id to db")
+				// 					return
+				// 				}
 			}()
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
@@ -1370,6 +1407,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				RoleLevel          string   `json:"role_level"`
 				RoleTypes          []string `json:"role_types"`
 				DetectedLocationID string   `json:"detected_location_id"`
+				CV                 string   `json:"cv,omitempty"`
 			}{}
 			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 				svr.Log(errors.New("invalid search status"), "invalid search status")
@@ -1382,9 +1420,14 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				return
 			}
 			linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
-			if !linkedinRe.MatchString(req.LinkedinURL) {
+			if req.LinkedinURL != "" && !linkedinRe.MatchString(req.LinkedinURL) {
 				svr.Log(errors.New("invalid search status"), "invalid search status")
 				svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
+				return
+			}
+			cv, err := decodeDeveloperCV(req.CV)
+			if err != nil {
+				svr.JSON(w, http.StatusBadRequest, err.Error())
 				return
 			}
 			if _, ok := developer.ValidSearchStatus[req.SearchStatus]; !ok {
@@ -1452,6 +1495,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				ImageID:      req.ImageID,
 				SearchStatus: req.SearchStatus,
 				RoleLevel:    req.RoleLevel,
+				CV:           cv,
 			}
 			err = devRepo.UpdateDeveloperProfile(dev)
 			if err != nil {
@@ -2681,7 +2725,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository, bookmark
 		emailAddr := r.FormValue("email")
 		jobPost, err := jobRepo.JobPostByExternalIDForEdit(externalID)
 		if err != nil {
-			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %d, %v", externalID, err))
+			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %s, %v", externalID, err))
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
@@ -3789,6 +3833,44 @@ func DownloadJobApplicationCvHandler(svr server.Server, jobRepo *job.Repository)
 			return
 		}
 	}
+}
+
+func DownloadDeveloperProfileCVHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get user from JWT")
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			if !profile.IsRecruiter && !profile.IsAdmin {
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			vars := mux.Vars(r)
+			dev, err := devRepo.DeveloperProfileCVByID(vars["id"])
+			if err != nil {
+				svr.Log(err, "unable to find developer profile CV")
+				svr.JSON(w, http.StatusNotFound, nil)
+				return
+			}
+			if err := devRepo.TrackDeveloperProfileCVDownload(dev, profile.UserID); err != nil {
+				svr.Log(err, "unable to track developer profile CV download")
+			}
+			w.Header().Set("Content-Type", "application/pdf")
+			w.Header().Set("Content-Length", fmt.Sprintf("%d", len(dev.CV)))
+			w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s-cv.pdf\"", slug.Make(dev.Name)))
+			_, err = w.Write(dev.CV)
+			if err != nil {
+				svr.Log(err, "unable to serve developer profile CV")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+		},
+	)
 }
 
 func GetBlogPostBySlugHandler(svr server.Server, blogPostRepo *blog.Repository) http.HandlerFunc {

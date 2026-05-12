@@ -84,6 +84,8 @@ type Developer struct {
 	RoleLevel          string
 	RoleTypes          []string
 	DetectedLocationID *string
+	CV                 []byte
+	HasCV              bool
 
 	Bio                string
 	SkillsArray        []string
