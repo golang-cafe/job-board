@@ -501,6 +501,11 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
+		if err := validateDeveloperProfileImage(svr, req.ProfileImageID); err != nil {
+			svr.Log(err, "invalid developer profile image")
+			svr.JSON(w, http.StatusBadRequest, "profile image must contain one face")
+			return
+		}
 
 		dev := developer.Developer{
 			ID:                 k.String(),
@@ -1019,61 +1024,61 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
-// 				lastJobIDStr, err := jobRepo.GetValue("last_sent_job_id_weekly")
-// 				if err != nil {
-// 					svr.Log(err, "unable to retrieve last newsletter weekly job id")
-// 					return
-// 				}
-// 				lastJobID, err := strconv.Atoi(lastJobIDStr)
-// 				if err != nil {
-// 					svr.Log(err, fmt.Sprintf("unable to convert job str %s to id", lastJobIDStr))
-// 					return
-// 				}
-// 				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().NewsletterJobsToSend, lastJobID)
-// 				if len(jobPosts) < 1 {
-// 					log.Printf("found 0 new jobs for weekly newsletter. quitting")
-// 					return
-// 				}
-// 				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobPosts), svr.GetConfig().NewsletterJobsToSend)
-// 				subscribers, err := database.GetEmailSubscribers(svr.Conn)
-// 				if err != nil {
-// 					svr.Log(err, fmt.Sprintf("unable to retrieve subscribers"))
-// 					return
-// 				}
-// 				var jobsHTMLArr []string
-// 				for _, j := range jobPosts {
-// 					jobsHTMLArr = append(jobsHTMLArr, `Job Title: `+j.JobTitle+`\r\nCompany: `+j.Company+`\r\nLocation: `+j.Location+`\r\nSalary: `+j.SalaryRange+`\r\nDetail: `+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug)
-// 					lastJobID = j.ID
-// 				}
-// 				jobsHTML := strings.Join(jobsHTMLArr, " ")
-// 				campaignContentHTML := `Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `\r\n
-// ` + jobsHTML + `
-//     Check out more jobs at ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `
-//     Get companies apply to you, join the ` + strings.ToUpper(svr.GetConfig().SiteJobCategory) + ` Developer Community ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community
-//     ` + svr.GetConfig().SiteName + `
-//     `
-// 				unsubscribeLink := `
-//     ` + svr.GetConfig().SiteName + ` | London, United Kingdom\r\nThis email was sent to %s | ` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s"`
+				// 				lastJobIDStr, err := jobRepo.GetValue("last_sent_job_id_weekly")
+				// 				if err != nil {
+				// 					svr.Log(err, "unable to retrieve last newsletter weekly job id")
+				// 					return
+				// 				}
+				// 				lastJobID, err := strconv.Atoi(lastJobIDStr)
+				// 				if err != nil {
+				// 					svr.Log(err, fmt.Sprintf("unable to convert job str %s to id", lastJobIDStr))
+				// 					return
+				// 				}
+				// 				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().NewsletterJobsToSend, lastJobID)
+				// 				if len(jobPosts) < 1 {
+				// 					log.Printf("found 0 new jobs for weekly newsletter. quitting")
+				// 					return
+				// 				}
+				// 				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobPosts), svr.GetConfig().NewsletterJobsToSend)
+				// 				subscribers, err := database.GetEmailSubscribers(svr.Conn)
+				// 				if err != nil {
+				// 					svr.Log(err, fmt.Sprintf("unable to retrieve subscribers"))
+				// 					return
+				// 				}
+				// 				var jobsHTMLArr []string
+				// 				for _, j := range jobPosts {
+				// 					jobsHTMLArr = append(jobsHTMLArr, `Job Title: `+j.JobTitle+`\r\nCompany: `+j.Company+`\r\nLocation: `+j.Location+`\r\nSalary: `+j.SalaryRange+`\r\nDetail: `+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug)
+				// 					lastJobID = j.ID
+				// 				}
+				// 				jobsHTML := strings.Join(jobsHTMLArr, " ")
+				// 				campaignContentHTML := `Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `\r\n
+				// ` + jobsHTML + `
+				//     Check out more jobs at ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `
+				//     Get companies apply to you, join the ` + strings.ToUpper(svr.GetConfig().SiteJobCategory) + ` Developer Community ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community
+				//     ` + svr.GetConfig().SiteName + `
+				//     `
+				// 				unsubscribeLink := `
+				//     ` + svr.GetConfig().SiteName + ` | London, United Kingdom\r\nThis email was sent to %s | ` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s"`
 
-// 				for _, s := range subscribers {
-// 					err = svr.GetEmail().SendHTMLEmail(
-// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-// 						email.Address{Email: s.Email},
-// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-// 						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobPosts)),
-// 						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
-// 					)
-// 					if err != nil {
-// 						svr.Log(err, fmt.Sprintf("unable to send email for newsletter email %s", s.Email))
-// 						continue
-// 					}
-// 				}
-// 				lastJobIDStr = strconv.Itoa(lastJobID)
-// 				err = jobRepo.SetValue("last_sent_job_id_weekly", lastJobIDStr)
-// 				if err != nil {
-// 					svr.Log(err, "unable to save last weekly newsletter job id to db")
-// 					return
-// 				}
+				// 				for _, s := range subscribers {
+				// 					err = svr.GetEmail().SendHTMLEmail(
+				// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+				// 						email.Address{Email: s.Email},
+				// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+				// 						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobPosts)),
+				// 						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
+				// 					)
+				// 					if err != nil {
+				// 						svr.Log(err, fmt.Sprintf("unable to send email for newsletter email %s", s.Email))
+				// 						continue
+				// 					}
+				// 				}
+				// 				lastJobIDStr = strconv.Itoa(lastJobID)
+				// 				err = jobRepo.SetValue("last_sent_job_id_weekly", lastJobIDStr)
+				// 				if err != nil {
+				// 					svr.Log(err, "unable to save last weekly newsletter job id to db")
+				// 					return
+				// 				}
 			}()
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
@@ -1425,6 +1430,19 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 			if req.Email != profile.Email && !profile.IsAdmin {
 				svr.JSON(w, http.StatusForbidden, nil)
 				return
+			}
+			existingDev, err := devRepo.DeveloperProfileByEmail(req.Email)
+			if err != nil {
+				svr.Log(err, "unable to retrieve existing developer profile")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			if req.ImageID != existingDev.ImageID {
+				if err := validateDeveloperProfileImage(svr, req.ImageID); err != nil {
+					svr.Log(err, "invalid developer profile image")
+					svr.JSON(w, http.StatusBadRequest, "profile image must contain one face")
+					return
+				}
 			}
 			t := time.Now().UTC()
 			avail := true
@@ -2681,7 +2699,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository, bookmark
 		emailAddr := r.FormValue("email")
 		jobPost, err := jobRepo.JobPostByExternalIDForEdit(externalID)
 		if err != nil {
-			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %d, %v", externalID, err))
+			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %s, %v", externalID, err))
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
@@ -3267,6 +3285,43 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 	}
 }
 
+func isDeveloperMediaUpload(r *http.Request) bool {
+	return r.URL.Query().Get("context") == "developer" ||
+		r.URL.Query().Get("profile") == "developer" ||
+		r.URL.Query().Get("developer") == "1"
+}
+
+func validateDeveloperProfileImage(svr server.Server, imageID string) error {
+	if imageID == "" {
+		return errors.New("developer profile image is required")
+	}
+	media, err := database.GetMediaByID(svr.Conn, imageID)
+	if err != nil {
+		return err
+	}
+	decImage, _, err := image.Decode(bytes.NewReader(media.Bytes))
+	if err != nil {
+		return err
+	}
+	ok, err := hasSingleFace(decImage)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return errors.New("developer profile image must contain exactly one face")
+	}
+	return nil
+}
+
+func shouldBlurDeveloperImage(svr server.Server, r *http.Request, mediaID string) bool {
+	isDeveloperImage, err := database.IsDeveloperProfileImage(svr.Conn, mediaID)
+	if err != nil {
+		svr.Log(err, fmt.Sprintf("unable to determine whether media ID %s belongs to a developer profile", mediaID))
+		return false
+	}
+	return isDeveloperImage && !middleware.IsSignedOn(r, svr.SessionStore, svr.GetJWTSigningKey())
+}
+
 func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -3277,19 +3332,36 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.MEDIA(w, http.StatusNotFound, media.Bytes, media.MediaType)
 			return
 		}
+		shouldBlur := shouldBlurDeveloperImage(svr, r, mediaID)
 		height := r.URL.Query().Get("h")
 		width := r.URL.Query().Get("w")
-		if height == "" && width == "" {
+		if height == "" && width == "" && !shouldBlur {
 			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
-		he, err := strconv.Atoi(height)
-		if err != nil {
-			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
-			return
+		he := 0
+		wi := 0
+		if height != "" {
+			he, err = strconv.Atoi(height)
+			if err != nil && !shouldBlur {
+				svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+				return
+			}
+			if err != nil {
+				he = 0
+			}
 		}
-		wi, err := strconv.Atoi(width)
-		if err != nil {
+		if width != "" {
+			wi, err = strconv.Atoi(width)
+			if err != nil && !shouldBlur {
+				svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+				return
+			}
+			if err != nil {
+				wi = 0
+			}
+		}
+		if !shouldBlur && (he == 0 || wi == 0) {
 			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
@@ -3310,7 +3382,13 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		m := resize.Resize(uint(wi), uint(he), decImage, resize.Lanczos3)
+		if shouldBlur {
+			decImage = obscureImage(decImage)
+		}
+		m := decImage
+		if he != 0 && wi != 0 {
+			m = resize.Resize(uint(wi), uint(he), decImage, resize.Lanczos3)
+		}
 		resizeImageBuf := new(bytes.Buffer)
 		switch media.MediaType {
 		case "image/jpg", "image/jpeg":
@@ -3425,6 +3503,18 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		cutImage := decImage.(interface {
 			SubImage(r image.Rectangle) image.Image
 		}).SubImage(image.Rect(x, y, x+wi, y+he))
+		if isDeveloperMediaUpload(r) {
+			ok, err := hasSingleFace(cutImage)
+			if err != nil {
+				svr.Log(err, "unable to detect face in developer profile image")
+				svr.JSON(w, http.StatusBadRequest, "profile image must contain one face")
+				return
+			}
+			if !ok {
+				svr.JSON(w, http.StatusBadRequest, "profile image must contain one face")
+				return
+			}
+		}
 		cutImageBytes := new(bytes.Buffer)
 		switch contentType {
 		case "image/jpg", "image/jpeg":
