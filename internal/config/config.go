@@ -38,6 +38,7 @@ type Config struct {
 	TwitterAccessTokenSecret string
 	TwitterClientKey         string
 	TwitterClientSecret      string
+	TwitterBearerToken       string
 	NewsletterJobsToSend     int
 	CloudflareAPIToken       string
 	CloudflareZoneTag        string
@@ -183,6 +184,7 @@ func LoadConfig() (Config, error) {
 	if twitterClientSecret == "" {
 		return Config{}, fmt.Errorf("TWITTER_CLIENT_SECRET cannot be empty")
 	}
+	twitterBearerToken := os.Getenv("TWITTER_BEARER_TOKEN")
 	twitterJobsToPostStr := os.Getenv("TWITTER_JOBS_TO_POST")
 	if twitterJobsToPostStr == "" {
 		return Config{}, fmt.Errorf("TWITTER_JOBS_TO_POST cannot be empty")
@@ -355,6 +357,7 @@ func LoadConfig() (Config, error) {
 		TwitterAccessTokenSecret: twitterAccessTokenSecret,
 		TwitterClientSecret:      twitterClientSecret,
 		TwitterClientKey:         twitterClientKey,
+		TwitterBearerToken:       twitterBearerToken,
 		NewsletterJobsToSend:     newsletterJobsToSend,
 		CloudflareAPIToken:       cloudflareAPIToken,
 		CloudflareZoneTag:        cloudflareZoneTag,
