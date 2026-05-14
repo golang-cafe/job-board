@@ -3,6 +3,10 @@ package handler
 import (
 	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/sha1"
+	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,6 +18,7 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -1019,61 +1024,61 @@ func TriggerWeeklyNewsletter(svr server.Server, jobRepo *job.Repository) http.Ha
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
-// 				lastJobIDStr, err := jobRepo.GetValue("last_sent_job_id_weekly")
-// 				if err != nil {
-// 					svr.Log(err, "unable to retrieve last newsletter weekly job id")
-// 					return
-// 				}
-// 				lastJobID, err := strconv.Atoi(lastJobIDStr)
-// 				if err != nil {
-// 					svr.Log(err, fmt.Sprintf("unable to convert job str %s to id", lastJobIDStr))
-// 					return
-// 				}
-// 				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().NewsletterJobsToSend, lastJobID)
-// 				if len(jobPosts) < 1 {
-// 					log.Printf("found 0 new jobs for weekly newsletter. quitting")
-// 					return
-// 				}
-// 				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobPosts), svr.GetConfig().NewsletterJobsToSend)
-// 				subscribers, err := database.GetEmailSubscribers(svr.Conn)
-// 				if err != nil {
-// 					svr.Log(err, fmt.Sprintf("unable to retrieve subscribers"))
-// 					return
-// 				}
-// 				var jobsHTMLArr []string
-// 				for _, j := range jobPosts {
-// 					jobsHTMLArr = append(jobsHTMLArr, `Job Title: `+j.JobTitle+`\r\nCompany: `+j.Company+`\r\nLocation: `+j.Location+`\r\nSalary: `+j.SalaryRange+`\r\nDetail: `+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug)
-// 					lastJobID = j.ID
-// 				}
-// 				jobsHTML := strings.Join(jobsHTMLArr, " ")
-// 				campaignContentHTML := `Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `\r\n
-// ` + jobsHTML + `
-//     Check out more jobs at ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `
-//     Get companies apply to you, join the ` + strings.ToUpper(svr.GetConfig().SiteJobCategory) + ` Developer Community ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community
-//     ` + svr.GetConfig().SiteName + `
-//     `
-// 				unsubscribeLink := `
-//     ` + svr.GetConfig().SiteName + ` | London, United Kingdom\r\nThis email was sent to %s | ` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s"`
+				// 				lastJobIDStr, err := jobRepo.GetValue("last_sent_job_id_weekly")
+				// 				if err != nil {
+				// 					svr.Log(err, "unable to retrieve last newsletter weekly job id")
+				// 					return
+				// 				}
+				// 				lastJobID, err := strconv.Atoi(lastJobIDStr)
+				// 				if err != nil {
+				// 					svr.Log(err, fmt.Sprintf("unable to convert job str %s to id", lastJobIDStr))
+				// 					return
+				// 				}
+				// 				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().NewsletterJobsToSend, lastJobID)
+				// 				if len(jobPosts) < 1 {
+				// 					log.Printf("found 0 new jobs for weekly newsletter. quitting")
+				// 					return
+				// 				}
+				// 				fmt.Printf("found %d/%d jobs for weekly newsletter\n", len(jobPosts), svr.GetConfig().NewsletterJobsToSend)
+				// 				subscribers, err := database.GetEmailSubscribers(svr.Conn)
+				// 				if err != nil {
+				// 					svr.Log(err, fmt.Sprintf("unable to retrieve subscribers"))
+				// 					return
+				// 				}
+				// 				var jobsHTMLArr []string
+				// 				for _, j := range jobPosts {
+				// 					jobsHTMLArr = append(jobsHTMLArr, `Job Title: `+j.JobTitle+`\r\nCompany: `+j.Company+`\r\nLocation: `+j.Location+`\r\nSalary: `+j.SalaryRange+`\r\nDetail: `+svr.GetConfig().URLProtocol+svr.GetConfig().SiteHost+`/job/`+j.Slug)
+				// 					lastJobID = j.ID
+				// 				}
+				// 				jobsHTML := strings.Join(jobsHTMLArr, " ")
+				// 				campaignContentHTML := `Here's a list of the newest ` + fmt.Sprintf("%d", len(jobPosts)) + ` ` + svr.GetConfig().SiteJobCategory + ` jobs this week on ` + svr.GetConfig().SiteName + `\r\n
+				// ` + jobsHTML + `
+				//     Check out more jobs at ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `
+				//     Get companies apply to you, join the ` + strings.ToUpper(svr.GetConfig().SiteJobCategory) + ` Developer Community ` + svr.GetConfig().SiteName + `` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/Join-` + strings.Title(svr.GetConfig().SiteJobCategory) + `-Community
+				//     ` + svr.GetConfig().SiteName + `
+				//     `
+				// 				unsubscribeLink := `
+				//     ` + svr.GetConfig().SiteName + ` | London, United Kingdom\r\nThis email was sent to %s | ` + svr.GetConfig().URLProtocol + svr.GetConfig().SiteHost + `/x/email/unsubscribe?token=%s"`
 
-// 				for _, s := range subscribers {
-// 					err = svr.GetEmail().SendHTMLEmail(
-// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-// 						email.Address{Email: s.Email},
-// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
-// 						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobPosts)),
-// 						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
-// 					)
-// 					if err != nil {
-// 						svr.Log(err, fmt.Sprintf("unable to send email for newsletter email %s", s.Email))
-// 						continue
-// 					}
-// 				}
-// 				lastJobIDStr = strconv.Itoa(lastJobID)
-// 				err = jobRepo.SetValue("last_sent_job_id_weekly", lastJobIDStr)
-// 				if err != nil {
-// 					svr.Log(err, "unable to save last weekly newsletter job id to db")
-// 					return
-// 				}
+				// 				for _, s := range subscribers {
+				// 					err = svr.GetEmail().SendHTMLEmail(
+				// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+				// 						email.Address{Email: s.Email},
+				// 						email.Address{Name: svr.GetEmail().DefaultSenderName(), Email: svr.GetEmail().NoReplySenderAddress()},
+				// 						fmt.Sprintf("Go Jobs This Week (%d New)", len(jobPosts)),
+				// 						campaignContentHTML+fmt.Sprintf(unsubscribeLink, s.Email, s.Token),
+				// 					)
+				// 					if err != nil {
+				// 						svr.Log(err, fmt.Sprintf("unable to send email for newsletter email %s", s.Email))
+				// 						continue
+				// 					}
+				// 				}
+				// 				lastJobIDStr = strconv.Itoa(lastJobID)
+				// 				err = jobRepo.SetValue("last_sent_job_id_weekly", lastJobIDStr)
+				// 				if err != nil {
+				// 					svr.Log(err, "unable to save last weekly newsletter job id to db")
+				// 					return
+				// 				}
 			}()
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
@@ -1219,6 +1224,237 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
 	)
+}
+
+func TriggerTwitterJobsScheduler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				lastTwittedJobIDStr, err := jobRepo.GetValue("last_twitted_job_id")
+				if err != nil {
+					svr.Log(err, "unable to retrieve last twitter job id")
+					return
+				}
+				lastTwittedJobID, err := strconv.Atoi(lastTwittedJobIDStr)
+				if err != nil {
+					svr.Log(err, "unable to convert job str to id")
+					return
+				}
+				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().TwitterJobsToPost, lastTwittedJobID)
+				log.Printf("found %d/%d jobs to post on twitter v2\n", len(jobPosts), svr.GetConfig().TwitterJobsToPost)
+				if len(jobPosts) == 0 {
+					return
+				}
+				lastJobID := lastTwittedJobID
+				for _, j := range jobPosts {
+					err := postTweetV2(
+						jobSocialShareText(svr, j),
+						svr.GetConfig().TwitterAccessToken,
+						svr.GetConfig().TwitterAccessTokenSecret,
+						svr.GetConfig().TwitterClientKey,
+						svr.GetConfig().TwitterClientSecret,
+					)
+					if err != nil {
+						svr.Log(err, "unable to post tweet with x api v2")
+						continue
+					}
+					lastJobID = j.ID
+				}
+				lastJobIDStr := strconv.Itoa(lastJobID)
+				err = jobRepo.SetValue("last_twitted_job_id", lastJobIDStr)
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to save last twitter job id to db as %s", lastJobIDStr))
+					return
+				}
+				log.Printf("updated last twitted job id to %s\n", lastJobIDStr)
+				log.Printf("posted last %d jobs to twitter v2", len(jobPosts))
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
+
+func TriggerLinkedinShareJobs(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				if svr.GetConfig().LinkedinAccessToken == "" || svr.GetConfig().LinkedinAuthorURN == "" {
+					svr.Log(fmt.Errorf("LINKEDIN_ACCESS_TOKEN and LINKEDIN_AUTHOR_URN must be configured"), "unable to post jobs to linkedin")
+					return
+				}
+				lastLinkedinJobIDStr, err := jobRepo.GetValue("last_linkedin_job_id")
+				if err != nil {
+					if !errors.Is(err, sql.ErrNoRows) {
+						svr.Log(err, "unable to retrieve last linkedin job id")
+						return
+					}
+					lastLinkedinJobIDStr = "0"
+				}
+				lastLinkedinJobID, err := strconv.Atoi(lastLinkedinJobIDStr)
+				if err != nil {
+					svr.Log(err, "unable to convert linkedin job str to id")
+					return
+				}
+				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().TwitterJobsToPost, lastLinkedinJobID)
+				log.Printf("found %d/%d jobs to post on linkedin\n", len(jobPosts), svr.GetConfig().TwitterJobsToPost)
+				if len(jobPosts) == 0 {
+					return
+				}
+				lastJobID := lastLinkedinJobID
+				for _, j := range jobPosts {
+					err := postLinkedinJobShare(
+						svr.GetConfig().LinkedinAccessToken,
+						svr.GetConfig().LinkedinAuthorURN,
+						jobSocialShareText(svr, j),
+						j.JobTitle,
+						jobShareURL(svr, j),
+					)
+					if err != nil {
+						svr.Log(err, "unable to post job on linkedin")
+						continue
+					}
+					lastJobID = j.ID
+				}
+				lastJobIDStr := strconv.Itoa(lastJobID)
+				err = jobRepo.SetValue("last_linkedin_job_id", lastJobIDStr)
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to save last linkedin job id to db as %s", lastJobIDStr))
+					return
+				}
+				log.Printf("updated last linkedin job id to %s\n", lastJobIDStr)
+				log.Printf("posted last %d jobs to linkedin", len(jobPosts))
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
+
+func jobSocialShareText(svr server.Server, j *job.JobPost) string {
+	return fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, jobShareURL(svr, j))
+}
+
+func jobShareURL(svr server.Server, j *job.JobPost) string {
+	return fmt.Sprintf("%s%s/job/%s", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug)
+}
+
+func postTweetV2(text, accessToken, accessTokenSecret, clientKey, clientSecret string) error {
+	body, err := json.Marshal(map[string]string{"text": text})
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest(http.MethodPost, "https://api.twitter.com/2/tweets", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", twitterOAuthHeader(http.MethodPost, "https://api.twitter.com/2/tweets", accessToken, accessTokenSecret, clientKey, clientSecret))
+	resp, err := (&http.Client{Timeout: 15 * time.Second}).Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		body, _ := ioutil.ReadAll(resp.Body)
+		return fmt.Errorf("twitter api v2 returned %s: %s", resp.Status, string(body))
+	}
+	return nil
+}
+
+func twitterOAuthHeader(method, rawURL, accessToken, accessTokenSecret, clientKey, clientSecret string) string {
+	oauthParams := map[string]string{
+		"oauth_consumer_key":     clientKey,
+		"oauth_nonce":            ksuid.New().String(),
+		"oauth_signature_method": "HMAC-SHA1",
+		"oauth_timestamp":        strconv.FormatInt(time.Now().Unix(), 10),
+		"oauth_token":            accessToken,
+		"oauth_version":          "1.0",
+	}
+	oauthParams["oauth_signature"] = twitterOAuthSignature(method, rawURL, oauthParams, clientSecret, accessTokenSecret)
+
+	keys := make([]string, 0, len(oauthParams))
+	for key := range oauthParams {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	parts := make([]string, 0, len(keys))
+	for _, key := range keys {
+		parts = append(parts, fmt.Sprintf(`%s="%s"`, oauthEscape(key), oauthEscape(oauthParams[key])))
+	}
+	return "OAuth " + strings.Join(parts, ", ")
+}
+
+func twitterOAuthSignature(method, rawURL string, params map[string]string, clientSecret, accessTokenSecret string) string {
+	keys := make([]string, 0, len(params))
+	for key := range params {
+		keys = append(keys, key)
+	}
+	sort.Strings(keys)
+	parts := make([]string, 0, len(keys))
+	for _, key := range keys {
+		parts = append(parts, fmt.Sprintf("%s=%s", oauthEscape(key), oauthEscape(params[key])))
+	}
+	signatureBase := strings.Join([]string{
+		strings.ToUpper(method),
+		oauthEscape(rawURL),
+		oauthEscape(strings.Join(parts, "&")),
+	}, "&")
+	signingKey := fmt.Sprintf("%s&%s", oauthEscape(clientSecret), oauthEscape(accessTokenSecret))
+	mac := hmac.New(sha1.New, []byte(signingKey))
+	mac.Write([]byte(signatureBase))
+	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
+}
+
+func oauthEscape(value string) string {
+	return strings.ReplaceAll(url.QueryEscape(value), "+", "%20")
+}
+
+func postLinkedinJobShare(accessToken, authorURN, text, title, link string) error {
+	body, err := json.Marshal(map[string]interface{}{
+		"author":         authorURN,
+		"lifecycleState": "PUBLISHED",
+		"specificContent": map[string]interface{}{
+			"com.linkedin.ugc.ShareContent": map[string]interface{}{
+				"shareCommentary": map[string]interface{}{
+					"text": text,
+				},
+				"shareMediaCategory": "ARTICLE",
+				"media": []map[string]interface{}{
+					{
+						"status":      "READY",
+						"originalUrl": link,
+						"title": map[string]interface{}{
+							"text": title,
+						},
+					},
+				},
+			},
+		},
+		"visibility": map[string]interface{}{
+			"com.linkedin.ugc.MemberNetworkVisibility": "PUBLIC",
+		},
+	})
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequest(http.MethodPost, "https://api.linkedin.com/v2/ugcPosts", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Restli-Protocol-Version", "2.0.0")
+	resp, err := (&http.Client{Timeout: 15 * time.Second}).Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
+		body, _ := ioutil.ReadAll(resp.Body)
+		return fmt.Errorf("linkedin api returned %s: %s", resp.Status, string(body))
+	}
+	return nil
 }
 
 func TriggerCompanyUpdate(svr server.Server, companyRepo *company.Repository) http.HandlerFunc {
@@ -2681,7 +2917,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository, bookmark
 		emailAddr := r.FormValue("email")
 		jobPost, err := jobRepo.JobPostByExternalIDForEdit(externalID)
 		if err != nil {
-			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %d, %v", externalID, err))
+			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %s, %v", externalID, err))
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
