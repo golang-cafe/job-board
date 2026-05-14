@@ -1,12 +1,12 @@
 package main
 
 import (
+	"embed"
 	"fmt"
 	"log"
 	"net/http"
 	_ "net/http/pprof"
 	"strings"
-	"embed"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/sessions"
@@ -61,15 +61,15 @@ func main() {
 	sessionStore := sessions.NewCookieStore(cfg.SessionKey)
 	robotsTxtContent, err := staticFS.ReadFile("static/robots.txt")
 	if err != nil {
-		log.Fatalf("unable to read robots.txt placeholder file: %w", err)
+		log.Fatalf("unable to read robots.txt placeholder file: %v", err)
 	}
 	securityTxtContent, err := staticFS.ReadFile("static/security.txt")
 	if err != nil {
-		log.Fatalf("unable to read security.txt placeholder file: %w", err)
+		log.Fatalf("unable to read security.txt placeholder file: %v", err)
 	}
 	adsTxtContent, err := staticFS.ReadFile("static/ads.txt")
 	if err != nil {
-		log.Fatalf("unable to read security.txt placeholder file: %w", err)
+		log.Fatalf("unable to read ads.txt placeholder file: %v", err)
 	}
 
 	devRepo := developer.NewRepository(conn)
