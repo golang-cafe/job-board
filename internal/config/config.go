@@ -38,6 +38,8 @@ type Config struct {
 	TwitterAccessTokenSecret string
 	TwitterClientKey         string
 	TwitterClientSecret      string
+	LinkedinAccessToken      string
+	LinkedinAuthorURN        string
 	NewsletterJobsToSend     int
 	CloudflareAPIToken       string
 	CloudflareZoneTag        string
@@ -191,6 +193,8 @@ func LoadConfig() (Config, error) {
 	if err != nil {
 		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
 	}
+	linkedinAccessToken := os.Getenv("LINKEDIN_ACCESS_TOKEN")
+	linkedinAuthorURN := os.Getenv("LINKEDIN_AUTHOR_URN")
 	newsletterJobsToSendStr := os.Getenv("NEWSLETTER_JOBS_TO_SEND")
 	if newsletterJobsToSendStr == "" {
 		return Config{}, fmt.Errorf("NEWSLETTER_JOBS_TO_SEND cannot be empty")
@@ -355,6 +359,8 @@ func LoadConfig() (Config, error) {
 		TwitterAccessTokenSecret: twitterAccessTokenSecret,
 		TwitterClientSecret:      twitterClientSecret,
 		TwitterClientKey:         twitterClientKey,
+		LinkedinAccessToken:      linkedinAccessToken,
+		LinkedinAuthorURN:        linkedinAuthorURN,
 		NewsletterJobsToSend:     newsletterJobsToSend,
 		CloudflareAPIToken:       cloudflareAPIToken,
 		CloudflareZoneTag:        cloudflareZoneTag,
