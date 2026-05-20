@@ -3,6 +3,10 @@ package handler
 import (
 	"bytes"
 	"context"
+	"crypto/hmac"
+	"crypto/rand"
+	"crypto/sha1"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -14,11 +18,11 @@ import (
 	"net/http"
 	"net/url"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
 
-	"github.com/ChimeraCoder/anaconda"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/bot-api/telegram"
 	"github.com/dgrijalva/jwt-go"
@@ -1177,11 +1181,210 @@ func TriggerMonthlyHighlights(svr server.Server, jobRepo *job.Repository) http.H
 	)
 }
 
+const (
+	twitterCreateTweetAPIURL = "https://api.twitter.com/2/tweets"
+	twitterMaxTweetRunes     = 280
+)
+
+type twitterHTTPClient interface {
+	Do(*http.Request) (*http.Response, error)
+}
+
+type twitterOAuthCredentials struct {
+	AccessToken       string
+	AccessTokenSecret string
+	ClientKey         string
+	ClientSecret      string
+}
+
+type oauthParameter struct {
+	key   string
+	value string
+}
+
+func twitterCredentialsFromServer(svr server.Server) twitterOAuthCredentials {
+	cfg := svr.GetConfig()
+	return twitterOAuthCredentials{
+		AccessToken:       cfg.TwitterAccessToken,
+		AccessTokenSecret: cfg.TwitterAccessTokenSecret,
+		ClientKey:         cfg.TwitterClientKey,
+		ClientSecret:      cfg.TwitterClientSecret,
+	}
+}
+
+func (c twitterOAuthCredentials) validate() error {
+	switch {
+	case strings.TrimSpace(c.AccessToken) == "":
+		return errors.New("twitter access token cannot be empty")
+	case strings.TrimSpace(c.AccessTokenSecret) == "":
+		return errors.New("twitter access token secret cannot be empty")
+	case strings.TrimSpace(c.ClientKey) == "":
+		return errors.New("twitter client key cannot be empty")
+	case strings.TrimSpace(c.ClientSecret) == "":
+		return errors.New("twitter client secret cannot be empty")
+	default:
+		return nil
+	}
+}
+
+func shouldRunTwitterJobScheduler(now time.Time) bool {
+	weekday := now.Weekday()
+	return weekday != time.Saturday && weekday != time.Sunday
+}
+
+func formatJobTweet(j job.JobPost, siteJobCategory, urlProtocol, siteHost string) string {
+	summary := fmt.Sprintf("%s with %s - %s | %s", j.JobTitle, j.Company, j.Location, j.SalaryRange)
+	footer := fmt.Sprintf("\n\n#%s #%sjobs\n\n%s%s/job/%s", siteJobCategory, siteJobCategory, urlProtocol, siteHost, j.Slug)
+	return joinTweetSummaryAndFooter(summary, footer)
+}
+
+func joinTweetSummaryAndFooter(summary, footer string) string {
+	footerRunes := len([]rune(footer))
+	if footerRunes >= twitterMaxTweetRunes {
+		return trimTweetRunes(summary+footer, twitterMaxTweetRunes)
+	}
+	return trimTweetRunes(summary, twitterMaxTweetRunes-footerRunes) + footer
+}
+
+func trimTweetRunes(value string, limit int) string {
+	runes := []rune(value)
+	if len(runes) <= limit {
+		return value
+	}
+	if limit <= 3 {
+		return string(runes[:limit])
+	}
+	return string(runes[:limit-3]) + "..."
+}
+
+func postTweetToXAPI(ctx context.Context, client twitterHTTPClient, endpoint string, credentials twitterOAuthCredentials, text string) error {
+	if err := credentials.validate(); err != nil {
+		return err
+	}
+	if client == nil {
+		client = http.DefaultClient
+	}
+	payload, err := json.Marshal(map[string]string{"text": text})
+	if err != nil {
+		return err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(payload))
+	if err != nil {
+		return err
+	}
+	authorization, err := newTwitterOAuthAuthorizationHeader(http.MethodPost, endpoint, credentials)
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", authorization)
+	req.Header.Set("Content-Type", "application/json")
+
+	res, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer res.Body.Close()
+	if res.StatusCode < http.StatusOK || res.StatusCode >= http.StatusMultipleChoices {
+		body, _ := ioutil.ReadAll(res.Body)
+		return fmt.Errorf("twitter api returned %s: %s", res.Status, strings.TrimSpace(string(body)))
+	}
+	return nil
+}
+
+func newTwitterOAuthAuthorizationHeader(method, endpoint string, credentials twitterOAuthCredentials) (string, error) {
+	nonce, err := newOAuthNonce()
+	if err != nil {
+		return "", err
+	}
+	timestamp := strconv.FormatInt(time.Now().Unix(), 10)
+	return buildTwitterOAuthAuthorizationHeader(method, endpoint, credentials, nonce, timestamp)
+}
+
+func newOAuthNonce() (string, error) {
+	bytes := make([]byte, 16)
+	if _, err := rand.Read(bytes); err != nil {
+		return "", err
+	}
+	return base64.RawURLEncoding.EncodeToString(bytes), nil
+}
+
+func buildTwitterOAuthAuthorizationHeader(method, endpoint string, credentials twitterOAuthCredentials, nonce, timestamp string) (string, error) {
+	if err := credentials.validate(); err != nil {
+		return "", err
+	}
+	parsedEndpoint, err := url.Parse(endpoint)
+	if err != nil {
+		return "", err
+	}
+	oauthValues := map[string]string{
+		"oauth_consumer_key":     credentials.ClientKey,
+		"oauth_nonce":            nonce,
+		"oauth_signature_method": "HMAC-SHA1",
+		"oauth_timestamp":        timestamp,
+		"oauth_token":            credentials.AccessToken,
+		"oauth_version":          "1.0",
+	}
+	normalizedParameters := make([]oauthParameter, 0, len(oauthValues)+len(parsedEndpoint.Query()))
+	for key, value := range oauthValues {
+		normalizedParameters = append(normalizedParameters, oauthParameter{key: key, value: value})
+	}
+	for key, values := range parsedEndpoint.Query() {
+		for _, value := range values {
+			normalizedParameters = append(normalizedParameters, oauthParameter{key: key, value: value})
+		}
+	}
+	sort.Slice(normalizedParameters, func(i, j int) bool {
+		leftKey, rightKey := oauthEscape(normalizedParameters[i].key), oauthEscape(normalizedParameters[j].key)
+		if leftKey == rightKey {
+			return oauthEscape(normalizedParameters[i].value) < oauthEscape(normalizedParameters[j].value)
+		}
+		return leftKey < rightKey
+	})
+	encodedParameters := make([]string, 0, len(normalizedParameters))
+	for _, parameter := range normalizedParameters {
+		encodedParameters = append(encodedParameters, oauthEscape(parameter.key)+"="+oauthEscape(parameter.value))
+	}
+	baseURL := parsedEndpoint.Scheme + "://" + parsedEndpoint.Host + parsedEndpoint.EscapedPath()
+	signatureBase := strings.Join([]string{
+		strings.ToUpper(method),
+		oauthEscape(baseURL),
+		oauthEscape(strings.Join(encodedParameters, "&")),
+	}, "&")
+	signingKey := oauthEscape(credentials.ClientSecret) + "&" + oauthEscape(credentials.AccessTokenSecret)
+	mac := hmac.New(sha1.New, []byte(signingKey))
+	if _, err := mac.Write([]byte(signatureBase)); err != nil {
+		return "", err
+	}
+	oauthValues["oauth_signature"] = base64.StdEncoding.EncodeToString(mac.Sum(nil))
+
+	headerKeys := make([]string, 0, len(oauthValues))
+	for key := range oauthValues {
+		headerKeys = append(headerKeys, key)
+	}
+	sort.Strings(headerKeys)
+	headerValues := make([]string, 0, len(headerKeys))
+	for _, key := range headerKeys {
+		headerValues = append(headerValues, fmt.Sprintf(`%s="%s"`, oauthEscape(key), oauthEscape(oauthValues[key])))
+	}
+	return "OAuth " + strings.Join(headerValues, ", "), nil
+}
+
+func oauthEscape(value string) string {
+	escaped := url.QueryEscape(value)
+	escaped = strings.ReplaceAll(escaped, "+", "%20")
+	escaped = strings.ReplaceAll(escaped, "%7E", "~")
+	return escaped
+}
+
 func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
 	return middleware.MachineAuthenticatedMiddleware(
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
+				if !shouldRunTwitterJobScheduler(time.Now()) {
+					log.Printf("skipping twitter job scheduler on weekend")
+					return
+				}
 				lastTwittedJobIDStr, err := jobRepo.GetValue("last_twitted_job_id")
 				if err != nil {
 					svr.Log(err, "unable to retrieve last twitter job id")
@@ -1198,9 +1401,9 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 					return
 				}
 				lastJobID := lastTwittedJobID
-				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
 				for _, j := range jobPosts {
-					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug), url.Values{})
+					tweetText := formatJobTweet(*j, svr.GetConfig().SiteJobCategory, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost)
+					err := postTweetToXAPI(context.Background(), http.DefaultClient, twitterCreateTweetAPIURL, twitterCredentialsFromServer(svr), tweetText)
 					if err != nil {
 						svr.Log(err, "unable to post tweet")
 						continue
@@ -2681,7 +2884,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository, bookmark
 		emailAddr := r.FormValue("email")
 		jobPost, err := jobRepo.JobPostByExternalIDForEdit(externalID)
 		if err != nil {
-			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %d, %v", externalID, err))
+			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %s, %v", externalID, err))
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
