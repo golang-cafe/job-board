@@ -167,7 +167,7 @@ CREATE TABLE public.developer_profile (
     email character varying(255) NOT NULL,
     location character varying(255) NOT NULL,
     available boolean NOT NULL,
-    linkedin_url character varying(255) NOT NULL,
+    linkedin_url character varying(255),
     image_id character(27) NOT NULL,
     slug character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -202,6 +202,19 @@ CREATE TABLE public.developer_profile_message (
     profile_id character(27) NOT NULL,
     created_at timestamp without time zone NOT NULL,
     sent_at timestamp without time zone
+);
+
+
+--
+-- Name: developer_profile_cv_download; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.developer_profile_cv_download (
+    id character(27) NOT NULL,
+    developer_profile_id character(27) NOT NULL,
+    cv bytea NOT NULL,
+    user_id character(27) NOT NULL,
+    downloaded_at timestamp without time zone NOT NULL
 );
 
 
@@ -508,6 +521,14 @@ ALTER TABLE ONLY public.developer_profile_message
 
 
 --
+-- Name: developer_profile_cv_download developer_profile_cv_download_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.developer_profile_cv_download
+    ADD CONSTRAINT developer_profile_cv_download_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: developer_profile developer_profile_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -734,6 +755,22 @@ ALTER TABLE ONLY public.developer_profile_event
 
 
 --
+-- Name: developer_profile_cv_download developer_profile_cv_download_developer_profile_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.developer_profile_cv_download
+    ADD CONSTRAINT developer_profile_cv_download_developer_profile_id_fkey FOREIGN KEY (developer_profile_id) REFERENCES public.developer_profile(id);
+
+
+--
+-- Name: developer_profile_cv_download developer_profile_cv_download_user_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.developer_profile_cv_download
+    ADD CONSTRAINT developer_profile_cv_download_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
+
+--
 -- Name: developer_profile developer_profile_image_id_fk; Type: FK CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -816,6 +853,8 @@ ALTER TABLE ONLY public.developer_profile ADD COLUMN role_types VARCHAR(60) NOT 
 ALTER TABLE ONLY public.developer_profile ADD COLUMN detected_location_id VARCHAR(255) DEFAULT NULL;
 ALTER TABLE ONLY public.users ADD COLUMN user_type VARCHAR(20) DEFAULT 'developer';
 ALTER TABLE ONLY public.developer_profile ADD COLUMN hourly_rate INTEGER DEFAULT 0;
+ALTER TABLE ONLY public.developer_profile ALTER COLUMN linkedin_url DROP NOT NULL;
+ALTER TABLE ONLY public.developer_profile ADD COLUMN cv BYTEA DEFAULT NULL;
 ALTER TABLE ONLY public.recruiter_profile DROP COLUMN company;
 ALTER TABLE ONLY public.recruiter_profile DROP COLUMN title;
 ALTER TABLE ONLY public.user_sign_on_token ADD COLUMN created_at TIMESTAMP DEFAULT NOW();
@@ -867,6 +906,8 @@ CREATE INDEX seo_location_name_lower_idx ON seo_location (LOWER(name));
 CREATE INDEX developer_profile_message_created_at_idx ON developer_profile_message (created_at);
 CREATE INDEX developer_profile_created_at_idx ON developer_profile (created_at);
 CREATE INDEX developer_profile_updated_at_idx ON developer_profile (updated_at);
+CREATE INDEX developer_profile_cv_download_developer_profile_id_idx ON developer_profile_cv_download (developer_profile_id);
+CREATE INDEX developer_profile_cv_download_downloaded_at_idx ON developer_profile_cv_download (downloaded_at);
 CREATE INDEX developer_profile_event_created_at_idx ON developer_profile_event(created_at);
 CREATE INDEX developer_profile_event_event_type_idx ON developer_profile_event(event_type);
 CREATE INDEX email_subscribers_confirmed_at_idx ON email_subscribers(confirmed_at);

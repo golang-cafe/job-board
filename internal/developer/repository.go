@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/gosimple/slug"
+	"github.com/segmentio/ksuid"
 )
 
 const (
@@ -24,15 +25,16 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE slug = $1`, slug)
+	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types, cv IS NOT NULL AS has_cv FROM developer_profile WHERE slug = $1`, slug)
 	dev := Developer{}
 	var roleTypes string
+	var linkedinURL sql.NullString
 	err := row.Scan(
 		&dev.ID,
 		&dev.Email,
 		&dev.Location,
 		&dev.Available,
-		&dev.LinkedinURL,
+		&linkedinURL,
 		&dev.HourlyRate,
 		&dev.ImageID,
 		&dev.Slug,
@@ -46,7 +48,11 @@ func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 		&dev.SearchStatus,
 		&dev.RoleLevel,
 		&roleTypes,
+		&dev.HasCV,
 	)
+	if linkedinURL.Valid {
+		dev.LinkedinURL = linkedinURL.String
+	}
 	dev.RoleTypes = strings.Split(roleTypes, ",")
 	if err != nil {
 		return dev, err
@@ -59,12 +65,13 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE lower(email) = lower($1)`, email)
 	dev := Developer{}
 	var nullUpdatedAt sql.NullTime
+	var linkedinURL sql.NullString
 	err := row.Scan(
 		&dev.ID,
 		&dev.Email,
 		&dev.Location,
 		&dev.Available,
-		&dev.LinkedinURL,
+		&linkedinURL,
 		&dev.HourlyRate,
 		&dev.ImageID,
 		&dev.Slug,
@@ -78,6 +85,9 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 		dev.UpdatedAt = nullUpdatedAt.Time
 	} else {
 		dev.UpdatedAt = dev.CreatedAt
+	}
+	if linkedinURL.Valid {
+		dev.LinkedinURL = linkedinURL.String
 	}
 	if err == sql.ErrNoRows {
 		return dev, nil
@@ -112,14 +122,15 @@ func (r *Repository) DeveloperMetadataByProfileID(metadata_type string, profile_
 }
 
 func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level FROM developer_profile WHERE id = $1`, id)
+	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level, cv IS NOT NULL AS has_cv FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
 	var nullTime sql.NullTime
+	var linkedinURL sql.NullString
 	err := row.Scan(
 		&dev.ID,
 		&dev.Email,
 		&dev.Location,
-		&dev.LinkedinURL,
+		&linkedinURL,
 		&dev.HourlyRate,
 		&dev.ImageID,
 		&dev.Slug,
@@ -130,9 +141,13 @@ func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 		&dev.Bio,
 		&dev.SearchStatus,
 		&dev.RoleLevel,
+		&dev.HasCV,
 	)
 	if nullTime.Valid {
 		dev.UpdatedAt = nullTime.Time
+	}
+	if linkedinURL.Valid {
+		dev.LinkedinURL = linkedinURL.String
 	}
 	if err != nil {
 		return dev, err
@@ -383,6 +398,32 @@ func (r *Repository) UpdateDeveloperProfile(dev Developer) error {
 	return err
 }
 
+func (r *Repository) UpdateDeveloperProfileCV(profileID string, cv []byte) error {
+	_, err := r.db.Exec(`UPDATE developer_profile SET cv = $1, updated_at = NOW() WHERE id = $2`, cv, profileID)
+	return err
+}
+
+func (r *Repository) DeveloperProfileCVByID(profileID string) ([]byte, error) {
+	var cv []byte
+	err := r.db.QueryRow(`SELECT cv FROM developer_profile WHERE id = $1 AND cv IS NOT NULL`, profileID).Scan(&cv)
+	return cv, err
+}
+
+func (r *Repository) TrackDeveloperProfileCVDownload(profileID, userID string, cv []byte) error {
+	k, err := ksuid.NewRandom()
+	if err != nil {
+		return err
+	}
+	_, err = r.db.Exec(
+		`INSERT INTO developer_profile_cv_download (id, developer_profile_id, cv, user_id, downloaded_at) VALUES ($1, $2, $3, $4, NOW())`,
+		k.String(),
+		profileID,
+		cv,
+		userID,
+	)
+	return err
+}
+
 func (r *Repository) DeleteDeveloperProfile(id, email string) error {
 	_, err := r.db.Exec(`DELETE FROM developer_profile WHERE id = $1 AND email = $2`, id, email)
 	return err
@@ -396,7 +437,7 @@ func (r *Repository) ActivateDeveloperProfile(email string) error {
 func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 	dev.Slug = slug.Make(fmt.Sprintf("%s %d", dev.Name, time.Now().UTC().Unix()))
 	_, err := r.db.Exec(
-		`INSERT INTO developer_profile (email, location, linkedin_url, hourly_rate, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url, role_types, role_level, search_status, detected_location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
+		`INSERT INTO developer_profile (email, location, linkedin_url, hourly_rate, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url, role_types, role_level, search_status, detected_location_id, cv) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
 		dev.Email,
 		dev.Location,
 		dev.LinkedinURL,
@@ -414,6 +455,7 @@ func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 		dev.RoleLevel,
 		dev.SearchStatus,
 		dev.DetectedLocationID,
+		dev.CV,
 	)
 	return err
 }
