@@ -984,6 +984,14 @@
 					style="visibility: hidden; width: 0; height: 0;">
 				<div class="clearfix"></div>
 			</div>
+			<div>
+				<label for="developer-cv"
+					style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload
+					CV</label>
+				<input type="file" name="developer-cv" id="developer-cv" accept="application/pdf"
+					style="visibility: hidden; width: 0; height: 0;">
+				<div class="clearfix"></div>
+			</div>
 			<input type="hidden" name="profile-type" id="profile-type" value="developer">
 			<textarea id="bio" class="dev-only" placeholder="Short Bio" style="margin-top:10px;resize:none; width: 100%;"></textarea>
 			<input type="hidden" name="tags" id="tags" style="width:100%;"
@@ -1158,6 +1166,34 @@
 				}
 			}
 		};
+		function readDeveloperCVBase64(cb) {
+			var cvInput = document.getElementById('developer-cv');
+			if (!cvInput || cvInput.files.length === 0) {
+				cb(true, '');
+				return;
+			}
+			var cvFile = cvInput.files[0];
+			if (cvFile.type !== 'application/pdf' && cvFile.name.split('.').pop().toLowerCase() !== 'pdf') {
+				alert('Only PDF files are allowed for CV uploads');
+				cb(false, '');
+				return;
+			}
+			if (cvFile.size > 5 * 1024 * 1024) {
+				alert('Max file size for CV is 5MB');
+				cb(false, '');
+				return;
+			}
+			var reader = new FileReader();
+			reader.onload = function () {
+				var parts = reader.result.split(',');
+				cb(true, parts.length > 1 ? parts[1] : '');
+			};
+			reader.onerror = function () {
+				alert('There was an error while reading your CV');
+				cb(false, '');
+			};
+			reader.readAsDataURL(cvFile);
+		}
 		function empty() {
 			var isThere = true;
 			for (var i = 0; i < arguments.length; i++) {
@@ -1213,11 +1249,11 @@
 			if (document.getElementById("role-type-internship").checked) {
 				roleTypes.push('internship');
 			}
-			if (empty(tags, fullName, linkedinURL, bio, email, currentLocation, searchStatus, roleLevel, hourlyRate)) {
-				alert('You must fill all the mandatory fields (Full Name, Email, Linkedin URL, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
+			if (empty(tags, fullName, bio, email, currentLocation, searchStatus, roleLevel, hourlyRate)) {
+				alert('You must fill all the mandatory fields (Full Name, Email, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
 				return;
 			}
-			if (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL)) {
+			if (linkedinURL.trim() !== '' && (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL))) {
 				alert('Linkedin URL it\'s not a valid URL');
 				return;
 			}
@@ -1272,24 +1308,30 @@
 						hourly_rate: hourlyRate,
 						detected_location_id: detectedLocationId,
 					};
-					http(
-						'/x/sdp',
-						payload,
-						function (success, body, statusCode) {
-							if (success) {
+					readDeveloperCVBase64(function (cvReadSuccess, cvBase64) {
+						if (!cvReadSuccess) {
+							document.getElementById("spinner-0").style.display = "none";
+							return;
+						}
+						payload.cv_base64 = cvBase64;
+						http(
+							'/x/sdp',
+							payload,
+							function (success, body, statusCode) {
 								document.getElementById("spinner-0").style.display = "none";
-								alert('Please check your email to confirm your profile.');
-								window.location.href = '/Submit-Developer-Profile';
-							} else {
-								document.getElementById("spinner-0").style.display = "none";
-								if (statusCode == 400) {
-									alert('There was a problem with your request. ' + body);
+								if (success) {
+									alert('Please check your email to confirm your profile.');
+									window.location.href = '/Submit-Developer-Profile';
 								} else {
-									alert('There was a problem with your request, please try again later.');
+									if (statusCode == 400) {
+										alert('There was a problem with your request. ' + body);
+									} else {
+										alert('There was a problem with your request, please try again later.');
+									}
 								}
 							}
-						}
-					);
+						);
+					});
 				}
 			}
 		}

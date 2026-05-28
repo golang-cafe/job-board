@@ -181,6 +181,13 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
           <div class="clearfix"></div>
         </div>
         <br>
+        <div>
+          <label for="developer-cv" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload CV</label>
+          <small style="margin-left: 10px;line-height: 34px;">{{ if .DeveloperProfile.HasCV }}CV uploaded{{ else }}CV not uploaded{{ end }}</small>
+          <input type="file" name="developer-cv" id="developer-cv" accept="application/pdf" style="visibility: hidden; width: 0; height: 0;">
+          <div class="clearfix"></div>
+        </div>
+        <br>
         <input type="hidden" name="profile-image-id" id="profile-image-id" value="{{ .DeveloperProfile.ImageID }}">
         </div>
         <span>Search Status</span>
@@ -476,7 +483,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
               var tags = document.getElementById("tags").value;
               var searchStatus = document.getElementById("search-status").value;
               var roleLevel = document.getElementById("role-level").value;
-              if (empty(fullName, currentLocation, linkedinURL, bio, tags, email)) {
+              if (empty(fullName, currentLocation, bio, tags, email)) {
                       alert('Please fill all the mandatory fields');
                       return;
                     }
@@ -488,7 +495,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				alert('Skills is too long. Please use 10 skills or less');
 				return;
 			}
-              if (!isURL(linkedinURL)) {
+              if (linkedinURL.trim() !== '' && !isURL(linkedinURL)) {
                       alert('"How To Apply" must be either an email address or a URL');
                       return;
                     }
@@ -526,11 +533,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                                       profile_image_id: document.getElementById("profile-image-id").value
                                     },
                               function(bool) {
-                                      document.getElementById("spinner-0").style.display = "none";
-                                      if (bool) {
-                                              alert('Profile Updated Successfully');
-                                              window.location.reload();
-                                            } else alert('Woops there was a problem updating the profile');
+                                      finishDeveloperProfileUpdate(bool);
                                     }
                             );
                     } else {
@@ -569,11 +572,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                                                             profile_image_id: profileIconId,
                                                           },
                                                     function(bool) {
-                                                            document.getElementById("spinner-0").style.display = "none";
-                                                            if (bool) {
-                                                                    alert('Profile Updated Successfully');
-                                                                    window.location.reload();
-                                                                  } else alert('Woops there was a problem updating the profile');
+                                                            finishDeveloperProfileUpdate(bool);
                                                           }
                                                   );
                                           }
@@ -595,6 +594,50 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                             }
                     }
             };
+      function uploadDeveloperCV(cb) {
+              var cvInput = document.getElementById('developer-cv');
+              if (!cvInput || cvInput.files.length === 0) {
+                      cb(true);
+                      return;
+                    }
+              var cvFile = cvInput.files[0];
+              if (cvFile.type !== 'application/pdf' && cvFile.name.split('.').pop().toLowerCase() !== 'pdf') {
+                      alert('Only PDF files are allowed for CV uploads');
+                      cb(false);
+                      return;
+                    }
+              if (cvFile.size > 5 * 1024 * 1024) {
+                      alert('Max file size for CV is 5MB');
+                      cb(false);
+                      return;
+                    }
+              var formData = new FormData();
+              formData.append('cv', cvFile);
+              var xhr = new XMLHttpRequest();
+              xhr.open('POST', '/x/developer/' + document.getElementById('profile-id').value + '/cv', true);
+              xhr.send(formData);
+              xhr.onreadystatechange = function() {
+                      if (xhr.readyState === 4) {
+                              cb(xhr.status === 200);
+                            }
+                    }
+            }
+      function finishDeveloperProfileUpdate(profileSaved) {
+              if (!profileSaved) {
+                      document.getElementById("spinner-0").style.display = "none";
+                      alert('Woops there was a problem updating the profile');
+                      return;
+                    }
+              uploadDeveloperCV(function(cvSaved) {
+                      document.getElementById("spinner-0").style.display = "none";
+                      if (!cvSaved) {
+                              alert('Profile updated, but there was a problem uploading the CV');
+                              return;
+                            }
+                      alert('Profile Updated Successfully');
+                      window.location.reload();
+                    });
+            }
       var cropInstance = new Croppr('#profile-image-preview', {
               startSize: [100, 100, '%'],
               aspectRatio: 1,
