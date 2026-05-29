@@ -38,6 +38,8 @@ type Config struct {
 	TwitterAccessTokenSecret string
 	TwitterClientKey         string
 	TwitterClientSecret      string
+	LinkedinAccessToken      string
+	LinkedinAuthorURN        string
 	NewsletterJobsToSend     int
 	CloudflareAPIToken       string
 	CloudflareZoneTag        string
@@ -182,6 +184,14 @@ func LoadConfig() (Config, error) {
 	twitterClientSecret := os.Getenv("TWITTER_CLIENT_SECRET")
 	if twitterClientSecret == "" {
 		return Config{}, fmt.Errorf("TWITTER_CLIENT_SECRET cannot be empty")
+	}
+	linkedinAccessToken := os.Getenv("LINKEDIN_ACCESS_TOKEN")
+	if linkedinAccessToken == "" {
+		return Config{}, fmt.Errorf("LINKEDIN_ACCESS_TOKEN cannot be empty")
+	}
+	linkedinAuthorURN := os.Getenv("LINKEDIN_AUTHOR_URN")
+	if linkedinAuthorURN == "" {
+		return Config{}, fmt.Errorf("LINKEDIN_AUTHOR_URN cannot be empty")
 	}
 	twitterJobsToPostStr := os.Getenv("TWITTER_JOBS_TO_POST")
 	if twitterJobsToPostStr == "" {
@@ -355,6 +365,8 @@ func LoadConfig() (Config, error) {
 		TwitterAccessTokenSecret: twitterAccessTokenSecret,
 		TwitterClientSecret:      twitterClientSecret,
 		TwitterClientKey:         twitterClientKey,
+		LinkedinAccessToken:      linkedinAccessToken,
+		LinkedinAuthorURN:        linkedinAuthorURN,
 		NewsletterJobsToSend:     newsletterJobsToSend,
 		CloudflareAPIToken:       cloudflareAPIToken,
 		CloudflareZoneTag:        cloudflareZoneTag,
