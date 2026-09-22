@@ -463,6 +463,21 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 				return
 			}
 		}
+		profileImage, err := database.GetMediaByID(svr.Conn, req.ProfileImageID)
+		if err != nil {
+			svr.JSON(w, http.StatusBadRequest, "developer profile image is invalid")
+			return
+		}
+		hasFace, err := containsExactlyOneFaceBytes(profileImage.Bytes)
+		if err != nil {
+			svr.Log(err, "unable to run face detection on developer profile image")
+			svr.JSON(w, http.StatusBadRequest, "developer profile image is invalid")
+			return
+		}
+		if !hasFace {
+			svr.JSON(w, http.StatusBadRequest, "developer profile image must contain exactly one face")
+			return
+		}
 		existingDev, err := devRepo.DeveloperProfileByEmail(req.Email)
 		if err != nil {
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -1403,6 +1418,21 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 					svr.JSON(w, http.StatusBadRequest, "invalid role type")
 					return
 				}
+			}
+			profileImage, err := database.GetMediaByID(svr.Conn, req.ImageID)
+			if err != nil {
+				svr.JSON(w, http.StatusBadRequest, "developer profile image is invalid")
+				return
+			}
+			hasFace, err := containsExactlyOneFaceBytes(profileImage.Bytes)
+			if err != nil {
+				svr.Log(err, "unable to run face detection on developer profile image")
+				svr.JSON(w, http.StatusBadRequest, "developer profile image is invalid")
+				return
+			}
+			if !hasFace {
+				svr.JSON(w, http.StatusBadRequest, "developer profile image must contain exactly one face")
+				return
 			}
 			if req.HourlyRate == "" || req.HourlyRate == "0" {
 				svr.JSON(w, http.StatusBadRequest, "please specify hourly rate")
@@ -3277,6 +3307,36 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.MEDIA(w, http.StatusNotFound, media.Bytes, media.MediaType)
 			return
 		}
+		isDeveloperImage, err := database.IsDeveloperProfileImage(svr.Conn, mediaID)
+		if err != nil {
+			svr.Log(err, fmt.Sprintf("unable to determine whether media '%s' is a developer profile image", mediaID))
+			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+		if isDeveloperImage && !middleware.IsSignedOn(r, svr.SessionStore, svr.GetJWTSigningKey()) {
+			decImage, _, err := image.Decode(bytes.NewReader(media.Bytes))
+			if err != nil {
+				svr.Log(err, "unable to decode developer profile image from bytes")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			blurred := blurProfileImage(decImage)
+			blurredBytes := new(bytes.Buffer)
+			switch media.MediaType {
+			case "image/jpg", "image/jpeg":
+				err = jpeg.Encode(blurredBytes, blurred, nil)
+			case "image/png":
+				err = png.Encode(blurredBytes, blurred)
+			}
+			if err != nil {
+				svr.Log(err, "unable to encode blurred developer profile image")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			if blurredBytes.Len() > 0 {
+				media.Bytes = blurredBytes.Bytes()
+			}
+		}
 		height := r.URL.Query().Get("h")
 		width := r.URL.Query().Get("w")
 		if height == "" && width == "" {
@@ -3354,6 +3414,10 @@ func RetrieveMediaMetaPageHandler(svr server.Server, jobRepo *job.Repository) ht
 	}
 }
 
+func isDeveloperMediaUpload(r *http.Request) bool {
+	return r.URL.Query().Get("context") == "developer"
+}
+
 func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var x, y, wi, he int
@@ -3425,6 +3489,18 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		cutImage := decImage.(interface {
 			SubImage(r image.Rectangle) image.Image
 		}).SubImage(image.Rect(x, y, x+wi, y+he))
+		if isDeveloperMediaUpload(r) {
+			hasFace, err := containsExactlyOneFace(cutImage)
+			if err != nil {
+				svr.Log(err, "unable to detect face in developer profile image")
+				svr.JSON(w, http.StatusBadRequest, "developer profile image is invalid")
+				return
+			}
+			if !hasFace {
+				svr.JSON(w, http.StatusBadRequest, "developer profile image must contain exactly one face")
+				return
+			}
+		}
 		cutImageBytes := new(bytes.Buffer)
 		switch contentType {
 		case "image/jpg", "image/jpeg":

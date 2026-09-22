@@ -781,6 +781,12 @@ func UpdateMedia(conn *sql.DB, media Media, mediaID string) error {
 	return err
 }
 
+func IsDeveloperProfileImage(conn *sql.DB, mediaID string) (bool, error) {
+	var exists bool
+	err := conn.QueryRow(`SELECT EXISTS(SELECT 1 FROM developer_profile WHERE image_id = $1)`, mediaID).Scan(&exists)
+	return exists, err
+}
+
 func GetMediaByID(conn *sql.DB, mediaID string) (Media, error) {
 	var m Media
 	row := conn.QueryRow(
