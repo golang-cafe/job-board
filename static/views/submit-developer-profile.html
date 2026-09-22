@@ -1245,7 +1245,7 @@
 			var formData = new FormData();
 			formData.append('image', mediaFile);
 			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/x/s/m?x=' + cropValues.x + '&y=' + cropValues.y + '&w=' + cropValues.width + '&h=' + cropValues.height, true);
+			xhr.open('POST', '/x/s/m?context=developer&x=' + cropValues.x + '&y=' + cropValues.y + '&w=' + cropValues.width + '&h=' + cropValues.height, true);
 			xhr.send(formData);
 			xhr.onreadystatechange = function () {
 				if (xhr.readyState === 4) {

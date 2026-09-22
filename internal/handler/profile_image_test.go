@@ -3,6 +3,7 @@ package handler
 import (
 	"image"
 	"image/color"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -35,5 +36,17 @@ func TestBlurProfileImagePreservesBoundsAndChangesImage(t *testing.T) {
 	}
 	if got.At(7, 7) == img.At(7, 7) && got.At(18, 18) == img.At(18, 18) {
 		t.Fatal("blur did not alter sampled pixels")
+	}
+}
+
+func TestIsDeveloperMediaUpload(t *testing.T) {
+	developerReq := httptest.NewRequest("POST", "/x/s/m?context=developer", nil)
+	if !isDeveloperMediaUpload(developerReq) {
+		t.Fatal("developer upload context was not detected")
+	}
+
+	genericReq := httptest.NewRequest("POST", "/x/s/m", nil)
+	if isDeveloperMediaUpload(genericReq) {
+		t.Fatal("generic media upload was treated as developer profile media")
 	}
 }

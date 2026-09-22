@@ -3414,6 +3414,10 @@ func RetrieveMediaMetaPageHandler(svr server.Server, jobRepo *job.Repository) ht
 	}
 }
 
+func isDeveloperMediaUpload(r *http.Request) bool {
+	return r.URL.Query().Get("context") == "developer"
+}
+
 func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var x, y, wi, he int
@@ -3485,6 +3489,18 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		cutImage := decImage.(interface {
 			SubImage(r image.Rectangle) image.Image
 		}).SubImage(image.Rect(x, y, x+wi, y+he))
+		if isDeveloperMediaUpload(r) {
+			hasFace, err := containsExactlyOneFace(cutImage)
+			if err != nil {
+				svr.Log(err, "unable to detect face in developer profile image")
+				svr.JSON(w, http.StatusBadRequest, "developer profile image is invalid")
+				return
+			}
+			if !hasFace {
+				svr.JSON(w, http.StatusBadRequest, "developer profile image must contain exactly one face")
+				return
+			}
+		}
 		cutImageBytes := new(bytes.Buffer)
 		switch contentType {
 		case "image/jpg", "image/jpeg":
