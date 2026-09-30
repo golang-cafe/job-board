@@ -1142,7 +1142,7 @@ func (r *Repository) GetValue(key string) (string, error) {
 }
 
 func (r *Repository) SetValue(key, val string) error {
-	_, err := r.db.Exec(`UPDATE meta SET value = $1 WHERE key = $2`, val, key)
+	_, err := r.db.Exec(`INSERT INTO meta (key, value) VALUES ($2, $1) ON CONFLICT (key) DO UPDATE SET value = $1`, val, key)
 	return err
 }
 

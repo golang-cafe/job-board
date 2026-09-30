@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -1119,6 +1120,197 @@ func TriggerTelegramScheduler(svr server.Server, jobRepo *job.Repository) http.H
 				}
 				log.Printf("updated last telegram job id to %s\n", lastJobIDStr)
 				log.Printf("posted last %d jobs to telegram", len(jobPosts))
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
+
+const linkedInUGCPostsAPIURL = "https://api.linkedin.com/v2/ugcPosts"
+
+type linkedInUGCPostRequest struct {
+	Author          string                      `json:"author"`
+	LifecycleState  string                      `json:"lifecycleState"`
+	SpecificContent linkedInUGCSpecificContent  `json:"specificContent"`
+	Visibility      linkedInUGCMemberVisibility `json:"visibility"`
+}
+
+type linkedInUGCSpecificContent struct {
+	ShareContent linkedInUGCShareContent `json:"com.linkedin.ugc.ShareContent"`
+}
+
+type linkedInUGCShareContent struct {
+	ShareCommentary    linkedInUGCText    `json:"shareCommentary"`
+	ShareMediaCategory string             `json:"shareMediaCategory"`
+	Media              []linkedInUGCMedia `json:"media,omitempty"`
+}
+
+type linkedInUGCText struct {
+	Text string `json:"text"`
+}
+
+type linkedInUGCMedia struct {
+	Status      string           `json:"status"`
+	OriginalURL string           `json:"originalUrl,omitempty"`
+	Title       *linkedInUGCText `json:"title,omitempty"`
+}
+
+type linkedInUGCMemberVisibility struct {
+	MemberNetworkVisibility string `json:"com.linkedin.ugc.MemberNetworkVisibility"`
+}
+
+func resolveLinkedInAuthorURN(pageOrAuthor string) string {
+	trimmed := strings.TrimSpace(pageOrAuthor)
+	if trimmed == "" {
+		return ""
+	}
+	if strings.HasPrefix(trimmed, "urn:li:") {
+		return trimmed
+	}
+	trimmed = strings.TrimRight(trimmed, "/")
+	lower := strings.ToLower(trimmed)
+	if idx := strings.Index(lower, "linkedin.com/company/"); idx != -1 {
+		part := trimmed[idx+len("linkedin.com/company/"):]
+		if slash := strings.Index(part, "/"); slash != -1 {
+			part = part[:slash]
+		}
+		if part != "" {
+			return "urn:li:organization:" + part
+		}
+	}
+	if idx := strings.Index(lower, "linkedin.com/in/"); idx != -1 {
+		part := trimmed[idx+len("linkedin.com/in/"):]
+		if slash := strings.Index(part, "/"); slash != -1 {
+			part = part[:slash]
+		}
+		if part != "" {
+			return "urn:li:person:" + part
+		}
+	}
+	return "urn:li:organization:" + trimmed
+}
+
+func postLinkedInShare(ctx context.Context, client *http.Client, apiURL, accessToken, pageOrAuthor, text, jobURL, jobTitle string) error {
+	if strings.TrimSpace(accessToken) == "" {
+		return errors.New("linkedin api token is empty")
+	}
+	authorURN := resolveLinkedInAuthorURN(pageOrAuthor)
+	if authorURN == "" {
+		return errors.New("linkedin author URN or page URL is empty")
+	}
+	if apiURL == "" {
+		apiURL = linkedInUGCPostsAPIURL
+	}
+	if client == nil {
+		client = http.DefaultClient
+	}
+
+	shareContent := linkedInUGCShareContent{
+		ShareCommentary:    linkedInUGCText{Text: text},
+		ShareMediaCategory: "NONE",
+	}
+	if strings.TrimSpace(jobURL) != "" {
+		media := linkedInUGCMedia{
+			Status:      "READY",
+			OriginalURL: jobURL,
+		}
+		if strings.TrimSpace(jobTitle) != "" {
+			media.Title = &linkedInUGCText{Text: jobTitle}
+		}
+		shareContent.ShareMediaCategory = "ARTICLE"
+		shareContent.Media = []linkedInUGCMedia{media}
+	}
+
+	payload := linkedInUGCPostRequest{
+		Author:         authorURN,
+		LifecycleState: "PUBLISHED",
+		SpecificContent: linkedInUGCSpecificContent{
+			ShareContent: shareContent,
+		},
+		Visibility: linkedInUGCMemberVisibility{
+			MemberNetworkVisibility: "PUBLIC",
+		},
+	}
+
+	bodyBytes, err := json.Marshal(payload)
+	if err != nil {
+		return err
+	}
+
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, apiURL, bytes.NewReader(bodyBytes))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Authorization", "Bearer "+accessToken)
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("X-Restli-Protocol-Version", "2.0.0")
+
+	resp, err := client.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode < http.StatusOK || resp.StatusCode >= http.StatusMultipleChoices {
+		respBody, _ := ioutil.ReadAll(resp.Body)
+		return fmt.Errorf("linkedin share failed with status %d: %s", resp.StatusCode, strings.TrimSpace(string(respBody)))
+	}
+	return nil
+}
+
+func TriggerLinkedInShareJobs(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				lastLinkedInJobIDStr, err := jobRepo.GetValue("last_linkedin_job_id")
+				if err != nil {
+					if errors.Is(err, sql.ErrNoRows) {
+						lastLinkedInJobIDStr = "0"
+					} else {
+						svr.Log(err, "unable to retrieve last linkedin job id")
+						return
+					}
+				}
+				lastLinkedInJobID, err := strconv.Atoi(lastLinkedInJobIDStr)
+				if err != nil {
+					svr.Log(err, "unable to convert job str to id")
+					return
+				}
+				jobsToPost := svr.GetConfig().LinkedInJobsToPost
+				if jobsToPost <= 0 {
+					jobsToPost = svr.GetConfig().TwitterJobsToPost
+				}
+				jobPosts, err := jobRepo.GetLastNJobsFromID(jobsToPost, lastLinkedInJobID)
+				log.Printf("found %d/%d jobs to post on linkedin\n", len(jobPosts), jobsToPost)
+				if len(jobPosts) == 0 {
+					return
+				}
+				lastJobID := lastLinkedInJobID
+				ctx := context.Background()
+				client := &http.Client{Timeout: 15 * time.Second}
+				pageOrAuthor := svr.GetConfig().LinkedInPageURL
+				if pageOrAuthor == "" {
+					pageOrAuthor = svr.GetConfig().SiteLinkedin
+				}
+				for _, j := range jobPosts {
+					jobURL := fmt.Sprintf("%s%s/job/%s", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug)
+					message := fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, jobURL)
+					postTitle := fmt.Sprintf("%s with %s", j.JobTitle, j.Company)
+					if err := postLinkedInShare(ctx, client, linkedInUGCPostsAPIURL, svr.GetConfig().LinkedInAPIToken, pageOrAuthor, message, jobURL, postTitle); err != nil {
+						svr.Log(err, "unable to post on linkedin")
+						continue
+					}
+					lastJobID = j.ID
+				}
+				lastJobIDStr := strconv.Itoa(lastJobID)
+				err = jobRepo.SetValue("last_linkedin_job_id", lastJobIDStr)
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to save last linkedin job id to db as %s", lastJobIDStr))
+					return
+				}
+				log.Printf("updated last linkedin job id to %s\n", lastJobIDStr)
+				log.Printf("posted last %d jobs to linkedin", len(jobPosts))
 			}()
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},

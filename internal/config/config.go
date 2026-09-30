@@ -45,6 +45,9 @@ type Config struct {
 	MachineToken             string
 	TelegramAPIToken         string   // Telegram API Token used to integrate with site's Telegram channel
 	TelegramChannelID        int64    // Telegram Channel ID used to integrate with site's Telegram channel
+	LinkedInAPIToken         string   // LinkedIn OAuth2 access token used to share job posts
+	LinkedInPageURL          string   // LinkedIn company page URL or author URN used to share job posts
+	LinkedInJobsToPost       int      // max number of jobs to post on LinkedIn per run
 	FXAPIKey                 string   // FX rate api API Key to access recent FX data
 	AvailableCurrencies      []string // currencies used throughout the site for salary compensation (post a job, salary filter FX, etc)
 	AvailableSalaryBands     []int    // salary upper limits used in search to filter job by minimum salary
@@ -227,6 +230,21 @@ func LoadConfig() (Config, error) {
 	if err != nil {
 		return Config{}, errors.Wrap(err, "unable to convert telegram channel id to int")
 	}
+	linkedInAPIToken := os.Getenv("LINKEDIN_API_TOKEN")
+	if linkedInAPIToken == "" {
+		linkedInAPIToken = os.Getenv("LINKEDIN_ACCESS_TOKEN")
+	}
+	linkedInPageURL := os.Getenv("LINKEDIN_PAGE_URL")
+	if linkedInPageURL == "" {
+		linkedInPageURL = os.Getenv("LINKEDIN_AUTHOR_URN")
+	}
+	linkedInJobsToPost := twitterJobsToPost
+	if linkedInJobsToPostStr := os.Getenv("LINKEDIN_JOBS_TO_POST"); linkedInJobsToPostStr != "" {
+		linkedInJobsToPost, err = strconv.Atoi(linkedInJobsToPostStr)
+		if err != nil {
+			return Config{}, errors.Wrap(err, "unable to convert linkedin jobs to post to int")
+		}
+	}
 	fxAPIKey := os.Getenv("FX_API_KEY")
 	if fxAPIKey == "" {
 		return Config{}, fmt.Errorf("FX_API_KEY cannot be empty")
@@ -362,6 +380,9 @@ func LoadConfig() (Config, error) {
 		MachineToken:             machineToken,
 		TelegramAPIToken:         telegramAPIToken,
 		TelegramChannelID:        int64(telegramChannelID),
+		LinkedInAPIToken:         linkedInAPIToken,
+		LinkedInPageURL:          linkedInPageURL,
+		LinkedInJobsToPost:       linkedInJobsToPost,
 		FXAPIKey:                 fxAPIKey,
 		SiteName:                 siteName,
 		SiteJobCategory:          siteJobCategory,
