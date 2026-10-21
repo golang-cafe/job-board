@@ -1,0 +1,20 @@
+FROM golang:1.18-alpine
+
+ENV CGO_ENABLED=0
+
+WORKDIR /app
+
+RUN go install github.com/cosmtrek/air@v1.40.4
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY main.go ./
+COPY ./internal ./internal
+COPY ./static ./static
+
+ARG PORT=9876
+ENV PORT=${PORT}
+EXPOSE ${PORT}
+
+CMD ["air", "--build.cmd", "go build -o bin/server main.go", "--build.bin", "./bin/server"]

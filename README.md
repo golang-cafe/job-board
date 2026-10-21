@@ -33,7 +33,6 @@ These are basic requirements with the respective versions have been tested to wo
 
 - Bash 3.2.x or higher
 - Docker 20.10.x or higher
-- Go 1.15.x or higher
 
 **Dependencies**
 
@@ -51,10 +50,30 @@ The only thing that needs to be setup in order for the app to run is the Postgre
 ./setup-database.sh
 ```
 
-Once this command is successful you can now start the application
+Once this command is successful you can now start the application in local development mode (with hot-reload via `Dockerfile.local` and `cosmtrek/air`)
 
 ```
 ./run-local-webserver.sh
+```
+
+### Docker Build & Run
+
+**Local / Testing (`Dockerfile.local`)**
+
+To build and run the local development container with live hot-reloading manually:
+
+```
+docker build -f Dockerfile.local --build-arg PORT=9876 -t job-board-local .
+docker run -it --rm -v $(pwd):/app -p 9876:9876 --env-file local.env job-board-local
+```
+
+**Production (`Dockerfile`)**
+
+To build and run the multi-stage production container:
+
+```
+docker build --build-arg PORT=9876 -t job-board .
+docker run --rm -p 9876:9876 --env-file local.env job-board
 ```
 
 **Test Cron-Jobs Locally**
