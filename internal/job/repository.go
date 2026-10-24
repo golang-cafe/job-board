@@ -1136,13 +1136,16 @@ func (r *Repository) GetValue(key string) (string, error) {
 	var val string
 	err := res.Scan(&val)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return "0", nil
+		}
 		return "", err
 	}
 	return val, nil
 }
 
 func (r *Repository) SetValue(key, val string) error {
-	_, err := r.db.Exec(`UPDATE meta SET value = $1 WHERE key = $2`, val, key)
+	_, err := r.db.Exec(`INSERT INTO meta (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`, key, val)
 	return err
 }
 
