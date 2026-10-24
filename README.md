@@ -29,11 +29,10 @@ It's possible to setup a blank instance of this job board locally. This is a loc
 
 **Requirements**
 
-These are basic requirements with the respective versions have been tested to work locally on MacOS. The same should apply both on Linux and WSL/Windows.
+These are basic requirements tested on Linux, macOS, and WSL/Windows:
 
 - Bash 3.2.x or higher
-- Docker 20.10.x or higher
-- Go 1.15.x or higher
+- Docker 20.10.x or higher (Go is optional on host when using Docker)
 
 **Dependencies**
 
@@ -45,16 +44,28 @@ These are basic requirements with the respective versions have been tested to wo
 
 **Setup Guide**
 
-The only thing that needs to be setup in order for the app to run is the PostgreSQL database instance. Please run the following command in order to setup your local database instance.
+The only thing that needs to be setup in order for the app to run is the PostgreSQL database instance. Please run the following command in order to setup your local database instance:
 
-```
+```bash
 ./setup-database.sh
 ```
 
-Once this command is successful you can now start the application
+Once this command is successful you can start the application with live hot-reloading (no local Go toolchain required):
 
-```
+```bash
 ./run-local-webserver.sh
+```
+
+**Running with Production Docker Image**
+
+To build and run the optimized production container locally or on cloud providers (e.g., DigitalOcean App Platform):
+
+```bash
+# 1. Build production image
+docker build -t job-board .
+
+# 2. Run container with environment configuration
+docker run --env-file=./local.env -p 9876:9876 job-board
 ```
 
 **Test Cron-Jobs Locally**
