@@ -45,6 +45,9 @@ type Config struct {
 	MachineToken             string
 	TelegramAPIToken         string   // Telegram API Token used to integrate with site's Telegram channel
 	TelegramChannelID        int64    // Telegram Channel ID used to integrate with site's Telegram channel
+	LinkedInJobsToPost       int      // max number of jobs to share on LinkedIn per run
+	LinkedInAPIToken         string   // LinkedIn OAuth 2.0 Bearer token for /v2/ugcPosts
+	LinkedInPageURL          string   // LinkedIn page URL or organization/person URN
 	FXAPIKey                 string   // FX rate api API Key to access recent FX data
 	AvailableCurrencies      []string // currencies used throughout the site for salary compensation (post a job, salary filter FX, etc)
 	AvailableSalaryBands     []int    // salary upper limits used in search to filter job by minimum salary
@@ -247,6 +250,25 @@ func LoadConfig() (Config, error) {
 	siteGithub := os.Getenv("SITE_GITHUB")
 	siteYoutube := os.Getenv("SITE_YOUTUBE")
 	siteLinkedin := os.Getenv("SITE_LINKEDIN")
+	linkedInAPIToken := os.Getenv("LINKEDIN_API_TOKEN")
+	if linkedInAPIToken == "" {
+		linkedInAPIToken = os.Getenv("LINKEDIN_ACCESS_TOKEN")
+	}
+	linkedInPageURL := os.Getenv("LINKEDIN_PAGE_URL")
+	if linkedInPageURL == "" {
+		linkedInPageURL = os.Getenv("LINKEDIN_AUTHOR_URN")
+	}
+	if linkedInPageURL == "" {
+		linkedInPageURL = siteLinkedin
+	}
+	linkedInJobsToPost := twitterJobsToPost
+	if linkedInJobsToPostStr := os.Getenv("LINKEDIN_JOBS_TO_POST"); linkedInJobsToPostStr != "" {
+		parsedLinkedInJobs, err := strconv.Atoi(linkedInJobsToPostStr)
+		if err != nil {
+			return Config{}, fmt.Errorf("could not convert LINKEDIN_JOBS_TO_POST ascii to int: %v", err)
+		}
+		linkedInJobsToPost = parsedLinkedInJobs
+	}
 	siteTelegramChannel := os.Getenv("SITE_TELEGRAM_CHANNEL")
 	primaryColor := os.Getenv("PRIMARY_COLOR")
 	if primaryColor == "" {
@@ -362,6 +384,9 @@ func LoadConfig() (Config, error) {
 		MachineToken:             machineToken,
 		TelegramAPIToken:         telegramAPIToken,
 		TelegramChannelID:        int64(telegramChannelID),
+		LinkedInJobsToPost:       linkedInJobsToPost,
+		LinkedInAPIToken:         linkedInAPIToken,
+		LinkedInPageURL:          linkedInPageURL,
 		FXAPIKey:                 fxAPIKey,
 		SiteName:                 siteName,
 		SiteJobCategory:          siteJobCategory,

@@ -110,3 +110,4 @@ INSERT INTO "public"."developer_profile_event" ("created_at", "developer_profile
 INSERT INTO "public"."developer_profile_event" ("created_at", "developer_profile_id", "event_type") VALUES ('2023-05-04 11:48:50.537481', '24goWl4YS6NYmV0FKW3SVeEHBKx', 'developer_profile_message_sent');
 INSERT INTO "public"."developer_profile_event" ("created_at", "developer_profile_id", "event_type") VALUES ('2023-05-05 11:48:50.537481', '24goWl4YS6NYmV0FKW3SVeEHBKx', 'developer_profile_message_sent');
 INSERT INTO "public"."developer_profile_event" ("created_at", "developer_profile_id", "event_type") VALUES ('2023-05-06 11:48:50.537481', '24goWl4YS6NYmV0FKW3SVeEHBKx', 'developer_profile_message_sent');
+INSERT INTO "public"."meta" ("key", "value") VALUES ('last_linkedin_job_id', '0') ON CONFLICT ("key") DO NOTHING;
