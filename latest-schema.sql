@@ -167,7 +167,7 @@ CREATE TABLE public.developer_profile (
     email character varying(255) NOT NULL,
     location character varying(255) NOT NULL,
     available boolean NOT NULL,
-    linkedin_url character varying(255) NOT NULL,
+    linkedin_url character varying(255),
     image_id character(27) NOT NULL,
     slug character varying(255) NOT NULL,
     created_at timestamp without time zone NOT NULL,
@@ -176,7 +176,21 @@ CREATE TABLE public.developer_profile (
     name character varying(255) NOT NULL,
     bio text NOT NULL,
     github_url character varying(255) DEFAULT NULL::character varying,
-    twitter_url character varying(255) DEFAULT NULL::character varying
+    twitter_url character varying(255) DEFAULT NULL::character varying,
+    cv bytea
+);
+
+
+--
+-- Name: developer_cv_download; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.developer_cv_download (
+    id character(27) NOT NULL,
+    developer_profile_id character(27) NOT NULL,
+    cv bytea NOT NULL,
+    user_id character(27) NOT NULL,
+    downloaded_at timestamp without time zone NOT NULL
 );
 
 
@@ -508,6 +522,13 @@ ALTER TABLE ONLY public.developer_profile_message
 
 
 --
+-- Name: developer_cv_download developer_cv_download_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.developer_cv_download
+    ADD CONSTRAINT developer_cv_download_pkey PRIMARY KEY (id);
+
+--
 -- Name: developer_profile developer_profile_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -740,6 +761,12 @@ ALTER TABLE ONLY public.developer_profile_event
 ALTER TABLE ONLY public.developer_profile
     ADD CONSTRAINT developer_profile_image_id_fk FOREIGN KEY (image_id) REFERENCES public.image(id);
 
+ALTER TABLE ONLY public.developer_cv_download
+    ADD CONSTRAINT developer_cv_download_developer_profile_id_fkey FOREIGN KEY (developer_profile_id) REFERENCES public.developer_profile(id);
+
+ALTER TABLE ONLY public.developer_cv_download
+    ADD CONSTRAINT developer_cv_download_user_id_fkey FOREIGN KEY (user_id) REFERENCES public.users(id);
+
 
 --
 -- Name: edit_token edit_token_job_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
@@ -878,3 +905,8 @@ CREATE INDEX job_event_created_at_idx ON job_event(created_at);
 CREATE INDEX users_email_idx ON users(email);
 CREATE INDEX job_event_job_id ON job_event (job_id);
 DROP TABLE search_event;
+
+-- Issue #74 migration note (for existing DBs that already ran an older latest-schema.sql):
+-- ALTER TABLE ONLY public.developer_profile ALTER COLUMN linkedin_url DROP NOT NULL;
+-- ALTER TABLE ONLY public.developer_profile ADD COLUMN cv BYTEA DEFAULT NULL;
+-- CREATE TABLE public.developer_cv_download (...); -- see CREATE above

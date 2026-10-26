@@ -89,6 +89,18 @@ type Developer struct {
 	SkillsArray        []string
 	CreatedAtHumanized string
 	UpdatedAtHumanized string
+	CV                 []byte
+	CvSize             int
+	HasCV              bool
+}
+
+// DeveloperCVDownload records a recruiter/admin (or owner) download of a developer CV.
+type DeveloperCVDownload struct {
+	ID                 string
+	DeveloperProfileID string
+	CV                 []byte
+	UserID             string
+	DownloadedAt       time.Time
 }
 
 func (d Developer) RoleTypeAsString() string {

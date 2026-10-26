@@ -83,6 +83,17 @@ type SEOSkill struct {
 // );
 // CREATE UNIQUE INDEX token_idx on apply_token (token);
 
+// ALTER TABLE developer_profile ADD COLUMN cv BYTEA DEFAULT NULL;
+// ALTER TABLE developer_profile ALTER COLUMN linkedin_url DROP NOT NULL;
+// CREATE TABLE IF NOT EXISTS developer_cv_download (
+//   id CHAR(27) NOT NULL UNIQUE,
+//   developer_profile_id CHAR(27) NOT NULL REFERENCES developer_profile (id),
+//   cv BYTEA NOT NULL,
+//   user_id CHAR(27) NOT NULL,
+//   downloaded_at TIMESTAMP NOT NULL,
+//   PRIMARY KEY(id)
+// );
+
 // CREATE TABLE IF NOT EXISTS fx_rate (
 //   base       CHAR(3) NOT NULL,
 //   target     CHAR(3) NOT NULL,

@@ -436,8 +436,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			svr.JSON(w, http.StatusBadRequest, "email is invalid")
 			return
 		}
-		linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
-		if !linkedinRe.MatchString(req.LinkedinURL) {
+		if !ValidateOptionalLinkedinURL(req.LinkedinURL) {
 			svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
 			return
 		}
@@ -1381,9 +1380,8 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
-			if !linkedinRe.MatchString(req.LinkedinURL) {
-				svr.Log(errors.New("invalid search status"), "invalid search status")
+			if !ValidateOptionalLinkedinURL(req.LinkedinURL) {
+				svr.Log(errors.New("invalid linkedin url"), "invalid linkedin url")
 				svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
 				return
 			}
