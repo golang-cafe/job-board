@@ -501,6 +501,11 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
+		if err := validateDeveloperProfileImage(svr, req.ProfileImageID); err != nil {
+			svr.Log(err, "developer profile image failed face detection")
+			svr.JSON(w, http.StatusBadRequest, "Profile picture must contain a clear human face")
+			return
+		}
 
 		dev := developer.Developer{
 			ID:                 k.String(),
@@ -1435,6 +1440,11 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 			if err != nil {
 				svr.Log(err, "unable to parse string to int")
 				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			if err := validateDeveloperProfileImage(svr, req.ImageID); err != nil {
+				svr.Log(err, "developer profile image failed face detection")
+				svr.JSON(w, http.StatusBadRequest, "Profile picture must contain a clear human face")
 				return
 			}
 
@@ -3267,6 +3277,49 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 	}
 }
 
+func validateDeveloperProfileImage(svr server.Server, imageID string) error {
+	if svr.Conn == nil || imageID == "" {
+		return nil
+	}
+	media, err := database.GetMediaByID(svr.Conn, imageID)
+	if err != nil {
+		return err
+	}
+	img, _, err := image.Decode(bytes.NewReader(media.Bytes))
+	if err != nil {
+		return err
+	}
+	if !imagemeta.HasHumanFace(img) {
+		return errors.New("no human face detected in developer image")
+	}
+	return nil
+}
+
+func shouldBlurDeveloperMedia(svr server.Server, r *http.Request, mediaID string) bool {
+	profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+	if err == nil && profile != nil {
+		return false
+	}
+	return database.IsDeveloperProfileImage(svr.Conn, mediaID)
+}
+
+func encodeMediaImage(img image.Image, mediaType string) ([]byte, error) {
+	buf := new(bytes.Buffer)
+	switch mediaType {
+	case "image/jpg", "image/jpeg":
+		if err := jpeg.Encode(buf, img, nil); err != nil {
+			return nil, err
+		}
+	case "image/png":
+		if err := png.Encode(buf, img); err != nil {
+			return nil, err
+		}
+	default:
+		return nil, errors.New("unsupported media type")
+	}
+	return buf.Bytes(), nil
+}
+
 func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -3277,9 +3330,18 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.MEDIA(w, http.StatusNotFound, media.Bytes, media.MediaType)
 			return
 		}
+		blurUnauthenticated := shouldBlurDeveloperMedia(svr, r, mediaID)
 		height := r.URL.Query().Get("h")
 		width := r.URL.Query().Get("w")
 		if height == "" && width == "" {
+			if blurUnauthenticated {
+				if decImg, _, decErr := image.Decode(bytes.NewReader(media.Bytes)); decErr == nil {
+					if blurredBytes, encErr := encodeMediaImage(imagemeta.BlurImage(decImg, 8), media.MediaType); encErr == nil {
+						svr.MEDIA(w, http.StatusOK, blurredBytes, media.MediaType)
+						return
+					}
+				}
+			}
 			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
@@ -3311,6 +3373,9 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			return
 		}
 		m := resize.Resize(uint(wi), uint(he), decImage, resize.Lanczos3)
+		if blurUnauthenticated {
+			m = imagemeta.BlurImage(m, 8)
+		}
 		resizeImageBuf := new(bytes.Buffer)
 		switch media.MediaType {
 		case "image/jpg", "image/jpeg":
@@ -3425,6 +3490,11 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		cutImage := decImage.(interface {
 			SubImage(r image.Rectangle) image.Image
 		}).SubImage(image.Rect(x, y, x+wi, y+he))
+		if r.URL.Query().Get("type") == "developer" && !imagemeta.HasHumanFace(cutImage) {
+			svr.Log(errors.New("no human face detected in uploaded developer image"), "developer image rejected by face detector")
+			svr.JSON(w, http.StatusBadRequest, "Please upload a clear human face picture")
+			return
+		}
 		cutImageBytes := new(bytes.Buffer)
 		switch contentType {
 		case "image/jpg", "image/jpeg":
