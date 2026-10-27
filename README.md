@@ -33,7 +33,7 @@ These are basic requirements with the respective versions have been tested to wo
 
 - Bash 3.2.x or higher
 - Docker 20.10.x or higher
-- Go 1.15.x or higher
+- Go 1.15.x or higher (optional when running via Docker using Dockerfile.local or Dockerfile)
 
 **Dependencies**
 
@@ -55,6 +55,15 @@ Once this command is successful you can now start the application
 
 ```
 ./run-local-webserver.sh
+`
+
+./run-local-webserver.sh builds Dockerfile.local (which runs cosmtrek/air for live hot-reloading without requiring Go installed on the host) and mounts the working directory into /app. If local.env does not exist yet, it automatically initializes one from local.env.example.
+
+To build and run the production Docker image directly:
+
+`
+docker build -f Dockerfile -t golang-cafe-job-board .
+docker run --rm -p 9876:9876 --env-file local.env golang-cafe-job-board
 ```
 
 **Test Cron-Jobs Locally**
