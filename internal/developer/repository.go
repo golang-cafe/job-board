@@ -24,7 +24,7 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE slug = $1`, slug)
+	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types, cv FROM developer_profile WHERE slug = $1`, slug)
 	dev := Developer{}
 	var roleTypes string
 	err := row.Scan(
@@ -46,7 +46,9 @@ func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 		&dev.SearchStatus,
 		&dev.RoleLevel,
 		&roleTypes,
+		&dev.CV,
 	)
+	dev.HasCV = len(dev.CV) > 0
 	dev.RoleTypes = strings.Split(roleTypes, ",")
 	if err != nil {
 		return dev, err
@@ -112,7 +114,7 @@ func (r *Repository) DeveloperMetadataByProfileID(metadata_type string, profile_
 }
 
 func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level FROM developer_profile WHERE id = $1`, id)
+	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level, cv FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
 	var nullTime sql.NullTime
 	err := row.Scan(
@@ -130,7 +132,9 @@ func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 		&dev.Bio,
 		&dev.SearchStatus,
 		&dev.RoleLevel,
+		&dev.CV,
 	)
+	dev.HasCV = len(dev.CV) > 0
 	if nullTime.Valid {
 		dev.UpdatedAt = nullTime.Time
 	}
@@ -624,4 +628,14 @@ func (r *Repository) GetStatsForProfile(profileID string) ([]DevStat, error) {
 	}
 
 	return stats, nil
+}
+
+func (r *Repository) SaveDeveloperCV(profileID string, cv []byte) error {
+	_, err := r.db.Exec(`UPDATE developer_profile SET cv = $1, updated_at = NOW() WHERE id = $2`, cv, profileID)
+	return err
+}
+
+func (r *Repository) TrackDeveloperCVDownload(id, profileID string, cv []byte, userID string) error {
+	_, err := r.db.Exec(`INSERT INTO developer_cv_download (id, developer_profile_id, cv, user_id, downloaded_at) VALUES ($1, $2, $3, $4, NOW())`, id, profileID, cv, userID)
+	return err
 }

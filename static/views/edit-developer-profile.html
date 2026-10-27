@@ -183,6 +183,11 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <br>
         <input type="hidden" name="profile-image-id" id="profile-image-id" value="{{ .DeveloperProfile.ImageID }}">
         </div>
+        <div style="margin-bottom: 18px;">
+          <label for="developer-cv" style="cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">{{ if .DeveloperProfile.HasCV }}Update CV (PDF){{ else }}Upload CV (PDF){{ end }}</label>
+          <input type="file" name="developer-cv" id="developer-cv" accept="application/pdf" style="visibility: hidden; width: 0; height: 0;">
+          <small id="developer-cv-status" style="margin-left: 10px;">{{ if .DeveloperProfile.HasCV }}CV uploaded (<a href="/developer/{{ .DeveloperProfile.Slug }}/cv" target="_blank" rel="nofollow">View CV</a>){{ else }}CV not uploaded{{ end }}</small>
+        </div>
         <span>Search Status</span>
         <select name="search-status" id="search-status" style="height: 42px;">
           {{ if eq .DeveloperProfile.SearchStatus "actively-applying" }}
@@ -459,8 +464,44 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
       function disapprove() {
               sendReq('/x/ddp', true);
             }
+      function uploadCVIfPresent(profileId, doneCb) {
+              var cvInput = document.getElementById("developer-cv");
+              if (!cvInput || !cvInput.files || cvInput.files.length === 0) {
+                doneCb(true);
+                return;
+              }
+              var cvFile = cvInput.files[0];
+              if (cvFile.type !== "application/pdf" && cvFile.name.split(".").pop().toLowerCase() !== "pdf") {
+                alert("Only PDF files are allowed for CV upload");
+                doneCb(false);
+                return;
+              }
+              if (cvFile.size > 5 * 1024 * 1024) {
+                alert("Max file size for CV is 5MB");
+                doneCb(false);
+                return;
+              }
+              var cvData = new FormData();
+              cvData.append("profile_id", profileId);
+              cvData.append("cv", cvFile);
+              var cvXhr = new XMLHttpRequest();
+              cvXhr.open("POST", "/x/udcv", true);
+              cvXhr.send(cvData);
+              cvXhr.onreadystatechange = function() {
+                if (cvXhr.readyState === 4) {
+                  if (cvXhr.status !== 200) {
+                    alert("There was an error while uploading your CV");
+                    doneCb(false);
+                    return;
+                  }
+                  doneCb(true);
+                }
+              };
+            }
       function update() {
-              sendReq('/x/udp');
+              uploadCVIfPresent(document.getElementById("profile-id").value, function(ok) {
+                if (ok) sendReq('/x/udp');
+              });
             }
       function auto_grow(element) {
               element.style.height = "5px";
@@ -476,7 +517,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
               var tags = document.getElementById("tags").value;
               var searchStatus = document.getElementById("search-status").value;
               var roleLevel = document.getElementById("role-level").value;
-              if (empty(fullName, currentLocation, linkedinURL, bio, tags, email)) {
+              if (empty(fullName, currentLocation, bio, tags, email)) {
                       alert('Please fill all the mandatory fields');
                       return;
                     }
@@ -488,7 +529,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				alert('Skills is too long. Please use 10 skills or less');
 				return;
 			}
-              if (!isURL(linkedinURL)) {
+              if (linkedinURL.trim() !== "" && !isURL(linkedinURL)) {
                       alert('"How To Apply" must be either an email address or a URL');
                       return;
                     }

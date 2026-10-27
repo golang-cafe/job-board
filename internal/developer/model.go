@@ -86,6 +86,8 @@ type Developer struct {
 	DetectedLocationID *string
 
 	Bio                string
+	CV                 []byte
+	HasCV              bool
 	SkillsArray        []string
 	CreatedAtHumanized string
 	UpdatedAtHumanized string

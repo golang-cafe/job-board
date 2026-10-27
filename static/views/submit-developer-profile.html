@@ -951,7 +951,7 @@
 			</div>
 			<input type="hidden" id="detected-location-id" name="detected-location-id">
 			<input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate" style="width: 30%;"> <div class="tooltip">USD/hour<span class="tooltiptext">Your hourly rate is only visible to recruiters who are logged-in.</span></div>
-			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;">
+			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL (Optional)" style="width: 100%;">
 			<select id="search-status" name="search-status" style="width:100%;">
 				<option default value="">Your Status</option>
 				<option value="actively-applying">Actively Looking</option>
@@ -1213,11 +1213,11 @@
 			if (document.getElementById("role-type-internship").checked) {
 				roleTypes.push('internship');
 			}
-			if (empty(tags, fullName, linkedinURL, bio, email, currentLocation, searchStatus, roleLevel, hourlyRate)) {
+			if (empty(tags, fullName, bio, email, currentLocation, searchStatus, roleLevel, hourlyRate)) {
 				alert('You must fill all the mandatory fields (Full Name, Email, Linkedin URL, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
 				return;
 			}
-			if (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL)) {
+			if (linkedinURL.trim() !== "" && (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL))) {
 				alert('Linkedin URL it\'s not a valid URL');
 				return;
 			}

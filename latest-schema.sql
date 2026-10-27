@@ -878,3 +878,13 @@ CREATE INDEX job_event_created_at_idx ON job_event(created_at);
 CREATE INDEX users_email_idx ON users(email);
 CREATE INDEX job_event_job_id ON job_event (job_id);
 DROP TABLE search_event;
+ALTER TABLE public.developer_profile ADD COLUMN cv BYTEA DEFAULT NULL;
+
+CREATE TABLE IF NOT EXISTS public.developer_cv_download (
+    id CHAR(27) NOT NULL,
+    developer_profile_id CHAR(27) NOT NULL REFERENCES public.developer_profile(id),
+    cv BYTEA NOT NULL,
+    user_id CHAR(27) NOT NULL REFERENCES public.users(id),
+    downloaded_at TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+    PRIMARY KEY (id)
+);
