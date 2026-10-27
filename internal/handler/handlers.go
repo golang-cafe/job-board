@@ -18,7 +18,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ChimeraCoder/anaconda"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/bot-api/telegram"
 	"github.com/dgrijalva/jwt-go"
@@ -46,6 +45,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/seo"
 	"github.com/golang-cafe/job-board/internal/server"
 	"github.com/golang-cafe/job-board/internal/user"
+	"github.com/golang-cafe/job-board/internal/twitter"
 )
 
 type devGetter interface {
@@ -1182,6 +1182,11 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 		svr.GetConfig().MachineToken,
 		func(w http.ResponseWriter, r *http.Request) {
 			go func() {
+				// Issue #97: only share jobs on weekdays.
+				if !twitter.IsWeekday(time.Now().UTC(), time.UTC) {
+					log.Printf("twitter scheduler skipped: weekend")
+					return
+				}
 				lastTwittedJobIDStr, err := jobRepo.GetValue("last_twitted_job_id")
 				if err != nil {
 					svr.Log(err, "unable to retrieve last twitter job id")
@@ -1198,9 +1203,11 @@ func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.Ha
 					return
 				}
 				lastJobID := lastTwittedJobID
-				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
+				cfg := svr.GetConfig()
+				api := twitter.NewClient(cfg.TwitterClientKey, cfg.TwitterClientSecret, cfg.TwitterAccessToken, cfg.TwitterAccessTokenSecret)
 				for _, j := range jobPosts {
-					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug), url.Values{})
+					text := fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, cfg.SiteJobCategory, cfg.SiteJobCategory, cfg.URLProtocol, cfg.SiteHost, j.Slug)
+					_, err := api.PostTweet(text)
 					if err != nil {
 						svr.Log(err, "unable to post tweet")
 						continue
