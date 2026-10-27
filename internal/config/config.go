@@ -38,6 +38,10 @@ type Config struct {
 	TwitterAccessTokenSecret string
 	TwitterClientKey         string
 	TwitterClientSecret      string
+	LinkedinAccessToken      string
+	LinkedinPageURL          string
+	LinkedinAuthorURN        string
+	LinkedinJobsToPost       int
 	NewsletterJobsToSend     int
 	CloudflareAPIToken       string
 	CloudflareZoneTag        string
@@ -247,6 +251,15 @@ func LoadConfig() (Config, error) {
 	siteGithub := os.Getenv("SITE_GITHUB")
 	siteYoutube := os.Getenv("SITE_YOUTUBE")
 	siteLinkedin := os.Getenv("SITE_LINKEDIN")
+	linkedinAccessToken := os.Getenv("LINKEDIN_ACCESS_TOKEN")
+	linkedinPageURL := os.Getenv("LINKEDIN_PAGE_URL")
+	linkedinAuthorURN := os.Getenv("LINKEDIN_AUTHOR_URN")
+	linkedinJobsToPost := twitterJobsToPost
+	if linkedinJobsStr := os.Getenv("LINKEDIN_JOBS_TO_POST"); linkedinJobsStr != "" {
+		if parsedLinkedinJobs, parseErr := strconv.Atoi(linkedinJobsStr); parseErr == nil && parsedLinkedinJobs > 0 {
+			linkedinJobsToPost = parsedLinkedinJobs
+		}
+	}
 	siteTelegramChannel := os.Getenv("SITE_TELEGRAM_CHANNEL")
 	primaryColor := os.Getenv("PRIMARY_COLOR")
 	if primaryColor == "" {
@@ -355,6 +368,10 @@ func LoadConfig() (Config, error) {
 		TwitterAccessTokenSecret: twitterAccessTokenSecret,
 		TwitterClientSecret:      twitterClientSecret,
 		TwitterClientKey:         twitterClientKey,
+		LinkedinAccessToken:      linkedinAccessToken,
+		LinkedinPageURL:          linkedinPageURL,
+		LinkedinAuthorURN:        linkedinAuthorURN,
+		LinkedinJobsToPost:       linkedinJobsToPost,
 		NewsletterJobsToSend:     newsletterJobsToSend,
 		CloudflareAPIToken:       cloudflareAPIToken,
 		CloudflareZoneTag:        cloudflareZoneTag,
