@@ -436,10 +436,12 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			svr.JSON(w, http.StatusBadRequest, "email is invalid")
 			return
 		}
-		linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
-		if !linkedinRe.MatchString(req.LinkedinURL) {
-			svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
-			return
+		if req.LinkedinURL != "" {
+			linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
+			if !linkedinRe.MatchString(req.LinkedinURL) {
+				svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
+				return
+			}
 		}
 		req.Bio = bluemonday.StrictPolicy().Sanitize(req.Bio)
 		req.Fullname = strings.Title(strings.ToLower(bluemonday.StrictPolicy().Sanitize(req.Fullname)))
@@ -1381,11 +1383,13 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
-			if !linkedinRe.MatchString(req.LinkedinURL) {
-				svr.Log(errors.New("invalid search status"), "invalid search status")
-				svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
-				return
+			if req.LinkedinURL != "" {
+				linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
+				if !linkedinRe.MatchString(req.LinkedinURL) {
+					svr.Log(errors.New("invalid search status"), "invalid search status")
+					svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
+					return
+				}
 			}
 			if _, ok := developer.ValidSearchStatus[req.SearchStatus]; !ok {
 				svr.Log(errors.New("invalid search status"), "invalid search status")
@@ -3765,6 +3769,106 @@ func ManageJobViewPageHandler(svr server.Server, jobRepo *job.Repository) http.H
 				"ConversionRate":             conversionRate,
 				"Applicants":                 applicants,
 			})
+		},
+	)
+}
+
+func UploadDeveloperCVHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			const maxPdfSize = 5 * 1024 * 1024
+			r.Body = http.MaxBytesReader(w, r.Body, int64(maxPdfSize))
+			cv, header, err := r.FormFile("cv")
+			if err != nil {
+				svr.Log(err, "unable to read cv file")
+				svr.JSON(w, http.StatusRequestEntityTooLarge, nil)
+				return
+			}
+			defer cv.Close()
+			fileBytes, err := ioutil.ReadAll(cv)
+			if err != nil {
+				svr.Log(err, "unable to read cv file content")
+				svr.JSON(w, http.StatusRequestEntityTooLarge, nil)
+				return
+			}
+			contentType := http.DetectContentType(fileBytes)
+			if contentType != "application/pdf" {
+				svr.Log(errors.New("PDF file is not application/pdf"), fmt.Sprintf("PDF file is not application/pdf got %s", contentType))
+				svr.JSON(w, http.StatusUnsupportedMediaType, nil)
+				return
+			}
+			if header.Size > int64(maxPdfSize) {
+				svr.Log(errors.New("PDF file is too large"), fmt.Sprintf("PDF file too large: %d > %d", header.Size, maxPdfSize))
+				svr.JSON(w, http.StatusRequestEntityTooLarge, nil)
+				return
+			}
+			profileID := r.FormValue("profile-id")
+			if profileID == "" {
+				svr.JSON(w, http.StatusBadRequest, nil)
+				return
+			}
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil || profile == nil {
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			dev, err := devRepo.DeveloperProfileByID(profileID)
+			if err != nil {
+				svr.Log(err, "unable to find developer profile by id")
+				svr.JSON(w, http.StatusNotFound, nil)
+				return
+			}
+			if dev.Email != profile.Email && !profile.IsAdmin {
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			if err := devRepo.SaveDeveloperCV(dev.ID, fileBytes); err != nil {
+				svr.Log(err, "unable to save developer cv")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			svr.JSON(w, http.StatusOK, nil)
+		},
+	)
+}
+
+func DownloadDeveloperCVHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			vars := mux.Vars(r)
+			slug := vars["slug"]
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil || profile == nil {
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			dev, err := devRepo.DeveloperProfileBySlug(slug)
+			if err != nil || len(dev.CV) == 0 {
+				svr.JSON(w, http.StatusNotFound, nil)
+				return
+			}
+			if !profile.IsRecruiter && !profile.IsAdmin && profile.Email != dev.Email {
+				svr.JSON(w, http.StatusForbidden, nil)
+				return
+			}
+			k, err := ksuid.NewRandom()
+			if err == nil {
+				if trackErr := devRepo.TrackDeveloperCVDownload(k.String(), dev.ID, dev.CV, profile.UserID); trackErr != nil {
+					svr.Log(trackErr, "unable to track developer cv download event")
+				}
+			}
+			w.Header().Set("Content-Type", "application/pdf")
+			w.Header().Set("Content-Length", fmt.Sprintf("%d", len(dev.CV)))
+			_, err = w.Write(dev.CV)
+			if err != nil {
+				svr.Log(err, fmt.Sprintf("unable to serve developer CV for slug: %s", slug))
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
 		},
 	)
 }
