@@ -37,6 +37,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/company"
 	"github.com/golang-cafe/job-board/internal/database"
 	"github.com/golang-cafe/job-board/internal/developer"
+	"github.com/golang-cafe/job-board/internal/facedetect"
 	"github.com/golang-cafe/job-board/internal/email"
 	"github.com/golang-cafe/job-board/internal/imagemeta"
 	"github.com/golang-cafe/job-board/internal/job"
@@ -500,6 +501,15 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			svr.Log(err, "Hourly rate cannot be more than 1000 or less than 0")
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
+		}
+		if svr.Conn != nil && req.ProfileImageID != "" {
+			if media, err := database.GetMediaByID(svr.Conn, req.ProfileImageID); err == nil && len(media.Bytes) > 0 {
+				decImg, _, decErr := image.Decode(bytes.NewReader(media.Bytes))
+				if decErr != nil || !facedetect.HasFace(decImg) {
+					svr.JSON(w, http.StatusBadRequest, "no face detected in profile image")
+					return
+				}
+			}
 		}
 
 		dev := developer.Developer{
@@ -1436,6 +1446,15 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				svr.Log(err, "unable to parse string to int")
 				svr.JSON(w, http.StatusInternalServerError, nil)
 				return
+			}
+			if svr.Conn != nil && req.ImageID != "" {
+				if media, err := database.GetMediaByID(svr.Conn, req.ImageID); err == nil && len(media.Bytes) > 0 {
+					decImg, _, decErr := image.Decode(bytes.NewReader(media.Bytes))
+					if decErr != nil || !facedetect.HasFace(decImg) {
+						svr.JSON(w, http.StatusBadRequest, "no face detected in profile image")
+						return
+					}
+				}
 			}
 
 			dev := developer.Developer{
@@ -3277,21 +3296,33 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.MEDIA(w, http.StatusNotFound, media.Bytes, media.MediaType)
 			return
 		}
+		profile, authErr := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+		isLoggedIn := authErr == nil && profile != nil
+		shouldBlur := false
+		if !isLoggedIn {
+			isDevImg, _ := database.IsDeveloperProfileImage(svr.Conn, mediaID)
+			if isDevImg || r.URL.Query().Get("blur") == "1" {
+				shouldBlur = true
+			}
+		}
 		height := r.URL.Query().Get("h")
 		width := r.URL.Query().Get("w")
-		if height == "" && width == "" {
+		if height == "" && width == "" && !shouldBlur {
 			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
-		he, err := strconv.Atoi(height)
-		if err != nil {
-			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
-			return
-		}
-		wi, err := strconv.Atoi(width)
-		if err != nil {
-			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
-			return
+		var wi, he int
+		if height != "" && width != "" {
+			he, err = strconv.Atoi(height)
+			if err != nil && !shouldBlur {
+				svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+				return
+			}
+			wi, err = strconv.Atoi(width)
+			if err != nil && !shouldBlur {
+				svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+				return
+			}
 		}
 		contentTypeInvalid := true
 		for _, allowedMedia := range allowedMediaTypes {
@@ -3310,7 +3341,13 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		m := resize.Resize(uint(wi), uint(he), decImage, resize.Lanczos3)
+		m := decImage
+		if wi > 0 && he > 0 {
+			m = resize.Resize(uint(wi), uint(he), decImage, resize.Lanczos3)
+		}
+		if shouldBlur {
+			m = facedetect.BlurImage(m, 8)
+		}
 		resizeImageBuf := new(bytes.Buffer)
 		switch media.MediaType {
 		case "image/jpg", "image/jpeg":
@@ -3425,6 +3462,12 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		cutImage := decImage.(interface {
 			SubImage(r image.Rectangle) image.Image
 		}).SubImage(image.Rect(x, y, x+wi, y+he))
+		if r.URL.Query().Get("type") == "developer" {
+			if !facedetect.HasFace(cutImage) {
+				svr.JSON(w, http.StatusBadRequest, "no face detected in profile image")
+				return
+			}
+		}
 		cutImageBytes := new(bytes.Buffer)
 		switch contentType {
 		case "image/jpg", "image/jpeg":

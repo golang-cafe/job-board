@@ -221,7 +221,7 @@ body{background:#ffffff;}
 	    {{ range $i, $j := .Developers }}
               <article class="line-item">
                 <h2 style="margin-top:10px;">
-                    <img {{ if not $isLoggedUser }}style="filter:blur(5px);" onclick="sendMessage('{{ .ID }}', '{{ truncateName .Name }}');" class="job-icon hover-pointer"{{ else }}class="job-icon"{{ end }} loading="lazy" width="120" height="120" src="/x/s/m/{{ .ImageID }}?w=100&h=100" alt="{{ .Name }}" title="{{ .Name }}">
+                    <img {{ if not $isLoggedUser }}onclick="sendMessage('{{ .ID }}', '{{ truncateName .Name }}');" class="job-icon hover-pointer"{{ else }}class="job-icon"{{ end }} loading="lazy" width="120" height="120" src="/x/s/m/{{ .ImageID }}?w=100&h=100" alt="{{ .Name }}" title="{{ .Name }}">
                 </h2>
                   <div style="float: left;">
 			  <a href="/developer/{{ .Slug }}" target="_blank"><b>{{ if $isLoggedUser }}{{ .Name }}{{ else }}{{ truncateName .Name }}{{ end }}</b></a><br>
