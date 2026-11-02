@@ -176,7 +176,21 @@ CREATE TABLE public.developer_profile (
     name character varying(255) NOT NULL,
     bio text NOT NULL,
     github_url character varying(255) DEFAULT NULL::character varying,
-    twitter_url character varying(255) DEFAULT NULL::character varying
+    twitter_url character varying(255) DEFAULT NULL::character varying,
+    cv bytea
+);
+
+
+--
+-- Name: developer_cv_download_event; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.developer_cv_download_event (
+    id character(27) NOT NULL,
+    developer_profile_id character(27) NOT NULL,
+    cv bytea NOT NULL,
+    user_id character(27) NOT NULL,
+    downloaded_at timestamp without time zone DEFAULT now() NOT NULL
 );
 
 
@@ -513,6 +527,14 @@ ALTER TABLE ONLY public.developer_profile_message
 
 ALTER TABLE ONLY public.developer_profile
     ADD CONSTRAINT developer_profile_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: developer_cv_download_event developer_cv_download_event_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.developer_cv_download_event
+    ADD CONSTRAINT developer_cv_download_event_pkey PRIMARY KEY (id);
 
 
 --
