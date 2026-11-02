@@ -911,3 +911,16 @@ func UpdateLastWeekClickouts(conn *sql.DB) error {
 UPDATE job SET last_week_clickouts = cte.clickouts FROM cte WHERE cte.job_id = id`)
 	return err
 }
+
+
+func IsDeveloperProfileImage(conn *sql.DB, mediaID string) (bool, error) {
+	if conn == nil || mediaID == "" {
+		return false, nil
+	}
+	var exists bool
+	err := conn.QueryRow(`SELECT EXISTS(SELECT 1 FROM developer_profile WHERE image_id = $1)`, mediaID).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}
