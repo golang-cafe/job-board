@@ -24,7 +24,7 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE slug = $1`, slug)
+	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types, cv IS NOT NULL FROM developer_profile WHERE slug = $1`, slug)
 	dev := Developer{}
 	var roleTypes string
 	err := row.Scan(
@@ -46,6 +46,7 @@ func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 		&dev.SearchStatus,
 		&dev.RoleLevel,
 		&roleTypes,
+		&dev.HasCV,
 	)
 	dev.RoleTypes = strings.Split(roleTypes, ",")
 	if err != nil {
@@ -56,7 +57,7 @@ func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 }
 
 func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE lower(email) = lower($1)`, email)
+	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, cv IS NOT NULL FROM developer_profile WHERE lower(email) = lower($1)`, email)
 	dev := Developer{}
 	var nullUpdatedAt sql.NullTime
 	err := row.Scan(
@@ -73,6 +74,7 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 		&dev.Skills,
 		&dev.Name,
 		&dev.Bio,
+		&dev.HasCV,
 	)
 	if nullUpdatedAt.Valid {
 		dev.UpdatedAt = nullUpdatedAt.Time
@@ -112,7 +114,7 @@ func (r *Repository) DeveloperMetadataByProfileID(metadata_type string, profile_
 }
 
 func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level FROM developer_profile WHERE id = $1`, id)
+	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level, cv IS NOT NULL FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
 	var nullTime sql.NullTime
 	err := row.Scan(
@@ -130,6 +132,7 @@ func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 		&dev.Bio,
 		&dev.SearchStatus,
 		&dev.RoleLevel,
+		&dev.HasCV,
 	)
 	if nullTime.Valid {
 		dev.UpdatedAt = nullTime.Time

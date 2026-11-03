@@ -162,6 +162,8 @@ func main() {
 	)
 	svr.RegisterRoute("/x/srp", handler.SaveRecruiterProfileHandler(svr, recRepo, userRepo, paymentRepo), []string{"POST"})
 	svr.RegisterRoute("/x/sdp", handler.SaveDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
+	svr.RegisterRoute("/x/developer-cv", handler.UploadDeveloperCV(svr, devRepo), []string{"POST"})
+	svr.RegisterRoute("/x/developer-cv/{id}", handler.DownloadDeveloperCV(svr, devRepo), []string{"GET"})
 	svr.RegisterRoute("/x/sdm", handler.SaveDeveloperMetadataHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/udp", handler.UpdateDeveloperProfileHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/udm", handler.UpdateDeveloperMetadataHandler(svr, devRepo), []string{"POST"})
