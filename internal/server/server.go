@@ -1096,7 +1096,9 @@ func (s Server) TEXT(w http.ResponseWriter, status int, text string) {
 
 func (s Server) MEDIA(w http.ResponseWriter, status int, media []byte, mediaType string) {
 	w.Header().Set("Content-Type", mediaType)
-	w.Header().Set("Cache-Control", "max-age=31536000")
+	if w.Header().Get("Cache-Control") == "" {
+		w.Header().Set("Cache-Control", "max-age=31536000")
+	}
 	w.WriteHeader(status)
 	w.Write(media)
 }

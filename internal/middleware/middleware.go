@@ -158,7 +158,7 @@ func GetUserFromJWT(r *http.Request, sessionStore *sessions.CookieStore, jwtKey 
 	token, err := jwt.ParseWithClaims(tk, &UserJWT{}, func(token *jwt.Token) (interface{}, error) {
 		return jwtKey, nil
 	})
-	if !token.Valid {
+	if err != nil || token == nil || !token.Valid {
 		return nil, errors.New("token is expired")
 	}
 	claims, ok := token.Claims.(*UserJWT)

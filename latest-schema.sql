@@ -878,3 +878,6 @@ CREATE INDEX job_event_created_at_idx ON job_event(created_at);
 CREATE INDEX users_email_idx ON users(email);
 CREATE INDEX job_event_job_id ON job_event (job_id);
 DROP TABLE search_event;
+
+ALTER TABLE image ADD COLUMN developer_photo boolean NOT NULL DEFAULT false;
+CREATE INDEX IF NOT EXISTS developer_profile_image_id_idx ON developer_profile(image_id);

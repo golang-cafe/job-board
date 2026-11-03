@@ -1245,7 +1245,7 @@
 			var formData = new FormData();
 			formData.append('image', mediaFile);
 			var xhr = new XMLHttpRequest();
-			xhr.open('POST', '/x/s/m?x=' + cropValues.x + '&y=' + cropValues.y + '&w=' + cropValues.width + '&h=' + cropValues.height, true);
+			xhr.open('POST', '/x/s/m?purpose=developer&x=' + cropValues.x + '&y=' + cropValues.y + '&w=' + cropValues.width + '&h=' + cropValues.height, true);
 			xhr.send(formData);
 			xhr.onreadystatechange = function () {
 				if (xhr.readyState === 4) {
@@ -1253,7 +1253,7 @@
 					if (xhr.status !== 200) {
 						document.getElementById("spinner-0").style.display = "none";
 						document.getElementById('profile-image').value = '';
-						alert('There was an error while uploading your profile image. Please make sure the image is under 5MB and it\'s JPG,JPEG or PNG format.');
+						alert('Please upload a clear photo with a visible face, under 5MB, in JPG or PNG format.');
 						return;
 					}
 					var res = JSON.parse(xhr.response);
