@@ -42,6 +42,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/middleware"
 	"github.com/golang-cafe/job-board/internal/payment"
+	"github.com/golang-cafe/job-board/internal/profilephoto"
 	"github.com/golang-cafe/job-board/internal/recruiter"
 	"github.com/golang-cafe/job-board/internal/seo"
 	"github.com/golang-cafe/job-board/internal/server"
@@ -521,6 +522,10 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			RoleTypes:          req.RoleTypes,
 			RoleLevel:          req.RoleLevel,
 			DetectedLocationID: detectedLocationID,
+		}
+		if err := validateDeveloperMedia(svr, req.ProfileImageID); err != nil {
+			svr.JSON(w, http.StatusBadRequest, "please upload a clear profile photo with a visible face")
+			return
 		}
 		err = userRepo.SaveTokenSignOn(strings.ToLower(req.Email), k.String(), user.UserTypeDeveloper)
 		if err != nil {
@@ -1452,6 +1457,10 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				ImageID:      req.ImageID,
 				SearchStatus: req.SearchStatus,
 				RoleLevel:    req.RoleLevel,
+			}
+			if err := validateDeveloperMedia(svr, req.ImageID); err != nil {
+				svr.JSON(w, http.StatusBadRequest, "please upload a clear profile photo with a visible face")
+				return
 			}
 			err = devRepo.UpdateDeveloperProfile(dev)
 			if err != nil {
@@ -3277,6 +3286,11 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.MEDIA(w, http.StatusNotFound, media.Bytes, media.MediaType)
 			return
 		}
+		media, err = privateDeveloperMedia(svr, w, r, mediaID, media)
+		if err != nil {
+			svr.JSON(w, http.StatusInternalServerError, "unable to read image")
+			return
+		}
 		height := r.URL.Query().Get("h")
 		width := r.URL.Query().Get("w")
 		if height == "" && width == "" {
@@ -3308,6 +3322,10 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		if err != nil {
 			svr.Log(err, "unable to decode image from bytes")
 			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+		if wi < 0 || he < 0 || wi > 2048 || he > 2048 {
+			svr.JSON(w, http.StatusBadRequest, "invalid image dimensions")
 			return
 		}
 		m := resize.Resize(uint(wi), uint(he), decImage, resize.Lanczos3)
@@ -3408,7 +3426,7 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusRequestEntityTooLarge, nil)
 			return
 		}
-		decImage, _, err := image.Decode(bytes.NewReader(fileBytes))
+		decImage, err := decodeProfileImage(fileBytes)
 		if err != nil {
 			svr.Log(err, "unable to decode image from bytes")
 			svr.JSON(w, http.StatusInternalServerError, nil)
@@ -3422,9 +3440,20 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			he = min
 			wi = min
 		}
+		if x < 0 || y < 0 || wi <= 0 || he <= 0 || x >= decImage.Bounds().Dx() || y >= decImage.Bounds().Dy() || wi > decImage.Bounds().Dx()-x || he > decImage.Bounds().Dy()-y {
+			svr.JSON(w, http.StatusBadRequest, "invalid crop dimensions")
+			return
+		}
 		cutImage := decImage.(interface {
 			SubImage(r image.Rectangle) image.Image
 		}).SubImage(image.Rect(x, y, x+wi, y+he))
+		developerPhoto := r.URL.Query().Get("purpose") == "developer"
+		if developerPhoto {
+			if err := profilephoto.Validate(cutImage); err != nil {
+				svr.JSON(w, http.StatusBadRequest, "please upload a clear profile photo with a visible face")
+				return
+			}
+		}
 		cutImageBytes := new(bytes.Buffer)
 		switch contentType {
 		case "image/jpg", "image/jpeg":
@@ -3443,7 +3472,11 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.Log(errors.New("content type not supported for encoding"), fmt.Sprintf("content type %s not supported for encoding", contentType))
 			svr.JSON(w, http.StatusInternalServerError, nil)
 		}
-		id, err := database.SaveMedia(svr.Conn, database.Media{cutImageBytes.Bytes(), contentType})
+		saveMedia := database.SaveMedia
+		if developerPhoto {
+			saveMedia = database.SaveDeveloperMedia
+		}
+		id, err := saveMedia(svr.Conn, database.Media{cutImageBytes.Bytes(), contentType})
 		if err != nil {
 			svr.Log(err, "unable to save media image to db")
 			svr.JSON(w, http.StatusInternalServerError, nil)
