@@ -38,6 +38,9 @@ type Config struct {
 	TwitterAccessTokenSecret string
 	TwitterClientKey         string
 	TwitterClientSecret      string
+	LinkedinAccessToken      string
+	LinkedinAuthorURN        string
+	LinkedinAPIVersion       string
 	NewsletterJobsToSend     int
 	CloudflareAPIToken       string
 	CloudflareZoneTag        string
@@ -351,6 +354,9 @@ func LoadConfig() (Config, error) {
 		DevelopersPerPage:        10,
 		CompaniesPerPage:         10,
 		TwitterJobsToPost:        twitterJobsToPost,
+		LinkedinAccessToken:      os.Getenv("LINKEDIN_ACCESS_TOKEN"),
+		LinkedinAuthorURN:        os.Getenv("LINKEDIN_AUTHOR_URN"),
+		LinkedinAPIVersion:       os.Getenv("LINKEDIN_API_VERSION"),
 		TwitterAccessToken:       twitterAccessToken,
 		TwitterAccessTokenSecret: twitterAccessTokenSecret,
 		TwitterClientSecret:      twitterClientSecret,
