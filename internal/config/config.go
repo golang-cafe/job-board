@@ -45,6 +45,11 @@ type Config struct {
 	MachineToken             string
 	TelegramAPIToken         string   // Telegram API Token used to integrate with site's Telegram channel
 	TelegramChannelID        int64    // Telegram Channel ID used to integrate with site's Telegram channel
+	LinkedinAccessToken      string   // LinkedIn OAuth2 access token used to share jobs as posts
+	LinkedinAuthorURN        string   // LinkedIn author URN (urn:li:organization:... or urn:li:person:...)
+	LinkedinPageURL          string   // LinkedIn company/profile page URL
+	LinkedinJobsToPost       int      // max number of jobs to post on LinkedIn per scheduled run
+	LinkedinAPIURL           string   // LinkedIn UGC posts API endpoint
 	FXAPIKey                 string   // FX rate api API Key to access recent FX data
 	AvailableCurrencies      []string // currencies used throughout the site for salary compensation (post a job, salary filter FX, etc)
 	AvailableSalaryBands     []int    // salary upper limits used in search to filter job by minimum salary
@@ -248,6 +253,33 @@ func LoadConfig() (Config, error) {
 	siteYoutube := os.Getenv("SITE_YOUTUBE")
 	siteLinkedin := os.Getenv("SITE_LINKEDIN")
 	siteTelegramChannel := os.Getenv("SITE_TELEGRAM_CHANNEL")
+	linkedinAccessToken := os.Getenv("LINKEDIN_ACCESS_TOKEN")
+	if linkedinAccessToken == "" {
+		linkedinAccessToken = os.Getenv("LINKEDIN_API_TOKEN")
+	}
+	if linkedinAccessToken == "" {
+		linkedinAccessToken = os.Getenv("LINKEDIN_TOKEN")
+	}
+	linkedinPageURL := os.Getenv("LINKEDIN_PAGE_URL")
+	if linkedinPageURL == "" && siteLinkedin != "" {
+		linkedinPageURL = fmt.Sprintf("https://www.linkedin.com/company/%s", siteLinkedin)
+	}
+	linkedinAuthorURN := os.Getenv("LINKEDIN_AUTHOR_URN")
+	if linkedinAuthorURN == "" {
+		linkedinAuthorURN = os.Getenv("LINKEDIN_ORGANIZATION_URN")
+	}
+	linkedinJobsToPost := twitterJobsToPost
+	linkedinJobsToPostRaw := os.Getenv("LINKEDIN_JOBS_TO_POST")
+	if linkedinJobsToPostRaw != "" {
+		linkedinJobsToPost, err = strconv.Atoi(linkedinJobsToPostRaw)
+		if err != nil {
+			return Config{}, fmt.Errorf("cannot convert LINKEDIN_JOBS_TO_POST to int: %v", err)
+		}
+	}
+	linkedinAPIURL := os.Getenv("LINKEDIN_API_URL")
+	if linkedinAPIURL == "" {
+		linkedinAPIURL = "https://api.linkedin.com/v2/ugcPosts"
+	}
 	primaryColor := os.Getenv("PRIMARY_COLOR")
 	if primaryColor == "" {
 		primaryColor = "#000090"
@@ -362,6 +394,11 @@ func LoadConfig() (Config, error) {
 		MachineToken:             machineToken,
 		TelegramAPIToken:         telegramAPIToken,
 		TelegramChannelID:        int64(telegramChannelID),
+		LinkedinAccessToken:      linkedinAccessToken,
+		LinkedinAuthorURN:        linkedinAuthorURN,
+		LinkedinPageURL:          linkedinPageURL,
+		LinkedinJobsToPost:       linkedinJobsToPost,
+		LinkedinAPIURL:           linkedinAPIURL,
 		FXAPIKey:                 fxAPIKey,
 		SiteName:                 siteName,
 		SiteJobCategory:          siteJobCategory,
