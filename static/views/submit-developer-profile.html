@@ -951,7 +951,12 @@
 			</div>
 			<input type="hidden" id="detected-location-id" name="detected-location-id">
 			<input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate" style="width: 30%;"> <div class="tooltip">USD/hour<span class="tooltiptext">Your hourly rate is only visible to recruiters who are logged-in.</span></div>
-			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL" style="width: 100%;">
+			<input type="url" name="linkedin-url" id="linkedin-url" placeholder="LinkedIn URL (Optional)" style="width: 100%;">
+			<div style="margin-bottom: 18px;">
+				<label for="cv" style="cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload CV (PDF)</label>
+				<span id="cv-status" style="margin-left: 10px;">CV not uploaded</span>
+				<input type="file" name="cv" id="cv" accept="application/pdf" style="visibility: hidden; width: 0; height: 0;">
+			</div>
 			<select id="search-status" name="search-status" style="width:100%;">
 				<option default value="">Your Status</option>
 				<option value="actively-applying">Actively Looking</option>
@@ -1166,6 +1171,28 @@
 			return !isThere;
 		};
 		var cropInstance;
+		var cvBase64 = "";
+		document.getElementById("cv").addEventListener("change", function () {
+			if (this.files && this.files[0]) {
+				var file = this.files[0];
+				if (file.name.split('.').pop().toLowerCase() !== 'pdf' && file.type !== 'application/pdf') {
+					alert('Only PDF files are allowed for CV');
+					this.value = '';
+					return;
+				}
+				if (file.size > 5 * 1024 * 1024) {
+					alert('Max file size for CV is 5MB');
+					this.value = '';
+					return;
+				}
+				var reader = new FileReader();
+				reader.onload = function (e) {
+					cvBase64 = e.target.result;
+					document.getElementById("cv-status").textContent = file.name;
+				};
+				reader.readAsDataURL(file);
+			}
+		});
 		document.getElementById("profile-image").addEventListener("change", function () {
 			if (this.files && this.files[0]) {
 				if (['png', 'jpg', 'jpeg'].indexOf(this.files[0].name.split('.').pop()) === -1) {
@@ -1213,11 +1240,11 @@
 			if (document.getElementById("role-type-internship").checked) {
 				roleTypes.push('internship');
 			}
-			if (empty(tags, fullName, linkedinURL, bio, email, currentLocation, searchStatus, roleLevel, hourlyRate)) {
-				alert('You must fill all the mandatory fields (Full Name, Email, Linkedin URL, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
+			if (empty(tags, fullName, bio, email, currentLocation, searchStatus, roleLevel, hourlyRate)) {
+				alert('You must fill all the mandatory fields (Full Name, Email, Bio, Location, Search Status, Role Level, Skills) in order to join the community');
 				return;
 			}
-			if (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL)) {
+			if (linkedinURL.trim() !== "" && (!isURL(linkedinURL) || !isLinkedinURL(linkedinURL))) {
 				alert('Linkedin URL it\'s not a valid URL');
 				return;
 			}
@@ -1271,6 +1298,7 @@
 						role_types: roleTypes,
 						hourly_rate: hourlyRate,
 						detected_location_id: detectedLocationId,
+						cv: cvBase64,
 					};
 					http(
 						'/x/sdp',
