@@ -171,7 +171,12 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" value="{{ .DeveloperProfile.Name }}"><br>
         <input type="text" name="location" id="location" placeholder="Job Location" style="width: 100%;" value="{{ .DeveloperProfile.Location }}"><br>
         <input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate in USD" style="width: 10%;" value="{{ if ne .DeveloperProfile.HourlyRate 0 }}{{ .DeveloperProfile.HourlyRate }}{{ end }}"> USD/hour<br>
-        <input type="url" name="linkedin-url" id="linkedin-url" placeholder="Linkedin URL" style="width: 100%;" value="{{ .DeveloperProfile.LinkedinURL }}"><br>
+        <input type="url" name="linkedin-url" id="linkedin-url" placeholder="Linkedin URL (Optional)" style="width: 100%;" value="{{ .DeveloperProfile.LinkedinURL }}"><br>
+        <div style="margin-bottom: 18px;">
+          <label for="cv" style="cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">{{ if .DeveloperProfile.HasCV }}Update CV (PDF){{ else }}Upload CV (PDF){{ end }}</label>
+          <span id="cv-status" style="margin-left: 10px;">{{ if .DeveloperProfile.HasCV }}<a href="/developer/{{ .DeveloperProfile.Slug }}/cv" target="_blank" rel="noopener noreferrer">View / Download Current CV</a>{{ else }}CV not uploaded{{ end }}</span>
+          <input type="file" name="cv" id="cv" accept="application/pdf" style="visibility: hidden; width: 0; height: 0;">
+        </div>
         <div>
           <label for="profile-image" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload Profile Image</label>
           <div style="margin-bottom: 10px;float:left; width:100%;">
@@ -476,7 +481,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
               var tags = document.getElementById("tags").value;
               var searchStatus = document.getElementById("search-status").value;
               var roleLevel = document.getElementById("role-level").value;
-              if (empty(fullName, currentLocation, linkedinURL, bio, tags, email)) {
+              if (empty(fullName, currentLocation, bio, tags, email)) {
                       alert('Please fill all the mandatory fields');
                       return;
                     }
@@ -488,8 +493,8 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				alert('Skills is too long. Please use 10 skills or less');
 				return;
 			}
-              if (!isURL(linkedinURL)) {
-                      alert('"How To Apply" must be either an email address or a URL');
+              if (linkedinURL.trim() !== "" && !isURL(linkedinURL)) {
+                      alert('"Linkedin URL" must be a valid URL');
                       return;
                     }
               if (!isEmail(email)) {
@@ -523,7 +528,8 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                                       skills: tags,
                                       search_status: searchStatus,
                                       role_level: roleLevel,
-                                      profile_image_id: document.getElementById("profile-image-id").value
+                                      profile_image_id: document.getElementById("profile-image-id").value,
+                                      cv: cvBase64
                                     },
                               function(bool) {
                                       document.getElementById("spinner-0").style.display = "none";
@@ -567,6 +573,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                                                             search_status: searchStatus,
                                                             role_level: roleLevel,
                                                             profile_image_id: profileIconId,
+                                                            cv: cvBase64,
                                                           },
                                                     function(bool) {
                                                             document.getElementById("spinner-0").style.display = "none";
@@ -595,6 +602,28 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                             }
                     }
             };
+      var cvBase64 = "";
+      document.getElementById("cv").addEventListener("change", function() {
+              if (this.files && this.files[0]) {
+                      var file = this.files[0];
+                      if (file.name.split('.').pop().toLowerCase() !== 'pdf' && file.type !== 'application/pdf') {
+                              alert('Only PDF files are allowed for CV');
+                              this.value = '';
+                              return;
+                            }
+                      if (file.size > 5 * 1024 * 1024) {
+                              alert('Max file size for CV is 5MB');
+                              this.value = '';
+                              return;
+                            }
+                      var reader = new FileReader();
+                      reader.onload = function(e) {
+                              cvBase64 = e.target.result;
+                              document.getElementById("cv-status").textContent = file.name;
+                            };
+                      reader.readAsDataURL(file);
+                    }
+            });
       var cropInstance = new Croppr('#profile-image-preview', {
               startSize: [100, 100, '%'],
               aspectRatio: 1,
