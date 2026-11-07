@@ -38,6 +38,8 @@ type Config struct {
 	TwitterAccessTokenSecret string
 	TwitterClientKey         string
 	TwitterClientSecret      string
+	LinkedinAccessToken      string // LinkedIn OAuth2 bearer token used to share job posts
+	LinkedinPageURL          string // LinkedIn author/company page URL or URN for job shares
 	NewsletterJobsToSend     int
 	CloudflareAPIToken       string
 	CloudflareZoneTag        string
@@ -83,319 +85,274 @@ type Config struct {
 }
 
 func LoadConfig() (Config, error) {
-	port := os.Getenv("PORT")
-	if port == "" {
-		return Config{}, fmt.Errorf("PORT cannot be empty")
+	cfg := Config{
+		JobsPerPage:          10,
+		DevelopersPerPage:    10,
+		CompaniesPerPage:     10,
+		AvailableCurrencies:  defaultCurrencies(),
+		AvailableSalaryBands: defaultSalaryBands(),
 	}
-	databaseUser := os.Getenv("DATABASE_USER")
-	if databaseUser == "" {
-		return Config{}, fmt.Errorf("DATABASE_USER cannot be empty")
+	loaders := []func(*Config) error{
+		loadCoreAndDatabaseConfig,
+		loadStripeAndSmtpConfig,
+		loadAuthAndEmailConfig,
+		loadSocialAndCloudflareConfig,
+		loadSiteAndBrandConfig,
+		loadPricingPlansConfig,
 	}
-	databasePassword := os.Getenv("DATABASE_PASSWORD")
-	if databasePassword == "" {
-		return Config{}, fmt.Errorf("DATABASE_PASSWORD cannot be empty")
+	for _, loader := range loaders {
+		if err := loader(&cfg); err != nil {
+			return Config{}, err
+		}
 	}
-	databaseHost := os.Getenv("DATABASE_HOST")
-	if databaseHost == "" {
-		return Config{}, fmt.Errorf("DATABASE_HOST cannot be empty")
+	loadDeveloperOffersConfig(&cfg)
+	return cfg, nil
+}
+
+func requireEnv(key string) (string, error) {
+	val := os.Getenv(key)
+	if val == "" {
+		return "", fmt.Errorf("%s cannot be empty", key)
 	}
-	databasePort := os.Getenv("DATABASE_PORT")
-	if databasePort == "" {
-		return Config{}, fmt.Errorf("DATABASE_PORT cannot be empty")
+	return val, nil
+}
+
+func requireIntEnv(key string) (int, error) {
+	raw, err := requireEnv(key)
+	if err != nil {
+		return 0, err
 	}
-	databaseName := os.Getenv("DATABASE_NAME")
-	if databaseName == "" {
-		return Config{}, fmt.Errorf("DATABASE_NAME cannot be empty")
+	parsed, err := strconv.Atoi(raw)
+	if err != nil {
+		return 0, fmt.Errorf("could not convert ascii to int: %v", err)
 	}
-	databaseSSLMode := os.Getenv("DATABASE_SSL_MODE")
-	if databaseSSLMode == "" {
-		return Config{}, fmt.Errorf("DATABASE_SSL_MODE cannot be empty")
+	return parsed, nil
+}
+
+func loadCoreAndDatabaseConfig(cfg *Config) error {
+	var err error
+	if cfg.Port, err = requireEnv("PORT"); err != nil {
+		return err
 	}
-	stripeKey := os.Getenv("STRIPE_KEY")
-	if stripeKey == "" {
-		return Config{}, fmt.Errorf("STRIPE_KEY cannot be empty")
+	if cfg.DatabaseUser, err = requireEnv("DATABASE_USER"); err != nil {
+		return err
 	}
-	stripeEndpointSecret := os.Getenv("STRIPE_ENDPOINT_SECRET")
-	if stripeEndpointSecret == "" {
-		return Config{}, fmt.Errorf("STRIPE_ENDPOINT_SECRET cannot be empty")
+	if cfg.DatabasePassword, err = requireEnv("DATABASE_PASSWORD"); err != nil {
+		return err
 	}
-	stripePublishableKey := os.Getenv("STRIPE_PUBLISHABLE_KEY")
-	if stripePublishableKey == "" {
-		return Config{}, fmt.Errorf("STRIPE_PUBLISHABLE_KEY cannot be empty")
+	if cfg.DatabaseHost, err = requireEnv("DATABASE_HOST"); err != nil {
+		return err
 	}
-	smtpUser := os.Getenv("SMTP_USER")
-	if smtpUser == "" {
-		return Config{}, fmt.Errorf("SMTP_USER cannot be empty")
+	if cfg.DatabasePort, err = requireEnv("DATABASE_PORT"); err != nil {
+		return err
 	}
-	smtpPassword := os.Getenv("SMTP_PASSWORD")
-	if smtpPassword == "" {
-		return Config{}, fmt.Errorf("SMTP_PASSWORD cannot be empty")
+	if cfg.DatabaseName, err = requireEnv("DATABASE_NAME"); err != nil {
+		return err
 	}
-	smtpHost := os.Getenv("SMTP_HOST")
-	if smtpHost == "" {
-		return Config{}, fmt.Errorf("SMTP_HOST cannot be empty")
+	cfg.DatabaseSSLMode, err = requireEnv("DATABASE_SSL_MODE")
+	return err
+}
+
+func loadStripeAndSmtpConfig(cfg *Config) error {
+	var err error
+	if cfg.StripeKey, err = requireEnv("STRIPE_KEY"); err != nil {
+		return err
 	}
+	if cfg.StripeEndpointSecret, err = requireEnv("STRIPE_ENDPOINT_SECRET"); err != nil {
+		return err
+	}
+	if cfg.StripePublishableKey, err = requireEnv("STRIPE_PUBLISHABLE_KEY"); err != nil {
+		return err
+	}
+	if cfg.SmtpUser, err = requireEnv("SMTP_USER"); err != nil {
+		return err
+	}
+	if cfg.SmtpPassword, err = requireEnv("SMTP_PASSWORD"); err != nil {
+		return err
+	}
+	cfg.SmtpHost, err = requireEnv("SMTP_HOST")
+	return err
+}
+
+func loadAuthAndEmailConfig(cfg *Config) error {
 	env := strings.ToLower(os.Getenv("ENV"))
 	if env == "" {
-		return Config{}, fmt.Errorf("ENV cannot be empty")
+		return fmt.Errorf("ENV cannot be empty")
 	}
-	sessionKeyString := os.Getenv("SESSION_KEY")
-	if sessionKeyString == "" {
-		return Config{}, fmt.Errorf("SESSION_KEY cannot be empty")
+	cfg.Env = env
+	cfg.URLProtocol = "https://"
+	if strings.EqualFold(env, "dev") {
+		cfg.URLProtocol = "http://"
 	}
-	sessionKeyBytes, err := base64.StdEncoding.DecodeString(sessionKeyString)
+	sessionBytes, err := decodeBase64Env("SESSION_KEY")
 	if err != nil {
-		return Config{}, errors.Wrapf(err, "unable to decode session key to bytes")
+		return err
 	}
-	jwtSigningKey := os.Getenv("JWT_SIGNING_KEY")
-	if jwtSigningKey == "" {
-		return Config{}, fmt.Errorf("JWT_SIGNING_KEY cannot be empty")
-	}
-	jwtSigningKeyBytes, err := base64.StdEncoding.DecodeString(jwtSigningKey)
+	cfg.SessionKey = sessionBytes
+	jwtBytes, err := decodeBase64Env("JWT_SIGNING_KEY")
 	if err != nil {
-		return Config{}, errors.Wrapf(err, "unable to decode session key to bytes")
+		return err
 	}
-	adminEmail := os.Getenv("ADMIN_EMAIL")
-	if adminEmail == "" {
-		return Config{}, fmt.Errorf("ADMIN_EMAIL cannot be empty")
+	cfg.JwtSigningKey = jwtBytes
+	if cfg.AdminEmail, err = requireEnv("ADMIN_EMAIL"); err != nil {
+		return err
 	}
-	supportEmail := os.Getenv("SUPPORT_EMAIL")
-	if supportEmail == "" {
-		return Config{}, fmt.Errorf("SUPPORT_EMAIL cannot be empty")
+	if cfg.SupportEmail, err = requireEnv("SUPPORT_EMAIL"); err != nil {
+		return err
 	}
-	noReplyEmail := os.Getenv("NO_REPLY_EMAIL")
-	if noReplyEmail == "" {
-		return Config{}, fmt.Errorf("NO_REPLY_EMAIL cannot be empty")
-	}
-	twitterAccessToken := os.Getenv("TWITTER_ACCESS_TOKEN")
-	if twitterAccessToken == "" {
-		return Config{}, fmt.Errorf("TWITTER_ACCESS_TOKEN cannot be empty")
-	}
-	twitterAccessTokenSecret := os.Getenv("TWITTER_ACCESS_TOKEN_SECRET")
-	if twitterAccessTokenSecret == "" {
-		return Config{}, fmt.Errorf("TWITTER_ACCESS_TOKEN_SECRET cannot be empty")
-	}
-	twitterClientKey := os.Getenv("TWITTER_CLIENT_KEY")
-	if twitterClientKey == "" {
-		return Config{}, fmt.Errorf("TWITTER_CLIENT_KEY cannot be empty")
-	}
-	twitterClientSecret := os.Getenv("TWITTER_CLIENT_SECRET")
-	if twitterClientSecret == "" {
-		return Config{}, fmt.Errorf("TWITTER_CLIENT_SECRET cannot be empty")
-	}
-	twitterJobsToPostStr := os.Getenv("TWITTER_JOBS_TO_POST")
-	if twitterJobsToPostStr == "" {
-		return Config{}, fmt.Errorf("TWITTER_JOBS_TO_POST cannot be empty")
-	}
-	twitterJobsToPost, err := strconv.Atoi(twitterJobsToPostStr)
-	if err != nil {
-		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
-	}
-	newsletterJobsToSendStr := os.Getenv("NEWSLETTER_JOBS_TO_SEND")
-	if newsletterJobsToSendStr == "" {
-		return Config{}, fmt.Errorf("NEWSLETTER_JOBS_TO_SEND cannot be empty")
-	}
-	newsletterJobsToSend, err := strconv.Atoi(newsletterJobsToSendStr)
-	if err != nil {
-		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
-	}
-	cloudflareAPIToken := os.Getenv("CLOUDFLARE_API_TOKEN")
-	if cloudflareAPIToken == "" {
-		return Config{}, fmt.Errorf("CLOUDFLARE_API_TOKEN cannot be empty")
-	}
-	cloudflareZoneTag := os.Getenv("CLOUDFLARE_ZONE_TAG")
-	if cloudflareZoneTag == "" {
-		return Config{}, fmt.Errorf("CLOUDFLARE_ZONE_TAG cannot be empty")
-	}
-	cloudflareAPIEndpoint := os.Getenv("CLOUDFLARE_API_ENDPOINT")
-	if cloudflareAPIEndpoint == "" {
-		return Config{}, fmt.Errorf("CLOUDFLARE_API_ENDPOINT cannot be empty")
-	}
-	machineToken := os.Getenv("MACHINE_TOKEN")
-	if machineToken == "" {
-		return Config{}, fmt.Errorf("MACHINE_TOKEN cannot be empty")
-	}
-	telegramAPIToken := os.Getenv("TELEGRAM_API_TOKEN")
-	if telegramAPIToken == "" {
-		return Config{}, fmt.Errorf("TELEGRAM_API_TOKEN cannot be empty")
-	}
-	telegramChannelIDStr := os.Getenv("TELEGRAM_CHANNEL_ID")
-	if telegramChannelIDStr == "" {
-		return Config{}, fmt.Errorf("TELEGRAM_CHANNEL_ID cannot be empty")
-	}
-	telegramChannelID, err := strconv.Atoi(telegramChannelIDStr)
-	if err != nil {
-		return Config{}, errors.Wrap(err, "unable to convert telegram channel id to int")
-	}
-	fxAPIKey := os.Getenv("FX_API_KEY")
-	if fxAPIKey == "" {
-		return Config{}, fmt.Errorf("FX_API_KEY cannot be empty")
-	}
-	siteName := os.Getenv("SITE_NAME")
-	if siteName == "" {
-		return Config{}, fmt.Errorf("SITE_NAME cannot be empty")
-	}
-	siteJobCategory := os.Getenv("SITE_JOB_CATEGORY")
-	if siteJobCategory == "" {
-		return Config{}, fmt.Errorf("SITE_JOB_CATEGORU cannot be empty")
-	}
-	siteHost := os.Getenv("SITE_HOST")
-	if siteHost == "" {
-		return Config{}, fmt.Errorf("SITE_HOST cannot be empty")
-	}
-	siteTwitter := os.Getenv("SITE_TWITTER")
-	siteGithub := os.Getenv("SITE_GITHUB")
-	siteYoutube := os.Getenv("SITE_YOUTUBE")
-	siteLinkedin := os.Getenv("SITE_LINKEDIN")
-	siteTelegramChannel := os.Getenv("SITE_TELEGRAM_CHANNEL")
-	primaryColor := os.Getenv("PRIMARY_COLOR")
-	if primaryColor == "" {
-		primaryColor = "#000090"
-	}
-	secondaryColor := os.Getenv("SECONDARY_COLOR")
-	if secondaryColor == "" {
-		secondaryColor = "#0000c5"
-	}
-	siteLogoImageID := os.Getenv("SITE_LOGO_IMAGE_ID")
-	if siteLogoImageID == "" {
-		return Config{}, fmt.Errorf("SITE_LOGO_IMAGE_ID cannot be empty")
-	}
-	planID1PriceStr := os.Getenv("PLAN_ID_1_PRICE")
-	if planID1PriceStr == "" {
-		return Config{}, fmt.Errorf("PLAN_ID_1_PRICE cannot be empty")
-	}
-	planID1Price, err := strconv.Atoi(planID1PriceStr)
-	if err != nil {
-		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
-	}
-	planID2PriceStr := os.Getenv("PLAN_ID_2_PRICE")
-	if planID2PriceStr == "" {
-		return Config{}, fmt.Errorf("PLAN_ID_2_PRICE cannot be empty")
-	}
-	planID2Price, err := strconv.Atoi(planID2PriceStr)
-	if err != nil {
-		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
-	}
-	planID3PriceStr := os.Getenv("PLAN_ID_3_PRICE")
-	if planID3PriceStr == "" {
-		return Config{}, fmt.Errorf("PLAN_ID_3_PRICE cannot be empty")
-	}
-	planID3Price, err := strconv.Atoi(planID3PriceStr)
-	if err != nil {
-		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
-	}
-	devDirectoryPlanID1PriceStr := os.Getenv("DEV_DIRECTORY_PLAN_ID_1_PRICE")
-	if devDirectoryPlanID1PriceStr == "" {
-		return Config{}, fmt.Errorf("DEV_DIRECTORY_PLAN_ID_1_PRICE cannot be empty")
-	}
-	devDirectoryPlanID1Price, err := strconv.Atoi(devDirectoryPlanID1PriceStr)
-	if err != nil {
-		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
-	}
-	devDirectoryPlanID2PriceStr := os.Getenv("DEV_DIRECTORY_PLAN_ID_2_PRICE")
-	if devDirectoryPlanID2PriceStr == "" {
-		return Config{}, fmt.Errorf("DEV_DIRECTORY_PLAN_ID_2_PRICE cannot be empty")
-	}
-	devDirectoryPlanID2Price, err := strconv.Atoi(devDirectoryPlanID2PriceStr)
-	if err != nil {
-		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
-	}
-	devDirectoryPlanID3PriceStr := os.Getenv("DEV_DIRECTORY_PLAN_ID_3_PRICE")
-	if devDirectoryPlanID3PriceStr == "" {
-		return Config{}, fmt.Errorf("DEV_DIRECTORY_PLAN_ID_3_PRICE cannot be empty")
-	}
-	devDirectoryPlanID3Price, err := strconv.Atoi(devDirectoryPlanID3PriceStr)
-	if err != nil {
-		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
-	}
-	developersBannerLink := os.Getenv("DEVELOPERS_BANNER_LINK")
-	developersBannerText := os.Getenv("DEVELOPERS_BANNER_TEXT")
-	urlProtocol := "http://"
-	if !strings.EqualFold(env, "dev") {
-		urlProtocol = "https://"
-	}
-	devOfferLink1 := os.Getenv("DEV_OFFER_LINK_1")
-	devOfferLink2 := os.Getenv("DEV_OFFER_LINK_2")
-	devOfferLink3 := os.Getenv("DEV_OFFER_LINK_3")
-	devOfferLink4 := os.Getenv("DEV_OFFER_LINK_4")
-	devOfferRate1 := os.Getenv("DEV_OFFER_RATE_1")
-	devOfferRate2 := os.Getenv("DEV_OFFER_RATE_2")
-	devOfferRate3 := os.Getenv("DEV_OFFER_RATE_3")
-	devOfferRate4 := os.Getenv("DEV_OFFER_RATE_4")
-	devOfferCode1 := os.Getenv("DEV_OFFER_CODE_1")
-	devOfferCode2 := os.Getenv("DEV_OFFER_CODE_2")
-	devOfferCode3 := os.Getenv("DEV_OFFER_CODE_3")
-	devOfferCode4 := os.Getenv("DEV_OFFER_CODE_4")
+	cfg.NoReplyEmail, err = requireEnv("NO_REPLY_EMAIL")
+	return err
+}
 
-	return Config{
-		Port:                     port,
-		DatabaseUser:             databaseUser,
-		DatabasePassword:         databasePassword,
-		DatabaseHost:             databaseHost,
-		DatabasePort:             databasePort,
-		DatabaseName:             databaseName,
-		DatabaseSSLMode:          databaseSSLMode,
-		StripeKey:                stripeKey,
-		StripeEndpointSecret:     stripeEndpointSecret,
-		StripePublishableKey:     stripePublishableKey,
-		SmtpUser:                 smtpUser,
-		SmtpPassword:             smtpPassword,
-		SmtpHost:                 smtpHost,
-		AdminEmail:               adminEmail,
-		SupportEmail:             supportEmail,
-		NoReplyEmail:             noReplyEmail,
-		SessionKey:               sessionKeyBytes,
-		JwtSigningKey:            jwtSigningKeyBytes,
-		Env:                      env,
-		JobsPerPage:              10,
-		DevelopersPerPage:        10,
-		CompaniesPerPage:         10,
-		TwitterJobsToPost:        twitterJobsToPost,
-		TwitterAccessToken:       twitterAccessToken,
-		TwitterAccessTokenSecret: twitterAccessTokenSecret,
-		TwitterClientSecret:      twitterClientSecret,
-		TwitterClientKey:         twitterClientKey,
-		NewsletterJobsToSend:     newsletterJobsToSend,
-		CloudflareAPIToken:       cloudflareAPIToken,
-		CloudflareZoneTag:        cloudflareZoneTag,
-		CloudflareAPIEndpoint:    cloudflareAPIEndpoint,
-		MachineToken:             machineToken,
-		TelegramAPIToken:         telegramAPIToken,
-		TelegramChannelID:        int64(telegramChannelID),
-		FXAPIKey:                 fxAPIKey,
-		SiteName:                 siteName,
-		SiteJobCategory:          siteJobCategory,
-		SiteHost:                 siteHost,
-		SiteGithub:               siteGithub,
-		SiteTwitter:              siteTwitter,
-		SiteYoutube:              siteYoutube,
-		SiteTelegramChannel:      siteTelegramChannel,
-		SiteLinkedin:             siteLinkedin,
-		PrimaryColor:             primaryColor,
-		SecondaryColor:           secondaryColor,
-		SiteLogoImageID:          siteLogoImageID,
-		AvailableCurrencies:      []string{"USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN", "INR", "ZAR", "TRY", "BRL"},
-		AvailableSalaryBands:     []int{10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000, 240000, 250000},
-		PlanID1Price:             planID1Price,
-		PlanID2Price:             planID2Price,
-		PlanID3Price:             planID3Price,
-		DevDirectoryPlanID1Price: devDirectoryPlanID1Price,
-		DevDirectoryPlanID2Price: devDirectoryPlanID2Price,
-		DevDirectoryPlanID3Price: devDirectoryPlanID3Price,
-		DevelopersBannerLink:     developersBannerLink,
-		DevelopersBannerText:     developersBannerText,
-		URLProtocol:              urlProtocol,
-		DevOfferLink1:            devOfferLink1,
-		DevOfferLink2:            devOfferLink2,
-		DevOfferLink3:            devOfferLink3,
-		DevOfferLink4:            devOfferLink4,
-		DevOfferRate1:            devOfferRate1,
-		DevOfferRate2:            devOfferRate2,
-		DevOfferRate3:            devOfferRate3,
-		DevOfferRate4:            devOfferRate4,
-		DevOfferCode1:            devOfferCode1,
-		DevOfferCode2:            devOfferCode2,
-		DevOfferCode3:            devOfferCode3,
-		DevOfferCode4:            devOfferCode4,
-	}, nil
+func decodeBase64Env(key string) ([]byte, error) {
+	raw, err := requireEnv(key)
+	if err != nil {
+		return nil, err
+	}
+	decoded, err := base64.StdEncoding.DecodeString(raw)
+	if err != nil {
+		return nil, errors.Wrapf(err, "unable to decode session key to bytes")
+	}
+	return decoded, nil
+}
+
+func loadSocialAndCloudflareConfig(cfg *Config) error {
+	if err := loadTwitterAndLinkedinConfig(cfg); err != nil {
+		return err
+	}
+	var err error
+	if cfg.NewsletterJobsToSend, err = requireIntEnv("NEWSLETTER_JOBS_TO_SEND"); err != nil {
+		return err
+	}
+	if cfg.CloudflareAPIToken, err = requireEnv("CLOUDFLARE_API_TOKEN"); err != nil {
+		return err
+	}
+	if cfg.CloudflareZoneTag, err = requireEnv("CLOUDFLARE_ZONE_TAG"); err != nil {
+		return err
+	}
+	if cfg.CloudflareAPIEndpoint, err = requireEnv("CLOUDFLARE_API_ENDPOINT"); err != nil {
+		return err
+	}
+	if cfg.MachineToken, err = requireEnv("MACHINE_TOKEN"); err != nil {
+		return err
+	}
+	return loadTelegramAndFxConfig(cfg)
+}
+
+func loadTwitterAndLinkedinConfig(cfg *Config) error {
+	var err error
+	if cfg.TwitterAccessToken, err = requireEnv("TWITTER_ACCESS_TOKEN"); err != nil {
+		return err
+	}
+	if cfg.TwitterAccessTokenSecret, err = requireEnv("TWITTER_ACCESS_TOKEN_SECRET"); err != nil {
+		return err
+	}
+	if cfg.TwitterClientKey, err = requireEnv("TWITTER_CLIENT_KEY"); err != nil {
+		return err
+	}
+	if cfg.TwitterClientSecret, err = requireEnv("TWITTER_CLIENT_SECRET"); err != nil {
+		return err
+	}
+	if cfg.TwitterJobsToPost, err = requireIntEnv("TWITTER_JOBS_TO_POST"); err != nil {
+		return err
+	}
+	cfg.LinkedinAccessToken = os.Getenv("LINKEDIN_ACCESS_TOKEN")
+	cfg.LinkedinPageURL = os.Getenv("LINKEDIN_PAGE_URL")
+	return nil
+}
+
+func loadTelegramAndFxConfig(cfg *Config) error {
+	var err error
+	if cfg.TelegramAPIToken, err = requireEnv("TELEGRAM_API_TOKEN"); err != nil {
+		return err
+	}
+	channelIDStr, err := requireEnv("TELEGRAM_CHANNEL_ID")
+	if err != nil {
+		return err
+	}
+	channelID, err := strconv.Atoi(channelIDStr)
+	if err != nil {
+		return errors.Wrap(err, "unable to convert telegram channel id to int")
+	}
+	cfg.TelegramChannelID = int64(channelID)
+	cfg.FXAPIKey, err = requireEnv("FX_API_KEY")
+	return err
+}
+
+func loadSiteAndBrandConfig(cfg *Config) error {
+	var err error
+	if cfg.SiteName, err = requireEnv("SITE_NAME"); err != nil {
+		return err
+	}
+	if cfg.SiteJobCategory = os.Getenv("SITE_JOB_CATEGORY"); cfg.SiteJobCategory == "" {
+		return fmt.Errorf("SITE_JOB_CATEGORU cannot be empty")
+	}
+	if cfg.SiteHost, err = requireEnv("SITE_HOST"); err != nil {
+		return err
+	}
+	if cfg.SiteLogoImageID, err = requireEnv("SITE_LOGO_IMAGE_ID"); err != nil {
+		return err
+	}
+	cfg.SiteTwitter = os.Getenv("SITE_TWITTER")
+	cfg.SiteGithub = os.Getenv("SITE_GITHUB")
+	cfg.SiteYoutube = os.Getenv("SITE_YOUTUBE")
+	cfg.SiteLinkedin = os.Getenv("SITE_LINKEDIN")
+	cfg.SiteTelegramChannel = os.Getenv("SITE_TELEGRAM_CHANNEL")
+	cfg.PrimaryColor = defaultOrEnv("PRIMARY_COLOR", "#000090")
+	cfg.SecondaryColor = defaultOrEnv("SECONDARY_COLOR", "#0000c5")
+	return nil
+}
+
+func defaultOrEnv(key, fallback string) string {
+	val := os.Getenv(key)
+	if val == "" {
+		return fallback
+	}
+	return val
+}
+
+func loadPricingPlansConfig(cfg *Config) error {
+	var err error
+	if cfg.PlanID1Price, err = requireIntEnv("PLAN_ID_1_PRICE"); err != nil {
+		return err
+	}
+	if cfg.PlanID2Price, err = requireIntEnv("PLAN_ID_2_PRICE"); err != nil {
+		return err
+	}
+	if cfg.PlanID3Price, err = requireIntEnv("PLAN_ID_3_PRICE"); err != nil {
+		return err
+	}
+	if cfg.DevDirectoryPlanID1Price, err = requireIntEnv("DEV_DIRECTORY_PLAN_ID_1_PRICE"); err != nil {
+		return err
+	}
+	if cfg.DevDirectoryPlanID2Price, err = requireIntEnv("DEV_DIRECTORY_PLAN_ID_2_PRICE"); err != nil {
+		return err
+	}
+	cfg.DevDirectoryPlanID3Price, err = requireIntEnv("DEV_DIRECTORY_PLAN_ID_3_PRICE")
+	return err
+}
+
+func loadDeveloperOffersConfig(cfg *Config) {
+	cfg.DevelopersBannerLink = os.Getenv("DEVELOPERS_BANNER_LINK")
+	cfg.DevelopersBannerText = os.Getenv("DEVELOPERS_BANNER_TEXT")
+	cfg.DevOfferLink1 = os.Getenv("DEV_OFFER_LINK_1")
+	cfg.DevOfferLink2 = os.Getenv("DEV_OFFER_LINK_2")
+	cfg.DevOfferLink3 = os.Getenv("DEV_OFFER_LINK_3")
+	cfg.DevOfferLink4 = os.Getenv("DEV_OFFER_LINK_4")
+	cfg.DevOfferRate1 = os.Getenv("DEV_OFFER_RATE_1")
+	cfg.DevOfferRate2 = os.Getenv("DEV_OFFER_RATE_2")
+	cfg.DevOfferRate3 = os.Getenv("DEV_OFFER_RATE_3")
+	cfg.DevOfferRate4 = os.Getenv("DEV_OFFER_RATE_4")
+	cfg.DevOfferCode1 = os.Getenv("DEV_OFFER_CODE_1")
+	cfg.DevOfferCode2 = os.Getenv("DEV_OFFER_CODE_2")
+	cfg.DevOfferCode3 = os.Getenv("DEV_OFFER_CODE_3")
+	cfg.DevOfferCode4 = os.Getenv("DEV_OFFER_CODE_4")
+}
+
+func defaultCurrencies() []string {
+	return []string{"USD", "EUR", "JPY", "GBP", "AUD", "CAD", "CHF", "CNY", "HKD", "NZD", "SEK", "KRW", "SGD", "NOK", "MXN", "INR", "ZAR", "TRY", "BRL"}
+}
+
+func defaultSalaryBands() []int {
+	return []int{10000, 20000, 30000, 40000, 50000, 60000, 70000, 80000, 90000, 100000, 110000, 120000, 130000, 140000, 150000, 160000, 170000, 180000, 190000, 200000, 210000, 220000, 230000, 240000, 250000}
 }
