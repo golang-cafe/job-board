@@ -794,6 +794,19 @@ func GetMediaByID(conn *sql.DB, mediaID string) (Media, error) {
 	return m, nil
 }
 
+// IsDeveloperProfileImage checks whether an image ID is currently assigned to a developer profile.
+func IsDeveloperProfileImage(conn *sql.DB, mediaID string) (bool, error) {
+	if conn == nil || mediaID == "" {
+		return false, nil
+	}
+	var exists bool
+	row := conn.QueryRow(`SELECT EXISTS(SELECT 1 FROM developer_profile WHERE image_id = $1)`, mediaID)
+	if err := row.Scan(&exists); err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
 type SitemapEntry struct {
 	Loc        string
 	ChangeFreq string
