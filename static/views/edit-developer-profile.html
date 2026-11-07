@@ -239,7 +239,14 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
           <option value="c-level" selected>C-Level</option>
           {{ end }}
         </select>
-        <textarea id="bio" placeholder="Short Bio" style="resize:none; width: 100%;overflow: hidden;min-height: 100px;" oninput="auto_grow(this);">{{ .DeveloperProfile.Bio }}</textarea><br>
+        
+        <div class="field">
+          <label for="cv-upload">Developer CV (PDF)</label>
+          <p id="cv-status">{{ if .Developer.HasCV }}CV uploaded{{ else }}CV not uploaded{{ end }}</p>
+          <input type="file" id="cv-upload" accept="application/pdf" />
+        </div>
+
+<textarea id="bio" placeholder="Short Bio" style="resize:none; width: 100%;overflow: hidden;min-height: 100px;" oninput="auto_grow(this);">{{ .DeveloperProfile.Bio }}</textarea><br>
         <div id="search-tag-container">
             <input type="hidden" name="tags" id="tags" value="{{ .DeveloperProfile.Skills }}">
             <input autocomplete="off" type="text" placeholder="Skills" id="search-tag">
