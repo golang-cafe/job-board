@@ -128,6 +128,11 @@ func TestValidateDeveloperCVBytes(t *testing.T) {
 		t.Fatal("expected polyglot HTML-in-PDF payload to fail validation")
 	}
 
+	embeddedJSPDF := []byte("%PDF-1.4\n1 0 obj\n<< /Type /Action /S /JavaScript /JS (app.alert(1)) >>\nendobj\n%%EOF")
+	if err := validateDeveloperCVBytes(embeddedJSPDF); err == nil {
+		t.Fatal("expected PDF with embedded /JavaScript action to fail validation")
+	}
+
 	oversizedPDF := append([]byte("%PDF-1.4\n"), bytes.Repeat([]byte("A"), MaxDeveloperCVSize)...)
 	if err := validateDeveloperCVBytes(oversizedPDF); err == nil {
 		t.Fatal("expected >5MB PDF to fail validation")

@@ -387,16 +387,13 @@ func (r *Repository) UpdateDeveloperProfile(dev Developer) error {
 	if strings.TrimSpace(dev.LinkedinURL) != "" {
 		linkedinURL = dev.LinkedinURL
 	}
+	var cvData interface{}
 	if len(dev.CV) > 0 {
-		_, err := r.db.Exec(
-			`UPDATE developer_profile SET name = $1, location = $2, linkedin_url = $3, hourly_rate = $4, bio = $5, available = $6, image_id = $7, updated_at = NOW(), skills = $8, search_status = $9, role_level = $10, cv = $11 WHERE id = $12`,
-			dev.Name, dev.Location, linkedinURL, dev.HourlyRate, dev.Bio, dev.Available, dev.ImageID, dev.Skills, dev.SearchStatus, dev.RoleLevel, dev.CV, dev.ID,
-		)
-		return err
+		cvData = dev.CV
 	}
 	_, err := r.db.Exec(
-		`UPDATE developer_profile SET name = $1, location = $2, linkedin_url = $3, hourly_rate = $4, bio = $5, available = $6, image_id = $7, updated_at = NOW(), skills = $8, search_status = $9, role_level = $10 WHERE id = $11`,
-		dev.Name, dev.Location, linkedinURL, dev.HourlyRate, dev.Bio, dev.Available, dev.ImageID, dev.Skills, dev.SearchStatus, dev.RoleLevel, dev.ID,
+		`UPDATE developer_profile SET name = $1, location = $2, linkedin_url = $3, hourly_rate = $4, bio = $5, available = $6, image_id = $7, updated_at = NOW(), skills = $8, search_status = $9, role_level = $10, cv = COALESCE($11, cv) WHERE id = $12`,
+		dev.Name, dev.Location, linkedinURL, dev.HourlyRate, dev.Bio, dev.Available, dev.ImageID, dev.Skills, dev.SearchStatus, dev.RoleLevel, cvData, dev.ID,
 	)
 	return err
 }

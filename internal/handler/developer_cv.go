@@ -51,6 +51,12 @@ func validateDeveloperCVBytes(cvBytes []byte) error {
 			return errors.New("invalid PDF content")
 		}
 	}
+	lowerAll := bytes.ToLower(cvBytes)
+	for _, forbiddenPDFObj := range [][]byte{[]byte("/javascript"), []byte("/js("), []byte("/js "), []byte("/js<"), []byte("/launch")} {
+		if bytes.Contains(lowerAll, forbiddenPDFObj) {
+			return errors.New("PDF files with embedded active scripts or launch actions are not allowed")
+		}
+	}
 	return nil
 }
 
