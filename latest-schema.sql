@@ -176,7 +176,16 @@ CREATE TABLE public.developer_profile (
     name character varying(255) NOT NULL,
     bio text NOT NULL,
     github_url character varying(255) DEFAULT NULL::character varying,
-    twitter_url character varying(255) DEFAULT NULL::character varying
+    twitter_url character varying(255) DEFAULT NULL::character varying,
+    cv bytea
+);
+
+CREATE TABLE public.developer_cv_download (
+    id character(27) NOT NULL,
+    developer_profile_id character(27) NOT NULL,
+    cv bytea NOT NULL,
+    user_id character(27) NOT NULL,
+    downloaded_at timestamp without time zone NOT NULL
 );
 
 
