@@ -84,11 +84,21 @@ type Developer struct {
 	RoleLevel          string
 	RoleTypes          []string
 	DetectedLocationID *string
+	CV                 []byte
+	HasCV              bool
 
 	Bio                string
 	SkillsArray        []string
 	CreatedAtHumanized string
 	UpdatedAtHumanized string
+}
+
+type DeveloperCVDownload struct {
+	ID                 string
+	DeveloperProfileID string
+	CV                 []byte
+	UserID             string
+	DownloadedAt       time.Time
 }
 
 func (d Developer) RoleTypeAsString() string {
