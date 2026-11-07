@@ -61,15 +61,15 @@ func main() {
 	sessionStore := sessions.NewCookieStore(cfg.SessionKey)
 	robotsTxtContent, err := staticFS.ReadFile("static/robots.txt")
 	if err != nil {
-		log.Fatalf("unable to read robots.txt placeholder file: %w", err)
+		log.Fatalf("unable to read robots.txt placeholder file: %v", err)
 	}
 	securityTxtContent, err := staticFS.ReadFile("static/security.txt")
 	if err != nil {
-		log.Fatalf("unable to read security.txt placeholder file: %w", err)
+		log.Fatalf("unable to read security.txt placeholder file: %v", err)
 	}
 	adsTxtContent, err := staticFS.ReadFile("static/ads.txt")
 	if err != nil {
-		log.Fatalf("unable to read security.txt placeholder file: %w", err)
+		log.Fatalf("unable to read ads.txt placeholder file: %v", err)
 	}
 
 	devRepo := developer.NewRepository(conn)
@@ -164,10 +164,12 @@ func main() {
 	svr.RegisterRoute("/x/sdp", handler.SaveDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/sdm", handler.SaveDeveloperMetadataHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/udp", handler.UpdateDeveloperProfileHandler(svr, devRepo), []string{"POST"})
+	svr.RegisterRoute("/x/udp/cv", handler.UploadDeveloperCVHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/udm", handler.UpdateDeveloperMetadataHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/ddm", handler.DeleteDeveloperMetadataHandler(svr, devRepo), []string{"POST"})
 	svr.RegisterRoute("/x/ddp", handler.DeleteDeveloperProfileHandler(svr, devRepo, userRepo), []string{"POST"})
 	svr.RegisterRoute("/x/smdp/{id}", handler.SendMessageDeveloperProfileHandler(svr, devRepo), []string{"POST"})
+	svr.RegisterRoute("/developer/{slug}/cv", handler.DownloadDeveloperCVHandler(svr, devRepo), []string{"GET"})
 	svr.RegisterRoute("/developer/{slug}", handler.ViewDeveloperProfileHandler(svr, devRepo, recRepo), []string{"GET"})
 	svr.RegisterRoute("/x/auth/message/{id}", handler.DeliverMessageDeveloperProfileHandler(svr, devRepo), []string{"GET"})
 
