@@ -57,6 +57,23 @@ Once this command is successful you can now start the application
 ./run-local-webserver.sh
 ```
 
+**Docker Build & Run (Local Testing and Production)**
+
+To build and run the local development container (`Dockerfile.local` with live reload):
+
+```bash
+docker build -f Dockerfile.local -t golang-cafe-local .
+docker run -it --rm -w /app -v "$(pwd):/app" -p 9876:9876 --env-file local.env golang-cafe-local
+```
+
+To build and run the multi-stage production container (`Dockerfile`):
+
+```bash
+docker build -t golang-cafe-prod .
+docker run --rm -p 9876:9876 --env-file local.env golang-cafe-prod
+```
+
+
 **Test Cron-Jobs Locally**
 
 There are a few cron-jobs that are triggered on a schedule, these are scheduled externally via custom http calls to the website. You can see all available cron-jobs by searching for all routes that start with /x/task/<task-name>.
