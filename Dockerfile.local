@@ -1,0 +1,12 @@
+FROM cosmtrek/air:v1.43.0
+
+WORKDIR /app
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+EXPOSE 9876
+
+CMD ["--build.cmd", "go build -o bin/server main.go", "--build.bin", "./bin/server"]
