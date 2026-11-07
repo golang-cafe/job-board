@@ -38,6 +38,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/database"
 	"github.com/golang-cafe/job-board/internal/developer"
 	"github.com/golang-cafe/job-board/internal/email"
+	"github.com/golang-cafe/job-board/internal/facedetect"
 	"github.com/golang-cafe/job-board/internal/imagemeta"
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/middleware"
@@ -410,6 +411,22 @@ func UpdateDeveloperMetadataHandler(svr server.Server, devRepo *developer.Reposi
 	)
 }
 
+func validateDeveloperProfileImageFace(svr server.Server, imageID string) error {
+	if svr.Conn == nil || strings.TrimSpace(imageID) == "" {
+		return nil
+	}
+	media, mediaErr := database.GetMediaByID(svr.Conn, imageID)
+	if mediaErr != nil || len(media.Bytes) == 0 {
+		svr.Log(mediaErr, "unable to find developer profile image for face validation")
+		return errors.New("Please upload a valid profile image")
+	}
+	hasFace, faceErr := facedetect.ContainsHumanFaceFromBytes(media.Bytes)
+	if faceErr != nil || !hasFace {
+		return errors.New("Please upload a profile picture with a visible human face")
+	}
+	return nil
+}
+
 func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRepo tokenSaver) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		req := &struct {
@@ -499,6 +516,11 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 		if hourlyRate > 1000 && hourlyRate < 0 {
 			svr.Log(err, "Hourly rate cannot be more than 1000 or less than 0")
 			svr.JSON(w, http.StatusInternalServerError, nil)
+			return
+		}
+
+		if faceErr := validateDeveloperProfileImageFace(svr, req.ProfileImageID); faceErr != nil {
+			svr.JSON(w, http.StatusBadRequest, faceErr.Error())
 			return
 		}
 
@@ -1435,6 +1457,11 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 			if err != nil {
 				svr.Log(err, "unable to parse string to int")
 				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+
+			if faceErr := validateDeveloperProfileImageFace(svr, req.ImageID); faceErr != nil {
+				svr.JSON(w, http.StatusBadRequest, faceErr.Error())
 				return
 			}
 
@@ -2681,7 +2708,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository, bookmark
 		emailAddr := r.FormValue("email")
 		jobPost, err := jobRepo.JobPostByExternalIDForEdit(externalID)
 		if err != nil {
-			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %d, %v", externalID, err))
+			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %s, %v", externalID, err))
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
@@ -3277,9 +3304,46 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.MEDIA(w, http.StatusNotFound, media.Bytes, media.MediaType)
 			return
 		}
+
+		isLoggedIn := middleware.IsSignedOn(r, svr.SessionStore, svr.GetJWTSigningKey())
+		shouldBlur := false
+		isDevImg := false
+		if svr.Conn != nil {
+			if exists, devErr := database.IsDeveloperProfileImage(svr.Conn, mediaID); devErr == nil && exists {
+				isDevImg = true
+				if !isLoggedIn {
+					shouldBlur = true
+				}
+			}
+		}
+
 		height := r.URL.Query().Get("h")
 		width := r.URL.Query().Get("w")
+		blurCacheKey := fmt.Sprintf("blurred_dev_img_%s_%s_%s", mediaID, width, height)
 		if height == "" && width == "" {
+			if isDevImg {
+				w.Header().Set("Content-Type", media.MediaType)
+				w.Header().Set("Vary", "Cookie")
+				if shouldBlur {
+					w.Header().Set("Cache-Control", "private, no-cache, no-store, must-revalidate")
+					if cachedBlur, ok := svr.CacheGet(blurCacheKey); ok && len(cachedBlur) > 0 {
+						w.WriteHeader(http.StatusOK)
+						w.Write(cachedBlur)
+						return
+					}
+					if blurredBytes, bErr := facedetect.BlurImageBytes(media.Bytes, media.MediaType, facedetect.DefaultBlurRadius); bErr == nil {
+						_ = svr.CacheSet(blurCacheKey, blurredBytes)
+						w.WriteHeader(http.StatusOK)
+						w.Write(blurredBytes)
+						return
+					}
+				} else {
+					w.Header().Set("Cache-Control", "private, max-age=3600")
+				}
+				w.WriteHeader(http.StatusOK)
+				w.Write(media.Bytes)
+				return
+			}
 			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
@@ -3304,6 +3368,16 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusUnsupportedMediaType, nil)
 			return
 		}
+		if isDevImg && shouldBlur {
+			if cachedBlur, ok := svr.CacheGet(blurCacheKey); ok && len(cachedBlur) > 0 {
+				w.Header().Set("Content-Type", media.MediaType)
+				w.Header().Set("Vary", "Cookie")
+				w.Header().Set("Cache-Control", "private, no-cache, no-store, must-revalidate")
+				w.WriteHeader(http.StatusOK)
+				w.Write(cachedBlur)
+				return
+			}
+		}
 		decImage, _, err := image.Decode(bytes.NewReader(media.Bytes))
 		if err != nil {
 			svr.Log(err, "unable to decode image from bytes")
@@ -3311,6 +3385,9 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			return
 		}
 		m := resize.Resize(uint(wi), uint(he), decImage, resize.Lanczos3)
+		if shouldBlur {
+			m = facedetect.BlurImage(m, facedetect.DefaultBlurRadius)
+		}
 		resizeImageBuf := new(bytes.Buffer)
 		switch media.MediaType {
 		case "image/jpg", "image/jpeg":
@@ -3329,6 +3406,21 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
+
+		if isDevImg {
+			w.Header().Set("Content-Type", media.MediaType)
+			w.Header().Set("Vary", "Cookie")
+			if shouldBlur {
+				_ = svr.CacheSet(blurCacheKey, resizeImageBuf.Bytes())
+				w.Header().Set("Cache-Control", "private, no-cache, no-store, must-revalidate")
+			} else {
+				w.Header().Set("Cache-Control", "private, max-age=3600")
+			}
+			w.WriteHeader(http.StatusOK)
+			w.Write(resizeImageBuf.Bytes())
+			return
+		}
+
 		svr.MEDIA(w, http.StatusOK, resizeImageBuf.Bytes(), media.MediaType)
 	}
 }
@@ -3425,6 +3517,16 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		cutImage := decImage.(interface {
 			SubImage(r image.Rectangle) image.Image
 		}).SubImage(image.Rect(x, y, x+wi, y+he))
+		mediaUploadType := r.URL.Query().Get("type")
+		if mediaUploadType == "" {
+			mediaUploadType = r.FormValue("type")
+		}
+		if mediaUploadType == "developer" {
+			if !facedetect.ContainsHumanFace(cutImage) {
+				svr.JSON(w, http.StatusBadRequest, "Please upload a profile picture with a visible human face.")
+				return
+			}
+		}
 		cutImageBytes := new(bytes.Buffer)
 		switch contentType {
 		case "image/jpg", "image/jpeg":
@@ -3443,7 +3545,7 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.Log(errors.New("content type not supported for encoding"), fmt.Sprintf("content type %s not supported for encoding", contentType))
 			svr.JSON(w, http.StatusInternalServerError, nil)
 		}
-		id, err := database.SaveMedia(svr.Conn, database.Media{cutImageBytes.Bytes(), contentType})
+		id, err := database.SaveMedia(svr.Conn, database.Media{Bytes: cutImageBytes.Bytes(), MediaType: contentType})
 		if err != nil {
 			svr.Log(err, "unable to save media image to db")
 			svr.JSON(w, http.StatusInternalServerError, nil)
