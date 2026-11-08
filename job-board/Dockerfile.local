@@ -1,0 +1,4 @@
+- FROM golang:1.15
+- COPY . /go/src/app
+- WORKDIR /go/src/app
+- RUN go build -o app
