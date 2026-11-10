@@ -13,6 +13,7 @@ import (
 	"log"
 	"net/http"
 	"net/url"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -4174,4 +4175,126 @@ func RecruiterJobPosts(svr server.Server, devRepo *developer.Repository, recRepo
 				"Recruiter":     rec,
 			})
 		})
+}
+
+// UploadCVHandler handles CV file upload for developer profiles
+func UploadCVHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get user from JWT")
+				http.Redirect(w, r, "/auth", http.StatusUnauthorized)
+				return
+			}
+
+			if profile.Type != user.UserTypeDeveloper {
+				svr.JSON(w, http.StatusForbidden, "only developers can upload CV")
+				return
+			}
+
+			// Limit file size to 5MB
+			r.Body = http.MaxBytesReader(w, r.Body, 5<<20)
+
+			file, handler, err := r.FormFile("cv_file")
+			if err != nil {
+				svr.Log(err, "unable to get file from form")
+				svr.JSON(w, http.StatusBadRequest, "no file uploaded")
+				return
+			}
+			defer file.Close()
+
+			// Validate file extension
+			fileName := handler.Filename
+			ext := strings.ToLower(filepath.Ext(fileName))
+			validExts := map[string]bool{
+				".pdf":  true,
+				".doc":  true,
+				".docx": true,
+				".txt":  true,
+			}
+			if !validExts[ext] {
+				svr.JSON(w, http.StatusBadRequest, "invalid file type. Allowed: PDF, DOC, DOCX, TXT")
+				return
+			}
+
+			// Read file content
+			cvContent, err := ioutil.ReadAll(file)
+			if err != nil {
+				svr.Log(err, "unable to read file")
+				svr.JSON(w, http.StatusInternalServerError, "unable to read file")
+				return
+			}
+
+			// Find the developer profile
+			dev, err := devRepo.DeveloperProfileByEmail(profile.Email)
+			if err != nil {
+				svr.Log(err, "unable to find developer profile")
+				svr.JSON(w, http.StatusNotFound, "developer profile not found")
+				return
+			}
+
+			// Upload to database
+			err = devRepo.UploadCVFile(dev.ID, cvContent, fileName)
+			if err != nil {
+				svr.Log(err, "unable to save CV file")
+				svr.JSON(w, http.StatusInternalServerError, "unable to save CV file")
+				return
+			}
+
+			svr.JSON(w, http.StatusOK, map[string]string{
+				"message": "CV uploaded successfully",
+				"file":    fileName,
+			})
+		},
+	)
+}
+
+// DownloadCVHandler handles CV file download
+func DownloadCVHandler(svr server.Server, devRepo *developer.Repository) http.HandlerFunc {
+	return middleware.UserAuthenticatedMiddleware(
+		svr.SessionStore,
+		svr.GetJWTSigningKey(),
+		func(w http.ResponseWriter, r *http.Request) {
+			profile, err := middleware.GetUserFromJWT(r, svr.SessionStore, svr.GetJWTSigningKey())
+			if err != nil {
+				svr.Log(err, "unable to get user from JWT")
+				http.Redirect(w, r, "/auth", http.StatusUnauthorized)
+				return
+			}
+
+			if profile.Type != user.UserTypeDeveloper {
+				svr.JSON(w, http.StatusForbidden, "only developers can download CV")
+				return
+			}
+
+			dev, err := devRepo.DeveloperProfileByEmail(profile.Email)
+			if err != nil {
+				svr.Log(err, "unable to find developer profile")
+				svr.JSON(w, http.StatusNotFound, "developer profile not found")
+				return
+			}
+
+			cvFile, fileName, err := devRepo.GetCVFile(dev.ID)
+			if err != nil || cvFile == nil {
+				svr.JSON(w, http.StatusNotFound, "no CV file uploaded")
+				return
+			}
+
+			// Set content type based on extension
+			ext := strings.ToLower(filepath.Ext(fileName))
+			contentType := "application/octet-stream"
+			if ext == ".pdf" {
+				contentType = "application/pdf"
+			} else if ext == ".txt" {
+				contentType = "text/plain"
+			}
+
+			w.Header().Set("Content-Type", contentType)
+			w.Header().Set("Content-Disposition", fmt.Sprintf(`attachment; filename="%s"`, fileName))
+			w.Write(cvFile)
+		},
+	)
 }

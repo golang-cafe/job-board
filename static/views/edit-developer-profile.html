@@ -325,6 +325,18 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
           </div>
         </div>
 
+        <!-- CV Upload Section -->
+        <div style="margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 8px;">
+          <h3>CV / Resume</h3>
+          <p>Upload your CV or resume (PDF, DOC, DOCX, TXT - max 5MB)</p>
+          <form id="cv-upload-form" action="/x/profile/cv/upload" method="POST" enctype="multipart/form-data" style="margin-bottom: 10px;">
+            <input type="file" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx,.txt" style="margin-right: 10px;">
+            <button type="button" onclick="uploadCV()" id="cv-upload-btn" style="padding: 8px 16px; background: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer;">Upload CV</button>
+            <span id="cv-status" style="margin-left: 10px; color: #666;"></span>
+          </form>
+          <a href="/x/profile/cv/download" id="cv-download-link" style="display: none; color: #007bff; text-decoration: none;">📄 Download your CV</a>
+        </div>
+
         <input type="submit" id="submit" value="Update" onclick="update();" style="margin-right:0px;float: right;"><br>
         </p>
       </article>
@@ -728,6 +740,42 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         document.getElementById("description").placeholder = ""
 
         modal.style.display = "none";
+      }
+
+      function uploadCV() {
+        var fileInput = document.getElementById("cv_file");
+        var status = document.getElementById("cv-status");
+        if (!fileInput.files || fileInput.files.length === 0) {
+          status.textContent = "Please select a file first.";
+          status.style.color = "red";
+          return;
+        }
+        status.textContent = "Uploading...";
+        status.style.color = "#666";
+
+        var formData = new FormData();
+        formData.append("cv_file", fileInput.files[0]);
+
+        fetch("/x/profile/cv/upload", {
+          method: "POST",
+          body: formData,
+          credentials: "same-origin"
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.message) {
+            status.textContent = "✅ " + data.message;
+            status.style.color = "green";
+            document.getElementById("cv-download-link").style.display = "inline";
+          } else {
+            status.textContent = "Upload failed";
+            status.style.color = "red";
+          }
+        })
+        .catch(function(err) {
+          status.textContent = "Upload failed: " + err.message;
+          status.style.color = "red";
+        });
       }
 
     </script>

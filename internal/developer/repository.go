@@ -383,6 +383,21 @@ func (r *Repository) UpdateDeveloperProfile(dev Developer) error {
 	return err
 }
 
+func (r *Repository) UploadCVFile(profileID string, cvFile []byte, fileName string) error {
+	_, err := r.db.Exec(`UPDATE developer_profile SET cv_file = $1, cv_file_name = $2, updated_at = NOW() WHERE id = $3`, cvFile, fileName, profileID)
+	return err
+}
+
+func (r *Repository) GetCVFile(profileID string) ([]byte, string, error) {
+	var cvFile []byte
+	var fileName string
+	err := r.db.QueryRow(`SELECT cv_file, cv_file_name FROM developer_profile WHERE id = $1`, profileID).Scan(&cvFile, &fileName)
+	if err != nil {
+		return nil, "", err
+	}
+	return cvFile, fileName, nil
+}
+
 func (r *Repository) DeleteDeveloperProfile(id, email string) error {
 	_, err := r.db.Exec(`DELETE FROM developer_profile WHERE id = $1 AND email = $2`, id, email)
 	return err

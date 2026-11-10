@@ -878,3 +878,6 @@ CREATE INDEX job_event_created_at_idx ON job_event(created_at);
 CREATE INDEX users_email_idx ON users(email);
 CREATE INDEX job_event_job_id ON job_event (job_id);
 DROP TABLE search_event;
+-- CV upload feature
+ALTER TABLE public.developer_profile ADD COLUMN cv_file BYTEA DEFAULT NULL;
+ALTER TABLE public.developer_profile ADD COLUMN cv_file_name VARCHAR(255) DEFAULT NULL;
