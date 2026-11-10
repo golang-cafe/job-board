@@ -89,6 +89,9 @@ type Developer struct {
 	SkillsArray        []string
 	CreatedAtHumanized string
 	UpdatedAtHumanized string
+
+	CVFile     []byte
+	CVFileName string
 }
 
 func (d Developer) RoleTypeAsString() string {

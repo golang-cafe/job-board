@@ -174,6 +174,8 @@ func main() {
 	// blog
 	svr.RegisterRoute("/profile/home", handler.ProfileHomepageHandler(svr, devRepo, recRepo), []string{"GET"})
 	svr.RegisterRoute("/profile/{id}/edit", handler.EditProfileHandler(svr, devRepo, recRepo), []string{"GET"})
+	svr.RegisterRoute("/x/profile/cv/upload", handler.UploadCVHandler(svr, devRepo), []string{"POST"})
+	svr.RegisterRoute("/x/profile/cv/download", handler.DownloadCVHandler(svr, devRepo), []string{"GET"})
 	svr.RegisterRoute("/profile/blog/create", handler.CreateDraftBlogPostHandler(svr, blogRepo), []string{"GET"})
 	svr.RegisterRoute("/profile/blog/list", handler.GetUserBlogPostsHandler(svr, blogRepo), []string{"GET"})
 	svr.RegisterRoute("/profile/blog/{id}/edit", handler.EditBlogPostHandler(svr, blogRepo), []string{"GET"})

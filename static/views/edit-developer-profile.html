@@ -325,6 +325,15 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
           </div>
         </div>
 
+        <fieldset>
+          <legend>CV / Resume</legend>
+          <p>Upload your CV or resume (PDF, DOC, DOCX, TXT, max 5MB)</p>
+          <input type="file" id="cv_file" name="cv_file" accept=".pdf,.doc,.docx,.txt">
+          <button type="button" onclick="uploadCV()" id="cv-upload-btn">Upload</button>
+          <span id="cv-status"></span>
+          <a href="/x/profile/cv/download" id="cv-download-link" style="display:none;">Download your CV</a>
+        </fieldset>
+
         <input type="submit" id="submit" value="Update" onclick="update();" style="margin-right:0px;float: right;"><br>
         </p>
       </article>
@@ -728,6 +737,42 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         document.getElementById("description").placeholder = ""
 
         modal.style.display = "none";
+      }
+
+      function uploadCV() {
+        var fileInput = document.getElementById("cv_file");
+        var status = document.getElementById("cv-status");
+        if (!fileInput.files || fileInput.files.length === 0) {
+          status.textContent = "Please select a file first.";
+          status.style.color = "red";
+          return;
+        }
+        status.textContent = "Uploading...";
+        status.style.color = "#666";
+
+        var formData = new FormData();
+        formData.append("cv_file", fileInput.files[0]);
+
+        fetch("/x/profile/cv/upload", {
+          method: "POST",
+          body: formData,
+          credentials: "same-origin"
+        })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.message) {
+            status.textContent = "✅ " + data.message;
+            status.style.color = "green";
+            document.getElementById("cv-download-link").style.display = "inline";
+          } else {
+            status.textContent = "Upload failed";
+            status.style.color = "red";
+          }
+        })
+        .catch(function(err) {
+          status.textContent = "Upload failed: " + err.message;
+          status.style.color = "red";
+        });
       }
 
     </script>
