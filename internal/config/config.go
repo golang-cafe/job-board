@@ -38,6 +38,11 @@ type Config struct {
 	TwitterAccessTokenSecret string
 	TwitterClientKey         string
 	TwitterClientSecret      string
+	LinkedinAccessToken      string
+	LinkedinPageURL          string
+	LinkedinAuthorURN        string
+	LinkedinJobsToPost       int
+	LinkedinAPIURL           string
 	NewsletterJobsToSend     int
 	CloudflareAPIToken       string
 	CloudflareZoneTag        string
@@ -248,6 +253,36 @@ func LoadConfig() (Config, error) {
 	siteYoutube := os.Getenv("SITE_YOUTUBE")
 	siteLinkedin := os.Getenv("SITE_LINKEDIN")
 	siteTelegramChannel := os.Getenv("SITE_TELEGRAM_CHANNEL")
+	linkedinAccessToken := os.Getenv("LINKEDIN_ACCESS_TOKEN")
+	if linkedinAccessToken == "" {
+		linkedinAccessToken = os.Getenv("LINKEDIN_API_TOKEN")
+	}
+	if linkedinAccessToken == "" {
+		linkedinAccessToken = os.Getenv("LINKEDIN_TOKEN")
+	}
+	linkedinPageURL := os.Getenv("LINKEDIN_PAGE_URL")
+	if linkedinPageURL == "" && siteLinkedin != "" {
+		if strings.HasPrefix(siteLinkedin, "http://") || strings.HasPrefix(siteLinkedin, "https://") {
+			linkedinPageURL = siteLinkedin
+		} else {
+			linkedinPageURL = fmt.Sprintf("https://www.linkedin.com/company/%s", siteLinkedin)
+		}
+	}
+	linkedinAuthorURN := os.Getenv("LINKEDIN_AUTHOR_URN")
+	if linkedinAuthorURN == "" {
+		linkedinAuthorURN = os.Getenv("LINKEDIN_ORGANIZATION_URN")
+	}
+	linkedinJobsToPost := twitterJobsToPost
+	if linkedinJobsToPostRaw := os.Getenv("LINKEDIN_JOBS_TO_POST"); linkedinJobsToPostRaw != "" {
+		linkedinJobsToPost, err = strconv.Atoi(linkedinJobsToPostRaw)
+		if err != nil {
+			return Config{}, fmt.Errorf("cannot convert LINKEDIN_JOBS_TO_POST to int: %v", err)
+		}
+	}
+	linkedinAPIURL := os.Getenv("LINKEDIN_API_URL")
+	if linkedinAPIURL == "" {
+		linkedinAPIURL = "https://api.linkedin.com/v2/ugcPosts"
+	}
 	primaryColor := os.Getenv("PRIMARY_COLOR")
 	if primaryColor == "" {
 		primaryColor = "#000090"
@@ -355,6 +390,11 @@ func LoadConfig() (Config, error) {
 		TwitterAccessTokenSecret: twitterAccessTokenSecret,
 		TwitterClientSecret:      twitterClientSecret,
 		TwitterClientKey:         twitterClientKey,
+		LinkedinAccessToken:      linkedinAccessToken,
+		LinkedinPageURL:          linkedinPageURL,
+		LinkedinAuthorURN:        linkedinAuthorURN,
+		LinkedinJobsToPost:       linkedinJobsToPost,
+		LinkedinAPIURL:           linkedinAPIURL,
 		NewsletterJobsToSend:     newsletterJobsToSend,
 		CloudflareAPIToken:       cloudflareAPIToken,
 		CloudflareZoneTag:        cloudflareZoneTag,
