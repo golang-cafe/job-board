@@ -928,11 +928,11 @@ func (r *Repository) GetLastNJobs(max int, loc string) ([]*JobPost, error) {
 
 func (r *Repository) GetLastNJobsFromID(max, jobID int) ([]*JobPost, error) {
 	var jobs []*JobPost
-	var rows *sql.Rows
-	rows, err := r.db.Query(`SELECT id, job_title, company, salary_range, location, slug, salary_currency, company_icon_image_id, external_id, salary_period FROM job WHERE id > $1 AND approved_at IS NOT NULL LIMIT $2`, jobID, max)
+	rows, err := r.db.Query(`SELECT id, job_title, company, salary_range, location, slug, salary_currency, company_icon_image_id, external_id, salary_period FROM job WHERE id > $1 AND approved_at IS NOT NULL ORDER BY id ASC LIMIT $2`, jobID, max)
 	if err != nil {
 		return jobs, err
 	}
+	defer rows.Close()
 	for rows.Next() {
 		job := &JobPost{}
 		var companyIcon sql.NullString
@@ -944,6 +944,9 @@ func (r *Repository) GetLastNJobsFromID(max, jobID int) ([]*JobPost, error) {
 			return jobs, err
 		}
 		jobs = append(jobs, job)
+	}
+	if err := rows.Err(); err != nil {
+		return jobs, err
 	}
 	return jobs, nil
 }
@@ -1136,13 +1139,16 @@ func (r *Repository) GetValue(key string) (string, error) {
 	var val string
 	err := res.Scan(&val)
 	if err != nil {
+		if err == sql.ErrNoRows {
+			return "0", nil
+		}
 		return "", err
 	}
 	return val, nil
 }
 
 func (r *Repository) SetValue(key, val string) error {
-	_, err := r.db.Exec(`UPDATE meta SET value = $1 WHERE key = $2`, val, key)
+	_, err := r.db.Exec(`INSERT INTO meta (key, value) VALUES ($1, $2) ON CONFLICT (key) DO UPDATE SET value = EXCLUDED.value`, key, val)
 	return err
 }
 
