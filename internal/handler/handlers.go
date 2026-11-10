@@ -3277,6 +3277,20 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.MEDIA(w, http.StatusNotFound, media.Bytes, media.MediaType)
 			return
 		}
+		// Blur developer profile images for non-logged-in visitors.
+		// The ?blur=1 query param is set by the frontend when the user
+		// has no active session, so the image is served pre-blurred.
+		if r.URL.Query().Get("blur") == "1" {
+			blurred, blurErr := imagemeta.BlurImage(media.Bytes, 8)
+			if blurErr != nil {
+				svr.Log(blurErr, "unable to blur image, serving original")
+				svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+				return
+			}
+			svr.MEDIA(w, http.StatusOK, blurred, "image/jpeg")
+			return
+		}
+
 		height := r.URL.Query().Get("h")
 		width := r.URL.Query().Get("w")
 		if height == "" && width == "" {
@@ -3408,6 +3422,19 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusRequestEntityTooLarge, nil)
 			return
 		}
+		// Basic face detection: reject images that are clearly not photos
+		// (logos, solid colors, etc.) to reduce spam on developer profiles.
+		hasFace, faceErr := imagemeta.HasLikelyFace(fileBytes)
+		if faceErr != nil {
+			svr.Log(faceErr, "face detection check failed, allowing upload")
+		} else if !hasFace {
+			svr.Log(nil, "uploaded image does not appear to contain a face")
+			svr.JSON(w, http.StatusUnprocessableEntity, map[string]interface{}{
+				"error": "image does not appear to contain a face photo",
+			})
+			return
+		}
+
 		decImage, _, err := image.Decode(bytes.NewReader(fileBytes))
 		if err != nil {
 			svr.Log(err, "unable to decode image from bytes")
