@@ -38,6 +38,8 @@ type Config struct {
 	TwitterAccessTokenSecret string
 	TwitterClientKey         string
 	TwitterClientSecret      string
+	TwitterBearerToken       string
+	TwitterAPIURL            string
 	NewsletterJobsToSend     int
 	CloudflareAPIToken       string
 	CloudflareZoneTag        string
@@ -182,6 +184,11 @@ func LoadConfig() (Config, error) {
 	twitterClientSecret := os.Getenv("TWITTER_CLIENT_SECRET")
 	if twitterClientSecret == "" {
 		return Config{}, fmt.Errorf("TWITTER_CLIENT_SECRET cannot be empty")
+	}
+	twitterBearerToken := os.Getenv("TWITTER_BEARER_TOKEN")
+	twitterAPIURL := os.Getenv("TWITTER_API_URL")
+	if twitterAPIURL == "" {
+		twitterAPIURL = "https://api.twitter.com/2/tweets"
 	}
 	twitterJobsToPostStr := os.Getenv("TWITTER_JOBS_TO_POST")
 	if twitterJobsToPostStr == "" {
@@ -355,6 +362,8 @@ func LoadConfig() (Config, error) {
 		TwitterAccessTokenSecret: twitterAccessTokenSecret,
 		TwitterClientSecret:      twitterClientSecret,
 		TwitterClientKey:         twitterClientKey,
+		TwitterBearerToken:       twitterBearerToken,
+		TwitterAPIURL:            twitterAPIURL,
 		NewsletterJobsToSend:     newsletterJobsToSend,
 		CloudflareAPIToken:       cloudflareAPIToken,
 		CloudflareZoneTag:        cloudflareZoneTag,
