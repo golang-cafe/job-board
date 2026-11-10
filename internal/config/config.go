@@ -45,6 +45,8 @@ type Config struct {
 	MachineToken             string
 	TelegramAPIToken         string   // Telegram API Token used to integrate with site's Telegram channel
 	TelegramChannelID        int64    // Telegram Channel ID used to integrate with site's Telegram channel
+	LinkedInAccessToken      string   // LinkedIn OAuth access token for sharing jobs
+	LinkedInPageURID         string   // LinkedIn company page URN (e.g. ugclive:123456789)
 	FXAPIKey                 string   // FX rate api API Key to access recent FX data
 	AvailableCurrencies      []string // currencies used throughout the site for salary compensation (post a job, salary filter FX, etc)
 	AvailableSalaryBands     []int    // salary upper limits used in search to filter job by minimum salary
@@ -227,6 +229,14 @@ func LoadConfig() (Config, error) {
 	if err != nil {
 		return Config{}, errors.Wrap(err, "unable to convert telegram channel id to int")
 	}
+	linkedinAccessToken := os.Getenv("LINKEDIN_ACCESS_TOKEN")
+	if linkedinAccessToken == "" {
+		linkedinAccessToken = "" // optional - LinkedIn sharing disabled if not set
+	}
+	linkedinPageURID := os.Getenv("LINKEDIN_PAGE_URN")
+	if linkedinPageURID == "" {
+		linkedinPageURID = "" // optional - LinkedIn sharing disabled if not set
+	}
 	fxAPIKey := os.Getenv("FX_API_KEY")
 	if fxAPIKey == "" {
 		return Config{}, fmt.Errorf("FX_API_KEY cannot be empty")
@@ -362,6 +372,8 @@ func LoadConfig() (Config, error) {
 		MachineToken:             machineToken,
 		TelegramAPIToken:         telegramAPIToken,
 		TelegramChannelID:        int64(telegramChannelID),
+		LinkedInAccessToken:      linkedinAccessToken,
+		LinkedInPageURID:         linkedinPageURID,
 		FXAPIKey:                 fxAPIKey,
 		SiteName:                 siteName,
 		SiteJobCategory:          siteJobCategory,
