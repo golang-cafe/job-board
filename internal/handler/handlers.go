@@ -4175,3 +4175,102 @@ func RecruiterJobPosts(svr server.Server, devRepo *developer.Repository, recRepo
 			})
 		})
 }
+
+// TriggerTwitterV2ShareScheduler shares new jobs to Twitter using the v2 API (weekdays only)
+func TriggerTwitterV2ShareScheduler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				// Only share on weekdays (Monday=1 through Friday=5)
+				now := time.Now().UTC()
+				weekday := int(now.Weekday())
+				if weekday == 0 || weekday == 6 { // Sunday=0, Saturday=6
+					log.Printf("Twitter share skipped: today is a weekend day (%d)", weekday)
+					return
+				}
+
+				lastTwitterJobIDStr, err := jobRepo.GetValue("last_twitter_v2_job_id")
+				if err != nil {
+					svr.Log(err, "unable to retrieve last twitter v2 job id")
+					return
+				}
+				lastTwitterJobID, err := strconv.Atoi(lastTwitterJobIDStr)
+				if err != nil {
+					svr.Log(err, "unable to convert twitter v2 job str to id")
+					return
+				}
+
+				// Share 2 jobs per day
+				jobPosts, err := jobRepo.GetLastNJobsFromID(2, lastTwitterJobID)
+				if err != nil {
+					svr.Log(err, "unable to get jobs for twitter v2 share")
+					return
+				}
+				log.Printf("found %d/2 jobs to post on twitter v2\n", len(jobPosts))
+				if len(jobPosts) == 0 {
+					return
+				}
+
+				lastJobID := lastTwitterJobID
+				ctx := context.Background()
+
+				for _, j := range jobPosts {
+					tweetText := fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s%s/job/%s",
+						j.JobTitle, j.Company, j.Location, j.SalaryRange,
+						svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory,
+						svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug)
+
+					// Truncate to 280 chars (Twitter limit)
+					if len(tweetText) > 280 {
+						tweetText = tweetText[:277] + "..."
+					}
+
+					// Use Twitter API v2 to post a tweet
+					reqBody := map[string]interface{}{
+						"text": tweetText,
+					}
+					jsonBody, err := json.Marshal(reqBody)
+					if err != nil {
+						svr.Log(err, "unable to marshal twitter v2 request")
+						continue
+					}
+
+					req, err := http.NewRequestWithContext(ctx, "POST", "https://api.twitter.com/2/tweets", strings.NewReader(string(jsonBody)))
+					if err != nil {
+						svr.Log(err, "unable to create twitter v2 request")
+						continue
+					}
+					req.Header.Set("Content-Type", "application/json")
+					req.Header.Set("Authorization", "Bearer "+svr.GetConfig().TwitterAccessToken)
+
+					client := &http.Client{Timeout: 30 * time.Second}
+					resp, err := client.Do(req)
+					if err != nil {
+						svr.Log(err, "unable to post tweet via v2 api")
+						continue
+					}
+					resp.Body.Close()
+
+					if resp.StatusCode >= 200 && resp.StatusCode < 300 {
+						lastJobID = j.ID
+						log.Printf("successfully posted job %d to twitter v2", j.ID)
+					} else {
+						svr.Log(fmt.Errorf("twitter v2 api returned status %d", resp.StatusCode), "unable to post tweet")
+						continue
+					}
+				}
+
+				lastJobIDStr := strconv.Itoa(lastJobID)
+				err = jobRepo.SetValue("last_twitter_v2_job_id", lastJobIDStr)
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to save last twitter v2 job id to db as %s", lastJobIDStr))
+					return
+				}
+				log.Printf("updated last twitter v2 job id to %s\n", lastJobIDStr)
+				log.Printf("posted last %d jobs to twitter v2", len(jobPosts))
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
