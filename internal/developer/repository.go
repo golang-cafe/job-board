@@ -24,7 +24,7 @@ func NewRepository(db *sql.DB) *Repository {
 }
 
 func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE slug = $1`, slug)
+	row := r.db.QueryRow(`SELECT id, email, location, available, COALESCE(linkedin_url, ''), hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types, (cv IS NOT NULL AND octet_length(cv) > 0) AS has_cv, (SELECT count(*) FROM developer_cv_download WHERE developer_profile_id = developer_profile.id) AS cv_download_count FROM developer_profile WHERE slug = $1`, slug)
 	dev := Developer{}
 	var roleTypes string
 	err := row.Scan(
@@ -46,6 +46,8 @@ func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 		&dev.SearchStatus,
 		&dev.RoleLevel,
 		&roleTypes,
+		&dev.HasCV,
+		&dev.CVDownloadCount,
 	)
 	dev.RoleTypes = strings.Split(roleTypes, ",")
 	if err != nil {
@@ -56,7 +58,7 @@ func (r *Repository) DeveloperProfileBySlug(slug string) (Developer, error) {
 }
 
 func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio FROM developer_profile WHERE lower(email) = lower($1)`, email)
+	row := r.db.QueryRow(`SELECT id, email, location, available, COALESCE(linkedin_url, ''), hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, (cv IS NOT NULL AND octet_length(cv) > 0) AS has_cv FROM developer_profile WHERE lower(email) = lower($1)`, email)
 	dev := Developer{}
 	var nullUpdatedAt sql.NullTime
 	err := row.Scan(
@@ -73,6 +75,7 @@ func (r *Repository) DeveloperProfileByEmail(email string) (Developer, error) {
 		&dev.Skills,
 		&dev.Name,
 		&dev.Bio,
+		&dev.HasCV,
 	)
 	if nullUpdatedAt.Valid {
 		dev.UpdatedAt = nullUpdatedAt.Time
@@ -112,7 +115,7 @@ func (r *Repository) DeveloperMetadataByProfileID(metadata_type string, profile_
 }
 
 func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
-	row := r.db.QueryRow(`SELECT id, email, location, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level FROM developer_profile WHERE id = $1`, id)
+	row := r.db.QueryRow(`SELECT id, email, location, COALESCE(linkedin_url, ''), hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, search_status, role_level, (cv IS NOT NULL AND octet_length(cv) > 0) AS has_cv FROM developer_profile WHERE id = $1`, id)
 	dev := Developer{}
 	var nullTime sql.NullTime
 	err := row.Scan(
@@ -130,6 +133,7 @@ func (r *Repository) DeveloperProfileByID(id string) (Developer, error) {
 		&dev.Bio,
 		&dev.SearchStatus,
 		&dev.RoleLevel,
+		&dev.HasCV,
 	)
 	if nullTime.Valid {
 		dev.UpdatedAt = nullTime.Time
@@ -279,7 +283,7 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 	offset := pageID*pageSize - pageSize
 	var developers []Developer
 
-	query := `SELECT count(*) OVER() AS full_count, id, email, location, available, linkedin_url, hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types FROM developer_profile WHERE created_at != updated_at`
+	query := `SELECT count(*) OVER() AS full_count, id, email, location, available, COALESCE(linkedin_url, ''), hourly_rate, image_id, slug, created_at, updated_at, skills, name, bio, github_url, twitter_url, search_status, role_level, role_types, (cv IS NOT NULL AND octet_length(cv) > 0) AS has_cv FROM developer_profile WHERE created_at != updated_at`
 	var args []interface{}
 	argIndex := 1
 
@@ -367,6 +371,7 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 			&dev.SearchStatus,
 			&dev.RoleLevel,
 			&roleTypes,
+			&dev.HasCV,
 		)
 		dev.RoleTypes = strings.Split(roleTypes, ",")
 		if err != nil {
@@ -379,8 +384,105 @@ func (r *Repository) DevelopersByLocationAndTag(loc, tag string, pageID, pageSiz
 }
 
 func (r *Repository) UpdateDeveloperProfile(dev Developer) error {
-	_, err := r.db.Exec(`UPDATE developer_profile SET name = $1, location = $2, linkedin_url = $3, hourly_rate = $4, bio = $5, available = $6, image_id = $7, updated_at = NOW(), skills = $8, search_status = $9, role_level = $10  WHERE id = $11`, dev.Name, dev.Location, dev.LinkedinURL, dev.HourlyRate, dev.Bio, dev.Available, dev.ImageID, dev.Skills, dev.SearchStatus, dev.RoleLevel, dev.ID)
+	// linkedin_url is nullable: an empty string clears it. cv is only
+	// replaced when a new CV is supplied (COALESCE keeps the stored one),
+	// so editing other fields never wipes the CV. Use DeleteDeveloperCV
+	// to remove the CV.
+	var cvData interface{}
+	if len(dev.CV) > 0 {
+		cvData = dev.CV
+	}
+	_, err := r.db.Exec(`UPDATE developer_profile SET name = $1, location = $2, linkedin_url = $3, hourly_rate = $4, bio = $5, available = $6, image_id = $7, updated_at = NOW(), skills = $8, search_status = $9, role_level = $10, cv = COALESCE($11, cv) WHERE id = $12`, dev.Name, dev.Location, linkedinURLValue(dev.LinkedinURL), dev.HourlyRate, dev.Bio, dev.Available, dev.ImageID, dev.Skills, dev.SearchStatus, dev.RoleLevel, cvData, dev.ID)
 	return err
+}
+
+// linkedinURLValue converts an empty LinkedIn URL to NULL so the nullable
+// column stores NULL instead of an empty string.
+func linkedinURLValue(linkedinURL string) interface{} {
+	if linkedinURL == "" {
+		return nil
+	}
+	return linkedinURL
+}
+
+// SaveDeveloperCV stores (or replaces) the CV PDF for a developer profile.
+func (r *Repository) SaveDeveloperCV(profileID string, cv []byte) error {
+	_, err := r.db.Exec(`UPDATE developer_profile SET cv = $1, updated_at = NOW() WHERE id = $2`, cv, profileID)
+	return err
+}
+
+// DeleteDeveloperCV removes the stored CV PDF for a developer profile.
+func (r *Repository) DeleteDeveloperCV(profileID string) error {
+	_, err := r.db.Exec(`UPDATE developer_profile SET cv = NULL, updated_at = NOW() WHERE id = $1`, profileID)
+	return err
+}
+
+// GetDeveloperCVBySlug returns the profile together with its stored CV PDF
+// bytes. Callers must check HasCV / len(CV) before serving.
+func (r *Repository) GetDeveloperCVBySlug(slugStr string) (Developer, error) {
+	row := r.db.QueryRow(`SELECT id, email, slug, name, cv FROM developer_profile WHERE slug = $1`, slugStr)
+	dev := Developer{}
+	err := row.Scan(&dev.ID, &dev.Email, &dev.Slug, &dev.Name, &dev.CV)
+	if err != nil {
+		return dev, err
+	}
+	dev.HasCV = len(dev.CV) > 0
+	return dev, nil
+}
+
+// TrackDeveloperCVDownload records one CV download in the audit table,
+// storing a snapshot of the downloaded CV bytes as required by the spec.
+func (r *Repository) TrackDeveloperCVDownload(download DeveloperCVDownload) error {
+	_, err := r.db.Exec(
+		`INSERT INTO developer_cv_download (id, developer_profile_id, cv, user_id, downloaded_at) VALUES ($1, $2, $3, $4, NOW())`,
+		download.ID,
+		download.DeveloperProfileID,
+		download.CV,
+		download.UserID,
+	)
+	return err
+}
+
+// GetDeveloperCVDownloads returns the download audit history for a profile,
+// newest first, without the CV bytes. Limit is clamped to [1, 100].
+func (r *Repository) GetDeveloperCVDownloads(profileID string, limit int) ([]DeveloperCVDownloadRecord, error) {
+	if limit < 1 {
+		limit = 1
+	}
+	if limit > 100 {
+		limit = 100
+	}
+	rows, err := r.db.Query(
+		`SELECT id, developer_profile_id, user_id, downloaded_at FROM developer_cv_download WHERE developer_profile_id = $1 ORDER BY downloaded_at DESC LIMIT $2`,
+		profileID, limit,
+	)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	downloads := []DeveloperCVDownloadRecord{}
+	for rows.Next() {
+		var d DeveloperCVDownloadRecord
+		if err := rows.Scan(&d.ID, &d.DeveloperProfileID, &d.UserID, &d.DownloadedAt); err != nil {
+			return downloads, err
+		}
+		downloads = append(downloads, d)
+	}
+	if err := rows.Err(); err != nil {
+		return downloads, err
+	}
+	return downloads, nil
+}
+
+// GetDeveloperCVDownloadCount returns how many times a profile's CV has
+// been downloaded.
+func (r *Repository) GetDeveloperCVDownloadCount(profileID string) (int, error) {
+	var count int
+	row := r.db.QueryRow(`SELECT count(*) FROM developer_cv_download WHERE developer_profile_id = $1`, profileID)
+	if err := row.Scan(&count); err != nil {
+		return 0, err
+	}
+	return count, nil
 }
 
 func (r *Repository) DeleteDeveloperProfile(id, email string) error {
@@ -395,11 +497,15 @@ func (r *Repository) ActivateDeveloperProfile(email string) error {
 
 func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 	dev.Slug = slug.Make(fmt.Sprintf("%s %d", dev.Name, time.Now().UTC().Unix()))
+	var cvData interface{}
+	if len(dev.CV) > 0 {
+		cvData = dev.CV
+	}
 	_, err := r.db.Exec(
-		`INSERT INTO developer_profile (email, location, linkedin_url, hourly_rate, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url, role_types, role_level, search_status, detected_location_id) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9, $10, $11, $12, $13, $14, $15, $16, $17)`,
+		`INSERT INTO developer_profile (email, location, linkedin_url, hourly_rate, bio, available, image_id, slug, created_at, updated_at, skills, name, id, github_url, twitter_url, role_types, role_level, search_status, detected_location_id, cv) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, NOW(), NOW(), $9, $10, $11, $12, $13, $14, $15, $16, $17, $18)`,
 		dev.Email,
 		dev.Location,
-		dev.LinkedinURL,
+		linkedinURLValue(dev.LinkedinURL),
 		dev.HourlyRate,
 		dev.Bio,
 		dev.Available,
@@ -414,6 +520,7 @@ func (r *Repository) SaveDeveloperProfile(dev Developer) error {
 		dev.RoleLevel,
 		dev.SearchStatus,
 		dev.DetectedLocationID,
+		cvData,
 	)
 	return err
 }

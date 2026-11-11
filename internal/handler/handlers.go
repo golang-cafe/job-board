@@ -427,17 +427,50 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			RoleLevel          string   `json:"role_level"`
 			RoleTypes          []string `json:"role_types"`
 			DetectedLocationID string   `json:"detected_location_id"`
+			CV                 string   `json:"cv,omitempty"`
 		}{}
-		if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-			svr.JSON(w, http.StatusBadRequest, "request is invalid")
-			return
+		var cvBytes []byte
+		if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+			parsedCV, err := parseMultipartDeveloperCV(w, r)
+			if err != nil {
+				svr.JSON(w, http.StatusBadRequest, err.Error())
+				return
+			}
+			cvBytes = parsedCV
+			req.Fullname = r.FormValue("fullname")
+			req.HourlyRate = r.FormValue("hourly_rate")
+			req.LinkedinURL = r.FormValue("linkedin_url")
+			req.CurrentLocation = r.FormValue("current_location")
+			req.Bio = r.FormValue("bio")
+			req.Tags = r.FormValue("tags")
+			req.ProfileImageID = r.FormValue("profile_image_id")
+			req.Email = r.FormValue("email")
+			req.SearchStatus = r.FormValue("search_status")
+			req.RoleLevel = r.FormValue("role_level")
+			if rt := strings.TrimSpace(r.FormValue("role_types")); rt != "" {
+				req.RoleTypes = strings.Split(rt, ",")
+			}
+			req.DetectedLocationID = r.FormValue("detected_location_id")
+		} else {
+			r.Body = http.MaxBytesReader(w, r.Body, maxDeveloperCVJSONRequestSize)
+			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+				svr.JSON(w, http.StatusBadRequest, "request is invalid")
+				return
+			}
+			if strings.TrimSpace(req.CV) != "" {
+				decodedCV, err := decodeAndValidateBase64CV(req.CV)
+				if err != nil {
+					svr.JSON(w, http.StatusBadRequest, err.Error())
+					return
+				}
+				cvBytes = decodedCV
+			}
 		}
 		if !svr.IsEmail(req.Email) {
 			svr.JSON(w, http.StatusBadRequest, "email is invalid")
 			return
 		}
-		linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
-		if !linkedinRe.MatchString(req.LinkedinURL) {
+		if !isValidOptionalLinkedInURL(req.LinkedinURL) {
 			svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
 			return
 		}
@@ -521,6 +554,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			RoleTypes:          req.RoleTypes,
 			RoleLevel:          req.RoleLevel,
 			DetectedLocationID: detectedLocationID,
+			CV:                 cvBytes,
 		}
 		err = userRepo.SaveTokenSignOn(strings.ToLower(req.Email), k.String(), user.UserTypeDeveloper)
 		if err != nil {
@@ -1370,19 +1404,53 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				RoleLevel          string   `json:"role_level"`
 				RoleTypes          []string `json:"role_types"`
 				DetectedLocationID string   `json:"detected_location_id"`
+				CV                 string   `json:"cv,omitempty"`
 			}{}
-			if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-				svr.Log(errors.New("invalid search status"), "invalid search status")
-				svr.JSON(w, http.StatusBadRequest, nil)
-				return
+			var cvBytes []byte
+			if strings.HasPrefix(r.Header.Get("Content-Type"), "multipart/form-data") {
+				parsedCV, err := parseMultipartDeveloperCV(w, r)
+				if err != nil {
+					svr.JSON(w, http.StatusBadRequest, err.Error())
+					return
+				}
+				cvBytes = parsedCV
+				req.ID = r.FormValue("id")
+				req.Fullname = r.FormValue("fullname")
+				req.HourlyRate = r.FormValue("hourly_rate")
+				req.LinkedinURL = r.FormValue("linkedin_url")
+				req.Bio = r.FormValue("bio")
+				req.CurrentLocation = r.FormValue("current_location")
+				req.Skills = r.FormValue("skills")
+				req.ImageID = r.FormValue("profile_image_id")
+				req.Email = r.FormValue("email")
+				req.SearchStatus = r.FormValue("search_status")
+				req.RoleLevel = r.FormValue("role_level")
+				if rt := strings.TrimSpace(r.FormValue("role_types")); rt != "" {
+					req.RoleTypes = strings.Split(rt, ",")
+				}
+				req.DetectedLocationID = r.FormValue("detected_location_id")
+			} else {
+				r.Body = http.MaxBytesReader(w, r.Body, maxDeveloperCVJSONRequestSize)
+				if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+					svr.Log(errors.New("invalid search status"), "invalid search status")
+					svr.JSON(w, http.StatusBadRequest, nil)
+					return
+				}
+				if strings.TrimSpace(req.CV) != "" {
+					decodedCV, err := decodeAndValidateBase64CV(req.CV)
+					if err != nil {
+						svr.JSON(w, http.StatusBadRequest, err.Error())
+						return
+					}
+					cvBytes = decodedCV
+				}
 			}
 			if !svr.IsEmail(req.Email) {
 				svr.Log(errors.New("invalid search status"), "invalid search status")
 				svr.JSON(w, http.StatusBadRequest, nil)
 				return
 			}
-			linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
-			if !linkedinRe.MatchString(req.LinkedinURL) {
+			if !isValidOptionalLinkedInURL(req.LinkedinURL) {
 				svr.Log(errors.New("invalid search status"), "invalid search status")
 				svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
 				return
@@ -1452,6 +1520,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				ImageID:      req.ImageID,
 				SearchStatus: req.SearchStatus,
 				RoleLevel:    req.RoleLevel,
+				CV:           cvBytes,
 			}
 			err = devRepo.UpdateDeveloperProfile(dev)
 			if err != nil {
@@ -1816,6 +1885,7 @@ func ViewDeveloperProfileHandler(svr server.Server, devRepo *developer.Repositor
 			"DeveloperEducation":      devEducation,
 			"DeveloperGithubProjects": devProjects,
 			"IsAdmin":                 profile != nil && profile.Type == "admin",
+			"IsProfileOwner":          profile != nil && strings.EqualFold(profile.Email, dev.Email),
 			"MonthAndYear":            time.Now().UTC().Format("January 2006"),
 		})
 	}
@@ -2681,7 +2751,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository, bookmark
 		emailAddr := r.FormValue("email")
 		jobPost, err := jobRepo.JobPostByExternalIDForEdit(externalID)
 		if err != nil {
-			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %d, %v", externalID, err))
+			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %s, %v", externalID, err))
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
@@ -3443,7 +3513,7 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.Log(errors.New("content type not supported for encoding"), fmt.Sprintf("content type %s not supported for encoding", contentType))
 			svr.JSON(w, http.StatusInternalServerError, nil)
 		}
-		id, err := database.SaveMedia(svr.Conn, database.Media{cutImageBytes.Bytes(), contentType})
+		id, err := database.SaveMedia(svr.Conn, database.Media{Bytes: cutImageBytes.Bytes(), MediaType: contentType})
 		if err != nil {
 			svr.Log(err, "unable to save media image to db")
 			svr.JSON(w, http.StatusInternalServerError, nil)
