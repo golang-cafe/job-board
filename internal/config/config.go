@@ -6,6 +6,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 )
@@ -33,11 +34,20 @@ type Config struct {
 	JobsPerPage              int    // configures how many jobs are shown per page result
 	DevelopersPerPage        int    // configures how many dev profiles are shown per page result
 	CompaniesPerPage         int    // configures how many companies are shown per page result
-	TwitterJobsToPost        int    // max number of jobs to post each day
+	TwitterJobsToPost        int    // max number of jobs to post each day (clamped to at most 2 by the X scheduler)
 	TwitterAccessToken       string
 	TwitterAccessTokenSecret string
 	TwitterClientKey         string
 	TwitterClientSecret      string
+	// TwitterAPIURL overrides the X API v2 endpoint (default
+	// https://api.twitter.com/2/tweets); mainly useful for tests.
+	TwitterAPIURL string
+	// TwitterTimezone is the IANA timezone used for the weekday-only and
+	// once-per-day rules (default "UTC").
+	TwitterTimezone string
+	// TwitterDryRun logs the tweet text instead of posting to X, so the
+	// scheduler can be verified without spending paid X API quota.
+	TwitterDryRun            bool
 	NewsletterJobsToSend     int
 	CloudflareAPIToken       string
 	CloudflareZoneTag        string
@@ -167,29 +177,63 @@ func LoadConfig() (Config, error) {
 	if noReplyEmail == "" {
 		return Config{}, fmt.Errorf("NO_REPLY_EMAIL cannot be empty")
 	}
+	// X (Twitter) OAuth 1.0a user-context credentials. They are optional at
+	// boot so a local/dev instance can run without X configured; the
+	// scheduler fails fast at runtime when they are missing. If any one of
+	// them is set, all four must be set, because a partial set can never
+	// sign a request. An app-only bearer token cannot create posts on
+	// X API v2, so no bearer-token fallback is offered.
 	twitterAccessToken := os.Getenv("TWITTER_ACCESS_TOKEN")
-	if twitterAccessToken == "" {
-		return Config{}, fmt.Errorf("TWITTER_ACCESS_TOKEN cannot be empty")
-	}
 	twitterAccessTokenSecret := os.Getenv("TWITTER_ACCESS_TOKEN_SECRET")
-	if twitterAccessTokenSecret == "" {
-		return Config{}, fmt.Errorf("TWITTER_ACCESS_TOKEN_SECRET cannot be empty")
-	}
 	twitterClientKey := os.Getenv("TWITTER_CLIENT_KEY")
-	if twitterClientKey == "" {
-		return Config{}, fmt.Errorf("TWITTER_CLIENT_KEY cannot be empty")
-	}
 	twitterClientSecret := os.Getenv("TWITTER_CLIENT_SECRET")
-	if twitterClientSecret == "" {
-		return Config{}, fmt.Errorf("TWITTER_CLIENT_SECRET cannot be empty")
+	twitterCreds := []struct {
+		name, value string
+	}{
+		{"TWITTER_ACCESS_TOKEN", twitterAccessToken},
+		{"TWITTER_ACCESS_TOKEN_SECRET", twitterAccessTokenSecret},
+		{"TWITTER_CLIENT_KEY", twitterClientKey},
+		{"TWITTER_CLIENT_SECRET", twitterClientSecret},
 	}
-	twitterJobsToPostStr := os.Getenv("TWITTER_JOBS_TO_POST")
-	if twitterJobsToPostStr == "" {
-		return Config{}, fmt.Errorf("TWITTER_JOBS_TO_POST cannot be empty")
+	twitterCredsSet := 0
+	for _, c := range twitterCreds {
+		if c.value != "" {
+			twitterCredsSet++
+		}
 	}
-	twitterJobsToPost, err := strconv.Atoi(twitterJobsToPostStr)
-	if err != nil {
-		return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
+	if twitterCredsSet > 0 && twitterCredsSet < len(twitterCreds) {
+		missing := make([]string, 0, len(twitterCreds))
+		for _, c := range twitterCreds {
+			if c.value == "" {
+				missing = append(missing, c.name)
+			}
+		}
+		return Config{}, fmt.Errorf("incomplete Twitter OAuth 1.0a credentials, missing: %s", strings.Join(missing, ", "))
+	}
+	twitterAPIURL := os.Getenv("TWITTER_API_URL")
+	if twitterAPIURL == "" {
+		twitterAPIURL = "https://api.twitter.com/2/tweets"
+	}
+	twitterTimezone := os.Getenv("TWITTER_TIMEZONE")
+	if twitterTimezone == "" {
+		twitterTimezone = "UTC"
+	}
+	if _, err := time.LoadLocation(twitterTimezone); err != nil {
+		return Config{}, fmt.Errorf("TWITTER_TIMEZONE %q is not a valid IANA timezone: %v", twitterTimezone, err)
+	}
+	twitterDryRun := false
+	if dryRunStr := os.Getenv("TWITTER_DRY_RUN"); dryRunStr != "" {
+		twitterDryRun, err = strconv.ParseBool(dryRunStr)
+		if err != nil {
+			return Config{}, fmt.Errorf("TWITTER_DRY_RUN %q is not a valid boolean: %v", dryRunStr, err)
+		}
+	}
+	twitterJobsToPost := 2
+	if twitterJobsToPostStr := os.Getenv("TWITTER_JOBS_TO_POST"); twitterJobsToPostStr != "" {
+		twitterJobsToPost, err = strconv.Atoi(twitterJobsToPostStr)
+		if err != nil {
+			return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
+		}
 	}
 	newsletterJobsToSendStr := os.Getenv("NEWSLETTER_JOBS_TO_SEND")
 	if newsletterJobsToSendStr == "" {
@@ -355,6 +399,9 @@ func LoadConfig() (Config, error) {
 		TwitterAccessTokenSecret: twitterAccessTokenSecret,
 		TwitterClientSecret:      twitterClientSecret,
 		TwitterClientKey:         twitterClientKey,
+		TwitterAPIURL:            twitterAPIURL,
+		TwitterTimezone:          twitterTimezone,
+		TwitterDryRun:            twitterDryRun,
 		NewsletterJobsToSend:     newsletterJobsToSend,
 		CloudflareAPIToken:       cloudflareAPIToken,
 		CloudflareZoneTag:        cloudflareZoneTag,

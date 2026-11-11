@@ -69,6 +69,39 @@ curl -v -H 'x-machine-token: <machine-token>' -X POST http://localhost:9876/x/ta
 
 You can find the <machine-token> under your local environment variable configuration, in the `MACHINE_TOKEN` environment variable.
 
+#### Sharing jobs on X (Twitter)
+
+New jobs are shared on X once per weekday via the X API v2 `POST /2/tweets`
+endpoint (OAuth 1.0a user context, no external Twitter library). Trigger it
+with the machine-authenticated task route (the old
+`/x/task/twitter-scheduler` route still works as an alias):
+
+```
+curl -v -H 'x-machine-token: <machine-token>' -X POST http://localhost:9876/x/task/twitter-jobs-scheduler
+```
+
+Behaviour: weekday-only (Monday–Friday in `TWITTER_TIMEZONE`), at most 2
+jobs per day, once-per-day idempotent (tracked in the `meta` table as
+`last_twitter_shared_date` / `last_twitted_job_id`). A job that X rejects
+permanently (e.g. duplicate content) is skipped so it cannot block later
+jobs; auth failures, rate limits (`429`, honouring `Retry-After`) and 5xx
+errors abort the run and the cursor stays at the last posted job.
+
+| Variable | Required | Default | Notes |
+|---|---|---|---|
+| `TWITTER_CLIENT_KEY`, `TWITTER_CLIENT_SECRET`, `TWITTER_ACCESS_TOKEN`, `TWITTER_ACCESS_TOKEN_SECRET` | Only when posting | — | OAuth 1.0a user-context credentials, all four or none. An app-only bearer token **cannot** create posts, so there is no bearer fallback. |
+| `TWITTER_JOBS_TO_POST` | No | `2` | Clamped to at most 2 per day. |
+| `TWITTER_API_URL` | No | `https://api.twitter.com/2/tweets` | Override for tests. |
+| `TWITTER_TIMEZONE` | No | `UTC` | IANA timezone for the weekday / once-per-day rules, e.g. `America/New_York`. |
+| `TWITTER_DRY_RUN` | No | `false` | `1`/`true` logs the exact tweet text instead of posting — verify the scheduler without spending paid X API quota (X charges per post). |
+
+Suggested cron (weekday mornings; the handler also enforces weekdays
+itself, so this is belt-and-braces):
+
+```
+0 9 * * 1-5 curl -s -H 'x-machine-token: <machine-token>' -X POST https://<host>/x/task/twitter-jobs-scheduler
+```
+
 ### Telegram Group OSS discussions
 
 https://t.me/+VloraT7W9yA1YTI8
