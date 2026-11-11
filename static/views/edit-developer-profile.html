@@ -171,7 +171,18 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
         <input type="text" name="full-name" id="full-name" placeholder="Full Name" style="width: 100%;" value="{{ .DeveloperProfile.Name }}"><br>
         <input type="text" name="location" id="location" placeholder="Job Location" style="width: 100%;" value="{{ .DeveloperProfile.Location }}"><br>
         <input type="number" name="hourly-rate" id="hourly-rate" placeholder="Hourly Rate in USD" style="width: 10%;" value="{{ if ne .DeveloperProfile.HourlyRate 0 }}{{ .DeveloperProfile.HourlyRate }}{{ end }}"> USD/hour<br>
-        <input type="url" name="linkedin-url" id="linkedin-url" placeholder="Linkedin URL" style="width: 100%;" value="{{ .DeveloperProfile.LinkedinURL }}"><br>
+        <input type="url" name="linkedin-url" id="linkedin-url" placeholder="Linkedin URL (optional)" style="width: 100%;" value="{{ .DeveloperProfile.LinkedinURL }}"><br>
+        <div>
+          <label for="cv-file" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload / Replace CV (PDF, max 5MB)</label>
+          <div style="margin-bottom: 10px;float:left; width:100%;">
+            <small id="cv-file-status">{{ if .DeveloperProfile.HasCV }}CV uploaded{{ else }}CV not uploaded{{ end }}</small>
+            {{ if .DeveloperProfile.HasCV }}<br><small><a href="/developer/{{ .DeveloperProfile.Slug }}/cv" target="_blank" rel="noopener noreferrer">View CV</a> | <a href="/developer/{{ .DeveloperProfile.Slug }}/cv?download=1">Download CV</a></small>{{ end }}
+          </div>
+          <input type="file" name="cv-file" id="cv-file" accept=".pdf,application/pdf" style="visibility: hidden; width: 0; height: 0;">
+          <div class="clearfix"></div>
+          {{ if .DeveloperProfile.HasCV }}<input type="button" onclick="removeCV()" value="Remove CV">{{ end }}
+        </div>
+        <br>
         <div>
           <label for="profile-image" style="float: left;cursor: pointer;background: {{ .PrimaryColor }};color: #fff;padding: 6.525px 23.4px;border-radius: 3.6px;">Upload Profile Image</label>
           <div style="margin-bottom: 10px;float:left; width:100%;">
@@ -462,6 +473,47 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
       function update() {
               sendReq('/x/udp');
             }
+      var cvDataURL = "";
+      document.getElementById('cv-file').addEventListener('change', function () {
+              cvDataURL = "";
+              if (!this.files || !this.files[0]) {
+                      return;
+                    }
+              var cvFile = this.files[0];
+              if (cvFile.type !== 'application/pdf' && cvFile.name.split('.').pop().toLowerCase() !== 'pdf') {
+                      alert('Only PDF files are allowed for CV');
+                      this.value = '';
+                      return;
+                    }
+              if (cvFile.size > 5 * 1024 * 1024) {
+                      alert('Max CV file size is 5MB');
+                      this.value = '';
+                      return;
+                    }
+              var reader = new FileReader();
+              reader.onload = function (e) {
+                      cvDataURL = e.target.result;
+                      document.getElementById('cv-file-status').textContent = 'New CV ready to upload: ' + cvFile.name;
+                    };
+              reader.readAsDataURL(cvFile);
+            });
+      function removeCV() {
+              if (!confirm('Remove your CV? Recruiters will no longer be able to view or download it.')) {
+                      return;
+                    }
+              var xhr = new XMLHttpRequest();
+              xhr.open('DELETE', '/x/udp/cv', true);
+              xhr.setRequestHeader('Content-Type', 'application/json');
+              xhr.send(JSON.stringify({id: document.getElementById('profile-id').value}));
+              xhr.onreadystatechange = function() {
+                      if (xhr.readyState === 4) {
+                              if (xhr.status === 200) {
+                                      alert('CV Removed Successfully');
+                                      window.location.reload();
+                                    } else alert('Woops there was a problem removing the CV');
+                            }
+                    };
+            }
       function auto_grow(element) {
               element.style.height = "5px";
               element.style.height = (element.scrollHeight)+"px";
@@ -476,7 +528,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
               var tags = document.getElementById("tags").value;
               var searchStatus = document.getElementById("search-status").value;
               var roleLevel = document.getElementById("role-level").value;
-              if (empty(fullName, currentLocation, linkedinURL, bio, tags, email)) {
+              if (empty(fullName, currentLocation, bio, tags, email)) {
                       alert('Please fill all the mandatory fields');
                       return;
                     }
@@ -488,7 +540,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
 				alert('Skills is too long. Please use 10 skills or less');
 				return;
 			}
-              if (!isURL(linkedinURL)) {
+              if (linkedinURL !== '' && !isURL(linkedinURL)) {
                       alert('"How To Apply" must be either an email address or a URL');
                       return;
                     }
@@ -523,7 +575,8 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                                       skills: tags,
                                       search_status: searchStatus,
                                       role_level: roleLevel,
-                                      profile_image_id: document.getElementById("profile-image-id").value
+                                      profile_image_id: document.getElementById("profile-image-id").value,
+                                      cv: cvDataURL
                                     },
                               function(bool) {
                                       document.getElementById("spinner-0").style.display = "none";
@@ -567,6 +620,7 @@ footer{padding:10px;width:780px;margin:auto;}.subnav{width: 100%;text-align: lef
                                                             search_status: searchStatus,
                                                             role_level: roleLevel,
                                                             profile_image_id: profileIconId,
+                                                            cv: cvDataURL,
                                                           },
                                                     function(bool) {
                                                             document.getElementById("spinner-0").style.display = "none";

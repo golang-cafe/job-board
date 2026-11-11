@@ -89,6 +89,38 @@ type Developer struct {
 	SkillsArray        []string
 	CreatedAtHumanized string
 	UpdatedAtHumanized string
+
+	// CV holds the uploaded CV PDF bytes. It is only populated by the
+	// repository methods that explicitly select it (e.g. GetDeveloperCVBySlug);
+	// list/profile queries leave it empty and set HasCV instead, so listing
+	// developers never loads potentially large PDF blobs.
+	CV []byte
+	// HasCV reports whether a CV PDF is stored for this profile.
+	HasCV bool
+	// CVDownloadCount is the number of recorded CV downloads for this
+	// profile. It is populated by DeveloperProfileBySlug only.
+	CVDownloadCount int
+}
+
+// DeveloperCVDownload is one recorded CV download (audit row). The CV bytes
+// are stored per the bounty spec so the downloaded content is preserved
+// with the audit record.
+type DeveloperCVDownload struct {
+	ID                 string
+	DeveloperProfileID string
+	CV                 []byte
+	UserID             string
+	DownloadedAt       time.Time
+}
+
+// DeveloperCVDownloadRecord is the metadata of one recorded CV download,
+// without the CV bytes. It is what the download-history endpoint returns,
+// so listing downloads never ships PDF bytes back to the client.
+type DeveloperCVDownloadRecord struct {
+	ID                 string
+	DeveloperProfileID string
+	UserID             string
+	DownloadedAt       time.Time
 }
 
 func (d Developer) RoleTypeAsString() string {
