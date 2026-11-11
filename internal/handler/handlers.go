@@ -18,7 +18,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/ChimeraCoder/anaconda"
 	"github.com/PuerkitoBio/goquery"
 	"github.com/bot-api/telegram"
 	"github.com/dgrijalva/jwt-go"
@@ -1177,48 +1176,12 @@ func TriggerMonthlyHighlights(svr server.Server, jobRepo *job.Repository) http.H
 	)
 }
 
+// TriggerTwitterScheduler is kept as a backward-compatible alias for the
+// old /x/task/twitter-scheduler route. It now runs the X API v2 scheduler
+// (see TriggerTwitterJobsScheduler in twitter.go); the retired Twitter
+// API v1.1 anaconda client is no longer used.
 func TriggerTwitterScheduler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
-	return middleware.MachineAuthenticatedMiddleware(
-		svr.GetConfig().MachineToken,
-		func(w http.ResponseWriter, r *http.Request) {
-			go func() {
-				lastTwittedJobIDStr, err := jobRepo.GetValue("last_twitted_job_id")
-				if err != nil {
-					svr.Log(err, "unable to retrieve last twitter job id")
-					return
-				}
-				lastTwittedJobID, err := strconv.Atoi(lastTwittedJobIDStr)
-				if err != nil {
-					svr.Log(err, "unable to convert job str to id")
-					return
-				}
-				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().TwitterJobsToPost, lastTwittedJobID)
-				log.Printf("found %d/%d jobs to post on twitter\n", len(jobPosts), svr.GetConfig().TwitterJobsToPost)
-				if len(jobPosts) == 0 {
-					return
-				}
-				lastJobID := lastTwittedJobID
-				api := anaconda.NewTwitterApiWithCredentials(svr.GetConfig().TwitterAccessToken, svr.GetConfig().TwitterAccessTokenSecret, svr.GetConfig().TwitterClientKey, svr.GetConfig().TwitterClientSecret)
-				for _, j := range jobPosts {
-					_, err := api.PostTweet(fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s%s/job/%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug), url.Values{})
-					if err != nil {
-						svr.Log(err, "unable to post tweet")
-						continue
-					}
-					lastJobID = j.ID
-				}
-				lastJobIDStr := strconv.Itoa(lastJobID)
-				err = jobRepo.SetValue("last_twitted_job_id", lastJobIDStr)
-				if err != nil {
-					svr.Log(err, fmt.Sprintf("unable to save last twitter job id to db as %s", lastJobIDStr))
-					return
-				}
-				log.Printf("updated last twitted job id to %s\n", lastJobIDStr)
-				log.Printf("posted last %d jobs to twitter", len(jobPosts))
-			}()
-			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
-		},
-	)
+	return TriggerTwitterJobsScheduler(svr, jobRepo)
 }
 
 func TriggerCompanyUpdate(svr server.Server, companyRepo *company.Repository) http.HandlerFunc {
@@ -2681,7 +2644,7 @@ func ApplyForJobPageHandler(svr server.Server, jobRepo *job.Repository, bookmark
 		emailAddr := r.FormValue("email")
 		jobPost, err := jobRepo.JobPostByExternalIDForEdit(externalID)
 		if err != nil {
-			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %d, %v", externalID, err))
+			svr.Log(err, fmt.Sprintf("unable to retrieve job by externalId %s, %v", externalID, err))
 			svr.JSON(w, http.StatusBadRequest, nil)
 			return
 		}
