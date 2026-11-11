@@ -1,0 +1,13 @@
+<!-- Developer Profile CV Upload Section (#74) -->
+<div class="developer-cv-upload-field">
+  <label for="cv-file">Upload CV (PDF, max 5MB)</label>
+  <input id="cv-file" name="cv" type="file" accept="application/pdf" />
+  {{ if .DeveloperProfile.HasCV }}
+    <span class="cv-status-badge">CV uploaded</span>
+    {{ if or .User.IsRecruiter .User.IsAdmin }}
+      <a href="/x/developer/{{ .DeveloperProfile.ID }}/cv" class="btn-download-cv">Download CV</a>
+    {{ end }}
+  {{ else }}
+    <span class="cv-status-empty">CV not uploaded</span>
+  {{ end }}
+</div>
