@@ -57,6 +57,40 @@ Once this command is successful you can now start the application
 ./run-local-webserver.sh
 ```
 
+**Docker Usage (Local Testing & Production)**
+
+*Local / Testing (`Dockerfile.local`):*
+
+Build and run the local development container (with live reload via `air`, building from `main.go` at the repository root):
+
+```bash
+docker build -f Dockerfile.local -t job-board-local .
+docker run --rm -it -p 9876:9876 -v "$(pwd)":/app --env-file local.env job-board-local
+```
+
+Or run the Go test suite inside the local container:
+
+```bash
+docker run --rm -v "$(pwd)":/app job-board-local go test ./...
+```
+
+Alternatively, start both PostgreSQL (seeded with `latest-schema.sql` and `latest-fixtures.sql`) and the local app via Docker Compose:
+
+```bash
+docker compose up --build
+```
+
+*(Note: when running via Docker Compose, set `DATABASE_HOST=db` and `DATABASE_PORT=5432` in `local.env`.)*
+
+*Production (`Dockerfile`):*
+
+Build the minimal multi-stage production image (compatible with DigitalOcean App Platform):
+
+```bash
+docker build -f Dockerfile -t job-board:latest .
+docker run --rm -p 8080:8080 --env-file prod.env job-board:latest
+```
+
 **Test Cron-Jobs Locally**
 
 There are a few cron-jobs that are triggered on a schedule, these are scheduled externally via custom http calls to the website. You can see all available cron-jobs by searching for all routes that start with /x/task/<task-name>.

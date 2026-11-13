@@ -1,0 +1,12 @@
+.git
+.github
+.gitignore
+.idea
+.vscode
+.DS_Store
+bin/
+tmp/
+*.swp
+*.env
+!local.env.example
+fly.toml

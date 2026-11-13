@@ -1,0 +1,17 @@
+# Local development and testing Dockerfile (supports hot reload via air and `go test`)
+
+FROM golang:1.21-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache git ca-certificates tzdata \
+    && go install github.com/cosmtrek/air@v1.49.0
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+EXPOSE 9876
+
+CMD ["air", "--build.cmd", "go build -o ./bin/server .", "--build.bin", "./bin/server"]

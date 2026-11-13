@@ -1,0 +1,35 @@
+services:
+  db:
+    image: postgres:13-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: passw0rd!
+      POSTGRES_DB: postgres
+    ports:
+      - "9999:5432"
+    volumes:
+      - ./latest-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./latest-fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql:ro
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.local
+    ports:
+      - "9876:9876"
+    volumes:
+      - .:/app
+    env_file:
+      - local.env
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  postgres_data:
