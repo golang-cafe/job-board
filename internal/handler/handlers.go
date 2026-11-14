@@ -422,6 +422,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			Bio                string   `json:"bio"`
 			Tags               string   `json:"tags"`
 			ProfileImageID     string   `json:"profile_image_id"`
+			CvID               *string  `json:"cv_id,omitempty"`
 			Email              string   `json:"email"`
 			SearchStatus       string   `json:"search_status"`
 			RoleLevel          string   `json:"role_level"`
@@ -437,7 +438,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			return
 		}
 		linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
-		if !linkedinRe.MatchString(req.LinkedinURL) {
+		if req.LinkedinURL != "" && !linkedinRe.MatchString(req.LinkedinURL) {
 			svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
 			return
 		}
@@ -516,6 +517,7 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 			UpdatedAt:          t,
 			Email:              strings.ToLower(req.Email),
 			ImageID:            req.ProfileImageID,
+			CvID:               req.CvID,
 			Skills:             req.Tags,
 			SearchStatus:       req.SearchStatus,
 			RoleTypes:          req.RoleTypes,
@@ -1365,6 +1367,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				CurrentLocation    string   `json:"current_location"`
 				Skills             string   `json:"skills"`
 				ImageID            string   `json:"profile_image_id"`
+				CvID               *string  `json:"cv_id,omitempty"`
 				Email              string   `json:"email"`
 				SearchStatus       string   `json:"search_status"`
 				RoleLevel          string   `json:"role_level"`
@@ -1382,7 +1385,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				return
 			}
 			linkedinRe := regexp.MustCompile(`^https:\/\/(?:[a-z]{2,3}\.)?linkedin\.com\/.*$`)
-			if !linkedinRe.MatchString(req.LinkedinURL) {
+			if req.LinkedinURL != "" && !linkedinRe.MatchString(req.LinkedinURL) {
 				svr.Log(errors.New("invalid search status"), "invalid search status")
 				svr.JSON(w, http.StatusBadRequest, "linkedin url is invalid")
 				return
@@ -1450,6 +1453,7 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				UpdatedAt:    t,
 				Skills:       req.Skills,
 				ImageID:      req.ImageID,
+				CvID:         req.CvID,
 				SearchStatus: req.SearchStatus,
 				RoleLevel:    req.RoleLevel,
 			}
