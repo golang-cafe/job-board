@@ -80,6 +80,7 @@ type Developer struct {
 	Skills             string
 	GithubURL          *string
 	TwitterURL         *string
+	CvID               *string
 	SearchStatus       string
 	RoleLevel          string
 	RoleTypes          []string
