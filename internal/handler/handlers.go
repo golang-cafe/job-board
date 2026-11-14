@@ -3277,19 +3277,18 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.MEDIA(w, http.StatusNotFound, media.Bytes, media.MediaType)
 			return
 		}
+		isSignedOn := middleware.IsSignedOn(r, svr.SessionStore, svr.GetJWTSigningKey())
+		shouldBlur := !isSignedOn && (r.URL.Query().Get("b") == "1" || r.URL.Query().Get("blur") == "1" || database.IsDeveloperProfileImage(svr.Conn, mediaID))
+
 		height := r.URL.Query().Get("h")
 		width := r.URL.Query().Get("w")
-		if height == "" && width == "" {
+		if height == "" && width == "" && !shouldBlur {
 			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
-		he, err := strconv.Atoi(height)
-		if err != nil {
-			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
-			return
-		}
-		wi, err := strconv.Atoi(width)
-		if err != nil {
+		he, errH := strconv.Atoi(height)
+		wi, errW := strconv.Atoi(width)
+		if (errH != nil || errW != nil) && !shouldBlur {
 			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
@@ -3310,7 +3309,13 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.JSON(w, http.StatusInternalServerError, nil)
 			return
 		}
-		m := resize.Resize(uint(wi), uint(he), decImage, resize.Lanczos3)
+		m := decImage
+		if errH == nil && errW == nil && wi > 0 && he > 0 {
+			m = resize.Resize(uint(wi), uint(he), decImage, resize.Lanczos3)
+		}
+		if shouldBlur {
+			m = imagemeta.BlurImage(m, imagemeta.DefaultBlurRadius)
+		}
 		resizeImageBuf := new(bytes.Buffer)
 		switch media.MediaType {
 		case "image/jpg", "image/jpeg":
@@ -3425,6 +3430,17 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		cutImage := decImage.(interface {
 			SubImage(r image.Rectangle) image.Image
 		}).SubImage(image.Rect(x, y, x+wi, y+he))
+		requireFace := r.URL.Query().Get("face") == "1" ||
+			r.FormValue("face") == "1" ||
+			strings.Contains(strings.ToLower(r.Referer()), "community") ||
+			strings.Contains(strings.ToLower(r.Referer()), "developer")
+		if requireFace && !imagemeta.DetectFace(cutImage) {
+			svr.Log(errors.New("no face detected in developer profile image"), "developer profile image rejected by face detector")
+			svr.JSON(w, http.StatusBadRequest, map[string]interface{}{
+				"error": "No human face detected in profile image. Please upload a clear photo of your face.",
+			})
+			return
+		}
 		cutImageBytes := new(bytes.Buffer)
 		switch contentType {
 		case "image/jpg", "image/jpeg":
