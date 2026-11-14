@@ -296,6 +296,7 @@ background-color: #FF6600
     <small>Experience Level: <b>{{ stringTitle .DeveloperProfile.RoleLevel }}</b></small><br>
     <small>Work Preference: <b>{{ .DeveloperProfile.RoleTypeAsString }}</b></small><br>
     {{ if and .DeveloperProfile.LinkedinURL (or .IsUserRecruiter .IsUserAdmin) }}<small>LinkedIn: <a href="{{ .DeveloperProfile.LinkedinURL }}" target="_blank" rel="nofollow">{{ .DeveloperProfile.LinkedinURL }}</a></small><br>{{ end }}
+    {{ if and .DeveloperProfile.CvID (or .IsUserRecruiter .IsUserAdmin .IsAdmin) }}<small>CV / Resume: <a href="/developer/{{ .DeveloperProfile.Slug }}/cv" target="_blank" rel="nofollow">Download CV (PDF)</a></small><br>{{ end }}
     {{ if and .DeveloperProfile.TwitterURL (or .IsUserRecruiter .IsUserAdmin) }}<small>Twitter: <a href="{{ .DeveloperProfile.TwitterURL }}" target="_blank" rel="nofollow">{{ .DeveloperProfile.TwitterURL }}</a></small><br>{{ end }}
     {{ if and .DeveloperProfile.GithubURL (or .IsUserRecruiter .IsUserAdmin) }}<small>GitHub: <a href="{{ .DeveloperProfile.GithubURL }}" target="_blank" rel="nofollow">{{ .DeveloperProfile.GithubURL }}</a></small><br>{{ end }}
 		<small>Last Updated <b>{{ .DeveloperProfile.UpdatedAtHumanized }}</b></small><br>

@@ -878,3 +878,6 @@ CREATE INDEX job_event_created_at_idx ON job_event(created_at);
 CREATE INDEX users_email_idx ON users(email);
 CREATE INDEX job_event_job_id ON job_event (job_id);
 DROP TABLE search_event;
+
+ALTER TABLE public.developer_profile ALTER COLUMN linkedin_url DROP NOT NULL;
+ALTER TABLE public.developer_profile ADD COLUMN cv_id character(27) DEFAULT NULL REFERENCES public.image(id);
