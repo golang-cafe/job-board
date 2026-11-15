@@ -1,0 +1,18 @@
+# syntax=docker/dockerfile:1
+# Local development & testing Dockerfile with live-reload (cosmtrek/air)
+
+FROM golang:1.18-alpine
+
+WORKDIR /app
+
+RUN apk add --no-cache git ca-certificates curl bash && \
+    go install github.com/cosmtrek/air@v1.29.0
+
+COPY go.mod go.sum ./
+RUN go mod download
+
+COPY . .
+
+EXPOSE 9876
+
+CMD ["air", "--build.cmd", "go build -o bin/server main.go", "--build.bin", "./bin/server"]
