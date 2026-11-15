@@ -1,0 +1,35 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:14-alpine
+    container_name: golangcafepsql
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: passw0rd!
+      POSTGRES_DB: postgres
+    ports:
+      - "9999:5432"
+    volumes:
+      - ./latest-schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./latest-fixtures.sql:/docker-entrypoint-initdb.d/02-fixtures.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - local.env
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: "5432"
+    ports:
+      - "9876:9876"
+    depends_on:
+      postgres:
+        condition: service_healthy
