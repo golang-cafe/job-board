@@ -54,6 +54,8 @@ type Config struct {
 	SiteGithub               string   // job site github project url (username+repository name)
 	SiteTwitter              string   // job site twitter account username
 	SiteLinkedin             string
+	LinkedInAPIToken         string
+	LinkedInAuthorURN        string
 	SiteYoutube              string
 	SiteTelegramChannel      string
 	PrimaryColor             string
@@ -247,6 +249,8 @@ func LoadConfig() (Config, error) {
 	siteGithub := os.Getenv("SITE_GITHUB")
 	siteYoutube := os.Getenv("SITE_YOUTUBE")
 	siteLinkedin := os.Getenv("SITE_LINKEDIN")
+	linkedInAPIToken := os.Getenv("LINKEDIN_API_TOKEN")
+	linkedInAuthorURN := os.Getenv("LINKEDIN_AUTHOR_URN")
 	siteTelegramChannel := os.Getenv("SITE_TELEGRAM_CHANNEL")
 	primaryColor := os.Getenv("PRIMARY_COLOR")
 	if primaryColor == "" {
@@ -371,6 +375,8 @@ func LoadConfig() (Config, error) {
 		SiteYoutube:              siteYoutube,
 		SiteTelegramChannel:      siteTelegramChannel,
 		SiteLinkedin:             siteLinkedin,
+		LinkedInAPIToken:         linkedInAPIToken,
+		LinkedInAuthorURN:        linkedInAuthorURN,
 		PrimaryColor:             primaryColor,
 		SecondaryColor:           secondaryColor,
 		SiteLogoImageID:          siteLogoImageID,
