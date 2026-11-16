@@ -794,6 +794,22 @@ func GetMediaByID(conn *sql.DB, mediaID string) (Media, error) {
 	return m, nil
 }
 
+// IsDeveloperProfileImage reports whether the media with the given ID is
+// currently used as a developer profile picture. Developer profile
+// pictures get extra privacy handling (backend blurring for logged out
+// visitors) that other media (company logos, job icons, the site logo)
+// must not receive.
+func IsDeveloperProfileImage(conn *sql.DB, mediaID string) (bool, error) {
+	var exists bool
+	row := conn.QueryRow(
+		`SELECT EXISTS(SELECT 1 FROM developer_profile WHERE image_id = $1)`, mediaID)
+	err := row.Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+	return exists, nil
+}
+
 type SitemapEntry struct {
 	Loc        string
 	ChangeFreq string
