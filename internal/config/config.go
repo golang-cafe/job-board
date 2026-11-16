@@ -80,6 +80,8 @@ type Config struct {
 	DevOfferCode2            string
 	DevOfferCode3            string
 	DevOfferCode4            string
+	FaceDetectionEnabled     bool // require a face in developer profile pictures (FACE_DETECTION_ENABLED, defaults to true)
+	GuestImageBlurEnabled    bool // blur developer profile pictures on the backend for logged out visitors (GUEST_IMAGE_BLUR_ENABLED, defaults to true)
 }
 
 func LoadConfig() (Config, error) {
@@ -326,6 +328,20 @@ func LoadConfig() (Config, error) {
 	devOfferCode2 := os.Getenv("DEV_OFFER_CODE_2")
 	devOfferCode3 := os.Getenv("DEV_OFFER_CODE_3")
 	devOfferCode4 := os.Getenv("DEV_OFFER_CODE_4")
+	faceDetectionEnabled := true
+	if v := os.Getenv("FACE_DETECTION_ENABLED"); v != "" {
+		faceDetectionEnabled, err = strconv.ParseBool(v)
+		if err != nil {
+			return Config{}, fmt.Errorf("could not convert ascii to bool: %v", err)
+		}
+	}
+	guestImageBlurEnabled := true
+	if v := os.Getenv("GUEST_IMAGE_BLUR_ENABLED"); v != "" {
+		guestImageBlurEnabled, err = strconv.ParseBool(v)
+		if err != nil {
+			return Config{}, fmt.Errorf("could not convert ascii to bool: %v", err)
+		}
+	}
 
 	return Config{
 		Port:                     port,
@@ -397,5 +413,7 @@ func LoadConfig() (Config, error) {
 		DevOfferCode2:            devOfferCode2,
 		DevOfferCode3:            devOfferCode3,
 		DevOfferCode4:            devOfferCode4,
+		FaceDetectionEnabled:     faceDetectionEnabled,
+		GuestImageBlurEnabled:    guestImageBlurEnabled,
 	}, nil
 }
