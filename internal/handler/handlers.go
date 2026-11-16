@@ -38,6 +38,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/database"
 	"github.com/golang-cafe/job-board/internal/developer"
 	"github.com/golang-cafe/job-board/internal/email"
+	"github.com/golang-cafe/job-board/internal/facedetect"
 	"github.com/golang-cafe/job-board/internal/imagemeta"
 	"github.com/golang-cafe/job-board/internal/job"
 	"github.com/golang-cafe/job-board/internal/middleware"
@@ -471,6 +472,21 @@ func SaveDeveloperProfileHandler(svr server.Server, devRepo devGetSaver, userRep
 		if existingDev.Email == req.Email {
 			svr.JSON(w, http.StatusBadRequest, "developer profile with this email already exists")
 			return
+		}
+		// The profile picture must contain a face, checked again here
+		// (and not only at upload time) so the check cannot be bypassed
+		// by referencing an arbitrary uploaded image.
+		if svr.GetConfig().FaceDetectionEnabled && req.ProfileImageID != "" {
+			faceFound, err := profileImageContainsFace(svr, req.ProfileImageID)
+			if err != nil {
+				svr.Log(err, "unable to verify face in developer profile image")
+				svr.JSON(w, http.StatusBadRequest, "profile image is invalid")
+				return
+			}
+			if !faceFound {
+				svr.JSON(w, http.StatusBadRequest, "no face detected in profile image, please upload a picture of your face")
+				return
+			}
 		}
 		k, err := ksuid.NewRandom()
 		if err != nil {
@@ -1436,6 +1452,31 @@ func UpdateDeveloperProfileHandler(svr server.Server, devRepo *developer.Reposit
 				svr.Log(err, "unable to parse string to int")
 				svr.JSON(w, http.StatusInternalServerError, nil)
 				return
+			}
+			// A newly set profile picture must contain a face, checked
+			// again here (and not only at upload time) so the check
+			// cannot be bypassed by referencing an arbitrary uploaded
+			// image. Profiles keeping their existing picture are not
+			// re-checked.
+			if svr.GetConfig().FaceDetectionEnabled && req.ImageID != "" {
+				existingDev, err := devRepo.DeveloperProfileByID(req.ID)
+				if err != nil {
+					svr.Log(err, "unable to retrieve existing developer profile")
+					svr.JSON(w, http.StatusInternalServerError, nil)
+					return
+				}
+				if existingDev.ImageID != req.ImageID {
+					faceFound, err := profileImageContainsFace(svr, req.ImageID)
+					if err != nil {
+						svr.Log(err, "unable to verify face in developer profile image")
+						svr.JSON(w, http.StatusBadRequest, "profile image is invalid")
+						return
+					}
+					if !faceFound {
+						svr.JSON(w, http.StatusBadRequest, "no face detected in profile image, please upload a picture of your face")
+						return
+					}
+				}
 			}
 
 			dev := developer.Developer{
@@ -3267,6 +3308,21 @@ func SubmitJobPostPageHandler(svr server.Server, jobRepo *job.Repository, paymen
 	}
 }
 
+// profileImageContainsFace loads the stored media with the given ID,
+// decodes it and reports whether a face is detected in it. It guards the
+// developer profile flows against spam and non-face profile pictures.
+func profileImageContainsFace(svr server.Server, mediaID string) (bool, error) {
+	media, err := database.GetMediaByID(svr.Conn, mediaID)
+	if err != nil {
+		return false, err
+	}
+	img, _, err := image.Decode(bytes.NewReader(media.Bytes))
+	if err != nil {
+		return false, err
+	}
+	return facedetect.ContainsFace(img)
+}
+
 func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
@@ -3277,20 +3333,53 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 			svr.MEDIA(w, http.StatusNotFound, media.Bytes, media.MediaType)
 			return
 		}
+		// Developer profile pictures are personal: for visitors who are
+		// not logged in they are blurred on the backend (previously they
+		// were only blurred via CSS while the original file stayed
+		// publicly downloadable by anyone). Because the same URL serves
+		// different content depending on the login state, developer
+		// profile pictures are never publicly cached.
+		isDevProfileImage := false
+		if svr.GetConfig().GuestImageBlurEnabled {
+			isDevProfileImage, err = database.IsDeveloperProfileImage(svr.Conn, mediaID)
+			if err != nil {
+				svr.Log(err, fmt.Sprintf("unable to check whether media ID '%s' is a developer profile image", mediaID))
+				isDevProfileImage = false
+			}
+		}
+		serveMedia := func(status int, mediaBytes []byte, mediaType string) {
+			if !isDevProfileImage {
+				svr.MEDIA(w, status, mediaBytes, mediaType)
+				return
+			}
+			if status == http.StatusOK && !middleware.IsSignedOn(r, svr.SessionStore, svr.GetJWTSigningKey()) {
+				blurredBytes, blurErr := blurImageBytes(mediaBytes, mediaType)
+				if blurErr != nil {
+					svr.Log(blurErr, "unable to blur developer profile image")
+				} else {
+					mediaBytes = blurredBytes
+				}
+			}
+			w.Header().Set("Content-Type", mediaType)
+			w.Header().Set("Cache-Control", "private, no-store")
+			w.Header().Set("Vary", "Cookie")
+			w.WriteHeader(status)
+			w.Write(mediaBytes)
+		}
 		height := r.URL.Query().Get("h")
 		width := r.URL.Query().Get("w")
 		if height == "" && width == "" {
-			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+			serveMedia(http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
 		he, err := strconv.Atoi(height)
 		if err != nil {
-			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+			serveMedia(http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
 		wi, err := strconv.Atoi(width)
 		if err != nil {
-			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+			serveMedia(http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
 		contentTypeInvalid := true
@@ -3326,11 +3415,48 @@ func RetrieveMediaPageHandler(svr server.Server) http.HandlerFunc {
 				return
 			}
 		default:
-			svr.MEDIA(w, http.StatusOK, media.Bytes, media.MediaType)
+			serveMedia(http.StatusOK, media.Bytes, media.MediaType)
 			return
 		}
-		svr.MEDIA(w, http.StatusOK, resizeImageBuf.Bytes(), media.MediaType)
+		serveMedia(http.StatusOK, resizeImageBuf.Bytes(), media.MediaType)
 	}
+}
+
+// blurImageBytes decodes an image, blurs it and encodes it back in its
+// original format. The blur radius scales with the image size so the
+// result stays unrecognisable at any served resolution. Formats other
+// than JPEG and PNG are returned unmodified.
+func blurImageBytes(imgBytes []byte, mediaType string) ([]byte, error) {
+	decImage, _, err := image.Decode(bytes.NewReader(imgBytes))
+	if err != nil {
+		return nil, err
+	}
+	bounds := decImage.Bounds()
+	maxDim := bounds.Dx()
+	if bounds.Dy() > maxDim {
+		maxDim = bounds.Dy()
+	}
+	radius := maxDim / 12
+	if radius < 4 {
+		radius = 4
+	}
+	if radius > 40 {
+		radius = 40
+	}
+	blurred := facedetect.Blur(decImage, radius)
+	buf := new(bytes.Buffer)
+	switch mediaType {
+	case "image/jpg", "image/jpeg":
+		err = jpeg.Encode(buf, blurred, nil)
+	case "image/png":
+		err = png.Encode(buf, blurred)
+	default:
+		return imgBytes, nil
+	}
+	if err != nil {
+		return nil, err
+	}
+	return buf.Bytes(), nil
 }
 
 func RetrieveMediaMetaPageHandler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
@@ -3425,6 +3551,21 @@ func SaveMediaPageHandler(svr server.Server) http.HandlerFunc {
 		cutImage := decImage.(interface {
 			SubImage(r image.Rectangle) image.Image
 		}).SubImage(image.Rect(x, y, x+wi, y+he))
+		// Developer profile pictures must contain a face, this keeps
+		// spam and random non-face images off developer profiles. Other
+		// uploads (company logos, job icons) are not checked.
+		if r.URL.Query().Get("type") == "developer" && svr.GetConfig().FaceDetectionEnabled {
+			faceFound, err := facedetect.ContainsFace(cutImage)
+			if err != nil {
+				svr.Log(err, "unable to run face detection on uploaded image")
+				svr.JSON(w, http.StatusInternalServerError, nil)
+				return
+			}
+			if !faceFound {
+				svr.JSON(w, http.StatusBadRequest, "no face detected in the uploaded image, please upload a picture of your face")
+				return
+			}
+		}
 		cutImageBytes := new(bytes.Buffer)
 		switch contentType {
 		case "image/jpg", "image/jpeg":
