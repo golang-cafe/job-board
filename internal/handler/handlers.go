@@ -3,6 +3,7 @@ package handler
 import (
 	"bytes"
 	"context"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -40,6 +41,7 @@ import (
 	"github.com/golang-cafe/job-board/internal/email"
 	"github.com/golang-cafe/job-board/internal/imagemeta"
 	"github.com/golang-cafe/job-board/internal/job"
+	"github.com/golang-cafe/job-board/internal/linkedin"
 	"github.com/golang-cafe/job-board/internal/middleware"
 	"github.com/golang-cafe/job-board/internal/payment"
 	"github.com/golang-cafe/job-board/internal/recruiter"
@@ -1119,6 +1121,62 @@ func TriggerTelegramScheduler(svr server.Server, jobRepo *job.Repository) http.H
 				}
 				log.Printf("updated last telegram job id to %s\n", lastJobIDStr)
 				log.Printf("posted last %d jobs to telegram", len(jobPosts))
+			}()
+			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
+		},
+	)
+}
+
+func TriggerLinkedInScheduler(svr server.Server, jobRepo *job.Repository) http.HandlerFunc {
+	return middleware.MachineAuthenticatedMiddleware(
+		svr.GetConfig().MachineToken,
+		func(w http.ResponseWriter, r *http.Request) {
+			go func() {
+				if svr.GetConfig().LinkedInAccessToken == "" || svr.GetConfig().LinkedInPageURL == "" {
+					log.Printf("linkedin scheduler skipped: LINKEDIN_ACCESS_TOKEN and LINKEDIN_PAGE_URL are not configured\n")
+					return
+				}
+				client, err := linkedin.NewClient(svr.GetConfig().LinkedInAccessToken, svr.GetConfig().LinkedInPageURL)
+				if err != nil {
+					svr.Log(err, "unable to create linkedin client")
+					return
+				}
+				lastLinkedInJobIDStr, err := jobRepo.GetValue("last_linkedin_shared_job_id")
+				if err == sql.ErrNoRows {
+					lastLinkedInJobIDStr = "0"
+				} else if err != nil {
+					svr.Log(err, "unable to retrieve last linkedin job id")
+					return
+				}
+				lastLinkedInJobID, err := strconv.Atoi(lastLinkedInJobIDStr)
+				if err != nil {
+					svr.Log(err, "unable to convert job str to id")
+					return
+				}
+				jobPosts, err := jobRepo.GetLastNJobsFromID(svr.GetConfig().TwitterJobsToPost, lastLinkedInJobID)
+				log.Printf("found %d/%d jobs to post on linkedin\n", len(jobPosts), svr.GetConfig().TwitterJobsToPost)
+				if len(jobPosts) == 0 {
+					return
+				}
+				lastJobID := lastLinkedInJobID
+				ctx := context.Background()
+				for _, j := range jobPosts {
+					jobURL := fmt.Sprintf("%s%s/job/%s", svr.GetConfig().URLProtocol, svr.GetConfig().SiteHost, j.Slug)
+					err := client.SharePost(ctx, fmt.Sprintf("%s with %s - %s | %s\n\n#%s #%sjobs\n\n%s", j.JobTitle, j.Company, j.Location, j.SalaryRange, svr.GetConfig().SiteJobCategory, svr.GetConfig().SiteJobCategory, jobURL), jobURL)
+					if err != nil {
+						svr.Log(err, "unable to post on linkedin")
+						continue
+					}
+					lastJobID = j.ID
+				}
+				lastJobIDStr := strconv.Itoa(lastJobID)
+				err = jobRepo.SetValue("last_linkedin_shared_job_id", lastJobIDStr)
+				if err != nil {
+					svr.Log(err, fmt.Sprintf("unable to save last linkedin job id to db as %s", lastJobIDStr))
+					return
+				}
+				log.Printf("updated last linkedin job id to %s\n", lastJobIDStr)
+				log.Printf("posted last %d jobs to linkedin", len(jobPosts))
 			}()
 			svr.JSON(w, http.StatusOK, map[string]interface{}{"status": "ok"})
 		},
