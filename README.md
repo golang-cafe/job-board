@@ -69,6 +69,47 @@ curl -v -H 'x-machine-token: <machine-token>' -X POST http://localhost:9876/x/ta
 
 You can find the <machine-token> under your local environment variable configuration, in the `MACHINE_TOKEN` environment variable.
 
+### Share jobs on LinkedIn
+
+The `/x/task/linkedin-share-jobs` cron-job posts the newest approved jobs
+to LinkedIn as article shares (a post per job, linking back to the job
+page), following the
+[Share on LinkedIn](https://learn.microsoft.com/en-us/linkedin/consumer/integrations/self-serve/share-on-linkedin)
+guide. It mirrors the Telegram and Twitter schedulers: it picks up from
+where the previous run left off (tracked by the `last_linkedin_job_id`
+key in the `meta` table) and only advances the cursor past jobs that were
+successfully shared.
+
+Set these environment variables:
+
+```sh
+# Access token with the w_member_social scope. Create a LinkedIn app in the
+# LinkedIn Developer Portal, add the "Share on LinkedIn" product, and
+# complete the OAuth 2.0 flow as the member (or company page admin) that
+# will author the posts.
+LINKEDIN_ACCESS_TOKEN=<your linkedin access token>
+# Author of the posts. Either set the URN directly ...
+LINKEDIN_AUTHOR_URN=urn:li:organization:1234567
+# ... or give the company page / profile URL and let the app resolve it.
+# A company URL needs the numeric id (https://www.linkedin.com/company/1234567/);
+# a vanity name cannot be resolved, use LINKEDIN_AUTHOR_URN in that case.
+LINKEDIN_PAGE_URL=https://www.linkedin.com/company/1234567/
+# Optional: max jobs per run (defaults to TWITTER_JOBS_TO_POST).
+LINKEDIN_JOBS_TO_POST=5
+```
+
+You can test locally with your own LinkedIn account or with an empty
+company page. Trigger the task with:
+
+```sh
+curl -v -X POST -H 'x-machine-token: <machine-token>' http://localhost:9876/x/task/linkedin-share-jobs
+```
+
+When `LINKEDIN_ACCESS_TOKEN` is not set the task logs a message and posts
+nothing, so it is safe to trigger before LinkedIn is configured. Note
+that LinkedIn member tokens are short-lived; refresh the token when
+sharing starts failing with `401 Unauthorized`.
+
 ### Telegram Group OSS discussions
 
 https://t.me/+VloraT7W9yA1YTI8
