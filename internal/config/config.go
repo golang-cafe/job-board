@@ -45,6 +45,10 @@ type Config struct {
 	MachineToken             string
 	TelegramAPIToken         string   // Telegram API Token used to integrate with site's Telegram channel
 	TelegramChannelID        int64    // Telegram Channel ID used to integrate with site's Telegram channel
+	LinkedinAccessToken      string   // LinkedIn access token with the w_member_social scope, used to share jobs on LinkedIn
+	LinkedinAuthorURN        string   // LinkedIn author URN of the share author, e.g. urn:li:organization:1234567 or urn:li:person:8675309
+	LinkedinPageURL          string   // LinkedIn company page or profile URL used to resolve the author URN, e.g. https://www.linkedin.com/company/1234567/
+	LinkedinJobsToPost       int      // max number of jobs to post to LinkedIn each run
 	FXAPIKey                 string   // FX rate api API Key to access recent FX data
 	AvailableCurrencies      []string // currencies used throughout the site for salary compensation (post a job, salary filter FX, etc)
 	AvailableSalaryBands     []int    // salary upper limits used in search to filter job by minimum salary
@@ -227,6 +231,18 @@ func LoadConfig() (Config, error) {
 	if err != nil {
 		return Config{}, errors.Wrap(err, "unable to convert telegram channel id to int")
 	}
+	// LinkedIn sharing is optional: when LINKEDIN_ACCESS_TOKEN is not set
+	// the /x/task/linkedin-share-jobs task logs a message and posts nothing.
+	linkedinAccessToken := os.Getenv("LINKEDIN_ACCESS_TOKEN")
+	linkedinAuthorURN := os.Getenv("LINKEDIN_AUTHOR_URN")
+	linkedinPageURL := os.Getenv("LINKEDIN_PAGE_URL")
+	linkedinJobsToPost := twitterJobsToPost
+	if linkedinJobsToPostStr := os.Getenv("LINKEDIN_JOBS_TO_POST"); linkedinJobsToPostStr != "" {
+		linkedinJobsToPost, err = strconv.Atoi(linkedinJobsToPostStr)
+		if err != nil {
+			return Config{}, fmt.Errorf("could not convert ascii to int: %v", err)
+		}
+	}
 	fxAPIKey := os.Getenv("FX_API_KEY")
 	if fxAPIKey == "" {
 		return Config{}, fmt.Errorf("FX_API_KEY cannot be empty")
@@ -362,6 +378,10 @@ func LoadConfig() (Config, error) {
 		MachineToken:             machineToken,
 		TelegramAPIToken:         telegramAPIToken,
 		TelegramChannelID:        int64(telegramChannelID),
+		LinkedinAccessToken:      linkedinAccessToken,
+		LinkedinAuthorURN:        linkedinAuthorURN,
+		LinkedinPageURL:          linkedinPageURL,
+		LinkedinJobsToPost:       linkedinJobsToPost,
 		FXAPIKey:                 fxAPIKey,
 		SiteName:                 siteName,
 		SiteJobCategory:          siteJobCategory,
